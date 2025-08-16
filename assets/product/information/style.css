@@ -1,0 +1,193 @@
+.ct-product-information {
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  border-top-width: var(--product-information-border-width);
+  border-bottom-width: var(--product-information-border-width);
+  border-color: var(--product-information-border-color);
+  border-style: solid;
+  padding: var(--product-information-padding);
+}
+
+.ct-product-information .info-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ct-product-information .info-item {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  justify-content: center;
+}
+
+.ct-product-information .info-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ct-product-information .info-item svg {
+  width: 20px;
+  height: 20px;
+  fill: #666;
+}
+
+.ct-product-information .info-item span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Offcanvas Styles */
+.ct-information-canvas.offcanvas-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.ct-information-canvas.offcanvas-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.ct-information-canvas.offcanvas {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  background: white;
+  z-index: 1001;
+  transition: right 0.3s ease;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.ct-information-canvas.offcanvas.active {
+  right: 0;
+}
+
+.ct-information-canvas .offcanvas-header {
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ct-information-canvas .offcanvas-tabs {
+  display: flex;
+  gap: 20px;
+}
+
+.ct-information-canvas .offcanvas-tab {
+  padding: 10px 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.ct-information-canvas .offcanvas-tab.active {
+  color: #333;
+  border-bottom-color: #007bff;
+}
+
+.ct-information-canvas .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+}
+
+.ct-information-canvas .offcanvas-body {
+  padding: 20px;
+}
+
+.ct-information-canvas .form-group {
+  margin-bottom: 20px;
+}
+
+.ct-information-canvas .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.ct-information-canvas .form-group select,
+.ct-information-canvas .form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.ct-information-canvas .checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ct-information-canvas .checkbox-group input[type="checkbox"] {
+  width: auto;
+}
+
+.ct-information-canvas .calculate-btn {
+  width: 100%;
+  padding: 15px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ct-information-canvas .calculate-btn:hover {
+  background: #5a6268;
+}
+
+.ct-information-canvas .tab-content {
+  display: none;
+}
+
+.ct-information-canvas .tab-content.active {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .ct-product-information .info-list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ct-product-information .info-item {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .ct-information-canvas.offcanvas {
+    width: 100%;
+    right: -100%;
+  }
+}
