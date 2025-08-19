@@ -4,46 +4,61 @@
   background: transparent;
   border-top-width: var(--product-information-border-width);
   border-bottom-width: var(--product-information-border-width);
+  border-left-width: 0;
+  border-right-width: 0;
   border-color: var(--product-information-border-color);
   border-style: solid;
-  padding: var(--product-information-padding);
+  padding: var(--product-information-padding) 0;
 }
 
 .ct-product-information .info-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: var(--product-information-justify-content, center);
+  gap: 0;
 }
 
 .ct-product-information .info-item {
   display: flex;
   align-items: center;
-  padding: 0 1rem;
-  gap: 1rem;
+  padding: 0 var(--product-information-item-horizontal-padding, 20px);
+  gap: var(--product-information-gap-inside, 20px);
   cursor: pointer;
   transition: all 0.3s ease;
-  justify-content: center;
+  justify-content: var(--product-information-justify-content, center);
 }
 
-.ct-product-information .info-item:hover {
-  background: #e9ecef;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* .ct-product-information.has-separator .info-item {
+  border-width: 0;
+  border-right-width: var(--product-information-border-width);
+  border-style: solid;
+  border-color: var(--product-information-border-color);
+  color: var(--product-information-text-color);
+}
+
+.ct-product-information.has-separator .info-item:last-child {
+  border-right-width: 0;
+} */
+
+.ct-product-information.has-separator .separator {
+  height: calc(var(--product-information-font-size, 14px) * 1.8);
+  width: 1px;
+  background: var(--product-information-border-color);
 }
 
 .ct-product-information .info-item svg {
   width: 20px;
   height: 20px;
-  fill: #666;
+  fill: var(--product-information-text-color);
 }
 
 .ct-product-information .info-item span {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
+  color: var(--product-information-text-color);
+  font-weight: 400;
+  text-decoration: var(--product-information-text-underline, none);
+  font-size: var(--product-information-font-size, 14px);
 }
 
-/* Offcanvas Styles */
 .ct-information-canvas.offcanvas-overlay {
   position: fixed;
   top: 0;
@@ -51,7 +66,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 999998;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -65,12 +80,14 @@
 .ct-information-canvas.offcanvas {
   position: fixed;
   top: 0;
-  right: -400px;
-  width: 400px;
+  right: -560px;
+  width: 560px;
+  max-width: 90%;
   height: 100%;
   background: white;
-  z-index: 1001;
+  z-index: 999998;
   transition: right 0.3s ease;
+  padding: 1.5rem;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -79,7 +96,8 @@
 }
 
 .ct-information-canvas .offcanvas-header {
-  padding: 20px;
+  padding: 0;
+  position: relative;
   border-bottom: 1px solid #e9ecef;
   display: flex;
   justify-content: space-between;
@@ -88,38 +106,49 @@
 
 .ct-information-canvas .offcanvas-tabs {
   display: flex;
-  gap: 20px;
+  gap: 1.25rem;
+  width: 100%;
 }
 
 .ct-information-canvas .offcanvas-tab {
-  padding: 10px 0;
+  padding: 0 12px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   font-weight: 500;
-  color: #666;
+  color: #242424;
   transition: all 0.3s ease;
+  flex: 1 1 auto;
+  text-align: center;
 }
 
 .ct-information-canvas .offcanvas-tab.active {
   color: #333;
-  border-bottom-color: #007bff;
+  border-bottom-color: var(
+    --quantity-initial-color,
+    var(--theme-button-background-initial-color)
+  );
 }
 
 .ct-information-canvas .close-btn {
+  position: absolute;
   background: none;
+  top: -24px;
+  right: -16px;
   border: none;
-  font-size: 24px;
+  font-size: 32px;
   cursor: pointer;
   color: #666;
-  padding: 5px;
+  padding: 0;
+  line-height: 1;
+  height: auto;
 }
 
 .ct-information-canvas .offcanvas-body {
-  padding: 20px;
+  padding: 24px 0;
 }
 
 .ct-information-canvas .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .ct-information-canvas .form-group label {
@@ -132,7 +161,7 @@
 .ct-information-canvas .form-group select,
 .ct-information-canvas .form-group input {
   width: 100%;
-  padding: 12px;
+  padding: 0 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;

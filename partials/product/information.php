@@ -7,6 +7,10 @@
 		<span>Shipping</span>
 	</div>
 
+	<?php if ( $add_separator ) { ?>
+		<div class="separator"></div>
+	<?php } ?>
+
 	<div class="info-item" onclick="openOffcanvas('returns')">
 		<svg viewBox="0 0 24 24">
 			<path
@@ -15,6 +19,10 @@
 		<span>Returns</span>
 	</div>
 
+	<?php if ( $add_separator ) { ?>
+		<div class="separator"></div>
+	<?php } ?>
+
 	<div class="info-item" onclick="openOffcanvas('faq')">
 		<svg viewBox="0 0 24 24">
 			<path
@@ -22,27 +30,12 @@
 		</svg>
 		<span>FAQ</span>
 	</div>
-
-	<div class="info-item" onclick="openOffcanvas('support')">
-		<svg viewBox="0 0 24 24">
-			<path
-				d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
-		</svg>
-		<span>Support</span>
-	</div>
-
-	<div class="info-item" onclick="openOffcanvas('warranty')">
-		<svg viewBox="0 0 24 24">
-			<path
-				d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C15.4,11.5 16,12.1 16,12.7V16.2C16,16.8 15.4,17.3 14.8,17.3H9.2C8.6,17.3 8,16.8 8,16.2V12.7C8,12.1 8.6,11.5 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,10V11.5H13.5V10C13.5,8.7 12.8,8.2 12,8.2Z" />
-		</svg>
-		<span>Warranty</span>
-	</div>
 </div>
 
 <!-- Offcanvas -->
-<div class="ct-information-canvas offcanvas-overlay" id="offcanvasOverlay" onclick="closeOffcanvas()"></div>
-<div class="ct-information-canvas offcanvas" id="offcanvas">
+<div class="ct-information-canvas offcanvas-overlay" id="ct-product-information-offcanvas-overlay"
+	onclick="closeOffcanvas()"></div>
+<div class="ct-information-canvas offcanvas" id="ct-product-information-offcanvas">
 	<div class="offcanvas-header">
 		<div class="offcanvas-tabs">
 			<div class="offcanvas-tab active" data-tab="shipping">Shipping</div>
@@ -53,48 +46,7 @@
 	</div>
 	<div class="offcanvas-body">
 		<div class="tab-content active" id="shipping-content">
-			<div class="form-group">
-				<label for="country">Country</label>
-				<select id="country">
-					<option value="">Country</option>
-					<option value="us">United States</option>
-					<option value="ca">Canada</option>
-					<option value="uk">United Kingdom</option>
-					<option value="au">Australia</option>
-					<option value="id">Indonesia</option>
-				</select>
-			</div>
-
-			<div class="form-group">
-				<label for="city">Town/City</label>
-				<select id="city">
-					<option value="">City</option>
-					<option value="new-york">New York</option>
-					<option value="los-angeles">Los Angeles</option>
-					<option value="chicago">Chicago</option>
-					<option value="houston">Houston</option>
-					<option value="jakarta">Jakarta</option>
-				</select>
-			</div>
-
-			<div class="form-group">
-				<label for="postcode">Postcode/Zip</label>
-				<select id="postcode">
-					<option value="">3820</option>
-					<option value="10001">10001</option>
-					<option value="90210">90210</option>
-					<option value="60601">60601</option>
-					<option value="77001">77001</option>
-					<option value="12345">12345</option>
-				</select>
-			</div>
-
-			<div class="checkbox-group">
-				<input type="checkbox" id="localPickup">
-				<label for="localPickup">Local pickup - There is 2 store with 1 stock close to your location</label>
-			</div>
-
-			<button class="calculate-btn">CALCULATE SHIPPING</button>
+			<?php require_once( get_stylesheet_directory() . '/partials/product/shipping-calculator.php' ); ?>
 		</div>
 
 		<div class="tab-content" id="returns-content">

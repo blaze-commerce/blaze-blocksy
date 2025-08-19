@@ -22,12 +22,12 @@ add_action(
 // Fix REST API permissions for shop_coupon
 add_filter(
 	'rest_pre_dispatch',
-	function ( $result, $server, $request ) {
+	function ($result, $server, $request) {
 		$route = $request->get_route();
 		if (
-		strpos( $route, '/wp/v2/shop_coupon' ) !== false ||
-		strpos( $route, '/wc/v3/coupons' ) !== false ||
-		strpos( $route, '/wp/v2/types/shop_coupon' ) !== false
+			strpos( $route, '/wp/v2/shop_coupon' ) !== false ||
+			strpos( $route, '/wc/v3/coupons' ) !== false ||
+			strpos( $route, '/wp/v2/types/shop_coupon' ) !== false
 		) {
 			if ( current_user_can( 'manage_woocommerce' ) ) {
 				return null; // Allow the request to proceed
@@ -42,7 +42,7 @@ add_filter(
 // Ensure proper REST API capabilities
 add_filter(
 	'rest_shop_coupon_query',
-	function ( $args, $request ) {
+	function ($args, $request) {
 		if ( current_user_can( 'manage_woocommerce' ) ) {
 			$args['post_status'] = array( 'publish', 'draft', 'pending' );
 		}
@@ -59,8 +59,8 @@ add_action(
 		add_post_type_support( 'shop_coupon', 'custom-fields' );
 		global $wp_post_types;
 		if ( isset( $wp_post_types['shop_coupon'] ) ) {
-			$wp_post_types['shop_coupon']->show_in_rest          = true;
-			$wp_post_types['shop_coupon']->rest_base             = 'shop_coupon';
+			$wp_post_types['shop_coupon']->show_in_rest = true;
+			$wp_post_types['shop_coupon']->rest_base = 'shop_coupon';
 			$wp_post_types['shop_coupon']->rest_controller_class = 'WP_REST_Posts_Controller';
 		}
 	},
@@ -70,7 +70,7 @@ add_action(
 // Add REST API endpoints support
 add_filter(
 	'rest_endpoints',
-	function ( $endpoints ) {
+	function ($endpoints) {
 		if ( isset( $endpoints['/wp/v2/types/shop_coupon'] ) ) {
 			$endpoints['/wp/v2/types/shop_coupon'][0]['permission_callback'] = function () {
 				return current_user_can( 'manage_woocommerce' );
@@ -121,5 +121,15 @@ add_action(
 	}
 );
 
+/**
+ * Helper Functions
+ */
+require_once 'inc/shipping.php';
+
+/**
+ * Blocksy Custom Elements
+ */
 require_once 'blocksy/product-dimension-element.php';
 require_once 'blocksy/product-information.php';
+
+
