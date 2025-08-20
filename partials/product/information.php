@@ -1,4 +1,4 @@
-<div class="info-list">
+<div class="info-list ct-product-information">
 	<div class="info-item" onclick="openOffcanvas('shipping')">
 		<svg viewBox="0 0 24 24">
 			<path

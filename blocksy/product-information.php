@@ -32,8 +32,8 @@ class CustomProductInformationElement {
 		add_filter( 'blocksy_woo_single_options_layers:defaults', array( $this, 'addToDefaultLayout' ) );
 		add_filter( 'blocksy_woo_single_options_layers:extra', array( $this, 'addLayerOptions' ) );
 		add_action( 'blocksy:woocommerce:product:custom:layer', array( $this, 'renderLayer' ) );
-		// add_filter( 'blocksy:global-dynamic-css:enqueue:singular', array( $this, 'renderDesign' ) );
-		// add_filter( 'blocksy:options:single_product:elements:design_tab:end', array( $this, 'addDesignOptions' ) );
+		add_filter( 'blocksy:global-dynamic-css:enqueue:singular', array( $this, 'renderDynamicCSS' ) );
+		add_filter( 'blocksy:options:single_product:elements:design_tab:end', array( $this, 'addDesignOptions' ) );
 
 		// Enqueue styles jika diperlukan
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueueStyles' ), 100 );
@@ -79,125 +79,13 @@ class CustomProductInformationElement {
 				'product_information' => array(
 					'label' => __( 'Product Information', 'textdomain' ),
 					'options' => array(
-						'ct-information-border_width' => array(
-							'label' => __( 'Border Width', 'textdomain' ),
-							'type' => 'ct-slider',
-							'min' => 0,
-							'max' => 10,
-							'value' => 1,
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-border_color' => array(
-							'label' => __( 'Border Color', 'textdomain' ),
-							'type' => 'ct-color-picker',
-							'design' => 'inline', // atau 'block'
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-							'value' => array(
-								'default' => array(
-									'color' => '#e9ecef',
-								),
-							),
-							'pickers' => array(
-								array(
-									'title' => __( 'Initial', 'textdomain' ),
-									'id' => 'default',
-								),
-							),
-						),
-						'ct-information-padding' => array(
-							'label' => __( 'VerticalPadding', 'textdomain' ),
-							'type' => 'ct-slider',
-							'min' => 0,
-							'max' => 100,
-							'value' => 20,
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-justify_content' => array(
-							'label' => __( 'Justify Content', 'textdomain' ),
-							'type' => 'ct-select',
-							'value' => 'justify-center',
-							'choices' => array(
-								'flex-start' => __( 'Left', 'textdomain' ),
-								'center' => __( 'Center', 'textdomain' ),
-								'flex-end' => __( 'Right', 'textdomain' ),
-								'space-between' => __( 'Justify', 'textdomain' ),
-								'space-around' => __( 'Justify with Space Around', 'textdomain' ),
-								'space-evenly' => __( 'Justify with Space Evenly', 'textdomain' ),
-							),
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
 						'ct-information-add-separator' => array(
 							'label' => __( 'Add Separator', 'textdomain' ),
 							'type' => 'ct-switch',
 							'value' => 'no',
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-text-color' => array(
-							'label' => __( 'Text Color', 'textdomain' ),
-							'type' => 'ct-color-picker',
-							'design' => 'inline', // atau 'block'
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-							'value' => array(
-								'default' => array(
-									'color' => '#333333',
-								),
+							'sync' => array(
+								'id' => 'woo_single_layout_skip'
 							),
-							'pickers' => array(
-								array(
-									'title' => __( 'Initial', 'textdomain' ),
-									'id' => 'default',
-								),
-							),
-						),
-						'ct-information-font-size' => array(
-							'label' => __( 'Font Size', 'textdomain' ),
-							'type' => 'ct-slider',
-							'min' => 10,
-							'max' => 50,
-							'value' => 14,
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-text-underline' => array(
-							'label' => __( 'Text Underline', 'textdomain' ),
-							'type' => 'ct-switch',
-							'value' => 'no',
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-item_horizontal_padding' => array(
-							'label' => __( 'Item Horizontal Padding', 'textdomain' ),
-							'type' => 'ct-slider',
-							'min' => 0,
-							'max' => 100,
-							'value' => 20,
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
-						),
-						'ct-information-gap_inside' => array(
-							'label' => __( 'Gap Inside Item', 'textdomain' ),
-							'type' => 'ct-slider',
-							'min' => 0,
-							'max' => 100,
-							'value' => 20,
-							'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-							'refresh' => false, // Explicitly prevent refresh
-							'transport' => 'postMessage', // Use postMessage transport
 						),
 					),
 				),
@@ -214,15 +102,15 @@ class CustomProductInformationElement {
 	 */
 	public function addDesignOptions( $options ) {
 		$design_options = array(
-			blocksy_rand_md5() => array(
+			'product_information_design_section' => array(
 				'type' => 'ct-condition',
-				'condition' => [ 'woo_single_layout:array-ids:product_information:enabled' => '!no' ],
-				'computed_fields' => [ 'woo_single_layout' ],
+				'condition' => array( 'woo_single_layout:array-ids:product_information:enabled' => '!no' ),
+				'computed_fields' => array( 'woo_single_layout' ),
 				'options' => array(
-					blocksy_rand_md5() => array(
+					'product_information_design_title' => array(
 						'type' => 'ct-title',
 						'variation' => 'small-divider',
-						'label' => __( 'Product Information', 'blocksy' ),
+						'label' => __( 'Product Information', 'textdomain' ),
 					),
 					'ct-information-border_width' => array(
 						'label' => __( 'Border Width', 'textdomain' ),
@@ -230,17 +118,13 @@ class CustomProductInformationElement {
 						'min' => 0,
 						'max' => 10,
 						'value' => 1,
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-border_color' => array(
 						'label' => __( 'Border Color', 'textdomain' ),
 						'type' => 'ct-color-picker',
-						'design' => 'inline', // atau 'block'
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'design' => 'inline',
+						'setting' => array( 'transport' => 'postMessage' ),
 						'value' => array(
 							'default' => array(
 								'color' => '#e9ecef',
@@ -254,19 +138,17 @@ class CustomProductInformationElement {
 						),
 					),
 					'ct-information-padding' => array(
-						'label' => __( 'VerticalPadding', 'textdomain' ),
+						'label' => __( 'Vertical Padding', 'textdomain' ),
 						'type' => 'ct-slider',
 						'min' => 0,
 						'max' => 100,
 						'value' => 20,
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-justify_content' => array(
 						'label' => __( 'Justify Content', 'textdomain' ),
 						'type' => 'ct-select',
-						'value' => 'justify-center',
+						'value' => 'center',
 						'choices' => array(
 							'flex-start' => __( 'Left', 'textdomain' ),
 							'center' => __( 'Center', 'textdomain' ),
@@ -275,25 +157,13 @@ class CustomProductInformationElement {
 							'space-around' => __( 'Justify with Space Around', 'textdomain' ),
 							'space-evenly' => __( 'Justify with Space Evenly', 'textdomain' ),
 						),
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
-					),
-					'ct-information-add-separator' => array(
-						'label' => __( 'Add Separator', 'textdomain' ),
-						'type' => 'ct-switch',
-						'value' => 'no',
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-text-color' => array(
 						'label' => __( 'Text Color', 'textdomain' ),
 						'type' => 'ct-color-picker',
-						'design' => 'inline', // atau 'block'
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'design' => 'inline',
+						'setting' => array( 'transport' => 'postMessage' ),
 						'value' => array(
 							'default' => array(
 								'color' => '#333333',
@@ -312,17 +182,13 @@ class CustomProductInformationElement {
 						'min' => 10,
 						'max' => 50,
 						'value' => 14,
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-text-underline' => array(
 						'label' => __( 'Text Underline', 'textdomain' ),
 						'type' => 'ct-switch',
 						'value' => 'no',
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-item_horizontal_padding' => array(
 						'label' => __( 'Item Horizontal Padding', 'textdomain' ),
@@ -330,9 +196,7 @@ class CustomProductInformationElement {
 						'min' => 0,
 						'max' => 100,
 						'value' => 20,
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 					'ct-information-gap_inside' => array(
 						'label' => __( 'Gap Inside Item', 'textdomain' ),
@@ -340,17 +204,80 @@ class CustomProductInformationElement {
 						'min' => 0,
 						'max' => 100,
 						'value' => 20,
-						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
-						'refresh' => false, // Explicitly prevent refresh
-						'transport' => 'postMessage', // Use postMessage transport
+						'setting' => array( 'transport' => 'postMessage' ),
 					),
 				),
-			)
+			),
 		);
 
-		$options = array_merge( $options, $design_options );
+		return array_merge( $options, $design_options );
+	}
 
-		return $options;
+	/**
+	 * Render dynamic CSS for live preview
+	 *
+	 * @param array $args CSS generation arguments
+	 * @return void
+	 */
+	public function renderDynamicCSS( $args ) {
+		if ( $args['context'] !== 'inline' ) {
+			return;
+		}
+
+		// Check if we're on a single product page
+		if ( ! is_product() ) {
+			return;
+		}
+
+		// Get current layout to check if element is enabled
+		$layout = get_theme_mod( 'woo_single_layout', array() );
+		$element_enabled = false;
+
+		foreach ( $layout as $layer ) {
+			if ( isset( $layer['id'] ) && $layer['id'] === 'product_information' && isset( $layer['enabled'] ) && $layer['enabled'] ) {
+				$element_enabled = true;
+				break;
+			}
+		}
+
+		if ( ! $element_enabled ) {
+			return;
+		}
+
+		// Get design options from theme customizer
+		$border_width = get_theme_mod( 'ct-information-border_width', 1 );
+		$border_color = get_theme_mod( 'ct-information-border_color', array( 'default' => array( 'color' => '#e9ecef' ) ) );
+		$padding = get_theme_mod( 'ct-information-padding', 20 );
+		$justify_content = get_theme_mod( 'ct-information-justify_content', 'center' );
+		$gap_inside = get_theme_mod( 'ct-information-gap_inside', 20 );
+		$item_horizontal_padding = get_theme_mod( 'ct-information-item_horizontal_padding', 20 );
+		$text_color = get_theme_mod( 'ct-information-text-color', array( 'default' => array( 'color' => '#333333' ) ) );
+		$font_size = get_theme_mod( 'ct-information-font-size', 14 );
+		$text_underline = get_theme_mod( 'ct-information-text-underline', 'no' );
+
+		// Extract colors
+		$border_color_value = $this->getColorValue( $border_color, '#e9ecef' );
+		$text_color_value = $this->getColorValue( $text_color, '#333333' );
+
+		// Generate CSS
+		$css = $args['css'];
+		$tablet_css = $args['tablet_css'];
+		$mobile_css = $args['mobile_css'];
+
+		$css->put(
+			'.ct-product-information',
+			array(
+				'--product-information-border-width' => $border_width . 'px',
+				'--product-information-border-color' => $border_color_value,
+				'--product-information-padding' => $padding . 'px',
+				'--product-information-justify-content' => $justify_content,
+				'--product-information-gap-inside' => $gap_inside . 'px',
+				'--product-information-item-horizontal-padding' => $item_horizontal_padding . 'px',
+				'--product-information-text-color' => $text_color_value,
+				'--product-information-font-size' => $font_size . 'px',
+				'--product-information-text-underline' => $text_underline === 'yes' ? 'underline' : 'none',
+			)
+		);
 	}
 
 	/**
@@ -371,7 +298,8 @@ class CustomProductInformationElement {
 			return;
 		}
 
-		$add_separator = blocksy_akg( 'ct-information-add-separator', $layer, 'no' ) === 'yes';
+		// Get add_separator from layer options (functional option, not design)
+		$add_separator = isset( $layer['ct-information-add-separator'] ) ? $layer['ct-information-add-separator'] === 'yes' : false;
 		$classes = [ 'ct-product-information' ];
 
 		if ( $add_separator ) {
@@ -406,82 +334,19 @@ class CustomProductInformationElement {
 			return;
 		}
 
-		// Get current layout untuk mendapatkan layer settings
-		$layout = get_theme_mod( 'woo_single_layout', array() );
-		$product_info_layer = null;
-
-		// Cari layer product_information
-		foreach ( $layout as $layer ) {
-			if ( isset( $layer['id'] ) && $layer['id'] === 'product_information' && isset( $layer['enabled'] ) && $layer['enabled'] ) {
-				$product_info_layer = $layer;
-				break;
-			}
-		}
-
-		// Jika layer tidak ditemukan atau tidak enabled, gunakan default values
-		if ( ! $product_info_layer ) {
-			$product_info_layer = array(
-				'ct-information-border_width' => 1,
-				'ct-information-border_color' => array( 'default' => array( 'color' => '#e9ecef' ) ),
-				'ct-information-padding' => 20,
-				'ct-information-justify_content' => 'center',
-				'ct-information-gap_inside' => 20,
-				'ct-information-add-separator' => 'no',
-				'ct-information-item_horizontal_padding' => 20,
-				'ct-text-color' => array( 'default' => array( 'color' => '#333333' ) ),
-			);
-		}
-
-		$this->generateDynamicCSS( $product_info_layer );
+		// Only enqueue the base CSS file, dynamic CSS is handled by renderDynamicCSS
+		wp_enqueue_style( 'product-information-styles', BLAZE_BLOCKSY_URL . '/assets/product/information/style.css', array() );
 	}
 
-	private function getColor( $layer, $field, $default ) {
-		if ( isset( $layer[ $field ] ) && is_array( $layer[ $field ] ) ) {
-			if ( isset( $layer[ $field ]['default']['color'] ) ) {
-				return $layer[ $field ]['default']['color'];
-			}
+	private function getColorValue( $color_array, $default ) {
+		if ( is_array( $color_array ) && isset( $color_array['default']['color'] ) ) {
+			return $color_array['default']['color'];
 		}
 
 		return $default;
 	}
 
-	/**
-	 * Generate dynamic CSS dengan CSS variables
-	 *
-	 * @param array $layer Layer configuration
-	 * @return void
-	 */
-	private function generateDynamicCSS( $layer ) {
-		do_action( 'qm/info', $layer );
-		ob_start();
 
-		// Extract border color
-		$border_color = $this->getColor( $layer, 'ct-information-border_color', '#e9ecef' );
-		$text_color = $this->getColor( $layer, 'ct-information-text-color', '#333333' );
-
-		?>
-		:root {
-		--product-information-border-width: <?php echo blocksy_akg( 'ct-information-border_width', $layer, 1 ) . 'px'; ?>;
-		--product-information-border-color: <?php echo esc_attr( $border_color ); ?>;
-		--product-information-padding: <?php echo blocksy_akg( 'ct-information-padding', $layer, 20 ) . 'px'; ?>;
-		--product-information-justify-content:
-		<?php echo esc_attr( blocksy_akg( 'ct-information-justify_content', $layer, 'center' ) ); ?>;
-		--product-information-gap-inside: <?php echo blocksy_akg( 'ct-information-gap_inside', $layer, 20 ) . 'px'; ?>;
-		--product-information-item-horizontal-padding:
-		<?php echo blocksy_akg( 'ct-information-item_horizontal_padding', $layer, 20 ) . 'px'; ?>;
-		--product-information-text-color: <?php echo esc_attr( $text_color ); ?>;
-		--product-information-font-size: <?php echo blocksy_akg( 'ct-information-font-size', $layer, 14 ) . 'px'; ?>;
-		--product-information-text-underline:
-		<?php echo blocksy_akg( 'ct-information-text-underline', $layer, 'no' ) === 'yes' ? 'underline' : 'none'; ?>;
-		}
-		<?php
-
-		$css = ob_get_clean();
-
-		wp_enqueue_style( 'product-information-styles', BLAZE_BLOCKSY_URL . '/assets/product/information/style.css', [] );
-
-		wp_add_inline_style( 'product-information-styles', $css );
-	}
 
 	/**
 	 * Enqueue needed scripts
