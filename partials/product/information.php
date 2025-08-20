@@ -46,7 +46,7 @@
 	</div>
 	<div class="offcanvas-body">
 		<div class="tab-content active" id="shipping-content">
-			<?php require_once( get_stylesheet_directory() . '/partials/product/shipping-calculator.php' ); ?>
+			<?php require_once( BLAZE_BLOCKSY_PATH . '/partials/product/shipping-calculator.php' ); ?>
 		</div>
 
 		<div class="tab-content" id="returns-content">

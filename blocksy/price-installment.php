@@ -230,7 +230,7 @@ class CustomProductInformationElement {
 
 		ob_start();
 
-		require_once( get_stylesheet_directory() . '/partials/product/information.php' );
+		require_once( BLAZE_BLOCKSY_PATH . '/partials/product/information.php' );
 
 		$content = ob_get_clean();
 
@@ -327,7 +327,7 @@ class CustomProductInformationElement {
 
 		$css = ob_get_clean();
 
-		wp_enqueue_style( 'product-information-styles', get_stylesheet_directory_uri() . '/assets/product/information/style.css', [] );
+		wp_enqueue_style( 'product-information-styles', BLAZE_BLOCKSY_URL . '/assets/product/information/style.css', [] );
 
 		wp_add_inline_style( 'product-information-styles', $css );
 	}
@@ -344,7 +344,7 @@ class CustomProductInformationElement {
 
 		ob_start();
 
-		require_once( get_stylesheet_directory() . '/assets/product/information/script.js' );
+		require_once( BLAZE_BLOCKSY_PATH . '/assets/product/information/script.js' );
 
 		$js = ob_get_clean();
 
@@ -368,7 +368,7 @@ class CustomProductInformationElement {
 
 		wp_enqueue_script(
 			'product-information-customizer',
-			get_stylesheet_directory_uri() . '/assets/product/information/customizer.js',
+			BLAZE_BLOCKSY_URL . '/assets/product/information/customizer.js',
 			array( 'jquery', 'customize-preview', 'wp-util' ),
 			'1.0.1', // Increment version untuk cache busting
 			true

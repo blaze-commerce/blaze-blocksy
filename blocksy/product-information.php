@@ -32,6 +32,8 @@ class CustomProductInformationElement {
 		add_filter( 'blocksy_woo_single_options_layers:defaults', array( $this, 'addToDefaultLayout' ) );
 		add_filter( 'blocksy_woo_single_options_layers:extra', array( $this, 'addLayerOptions' ) );
 		add_action( 'blocksy:woocommerce:product:custom:layer', array( $this, 'renderLayer' ) );
+		// add_filter( 'blocksy:global-dynamic-css:enqueue:singular', array( $this, 'renderDesign' ) );
+		// add_filter( 'blocksy:options:single_product:elements:design_tab:end', array( $this, 'addDesignOptions' ) );
 
 		// Enqueue styles jika diperlukan
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueueStyles' ), 100 );
@@ -197,10 +199,158 @@ class CustomProductInformationElement {
 							'refresh' => false, // Explicitly prevent refresh
 							'transport' => 'postMessage', // Use postMessage transport
 						),
-					)
+					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Add design options to customizer
+	 *
+	 * @param array $options Existing options
+	 *
+	 * @return array
+	 */
+	public function addDesignOptions( $options ) {
+		$design_options = array(
+			blocksy_rand_md5() => array(
+				'type' => 'ct-condition',
+				'condition' => [ 'woo_single_layout:array-ids:product_information:enabled' => '!no' ],
+				'computed_fields' => [ 'woo_single_layout' ],
+				'options' => array(
+					blocksy_rand_md5() => array(
+						'type' => 'ct-title',
+						'variation' => 'small-divider',
+						'label' => __( 'Product Information', 'blocksy' ),
+					),
+					'ct-information-border_width' => array(
+						'label' => __( 'Border Width', 'textdomain' ),
+						'type' => 'ct-slider',
+						'min' => 0,
+						'max' => 10,
+						'value' => 1,
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-border_color' => array(
+						'label' => __( 'Border Color', 'textdomain' ),
+						'type' => 'ct-color-picker',
+						'design' => 'inline', // atau 'block'
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+						'value' => array(
+							'default' => array(
+								'color' => '#e9ecef',
+							),
+						),
+						'pickers' => array(
+							array(
+								'title' => __( 'Initial', 'textdomain' ),
+								'id' => 'default',
+							),
+						),
+					),
+					'ct-information-padding' => array(
+						'label' => __( 'VerticalPadding', 'textdomain' ),
+						'type' => 'ct-slider',
+						'min' => 0,
+						'max' => 100,
+						'value' => 20,
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-justify_content' => array(
+						'label' => __( 'Justify Content', 'textdomain' ),
+						'type' => 'ct-select',
+						'value' => 'justify-center',
+						'choices' => array(
+							'flex-start' => __( 'Left', 'textdomain' ),
+							'center' => __( 'Center', 'textdomain' ),
+							'flex-end' => __( 'Right', 'textdomain' ),
+							'space-between' => __( 'Justify', 'textdomain' ),
+							'space-around' => __( 'Justify with Space Around', 'textdomain' ),
+							'space-evenly' => __( 'Justify with Space Evenly', 'textdomain' ),
+						),
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-add-separator' => array(
+						'label' => __( 'Add Separator', 'textdomain' ),
+						'type' => 'ct-switch',
+						'value' => 'no',
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-text-color' => array(
+						'label' => __( 'Text Color', 'textdomain' ),
+						'type' => 'ct-color-picker',
+						'design' => 'inline', // atau 'block'
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+						'value' => array(
+							'default' => array(
+								'color' => '#333333',
+							),
+						),
+						'pickers' => array(
+							array(
+								'title' => __( 'Initial', 'textdomain' ),
+								'id' => 'default',
+							),
+						),
+					),
+					'ct-information-font-size' => array(
+						'label' => __( 'Font Size', 'textdomain' ),
+						'type' => 'ct-slider',
+						'min' => 10,
+						'max' => 50,
+						'value' => 14,
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-text-underline' => array(
+						'label' => __( 'Text Underline', 'textdomain' ),
+						'type' => 'ct-switch',
+						'value' => 'no',
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-item_horizontal_padding' => array(
+						'label' => __( 'Item Horizontal Padding', 'textdomain' ),
+						'type' => 'ct-slider',
+						'min' => 0,
+						'max' => 100,
+						'value' => 20,
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+					'ct-information-gap_inside' => array(
+						'label' => __( 'Gap Inside Item', 'textdomain' ),
+						'type' => 'ct-slider',
+						'min' => 0,
+						'max' => 100,
+						'value' => 20,
+						'sync' => 'live', // Ubah ke 'live' untuk real-time preview
+						'refresh' => false, // Explicitly prevent refresh
+						'transport' => 'postMessage', // Use postMessage transport
+					),
+				),
+			)
+		);
+
+		$options = array_merge( $options, $design_options );
+
+		return $options;
 	}
 
 	/**
@@ -221,7 +371,7 @@ class CustomProductInformationElement {
 			return;
 		}
 
-		$add_separator = blocksy_akg( 'ct-add-separator', $layer, 'no' ) === 'yes';
+		$add_separator = blocksy_akg( 'ct-information-add-separator', $layer, 'no' ) === 'yes';
 		$classes = [ 'ct-product-information' ];
 
 		if ( $add_separator ) {
@@ -230,7 +380,7 @@ class CustomProductInformationElement {
 
 		ob_start();
 
-		require_once( get_stylesheet_directory() . '/partials/product/information.php' );
+		require_once( BLAZE_BLOCKSY_PATH . '/partials/product/information.php' );
 
 		$content = ob_get_clean();
 
@@ -276,7 +426,7 @@ class CustomProductInformationElement {
 				'ct-information-padding' => 20,
 				'ct-information-justify_content' => 'center',
 				'ct-information-gap_inside' => 20,
-				'ct-add-separator' => 'no',
+				'ct-information-add-separator' => 'no',
 				'ct-information-item_horizontal_padding' => 20,
 				'ct-text-color' => array( 'default' => array( 'color' => '#333333' ) ),
 			);
@@ -302,6 +452,7 @@ class CustomProductInformationElement {
 	 * @return void
 	 */
 	private function generateDynamicCSS( $layer ) {
+		do_action( 'qm/info', $layer );
 		ob_start();
 
 		// Extract border color
@@ -327,7 +478,7 @@ class CustomProductInformationElement {
 
 		$css = ob_get_clean();
 
-		wp_enqueue_style( 'product-information-styles', get_stylesheet_directory_uri() . '/assets/product/information/style.css', [] );
+		wp_enqueue_style( 'product-information-styles', BLAZE_BLOCKSY_URL . '/assets/product/information/style.css', [] );
 
 		wp_add_inline_style( 'product-information-styles', $css );
 	}
@@ -344,7 +495,7 @@ class CustomProductInformationElement {
 
 		ob_start();
 
-		require_once( get_stylesheet_directory() . '/assets/product/information/script.js' );
+		require_once( BLAZE_BLOCKSY_PATH . '/assets/product/information/script.js' );
 
 		$js = ob_get_clean();
 
@@ -368,7 +519,7 @@ class CustomProductInformationElement {
 
 		wp_enqueue_script(
 			'product-information-customizer',
-			get_stylesheet_directory_uri() . '/assets/product/information/customizer.js',
+			BLAZE_BLOCKSY_URL . '/assets/product/information/customizer.js',
 			array( 'jquery', 'customize-preview', 'wp-util' ),
 			'1.0.1', // Increment version untuk cache busting
 			true

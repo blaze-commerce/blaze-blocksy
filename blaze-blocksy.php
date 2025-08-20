@@ -1,17 +1,21 @@
 <?php
 /**
- * Plugin Name: Blaze Blocksy Customizations
+ * Plugin Name: Blaze Blocksy
  * Description: Customizations for BlazeCommerce's Blocksy theme
  * Version: 1.0.0
  * Author: BlazeCommerce
  * Author URI: https://www.blazecommerce.io
  * Text Domain: blaze-blocksy
  * Domain Path: /languages/
+ * Requires Plugins: woocommerce, secure-custom-fields
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Direct access forbidden.' );
 }
+
+define( 'BLAZE_BLOCKSY_URL', plugin_dir_url( __FILE__ ) );
+define( 'BLAZE_BLOCKSY_PATH', plugin_dir_path( __FILE__ ) );
 
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action( 'plugins_loaded', function () {
@@ -71,11 +75,11 @@ add_filter( 'rest_endpoints', function ($endpoints) {
 
 
 // Enqueue theme styles and scripts
-include_once get_stylesheet_directory() . '/includes/scripts.php';
+include_once 'includes/scripts.php';
 
 
 // fibo search customization
-include_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
+include_once 'includes/customization/fibo-search-suggestions.php';
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
 add_action( 'init', function () {
@@ -108,5 +112,4 @@ require_once 'inc/shipping.php';
 /**
  * Blocksy Custom Elements
  */
-require_once 'blocksy/product-dimension-element.php';
 require_once 'blocksy/product-information.php';
