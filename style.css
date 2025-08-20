@@ -174,11 +174,11 @@
 }
 
 
-display: block !important;
+/* display: block !important;
 width: 150px !important;
 aspect-ratio: 1/1 !important;
 object-fit: contain !important;
-}
+} */
 
 .jdgm-carousel-item__product {
     display: flex !important;
