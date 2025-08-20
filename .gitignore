@@ -1,0 +1,82 @@
+# WordPress Child Theme .gitignore
+
+# Node.js and Package Managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm/
+.yarn/
+
+# Build and Compilation Outputs
+assets/dist/
+assets/build/
+dist/
+build/
+*.min.css
+*.min.js
+*.map
+
+# CSS Preprocessors and Source Files
+.sass-cache/
+*.css.map
+*.scss.map
+*.less.map
+src/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Operating System Files
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Logs and Temporary Files
+*.log
+.cache/
+.tmp/
+
+# Environment Files
+.env
+.env.local
+.env.development
+.env.production
+
+# Composer (if used)
+vendor/
+composer.lock
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Development Tools
+.eslintcache
+.stylelintcache
+phpunit.xml
+
+# Images and Media Files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.webp
+*.ico
+*.avif
+*.heic
+*.heif
