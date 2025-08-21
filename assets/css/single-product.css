@@ -1,4 +1,6 @@
-.single-product article h1 {
+.single-product article h1,
+.single-product article h2,
+.single-product article h3 {
   color: var(--theme-palette-color-1);
 }
 
