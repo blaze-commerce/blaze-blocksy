@@ -47,16 +47,26 @@ add_action( 'wp_footer', function () {
 } );
 
 add_filter( 'woocommerce_product_loop_start', function ($echo) {
-	if ( ! is_product() )
-		return;
+	if ( ! is_product() || is_archive() )
+		return $echo;
+
+	do_action(
+		'qm/info',
+		[ 
+			'is_product' => is_product(),
+			'is_archive' => is_archive(),
+			'is_product_category' => is_product_category(),
+		]
+
+	);
 
 	return str_replace( '<ul', '<div', $echo );
 
 }, 999 );
 
 add_filter( 'woocommerce_product_loop_end', function ($echo) {
-	if ( ! is_product() )
-		return;
+	if ( ! is_product() || is_archive() )
+		return $echo;
 
 	//replace ul with div with preg_replace
 	$echo = preg_replace( '/<\/ul>/', '</div>', $echo );
@@ -66,6 +76,9 @@ add_filter( 'woocommerce_product_loop_end', function ($echo) {
 
 // modify wc_get_template_part filter for content-content
 add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
+	if ( ! is_product() || is_archive() )
+		return $template;
+
 	if ( 'content' === $slug && 'product' === $name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/content/product.php';
 	}

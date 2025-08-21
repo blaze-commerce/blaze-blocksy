@@ -1,0 +1,116 @@
+.archive .entry-header.ct-container {
+  padding-top: 16px !important;
+}
+
+.archive .entry-header .ct-breadcrumbs .ct-separator {
+  color: var(--theme-palette-color-6);
+}
+
+.archive .entry-header .ct-breadcrumbs .last-item {
+  color: var(--theme-palette-color-6);
+}
+
+.archive .woo-listing-top {
+  padding: 16px 0;
+  border-top: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid var(--theme-border-color);
+}
+
+.archive #main-container .site-main > .ct-container {
+  padding-top: 0 !important;
+}
+
+.products .product {
+  height: calc(100% - 1px);
+  border: 1px solid #cdd1d4;
+  border-radius: 8px;
+  overflow: hidden;
+  padding-bottom: 24px;
+}
+
+.products.columns-4 {
+  column-gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .products .product {
+    text-align: left;
+  }
+}
+
+.products .product figure .ct-media-container {
+  border-radius: 0 !important;
+}
+
+.products .product .woocommerce-loop-product__title,
+.products .product .jdgm-widget,
+.products .product .price,
+.products .product .ct-woo-card-actions,
+.products .product .noteware-backorder-chip {
+  display: block;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.products .product .noteware-backorder-chip {
+  margin-left: 24px;
+  margin-right: 24px;
+  width: calc(100% - 48px);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.products .product .ct-woo-card-actions a {
+  width: 100%;
+  display: block;
+  text-align: center;
+  line-height: 300%;
+  border-radius: 0;
+  font-weight: bold;
+}
+
+.products .product .price .sale-price {
+  flex-flow: row-reverse;
+}
+
+.products .product .woocommerce-LoopProduct-link {
+  color: var(--theme-palette-color-11);
+}
+
+.products .product .add_to_cart_button {
+  background-color: var(--theme-palette-color-11);
+}
+
+.products .product .ct-woo-card-extra {
+  top: auto;
+  bottom: 15px;
+}
+
+#woo-filters-panel .ct-block-wrapper {
+  margin: 0 !important;
+}
+
+#woo-filters-panel .ct-block-wrapper .wp-block-heading {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  color: var(--theme-palette-color-1);
+}
+
+#woo-filters-panel .ct-block-wrapper .ct-filter-widget {
+  row-gap: 6px;
+}
+
+#woo-filters-panel .ct-block-wrapper .ct-filter-label {
+  color: var(--theme-palette-color-2);
+  font-weight: 300;
+  font-size: 18px;
+}
+
+/* .products .product .ct-woo-card-extra .ct-button {
+  background-color: transparent;
+}
+
+.products .product .ct-woo-card-extra .ct-button svg {
+  fill: white !important;
+} */

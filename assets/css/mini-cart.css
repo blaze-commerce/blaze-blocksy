@@ -1,0 +1,13 @@
+.ct-suggested-products--mini-cart .flexy-view .flexy-items {
+  gap: 8px;
+}
+
+.ct-suggested-products--mini-cart .flexy-view .flexy-items .flexy-item {
+  border: 1px solid #cdd1d4;
+  padding: 0 !important;
+  border-radius: 4px;
+}
+
+.ct-suggested-products--mini-cart .flexy-view .flexy-item .add_to_cart_button {
+  display: none;
+}
