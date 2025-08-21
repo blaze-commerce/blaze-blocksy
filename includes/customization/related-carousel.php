@@ -67,11 +67,6 @@ add_filter( 'woocommerce_product_loop_end', function ($echo) {
 // modify wc_get_template_part filter for content-content
 add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
 	if ( 'content' === $slug && 'product' === $name ) {
-		do_action( 'qm/info', [ 
-			'template' => $template,
-			'slug' => $slug,
-			'name' => $name,
-		] );
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/content/product.php';
 	}
 	return $template;

@@ -452,7 +452,6 @@ class CustomProductInformationElement {
 	 * @return void
 	 */
 	private function generateDynamicCSS( $layer ) {
-		do_action( 'qm/info', $layer );
 		ob_start();
 
 		// Extract border color
