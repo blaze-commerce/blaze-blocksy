@@ -1,3 +1,32 @@
+.single-product article h1 {
+  color: var(--theme-palette-color-1);
+}
+
+.single-product .entry-summary .price {
+  margin-bottom: 0 !important;
+}
+
+.single-product
+  .entry-summary
+  .ct-price-installment
+  .ct-price-installment-logo {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.single-product .entry-summary .ct-price-installment p {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--theme-palette-color-11);
+}
+
+.single-product .product-entry-wrapper {
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--theme-border-color);
+}
+
 .products .owl-theme .owl-nav.disabled + .owl-dots {
   margin-top: 24px;
 }
@@ -84,4 +113,20 @@
   padding: 0;
   margin: 0;
   gap: 10px;
+}
+
+.ct-product-additional-info ul li {
+  margin-bottom: 0 !important;
+}
+
+.products .owl-carousel .owl-stage .product .woocommerce-LoopProduct-link {
+  color: var(--theme-palette-color-11);
+}
+
+.products .owl-carousel .owl-stage .product .add_to_cart_button {
+  background-color: var(--theme-palette-color-11);
+}
+
+.jdgm-rev-widg__title {
+  display: none !important;
 }
