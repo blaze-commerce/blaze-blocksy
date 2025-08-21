@@ -80,6 +80,7 @@ include_once 'includes/scripts.php';
 
 // fibo search customization
 include_once 'includes/customization/fibo-search-suggestions.php';
+include_once 'includes/customization/related-carousel.php';
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
 add_action( 'init', function () {

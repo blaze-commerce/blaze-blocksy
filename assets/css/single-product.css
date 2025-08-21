@@ -1,0 +1,77 @@
+.products .owl-theme .owl-nav.disabled + .owl-dots {
+  margin-top: 24px;
+}
+
+.products .owl-theme .owl-dots .owl-dot span {
+  height: 4px;
+  width: 96px;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  .products .owl-theme .owl-dots {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .products .owl-theme .owl-dots .owl-dot span {
+    width: 10px;
+    height: 4px;
+    margin: 0;
+  }
+}
+
+.products .owl-carousel .owl-stage {
+  display: flex;
+}
+/*(2) the direct div of each element in the owl carousel*/
+.products .owl-carousel .owl-stage .product {
+  height: calc(100% - 1px);
+  border: 1px solid #cdd1d4;
+  border-radius: 8px;
+  overflow: hidden;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .products .owl-carousel .owl-stage .product {
+    text-align: left;
+  }
+}
+
+.products .owl-carousel .owl-stage .product figure .ct-media-container {
+  border-radius: 0 !important;
+}
+
+.products .owl-carousel .owl-stage .product .woocommerce-loop-product__title,
+.products .owl-carousel .owl-stage .product .jdgm-widget,
+.products .owl-carousel .owl-stage .product .price,
+.products .owl-carousel .owl-stage .product .ct-woo-card-actions,
+.products .owl-carousel .owl-stage .product .noteware-backorder-chip {
+  display: block;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.products .owl-carousel .owl-stage .product .noteware-backorder-chip {
+  margin-left: 24px;
+  margin-right: 24px;
+  width: calc(100% - 48px);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.products .owl-carousel .owl-stage .product .ct-woo-card-actions a {
+  width: 100%;
+  display: block;
+  text-align: center;
+  line-height: 300%;
+  border-radius: 0;
+  font-weight: bold;
+}
+
+.products .owl-carousel .owl-stage .product .price .sale-price {
+  flex-flow: row-reverse;
+}
