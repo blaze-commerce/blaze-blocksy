@@ -64,6 +64,7 @@ include_once get_stylesheet_directory() . '/includes/scripts.php';
 
 // fibo search customization
 include_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
+include_once get_stylesheet_directory() . '/includes/customization/wishlist/wishlist.php';
 
 
 
