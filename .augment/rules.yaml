@@ -243,13 +243,13 @@ rules:
           heuristics:
             # Language-aware regexes used to infer function/method additions/changes
             function_add_or_change_regex:
-              - "^\+.*(function\s+|def\s+|class\s+.*\{|=>\s*\(|:\s*\(|fn\s+|method\s+)"
+              - '^\+.*(function\s+|def\s+|class\s+.*\{|=>\s*\(|:\s*\(|fn\s+|method\s+)'
             api_add_or_change_regex:
-              - "^\+.*(GET|POST|PUT|PATCH|DELETE)\s+(/[^\s\"]+)"
-              - "^\+.*(route|router\.|app\.|server\.)\s*(get|post|put|patch|delete)\s*\("
-              - "^\+.*(@Get|@Post|@Put|@Patch|@Delete)\b"
+              - '^\+.*(GET|POST|PUT|PATCH|DELETE)\s+(/[^\s\"]+)'
+              - '^\+.*(route|router\.|app\.|server\.)\s*(get|post|put|patch|delete)\s*\('
+              - '^\+.*(@Get|@Post|@Put|@Patch|@Delete)\b'
             config_change_regex:
-              - "^\+.*(config|settings|options|environment|env|credentials|policy|rules)"
+              - '^\+.*(config|settings|options|environment|env|credentials|policy|rules)'
     requirements:
       docs_required: true
       destinations:
