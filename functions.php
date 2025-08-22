@@ -59,11 +59,8 @@ add_filter( 'rest_endpoints', function ($endpoints) {
 	return $endpoints;
 } );
 
-
-
 // Enqueue theme styles and scripts
 include_once get_stylesheet_directory() . '/includes/scripts.php';
-
 
 // fibo search customization
 include_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
