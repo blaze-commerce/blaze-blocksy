@@ -1,0 +1,359 @@
+name: Semantic Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    outputs:
+      new-release-version: ${{ steps.new-version.outputs.new-version }}
+      
+    steps:
+      - name: Validate merge commit SHA
+        run: |
+          if [ -z "${{ github.event.pull_request.merge_commit_sha }}" ]; then
+            echo "Error: merge_commit_sha is empty"
+            exit 1
+          fi
+          echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
+
+      - name: Checkout repository at merge commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync zip
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Get current version from style.css
+        id: current-version
+        run: |
+          if grep -q "Version:" style.css; then
+            CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9.]*\).*/\1/')
+            echo "current-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "current-version=0.0.0" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Determine version bump
+        id: version-bump
+        run: |
+          # Get commits since last tag or from beginning if no tags
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"%s" --no-merges)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" --no-merges)
+          fi
+          
+          echo "Analyzing commits:"
+          echo "$COMMITS"
+          
+          # Determine bump type
+          BUMP_TYPE="patch"
+          
+          if echo "$COMMITS" | grep -qE "^(feat!|fix!|BREAKING CHANGE)" || echo "$COMMITS" | grep -q "BREAKING CHANGE:"; then
+            BUMP_TYPE="major"
+          elif echo "$COMMITS" | grep -qE "^feat(\(.+\))?:"; then
+            BUMP_TYPE="minor"
+          elif echo "$COMMITS" | grep -qE "^fix(\(.+\))?:"; then
+            BUMP_TYPE="patch"
+          fi
+          
+          echo "bump-type=${BUMP_TYPE}" >> $GITHUB_OUTPUT
+          echo "Determined bump type: ${BUMP_TYPE}"
+          
+      - name: Calculate new version
+        id: new-version
+        run: |
+          CURRENT="${{ steps.current-version.outputs.current-version }}"
+          BUMP_TYPE="${{ steps.version-bump.outputs.bump-type }}"
+          
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          case $BUMP_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "new-version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "New version: ${NEW_VERSION}"
+          
+      - name: Update version in style.css
+        id: update-version
+        run: |
+          set -e
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+
+          # Validate version format
+          if ! echo "$NEW_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Invalid version format: $NEW_VERSION"
+            exit 1
+          fi
+
+          # Escape version for sed (handle special characters)
+          ESCAPED_VERSION=$(printf '%s\n' "$NEW_VERSION" | sed 's/[[\.*^$()+?{|]/\\&/g')
+
+          # Check if Version field exists
+          if grep -q "Version:" style.css; then
+            # Update existing version
+            sed -i "s/Version: *[0-9.]*/Version: ${ESCAPED_VERSION}/" style.css
+            echo "Updated existing version to ${NEW_VERSION}"
+          else
+            # Add version after Template line or at end of header
+            if grep -q "Template:" style.css; then
+              sed -i "/Template:/a \ * Version: ${ESCAPED_VERSION}" style.css
+            else
+              sed -i "/Text Domain:/a \ * Version: ${ESCAPED_VERSION}" style.css
+            fi
+            echo "Added new version ${NEW_VERSION}"
+          fi
+
+          # Verify the change
+          echo "Updated style.css header:"
+          head -10 style.css
+
+          # Validate the update worked
+          if ! grep -q "Version: ${NEW_VERSION}" style.css; then
+            echo "Error: Version update failed"
+            exit 1
+          fi
+          
+      - name: Generate changelog
+        id: changelog
+        run: |
+          set -e
+          # Get commits since last tag for changelog
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+            COMPARE_URL="commits/v${{ steps.new-version.outputs.new-version }}"
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMPARE_URL="compare/${LAST_TAG}...v${{ steps.new-version.outputs.new-version }}"
+          fi
+
+          # Create changelog content
+          CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+
+          # Save to file for release
+          echo -e "$CHANGELOG" > CHANGELOG.md
+          echo "Generated changelog"
+          
+      - name: Create version bump branch
+        id: create-bump-branch
+        env:
+          NEW_VERSION: ${{ steps.new-version.outputs.new-version }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -e
+          # Escape version for safe use in branch name and commit message
+          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
+          BRANCH="release/bump-v${NEW_VERSION}"
+
+          git checkout -b "$BRANCH"
+          git add style.css
+          git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
+          git push --set-upstream origin "$BRANCH"
+
+          echo "branch-name=${BRANCH}" >> $GITHUB_OUTPUT
+
+      - name: Open PR for version bump
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
+            const base = '${{ github.event.pull_request.base.ref }}';
+            const title = `chore(release): bump theme version to ${{ steps.new-version.outputs.new-version }}`;
+            const body = `Automated post-release version bump to keep style.css in sync with the latest release.\n\nThis PR was created by the release workflow after PR #${{ github.event.pull_request.number }} was approved and merged.`;
+
+            // Check if a PR already exists
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              state: 'open'
+            });
+            if (prs.length > 0) {
+              core.info(`PR already exists: #${prs[0].number}`);
+              return;
+            }
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: branch,
+              base: base,
+              title,
+              body,
+              maintainer_can_modify: true
+            });
+            core.info(`Opened PR #${pr.number} for version bump`);
+          
+      - name: Create Git tag from version bump commit
+        run: |
+          set -e
+          git fetch --tags
+          # Tag the version bump commit (current HEAD) instead of merge commit
+          # This ensures the tagged commit contains the version update
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
+
+          git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+          git push origin "v${NEW_VERSION}"
+
+          echo "Tagged commit $(git rev-parse HEAD) as v${NEW_VERSION}"
+          
+      - name: Create theme ZIP
+        id: create-zip
+        run: |
+          ZIP_NAME="blocksy-child-v${{ steps.new-version.outputs.new-version }}.zip"
+          
+          # Create temporary directory for clean theme files
+          mkdir -p temp-theme
+          
+          # Copy theme files (exclude dev, CI, and build files; include only what WP needs)
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.augment/' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='docs/' \
+            --exclude='tests/' \
+            --exclude='node_modules/' \
+            --exclude='vendor/' \
+            --exclude='dist/' \
+            --exclude='build/' \
+            --exclude='assets/dist/' \
+            --exclude='assets/build/' \
+            --exclude='src/' \
+            --exclude='*.map' \
+            --exclude='*.log' \
+            --exclude='*.lock' \
+            --exclude='.env*' \
+            --exclude='.vscode/' \
+            --exclude='.idea/' \
+            --exclude='temp-theme/' \
+            --exclude='*.md' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            . temp-theme/
+          
+          # Create ZIP from temp directory
+          cd temp-theme
+          zip -r "../${ZIP_NAME}" .
+          cd ..
+          
+          # Clean up
+          rm -rf temp-theme
+          
+          echo "zip-name=${ZIP_NAME}" >> $GITHUB_OUTPUT
+          echo "Created ZIP: ${ZIP_NAME}"
+          
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new-version.outputs.new-version }}
+          release_name: Release v${{ steps.new-version.outputs.new-version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          
+      - name: Upload ZIP to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.create-zip.outputs.zip-name }}
+          asset_name: ${{ steps.create-zip.outputs.zip-name }}
+          asset_content_type: application/zip
+          
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Successfully released version ${{ steps.new-version.outputs.new-version }}"
+          echo "📦 ZIP file: ${{ steps.create-zip.outputs.zip-name }}"
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.new-version.outputs.new-version }}"
+          
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Release workflow failed"
+          echo "Please check the logs and fix any issues"
+          exit 1
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: release
+    if: failure() && needs.release.outputs.new-release-version != ''
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Rollback tag
+        run: |
+          VERSION="${{ needs.release.outputs.new-release-version }}"
+          if [ ! -z "$VERSION" ]; then
+            echo "Rolling back version $VERSION"
+
+            # Delete the tag if it exists
+            if git tag -l | grep -q "v${VERSION}"; then
+              git tag -d "v${VERSION}" || true
+              git push --delete origin "v${VERSION}" || true
+            fi
+
+            echo "Rollback completed"
+          fi
