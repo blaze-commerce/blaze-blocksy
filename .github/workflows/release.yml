@@ -22,6 +22,14 @@ jobs:
       new-release-version: ${{ steps.new-version.outputs.new-version }}
       
     steps:
+      - name: Validate merge commit SHA
+        run: |
+          if [ -z "${{ github.event.pull_request.merge_commit_sha }}" ]; then
+            echo "Error: merge_commit_sha is empty"
+            exit 1
+          fi
+          echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
+
       - name: Checkout repository at merge commit
         uses: actions/checkout@v4
         with:
@@ -29,11 +37,7 @@ jobs:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+
           
       - name: Install dependencies
         run: |
@@ -116,41 +120,60 @@ jobs:
       - name: Update version in style.css
         id: update-version
         run: |
+          set -e
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
-          
+
+          # Validate version format
+          if ! echo "$NEW_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Invalid version format: $NEW_VERSION"
+            exit 1
+          fi
+
+          # Escape version for sed (handle special characters)
+          ESCAPED_VERSION=$(printf '%s\n' "$NEW_VERSION" | sed 's/[[\.*^$()+?{|]/\\&/g')
+
           # Check if Version field exists
           if grep -q "Version:" style.css; then
             # Update existing version
-            sed -i "s/Version: *[0-9.]*/Version: ${NEW_VERSION}/" style.css
+            sed -i "s/Version: *[0-9.]*/Version: ${ESCAPED_VERSION}/" style.css
             echo "Updated existing version to ${NEW_VERSION}"
           else
             # Add version after Template line or at end of header
             if grep -q "Template:" style.css; then
-              sed -i "/Template:/a \ * Version: ${NEW_VERSION}" style.css
+              sed -i "/Template:/a \ * Version: ${ESCAPED_VERSION}" style.css
             else
-              sed -i "/Text Domain:/a \ * Version: ${NEW_VERSION}" style.css
+              sed -i "/Text Domain:/a \ * Version: ${ESCAPED_VERSION}" style.css
             fi
             echo "Added new version ${NEW_VERSION}"
           fi
-          
+
           # Verify the change
           echo "Updated style.css header:"
           head -10 style.css
+
+          # Validate the update worked
+          if ! grep -q "Version: ${NEW_VERSION}" style.css; then
+            echo "Error: Version update failed"
+            exit 1
+          fi
           
       - name: Generate changelog
         id: changelog
         run: |
+          set -e
           # Get commits since last tag for changelog
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$LAST_TAG" ]; then
             COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+            COMPARE_URL="commits/v${{ steps.new-version.outputs.new-version }}"
           else
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMPARE_URL="compare/${LAST_TAG}...v${{ steps.new-version.outputs.new-version }}"
           fi
-          
+
           # Create changelog content
-          CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...v${{ steps.new-version.outputs.new-version }}"
-          
+          CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+
           # Save to file for release
           echo -e "$CHANGELOG" > CHANGELOG.md
           echo "Generated changelog"
@@ -162,10 +185,13 @@ jobs:
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
           set -e
+          # Escape version for safe use in branch name and commit message
+          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
           BRANCH="release/bump-v${NEW_VERSION}"
+
           git checkout -b "$BRANCH"
           git add style.css
-          git commit -m "chore(release): bump theme version to ${NEW_VERSION}"
+          git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
           git push --set-upstream origin "$BRANCH"
 
           echo "branch-name=${BRANCH}" >> $GITHUB_OUTPUT
@@ -202,12 +228,19 @@ jobs:
             });
             core.info(`Opened PR #${pr.number} for version bump`);
           
-      - name: Create Git tag at merge commit (no direct push to main)
+      - name: Create Git tag from version bump commit
         run: |
+          set -e
           git fetch --tags
-          # Tag the merge commit that was approved and merged into main
-          git tag -a "v${{ steps.new-version.outputs.new-version }}" -m "Release v${{ steps.new-version.outputs.new-version }}" ${{ github.event.pull_request.merge_commit_sha }}
-          git push origin "v${{ steps.new-version.outputs.new-version }}"
+          # Tag the version bump commit (current HEAD) instead of merge commit
+          # This ensures the tagged commit contains the version update
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
+
+          git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+          git push origin "v${NEW_VERSION}"
+
+          echo "Tagged commit $(git rev-parse HEAD) as v${NEW_VERSION}"
           
       - name: Create theme ZIP
         id: create-zip
