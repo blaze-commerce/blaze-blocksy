@@ -1,0 +1,253 @@
+/**
+ * Wishlist Off-Canvas Styles
+ * 
+ * Styles for the off-canvas wishlist functionality in Blocksy child theme.
+ */
+
+/* Off-canvas wishlist panel */
+#wishlist-offcanvas-panel {
+    z-index: 999999;
+}
+
+/* Wishlist off-canvas content */
+.ct-offcanvas-wishlist {
+    padding: 20px;
+}
+
+.ct-offcanvas-wishlist .wishlist-items {
+    display: grid;
+    gap: var(--wishlist-card-spacing, 15px);
+    grid-template-columns: 1fr;
+}
+
+/* Two column layout */
+.ct-offcanvas-wishlist[data-columns="2"] .wishlist-items {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Responsive column adjustments */
+@media (max-width: 480px) {
+    .ct-offcanvas-wishlist[data-columns="2"] .wishlist-items {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Individual wishlist item */
+.ct-offcanvas-wishlist .wishlist-item {
+    display: flex;
+    gap: 15px;
+    padding: var(--wishlist-card-padding, 15px);
+    border: 1px solid #e0e0e0;
+    border-radius: var(--wishlist-card-border-radius, 8px);
+    background: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+.ct-offcanvas-wishlist .wishlist-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Wishlist item image */
+.ct-offcanvas-wishlist .wishlist-item-image {
+    flex-shrink: 0;
+    width: var(--wishlist-image-size, 80px);
+    height: var(--wishlist-image-size, 80px);
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Wishlist item details */
+.ct-offcanvas-wishlist .wishlist-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-title a {
+    color: var(--theme-text-color, #333);
+    text-decoration: none;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-title a:hover {
+    color: var(--theme-link-hover-color, #0073aa);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--theme-text-color, #333);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-price .woocommerce-Price-amount {
+    color: var(--woo-color-accent, #0073aa);
+}
+
+/* Wishlist item actions */
+.ct-offcanvas-wishlist .wishlist-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button,
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button {
+    background: var(--theme-button-background, #0073aa);
+    color: var(--theme-button-text, #fff);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button:hover {
+    background: var(--theme-button-hover-background, #005a87);
+    transform: translateY(-1px);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove {
+    background: #f44336;
+    color: #fff;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button.loading,
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Empty wishlist state */
+.ct-offcanvas-wishlist .ct-wishlist-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--theme-text-color, #666);
+}
+
+.ct-offcanvas-wishlist .ct-wishlist-empty p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Loading state */
+.ct-offcanvas-wishlist .loading {
+    position: relative;
+    opacity: 0.6;
+}
+
+.ct-offcanvas-wishlist .loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--theme-button-background, #0073aa);
+    border-radius: 50%;
+    animation: wishlist-spin 1s linear infinite;
+}
+
+@keyframes wishlist-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .ct-offcanvas-wishlist {
+        padding: 15px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-title {
+        font-size: 13px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-price {
+        font-size: 13px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-actions .button,
+    .ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove {
+        padding: 8px 12px;
+        font-size: 11px;
+        text-align: center;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .ct-offcanvas-wishlist .wishlist-item {
+        background: var(--theme-background-color, #2a2a2a);
+        border-color: var(--theme-border-color, #444);
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-title a {
+        color: var(--theme-text-color, #fff);
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-price {
+        color: var(--theme-text-color, #fff);
+    }
+}
+
+/* Integration with Blocksy off-canvas system */
+body[data-panel] #wishlist-offcanvas-panel.active {
+    display: flex;
+}
+
+/* Fallback styles for when Blocksy off-canvas is not available */
+body.wishlist-offcanvas-open {
+    overflow: hidden;
+}
+
+body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
