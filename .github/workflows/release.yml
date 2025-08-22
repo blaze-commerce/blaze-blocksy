@@ -197,6 +197,15 @@ jobs:
           SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
           BRANCH="release/bump-v${NEW_VERSION}"
 
+          # Check if branch already exists and delete it
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "Branch $BRANCH already exists, deleting it"
+            git push origin --delete "$BRANCH" || true
+          fi
+
+          # Delete local branch if it exists
+          git branch -D "$BRANCH" 2>/dev/null || true
+
           git checkout -b "$BRANCH"
           git add style.css
           git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
