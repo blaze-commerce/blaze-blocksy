@@ -4,7 +4,11 @@
 
 version: 1
 name: Documentation Enforcement Rules
-priority: ALWAYS
+priority:
+  description: '- CRITICAL: Enforce documentation for all code/config changes and validate before merge'
+  priority: 1
+  scope: global
+  type: always_apply
 
 metadata:
   owner: "Engineering"
@@ -221,6 +225,12 @@ ci_integration:
   build_failure_policy:
     missing_docs: error
     incomplete_docs: error
+    priority:
+      description: '- CRITICAL: Require docs on all relevant changes (files, functions, APIs, configs)'
+      priority: 1
+      scope: global
+      type: always_apply
+
     warnings_as_errors: false
 
 rules:
@@ -465,6 +475,12 @@ rules:
         - Introduced in: <PR/commit link>
 
   - id: validate-documentation
+    priority:
+      description: '- CRITICAL: Block merges when docs are missing or incomplete; enforce quality and placement'
+      priority: 1
+      scope: global
+      type: always_apply
+
     description: "Validate the presence, placement, naming, and quality of documentation for changed code."
     validation:
       checks:
