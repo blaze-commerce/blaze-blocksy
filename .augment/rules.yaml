@@ -1,0 +1,595 @@
+# Augment Rules Configuration: Enforce Documentation for All Code Changes
+# This configuration is applied automatically with ALWAYS priority and requires
+# documentation to be created/updated in /docs for all qualifying changes.
+
+version: 1
+name: Documentation Enforcement Rules
+priority:
+  description: '- CRITICAL: Enforce documentation for all code/config changes and validate before merge'
+  priority: 1
+  scope: global
+  type: always_apply
+
+metadata:
+  owner: "Engineering"
+  purpose: "Make documentation a mandatory artifact of every code/config change."
+  applies_automatically: true
+
+# Global patterns that define which files are considered "code or config"
+# and thus require documentation. These are used by triggers below.
+file_patterns:
+  include:
+    # Source code languages
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "**/*.mjs"
+    - "**/*.cjs"
+    - "**/*.py"
+    - "**/*.php"
+    - "**/*.rb"
+    - "**/*.go"
+    - "**/*.rs"
+    - "**/*.java"
+    - "**/*.kt"
+    - "**/*.swift"
+    - "**/*.[ch]"
+    - "**/*.[ch]pp"
+    - "**/*.cs"
+    # Markup/templates/styles that define UI behavior or components
+    - "**/*.html"
+    - "**/*.twig"
+    - "**/*.liquid"
+    - "**/*.vue"
+    - "**/*.svelte"
+    - "**/*.css"
+    - "**/*.scss"
+    # Infrastructure / configuration
+    - "**/*.yml"
+    - "**/*.yaml"
+    - "**/*.json"
+    - "**/*.toml"
+    - "**/*.ini"
+    - "**/*.conf"
+    - "**/Dockerfile"
+    - "**/docker-compose*.yml"
+    - "**/nginx*.conf"
+    - "**/*.env.example"
+    - "**/*.env.template"
+    - "**/package.json"
+    - "**/composer.json"
+    - "**/requirements*.txt"
+    - "**/pyproject.toml"
+    - "**/go.mod"
+    - "**/Cargo.toml"
+    - "**/*.sh"
+    - "**/*.ps1"
+  exclude:
+    # Do not trigger on documentation-only files or common generated dirs
+    - "docs/**"
+    - ".augment/**"
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/build/**"
+    - "**/.next/**"
+    - "**/out/**"
+    - "**/.vercel/**"
+    - "**/coverage/**"
+    - "**/*.map"
+    - "**/*.lock"
+
+# Enforced documentation placement and naming conventions
+documentation:
+  root: "docs"
+  subdirectories:
+    api: "docs/api"
+    components: "docs/components"
+    modules: "docs/modules"
+    guides: "docs/guides"
+    config: "docs/guides/config"
+    migrations: "docs/guides/migrations"
+  naming:
+    case: kebab # kebab-case file names, e.g. order-service-create.md
+    extension: ".md"
+    allow_index_files: false
+    disallow_spaces: true
+    enforce_lowercase: true
+  markdown:
+    style: commonmark+tables
+    require_frontmatter: true
+    required_frontmatter_keys:
+      - title
+      - description
+      - category
+      - last_updated
+    optional_frontmatter_keys:
+      - framework
+      - domain
+      - layer
+      - tags
+      - related
+      - owner
+    min_word_counts:
+      Overview: 50
+      Usage: 30
+      Dependencies: 20
+      Testing: 30
+
+  categories:
+    - api
+    - module
+    - component
+    - guide
+    - config
+    - migrations
+
+
+
+# Project taxonomy and CI integration
+taxonomy:
+  frameworks:
+    - react
+    - nextjs
+    - wordpress-plugin
+    - wordpress-theme
+    - node-express
+    - nestjs
+    - php
+    - python
+    - go
+  domains:
+    - authentication
+    - payment-processing
+    - user-management
+    - catalog
+    - cart
+    - checkout
+    - orders
+    - notifications
+    - reporting
+  layers:
+    - frontend
+    - backend
+    - api
+    - database
+    - infrastructure
+    - ci-cd
+  custom_tags:
+    recommended:
+      - accessibility
+      - performance
+      - security
+      - migration
+      - deprecation
+  guidance:
+    usage: "Use these values in frontmatter fields (framework, domain, layer) and tags for consistent categorization."
+    frontmatter_fields: [framework, domain, layer, tags]
+
+ci_integration:
+  pre_commit:
+    enabled: true
+    hook_name: "docs-validate"
+    description: "Blocks commits if required documentation is missing or incomplete."
+    run:
+      - "augment validate --rules validate-documentation --changed"
+  ci_workflows:
+    required: true
+    fail_on:
+      - validation.error
+      - docs_missing
+      - insufficient_content
+      - invalid_code_snippet
+    github_actions:
+      workflow_snippet: |
+        name: Docs Check
+        on:
+          pull_request:
+            types: [opened, synchronize, reopened]
+        jobs:
+          docs:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - name: Setup Node
+                uses: actions/setup-node@v4
+                with:
+                  node-version: '20'
+              - name: Install Augment CLI
+                run: |
+                  npm i -g @augmentcode/cli || true
+              - name: Validate Documentation
+                run: |
+                  augment validate --rules validate-documentation --diff origin/${{ github.base_ref }}...HEAD
+    gitlab_ci:
+      workflow_snippet: |
+        docs_check:
+          image: node:20
+          stage: test
+          script:
+            - npm i -g @augmentcode/cli || true
+            - augment validate --rules validate-documentation --changed
+          only:
+            - merge_requests
+    jenkins:
+      pipeline_snippet: |
+        stage('Docs Check') {
+          agent { label 'linux' }
+          steps {
+            sh '''
+              npm i -g @augmentcode/cli || true
+              augment validate --rules validate-documentation --changed
+            '''
+          }
+        }
+  build_failure_policy:
+    missing_docs: error
+    incomplete_docs: error
+    priority:
+      description: '- CRITICAL: Require docs on all relevant changes (files, functions, APIs, configs)'
+      priority: 1
+      scope: global
+      type: always_apply
+
+    warnings_as_errors: false
+
+rules:
+  - id: require-docs-for-code-changes
+    description: "Require docs for new/modified files, functions/methods, API endpoints, and configuration changes."
+    triggers:
+      changes:
+        include: "@file_patterns.include"
+        exclude: "@file_patterns.exclude"
+        detect:
+          # Detectors guide the rule engine on what to look for in diffs
+          kinds:
+            - new_file
+            - modified_file
+            - function_added
+            - function_modified
+            - api_endpoint_created
+            - api_endpoint_modified
+            - configuration_changed
+          heuristics:
+            # Language-aware regexes used to infer function/method additions/changes
+            function_add_or_change_regex:
+              - '^\+.*(function\s+|def\s+|class\s+.*\{|=>\s*\(|:\s*\(|fn\s+|method\s+)'
+            api_add_or_change_regex:
+              - '^\+.*(GET|POST|PUT|PATCH|DELETE)\s+(/[^\s\"]+)'
+              - '^\+.*(route|router\.|app\.|server\.)\s*(get|post|put|patch|delete)\s*\('
+              - '^\+.*(@Get|@Post|@Put|@Patch|@Delete)\b'
+            config_change_regex:
+              - '^\+.*(config|settings|options|environment|env|credentials|policy|rules)'
+    requirements:
+      docs_required: true
+      destinations:
+        api:
+          path: "@documentation.subdirectories.api"
+          file_name: "<service-or-area>/<endpoint-kebab>.md"
+        function_or_method:
+          path: "@documentation.subdirectories.modules"
+          file_name: "<module-path-kebab>/<symbol-kebab>.md"
+        component_or_ui:
+          path: "@documentation.subdirectories.components"
+          file_name: "<component-path-kebab>.md"
+        configuration:
+          path: "@documentation.subdirectories.config"
+          file_name: "<config-area-kebab>/<file-kebab>.md"
+        generic_change:
+          path: "@documentation.subdirectories.guides"
+          file_name: "change-logs/<short-summary-kebab>.md"
+      minimum_content:
+        required_sections:
+          - Overview
+          - Usage
+          - Parameters
+          - Returns
+          - Dependencies
+          - Testing
+          - Changelog
+        code_examples:
+          min_blocks: 1
+          fenced_languages:
+            - ts
+            - js
+            - tsx
+            - jsx
+            - json
+            - yaml
+            - bash
+            - php
+            - py
+    templates:
+      generic_code_change: |
+        ---
+        title: "<Title>"
+        description: "<1-2 sentence summary of the change>"
+        category: "guide"
+        last_updated: "<YYYY-MM-DD>"
+        tags: [change, docs]
+        ---
+
+        # Overview
+        Explain the purpose, the problem solved, and scope of the change.
+
+        # Usage
+        Provide example usage and context.
+
+        ```ts
+        // Example usage/code snippet
+        ```
+
+        # Parameters
+        List inputs/arguments if applicable.
+
+        # Returns
+        Describe outputs/return values if applicable.
+
+        # Dependencies
+        Note upstream/downstream dependencies, integrations, or side-effects.
+
+        # Testing
+        - How to run tests
+        - What to verify
+
+        # Changelog
+        - Related PR/Commit: <link>
+      function_method: |
+        ---
+        title: "<Module>.<FunctionOrMethod>()"
+        description: "Purpose and behavior of the function/method."
+        category: "module"
+        last_updated: "<YYYY-MM-DD>"
+        tags: [function, api]
+        ---
+
+        # Overview
+        High-level description and when to use it.
+
+        # Usage
+        ```ts
+        // Example invocation
+        ```
+
+        # Parameters
+        | Name | Type | Required | Default | Description |
+        |------|------|----------|---------|-------------|
+        |      |      |          |         |             |
+
+        # Returns
+        Describe return type(s) and semantics.
+
+        # Dependencies
+        Internal/external dependencies and assumptions.
+
+        # Testing
+        Unit/integration test instructions and cases.
+
+        # Changelog
+        - Introduced/Updated in: <PR/commit link>
+      api_endpoint: |
+        ---
+        title: "<METHOD> <PATH>"
+        description: "Purpose of the endpoint and the business capability."
+        category: "api"
+        last_updated: "<YYYY-MM-DD>"
+        tags: [api]
+        ---
+
+        # Overview
+        What the endpoint does, auth requirements, rate limits.
+
+        # Request
+        - Method: <GET|POST|PUT|PATCH|DELETE>
+        - Path: `<path>`
+        - Headers: `{ ... }`
+        - Query Params:
+        | Name | Type | Required | Description |
+        |------|------|----------|-------------|
+
+        - Path Params:
+        | Name | Type | Required | Description |
+        |------|------|----------|-------------|
+
+        - Body (schema and example):
+        ```json
+        {
+
+        }
+        ```
+
+        # Response
+        - Status Codes: 200, 400, 401, 403, 404, 500
+        - Body (schema and example):
+        ```json
+        {
+
+        }
+        ```
+
+        # Security
+        Auth, scopes, roles and permissions.
+
+        # Dependencies
+        Upstream/downstream services, database tables, queues, etc.
+
+        # Testing
+        cURL/Postman examples, contract tests.
+
+        # Changelog
+        - Introduced/Updated in: <PR/commit link>
+      configuration_change: |
+        ---
+        title: "Config: <Area/File>"
+        description: "What changed and why."
+        category: "config"
+        last_updated: "<YYYY-MM-DD>"
+        tags: [config]
+        ---
+
+        # Overview
+        Summary of configuration change and intended effect.
+
+        # Settings
+        | Key | Old | New | Reason |
+        |-----|-----|-----|--------|
+
+        # Dependencies
+        Related services, environment variables, deployment notes.
+
+        # Rollback Plan
+        How to revert safely if needed.
+
+        # Testing
+        Verification steps and health checks.
+
+        # Changelog
+        - Introduced/Updated in: <PR/commit link>
+      new_file_or_module: |
+        ---
+        title: "<New File or Module Name>"
+        description: "Purpose and scope of the new file/module."
+        category: "module"
+        last_updated: "<YYYY-MM-DD>"
+        tags: [new]
+        ---
+
+        # Overview
+        Why this was added and what it provides.
+
+        # Public API
+        Document exported functions/classes and their usage.
+
+        # Usage
+        ```ts
+        // Example code using the new module
+        ```
+
+        # Dependencies
+        Internal/external integrations.
+
+        # Testing
+        How to test and expected results.
+
+        # Changelog
+        - Introduced in: <PR/commit link>
+
+  - id: validate-documentation
+    priority:
+      description: '- CRITICAL: Block merges when docs are missing or incomplete; enforce quality and placement'
+      priority: 1
+      scope: global
+      type: always_apply
+
+    description: "Validate the presence, placement, naming, and quality of documentation for changed code."
+    validation:
+      checks:
+        - type: docs_exist_for_changed_files
+          severity: error
+          message: "Documentation is required in /docs for all code/config changes."
+        - type: docs_location
+          root: "@documentation.root"
+          allowed_subdirs:
+            - "@documentation.subdirectories.api"
+            - "@documentation.subdirectories.components"
+            - "@documentation.subdirectories.modules"
+            - "@documentation.subdirectories.guides"
+            - "@documentation.subdirectories.config"
+            - "@documentation.subdirectories.migrations"
+          severity: error
+          message: "Docs must reside under the appropriate /docs subdirectory."
+        - type: file_name_conventions
+          naming: "@documentation.naming"
+          severity: error
+          message: "Doc file names must be kebab-case, lowercase, and .md."
+        - type: markdown_frontmatter
+          require: "@documentation.markdown.require_frontmatter"
+          required_keys: "@documentation.markdown.required_frontmatter_keys"
+          severity: error
+          message: "Docs must include required frontmatter keys."
+        - type: required_sections
+          sections: "@rules[0].requirements.minimum_content.required_sections"
+          severity: error
+          message: "Docs must include all required sections."
+        - type: code_examples
+          min_blocks: "@rules[0].requirements.minimum_content.code_examples.min_blocks"
+          severity: error
+          message: "At least one fenced code block example is required."
+        - type: api_specific
+          applies_when: [api_endpoint_created, api_endpoint_modified]
+          required_sections: [Request, Response, Security]
+          severity: error
+          message: "API docs must include Request, Response, and Security sections."
+        - type: testing_commands
+          require_executable: true
+          min_commands: 1
+          allowed_prefixes: ["npm ", "yarn ", "pnpm ", "composer ", "php ", "python ", "pytest ", "go ", "cargo ", "dotnet ", "make "]
+          severity: error
+          message: "Testing section must include at least one executable command."
+        - type: section_min_word_count
+          thresholds: "@documentation.markdown.min_word_counts"
+          severity: error
+          message: "Critical sections must meet minimum word counts."
+        - type: code_snippet_validation
+          languages: "@rules[0].requirements.minimum_content.code_examples.fenced_languages"
+          runnable: true
+          severity: error
+          message: "Code examples must be syntactically valid."
+        - type: dependency_versions
+          require_versions: true
+          severity: error
+          message: "All external dependencies must include version requirements."
+        - type: api_request_response_examples
+          applies_when: [api_endpoint_created, api_endpoint_modified]
+          require_examples: true
+          severity: error
+          message: "API docs must include concrete request and response examples."
+
+        - type: function_specific
+          applies_when: [function_added, function_modified]
+          require_parameters_table: true
+          require_returns: true
+          severity: error
+          message: "Function/method docs must include Parameters and Returns."
+        - type: links_and_images
+          check_internal_links: true
+          severity: warning
+          message: "Broken links/images found in documentation."
+        - type: frontmatter_taxonomy
+          fields: [framework, domain, layer]
+          allowed:
+            framework: "@taxonomy.frameworks"
+            domain: "@taxonomy.domains"
+            layer: "@taxonomy.layers"
+          severity: warning
+          message: "Frontmatter taxonomy values should use the predefined taxonomy."
+
+        - type: markdown_style
+          style: "@documentation.markdown.style"
+          severity: warning
+          message: "Markdown style issues detected."
+    on_failure:
+      block_merge: true
+      suggestions:
+        - "Generate a doc using the appropriate template in /docs."
+        - "Ensure all required sections and frontmatter keys are present."
+        - "Place docs under the correct subdirectory and use kebab-case filenames."
+
+# Automation: if docs are missing, propose and scaffold from templates automatically.
+automation:
+  on_rule_violation:
+    - when: require-docs-for-code-changes
+      actions:
+        - type: scaffold_document
+          choose_template:
+            api: api_endpoint
+            function_or_method: function_method
+            configuration: configuration_change
+            new_file_or_module: new_file_or_module
+            default: generic_code_change
+          destination: "@rules[0].requirements.destinations"
+        - type: open_todo
+          title: "Complete required documentation"
+          body: "A documentation skeleton was created based on templates. Please complete all sections before merging."
+          assignees: ["@author"]
+
