@@ -1,0 +1,960 @@
+/* Blaze Checkout Block Frontend Styles - Multi-Step Enhanced */
+
+/* CSS Custom Properties with Defaults */
+.blaze-checkout-block {
+	--blaze-primary-color: #040711;
+	--blaze-secondary-color: #FFFFFF;
+	--blaze-accent-color: #007cba;
+	--blaze-error-color: #cc0000;
+	--blaze-success-color: #00a32a;
+	--blaze-border-color: #ddd;
+	--blaze-background-color: #ffffff;
+	--blaze-step-active-color: #007cba;
+	--blaze-step-completed-color: #00a32a;
+	--blaze-step-inactive-color: #ccc;
+	
+	--blaze-main-heading-font-size: 48px;
+	--blaze-main-heading-font-weight: 600;
+	--blaze-main-heading-line-height: 48px;
+	--blaze-main-heading-color: #040711;
+	
+	--blaze-section-heading-font-size: 24px;
+	--blaze-section-heading-font-weight: 500;
+	--blaze-section-heading-line-height: 28px;
+	--blaze-section-heading-color: #040711;
+	
+	--blaze-body-text-font-size: 18px;
+	--blaze-body-text-font-weight: 500;
+	--blaze-body-text-line-height: 28px;
+	--blaze-body-text-color: #040711;
+	
+	--blaze-labels-font-size: 18px;
+	--blaze-labels-font-weight: 500;
+	--blaze-labels-line-height: 28px;
+	--blaze-labels-color: #040711;
+	
+	--blaze-section-padding: 20px;
+	--blaze-element-margin: 8px;
+	--blaze-button-padding: 12px 24px;
+	--blaze-input-padding: 12px 16px;
+	
+	--blaze-max-width: 1200px;
+	--blaze-column-gap: 40px;
+	--blaze-alignment: center;
+}
+
+/* Main Container */
+.blaze-checkout-block {
+	background-color: var(--blaze-background-color);
+	color: var(--blaze-primary-color);
+	font-family: inherit;
+}
+
+.blaze-checkout-container {
+	max-width: var(--blaze-max-width);
+	margin: 0 auto;
+	padding: var(--blaze-section-padding);
+}
+
+/* Typography */
+.blaze-main-heading {
+	font-size: var(--blaze-main-heading-font-size);
+	font-weight: var(--blaze-main-heading-font-weight);
+	line-height: var(--blaze-main-heading-line-height);
+	color: var(--blaze-main-heading-color);
+	text-align: left;
+	padding: 68px 0 60px 0;
+	margin: 0 0 60px 0;
+}
+
+.blaze-checkout-block h2,
+.blaze-checkout-block h5 {
+	font-size: var(--blaze-section-heading-font-size);
+	font-weight: var(--blaze-section-heading-font-weight);
+	line-height: var(--blaze-section-heading-line-height);
+	color: var(--blaze-section-heading-color);
+	margin: 0 0 var(--blaze-element-margin) 0;
+}
+
+.blaze-checkout-block p,
+.blaze-checkout-block label {
+	font-size: var(--blaze-body-text-font-size);
+	font-weight: var(--blaze-body-text-font-weight);
+	line-height: var(--blaze-body-text-line-height);
+	color: var(--blaze-body-text-color);
+	margin: 0 0 var(--blaze-element-margin) 0;
+}
+
+/* Layout */
+.blaze-checkout-form-container {
+	display: grid;
+	grid-template-columns: 1fr 400px;
+	gap: var(--blaze-column-gap);
+	align-items: start;
+}
+
+@media (max-width: 1024px) {
+	.blaze-checkout-form-container {
+		grid-template-columns: 1fr;
+		gap: 30px;
+	}
+}
+
+/* Multi-Step Checkout Styles */
+.blaze-multi-step-checkout {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.blaze-checkout-step {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.blaze-checkout-step:not(.active) {
+	opacity: 0.7;
+}
+
+.blaze-step-header {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	padding: 20px;
+	background: #f8f9fa;
+	border-bottom: 1px solid var(--blaze-border-color);
+	cursor: pointer;
+}
+
+.blaze-checkout-step.active .blaze-step-header {
+	background: #e3f2fd;
+	border-bottom-color: var(--blaze-step-active-color);
+}
+
+.blaze-step-number {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--blaze-step-inactive-color);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+
+.blaze-checkout-step.active .blaze-step-number {
+	background: var(--blaze-step-active-color);
+}
+
+.blaze-checkout-step.completed .blaze-step-number {
+	background: var(--blaze-step-completed-color);
+}
+
+.blaze-step-title {
+	margin: 0;
+	font-size: var(--blaze-section-heading-font-size);
+	font-weight: var(--blaze-section-heading-font-weight);
+	color: var(--blaze-section-heading-color);
+	flex: 1;
+}
+
+.blaze-step-edit {
+	margin-left: auto;
+}
+
+.blaze-edit-step {
+	background: none;
+	border: 1px solid var(--blaze-accent-color);
+	color: var(--blaze-accent-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+
+.blaze-edit-step:hover {
+	background: var(--blaze-accent-color);
+	color: white;
+}
+
+.blaze-step-description {
+	padding: 0 20px 10px 67px;
+	color: #666;
+	font-size: 14px;
+	font-style: italic;
+}
+
+.blaze-step-content {
+	padding: 20px;
+}
+
+.blaze-step-summary {
+	padding: 20px;
+	background: #f8f9fa;
+	border-top: 1px solid var(--blaze-border-color);
+}
+
+/* Multi-Step Checkout Styles */
+.blaze-multi-step-checkout {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.blaze-checkout-step {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.blaze-checkout-step:not(.active) {
+	opacity: 0.7;
+}
+
+.blaze-step-header {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	padding: 20px;
+	background: #f8f9fa;
+	border-bottom: 1px solid var(--blaze-border-color);
+	cursor: pointer;
+}
+
+.blaze-checkout-step.active .blaze-step-header {
+	background: #e3f2fd;
+	border-bottom-color: var(--blaze-step-active-color);
+}
+
+.blaze-step-number {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--blaze-step-inactive-color);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 14px;
+	flex-shrink: 0;
+}
+
+.blaze-checkout-step.active .blaze-step-number {
+	background: var(--blaze-step-active-color);
+}
+
+.blaze-checkout-step.completed .blaze-step-number {
+	background: var(--blaze-step-completed-color);
+}
+
+.blaze-checkout-step.completed .blaze-step-number::after {
+	content: "✓";
+	font-size: 16px;
+}
+
+.blaze-step-title {
+	margin: 0;
+	font-size: var(--blaze-section-heading-font-size);
+	font-weight: var(--blaze-section-heading-font-weight);
+	color: var(--blaze-section-heading-color);
+	flex: 1;
+}
+
+.blaze-step-edit {
+	margin-left: auto;
+}
+
+.blaze-edit-step {
+	background: none;
+	border: 1px solid var(--blaze-accent-color);
+	color: var(--blaze-accent-color);
+	padding: 6px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+
+.blaze-edit-step:hover {
+	background: var(--blaze-accent-color);
+	color: white;
+}
+
+.blaze-step-description {
+	padding: 0 20px 10px 67px;
+	color: #666;
+	font-size: 14px;
+	font-style: italic;
+}
+
+.blaze-step-content {
+	padding: 20px;
+}
+
+.blaze-step-summary {
+	padding: 20px;
+	background: #f8f9fa;
+	border-top: 1px solid var(--blaze-border-color);
+}
+
+/* Step 1: Account Styles */
+.blaze-account-step {
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+}
+
+.blaze-guest-checkout-section h2 {
+	margin: 0 0 10px 0;
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--blaze-primary-color);
+}
+
+.blaze-guest-checkout-section p {
+	margin: 0 0 20px 0;
+	color: #666;
+	line-height: 1.5;
+}
+
+.blaze-guest-form {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.blaze-form-row {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.blaze-form-row label {
+	font-weight: 500;
+	color: var(--blaze-primary-color);
+}
+
+.blaze-form-row .required {
+	color: var(--blaze-error-color);
+}
+
+.blaze-form-row input {
+	padding: var(--blaze-input-padding);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	font-size: var(--blaze-body-text-font-size);
+	transition: border-color 0.3s ease;
+}
+
+.blaze-form-row input:focus {
+	outline: none;
+	border-color: var(--blaze-accent-color);
+	box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+}
+
+.blaze-form-row input.error {
+	border-color: var(--blaze-error-color);
+}
+
+.blaze-field-error {
+	color: var(--blaze-error-color);
+	font-size: 12px;
+	display: none;
+}
+
+.blaze-form-row small {
+	color: #666;
+	font-size: 12px;
+}
+
+.blaze-newsletter-subscription {
+	margin: 10px 0;
+}
+
+.blaze-newsletter-subscription label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.blaze-continue-button {
+	padding: 15px 30px;
+	background: var(--blaze-accent-color);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	text-transform: uppercase;
+	transition: background-color 0.3s ease;
+	align-self: flex-start;
+}
+
+.blaze-continue-button:hover {
+	background: #005a87;
+}
+
+.blaze-continue-button:disabled {
+	background: #ccc;
+	cursor: not-allowed;
+}
+
+/* Information Section */
+.blaze-information-section {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	padding: var(--blaze-section-padding);
+	margin-bottom: 20px;
+}
+
+.blaze-guest-form {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.blaze-email-input {
+	flex: 1;
+	padding: var(--blaze-input-padding);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	font-size: var(--blaze-body-text-font-size);
+}
+
+.blaze-btn-guest {
+	padding: var(--blaze-button-padding);
+	background-color: var(--blaze-accent-color);
+	color: var(--blaze-secondary-color);
+	border: none;
+	border-radius: 4px;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.blaze-btn-guest:hover {
+	opacity: 0.9;
+}
+
+/* Tabs */
+.blaze-login-register-tabs {
+	margin-top: 20px;
+}
+
+.blaze-tab-buttons {
+	display: flex;
+	border-bottom: 1px solid var(--blaze-border-color);
+	margin-bottom: 20px;
+}
+
+.blaze-tab-button {
+	flex: 1;
+	padding: 12px 20px;
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	cursor: pointer;
+	font-weight: 500;
+	color: var(--blaze-primary-color);
+}
+
+.blaze-tab-button.active {
+	border-bottom-color: var(--blaze-accent-color);
+	color: var(--blaze-accent-color);
+}
+
+.blaze-tab-content input {
+	width: 100%;
+	padding: var(--blaze-input-padding);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	margin-bottom: 15px;
+	font-size: var(--blaze-body-text-font-size);
+}
+
+.blaze-login-button,
+.blaze-register-button {
+	width: 100%;
+	padding: var(--blaze-button-padding);
+	background-color: var(--blaze-accent-color);
+	color: var(--blaze-secondary-color);
+	border: none;
+	border-radius: 4px;
+	font-weight: 600;
+	cursor: pointer;
+	margin-bottom: 10px;
+}
+
+.blaze-forgot-password {
+	color: var(--blaze-accent-color);
+	text-decoration: none;
+	font-size: 14px;
+}
+
+/* Accordion */
+.blaze-accordion-item {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.blaze-accordion-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--blaze-section-padding);
+	cursor: pointer;
+	background: #f8f9fa;
+	border-bottom: 1px solid var(--blaze-border-color);
+}
+
+.blaze-accordion-title:hover {
+	background: #e9ecef;
+}
+
+.blaze-accordion-icon {
+	width: 0;
+	height: 0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	border-top: 8px solid var(--blaze-primary-color);
+	transition: transform 0.3s ease;
+}
+
+.blaze-accordion-item.active .blaze-accordion-icon {
+	transform: rotate(180deg);
+}
+
+.blaze-accordion-content {
+	padding: var(--blaze-section-padding);
+	display: none;
+}
+
+.blaze-accordion-item.active .blaze-accordion-content {
+	display: block;
+}
+
+/* Billing and Shipping */
+.blaze-billing-shipping-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 30px;
+	margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+	.blaze-billing-shipping-container {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+}
+
+.blaze-billing-column input,
+.blaze-billing-column select,
+.blaze-shipping-column input,
+.blaze-shipping-column select {
+	width: 100%;
+	padding: var(--blaze-input-padding);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	margin-bottom: 15px;
+	font-size: var(--blaze-body-text-font-size);
+}
+
+.blaze-form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 15px;
+}
+
+/* Register Container */
+.blaze-register-container {
+	border-top: 1px solid var(--blaze-border-color);
+	padding-top: 20px;
+}
+
+.blaze-check-register {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin-bottom: 15px;
+	cursor: pointer;
+}
+
+.blaze-check-register input[type="checkbox"] {
+	margin-top: 4px;
+}
+
+.blaze-optional-text {
+	font-style: italic;
+	color: #666;
+}
+
+.blaze-subscription-warning {
+	color: var(--blaze-error-color);
+	font-weight: 600;
+	margin-top: 10px;
+}
+
+/* Payment Section */
+.blaze-payment-section {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	padding: var(--blaze-section-padding);
+	margin-bottom: 20px;
+}
+
+.blaze-payment-methods {
+	margin-top: 20px;
+}
+
+.blaze-payment-method {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 15px;
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	margin-bottom: 10px;
+	cursor: pointer;
+}
+
+.blaze-payment-method:hover {
+	background: #f8f9fa;
+}
+
+.blaze-payment-method input[type="radio"] {
+	margin: 0;
+}
+
+/* Order Summary */
+.blaze-order-summary {
+	background: var(--blaze-secondary-color);
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 8px;
+	padding: var(--blaze-section-padding);
+	position: relative;
+	top: 20px;
+}
+
+.blaze-cart-count-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid var(--blaze-border-color);
+}
+
+.blaze-cart-count-edit {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.blaze-order-heading {
+	margin: 0;
+}
+
+.blaze-cart-count {
+	color: #666;
+	font-size: 14px;
+}
+
+.blaze-edit-checkout-items {
+	color: var(--blaze-accent-color);
+	text-decoration: underline;
+	font-size: 14px;
+}
+
+/* Order Items */
+.blaze-order-items {
+	margin-bottom: 20px;
+}
+
+.blaze-order-item {
+	display: flex;
+	gap: 15px;
+	padding: 15px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.blaze-order-item:last-child {
+	border-bottom: none;
+}
+
+.blaze-item-image {
+	position: relative;
+	width: 60px;
+	height: 60px;
+	flex-shrink: 0;
+}
+
+.blaze-item-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.blaze-placeholder-image {
+	width: 100%;
+	height: 100%;
+	background: #f0f0f0;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #999;
+	font-size: 12px;
+}
+
+/* Updated quantity display to match reference site "Qty: 2" format */
+.blaze-item-quantity {
+	/* Remove absolute positioning and badge styling */
+	position: static;
+	background: none;
+	color: #666;
+	border-radius: 0;
+	width: auto;
+	height: auto;
+	display: block;
+	font-size: 14px;
+	font-weight: 400;
+	margin-top: 4px;
+	line-height: 1.4;
+}
+
+/* Add "Qty:" prefix styling to match reference site */
+.blaze-item-quantity::before {
+	content: "Qty: ";
+	color: #666;
+	font-weight: 400;
+}
+
+/* Responsive adjustments for quantity display */
+@media (max-width: 768px) {
+	.blaze-item-quantity {
+		font-size: 13px;
+		margin-top: 3px;
+	}
+}
+
+.blaze-item-details {
+	flex: 1;
+}
+
+.blaze-item-details h6 {
+	margin: 0 0 5px 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.blaze-item-details p {
+	margin: 0;
+	font-size: 12px;
+	color: #666;
+}
+
+.blaze-item-price {
+	font-weight: 600;
+	color: var(--blaze-primary-color);
+}
+
+/* Coupon Section */
+.blaze-coupon-section {
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid var(--blaze-border-color);
+}
+
+.blaze-coupon-toggle {
+	background: none;
+	border: none;
+	color: var(--blaze-accent-color);
+	text-decoration: underline;
+	cursor: pointer;
+	font-size: 14px;
+	padding: 0;
+}
+
+.blaze-coupon-form {
+	display: flex;
+	gap: 10px;
+	margin-top: 15px;
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.blaze-coupon-form.show {
+	opacity: 1;
+	max-height: 100px;
+}
+
+.blaze-coupon-form input {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid var(--blaze-border-color);
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.blaze-coupon-apply {
+	padding: 10px 20px;
+	background-color: var(--blaze-accent-color);
+	color: var(--blaze-secondary-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* Order Totals */
+.blaze-order-totals {
+	margin-bottom: 20px;
+}
+
+.blaze-total-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.blaze-total-row:last-child {
+	border-bottom: none;
+}
+
+.blaze-total-final {
+	font-weight: 700;
+	font-size: 18px;
+	padding-top: 15px;
+	border-top: 2px solid var(--blaze-border-color);
+	margin-top: 10px;
+}
+
+.blaze-coupon-row {
+	color: var(--blaze-success-color);
+}
+
+/* Place Order Button */
+.blaze-place-order-button,
+#place_order {
+	width: 100%;
+	padding: 15px;
+	background-color: var(--blaze-accent-color);
+	color: var(--blaze-secondary-color);
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.blaze-place-order-button:hover,
+#place_order:hover {
+	background-color: #005a87;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.blaze-main-heading {
+		font-size: 32px;
+		line-height: 36px;
+		padding: 40px 0 30px 0;
+		margin-bottom: 30px;
+	}
+	
+	.blaze-checkout-container {
+		padding: 15px;
+	}
+	
+	.blaze-guest-form {
+		flex-direction: column;
+	}
+	
+	.blaze-form-row {
+		grid-template-columns: 1fr;
+	}
+	
+	.blaze-order-summary {
+		position: static;
+	}
+}
+
+/* Accordion Responsive Behavior */
+@media (max-width: 1024px) {
+	.blaze-accordion-item.tablet-closed .blaze-accordion-content {
+		display: none;
+	}
+	
+	.blaze-accordion-item.tablet-closed .blaze-accordion-icon {
+		transform: rotate(0deg);
+	}
+}
+
+@media (max-width: 768px) {
+	.blaze-accordion-item.mobile-closed .blaze-accordion-content {
+		display: none;
+	}
+	
+	.blaze-accordion-item.mobile-closed .blaze-accordion-icon {
+		transform: rotate(0deg);
+	}
+}
+
+/* Error and Success Messages */
+.blaze-coupon-error {
+	color: var(--blaze-error-color);
+	font-size: 14px;
+	margin-top: 10px;
+}
+
+.blaze-coco {
+	color: var(--blaze-success-color);
+}
+
+/* Loading States */
+.blaze-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.blaze-spinner {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #f3f3f3;
+	border-top: 2px solid var(--blaze-accent-color);
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}

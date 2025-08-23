@@ -1,0 +1,190 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "blaze-commerce/checkout",
+	"version": "2.0.3",
+	"title": "Blaze Commerce Multi-Step Checkout",
+	"category": "blaze-commerce",
+	"icon": "cart",
+	"description": "Multi-step checkout block based on the original Blaze Commerce checkout template with enhanced progressive flow and full WooCommerce integration.",
+	"keywords": ["checkout", "woocommerce", "blaze", "commerce", "payment", "multi-step", "progressive", "blaze-template"],
+	"textdomain": "blocksy-child",
+	"editorScript": "file:./build/index.js",
+	"style": "file:./build/style-index.css",
+	"render": "file:./render.php",
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"color": {
+			"background": true,
+			"text": true,
+			"gradients": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"fontFamily": true,
+			"fontWeight": true
+		}
+	},
+	"attributes": {
+		"mainHeading": {
+			"type": "string",
+			"default": "Secure Checkout"
+		},
+		"multiStepEnabled": {
+			"type": "boolean",
+			"default": true
+		},
+		"stepLabels": {
+			"type": "object",
+			"default": {
+				"step1": "Contact information",
+				"step2": "Recipients Details",
+				"step3": "Order Payment"
+			}
+		},
+		"stepDescriptions": {
+			"type": "object",
+			"default": {
+				"step1": "Guest checkout or sign in to your account",
+				"step2": "* Only used for shipping-related questions *",
+				"step3": "Choose shipping method and payment details"
+			}
+		},
+		"guestCheckoutHeading": {
+			"type": "string",
+			"default": "Guest Checkout"
+		},
+		"guestCheckoutDescription": {
+			"type": "string",
+			"default": "Checking out as a Guest? You'll be able to save your details to create an account with us later."
+		},
+		"signInHeading": {
+			"type": "string",
+			"default": "Have an Account?"
+		},
+		"signInToggleText": {
+			"type": "string",
+			"default": "Sign In to Save time"
+		},
+		"billingAddressHeading": {
+			"type": "string",
+			"default": "Billing Address"
+		},
+		"shippingAddressHeading": {
+			"type": "string",
+			"default": "Shipping Address"
+		},
+		"orderSummaryHeading": {
+			"type": "string",
+			"default": "Order summary"
+		},
+		"editButtonText": {
+			"type": "string",
+			"default": "Edit"
+		},
+		"createAccountHeading": {
+			"type": "string",
+			"default": "Create an account"
+		},
+		"createAccountText": {
+			"type": "string",
+			"default": "Enter a password to save your information."
+		},
+		"optionalText": {
+			"type": "string",
+			"default": "(Optional)"
+		},
+		"continueButtonTexts": {
+			"type": "object",
+			"default": {
+				"step1": "CONTINUE TO RECIPIENT DETAILS →",
+				"step2": "CONTINUE TO ORDER PAYMENT →"
+			}
+		},
+		"placeOrderButtonText": {
+			"type": "string",
+			"default": "Place order"
+		},
+		"accordionSettings": {
+			"type": "object",
+			"default": {
+				"desktop": {
+					"enabled": true,
+					"defaultOpen": true
+				},
+				"tablet": {
+					"enabled": true,
+					"defaultOpen": false
+				},
+				"mobile": {
+					"enabled": true,
+					"defaultOpen": false
+				}
+			}
+		},
+		"typography": {
+			"type": "object",
+			"default": {
+				"mainHeading": {
+					"fontSize": "48px",
+					"fontWeight": "600",
+					"lineHeight": "48px",
+					"color": "#040711"
+				},
+				"sectionHeading": {
+					"fontSize": "24px",
+					"fontWeight": "500",
+					"lineHeight": "28px",
+					"color": "#040711"
+				},
+				"bodyText": {
+					"fontSize": "18px",
+					"fontWeight": "500",
+					"lineHeight": "28px",
+					"color": "#040711"
+				},
+				"labels": {
+					"fontSize": "18px",
+					"fontWeight": "500",
+					"lineHeight": "28px",
+					"color": "#040711"
+				}
+			}
+		},
+		"colors": {
+			"type": "object",
+			"default": {
+				"primary": "#040711",
+				"secondary": "#FFFFFF",
+				"accent": "#007cba",
+				"error": "#cc0000",
+				"success": "#00a32a",
+				"border": "#ddd",
+				"background": "#ffffff"
+			}
+		},
+		"spacing": {
+			"type": "object",
+			"default": {
+				"sectionPadding": "20px",
+				"elementMargin": "8px",
+				"buttonPadding": "12px 24px",
+				"inputPadding": "12px 16px"
+			}
+		},
+		"layout": {
+			"type": "object",
+			"default": {
+				"maxWidth": "1200px",
+				"columnGap": "40px",
+				"alignment": "center"
+			}
+		}
+	}
+}
