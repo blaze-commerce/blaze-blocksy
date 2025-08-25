@@ -42,6 +42,13 @@ jobs:
           fi
           echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
 
+      - name: Checkout repository at merge commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          token: ${{ steps.app-token.outputs.token }}
+
       - name: Check if changes are non-functional
         id: check-non-functional
         run: |
@@ -138,15 +145,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - name: Checkout repository at merge commit
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-          token: ${{ steps.app-token.outputs.token }}
-          
-
-          
       - name: Install dependencies
         run: |
           sudo apt-get update
