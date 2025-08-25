@@ -13,7 +13,10 @@ jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/bump-v') && !startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
+    if: >
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'release/bump-v') &&
+      !startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
 
     permissions:
       contents: write
@@ -379,22 +382,27 @@ jobs:
           cp CHANGELOG.md CHANGELOG.md.bak
 
           # Replace [Unreleased] with new version and add new [Unreleased] section
-          sed -i "/## \[Unreleased\]/,/## \[/ {
-            /## \[Unreleased\]/c\\
-## [Unreleased]\\
-\\
-## [${NEW_VERSION}] - ${CURRENT_DATE}
-            /## \[/!d
-          }" CHANGELOG.md
+          python3 -c "
+          import re
+          with open('CHANGELOG.md', 'r') as f:
+              content = f.read()
+          new_version = '${NEW_VERSION}'
+          current_date = '${CURRENT_DATE}'
+          pattern = r'## \[Unreleased\]'
+          replacement = f'## [Unreleased]\n\n## [{new_version}] - {current_date}'
+          content = re.sub(pattern, replacement, content, count=1)
+          with open('CHANGELOG.md', 'w') as f:
+              f.write(content)
+          print(f'Updated CHANGELOG.md with version {new_version}')
+          "
 
           # Update version links at bottom of changelog
-          if grep -q "\[unreleased\]:" CHANGELOG.md; then
+          if grep -q "\\[unreleased\\]:" CHANGELOG.md; then
             # Update existing unreleased link and add new version link
-            sed -i "s|\[unreleased\]:.*|\[unreleased\]: https://github.com/${{ github.repository }}/compare/v${NEW_VERSION}...HEAD|" CHANGELOG.md
+            sed -i "s|\\[unreleased\\]:.*|[unreleased]: https://github.com/${{ github.repository }}/compare/v${NEW_VERSION}...HEAD|" CHANGELOG.md
 
             # Add new version link before the unreleased link
-            sed -i "/\[unreleased\]:/i\\
-[${NEW_VERSION}]: https://github.com/${{ github.repository }}/compare/${LAST_TAG:-v1.0.0}...v${NEW_VERSION}" CHANGELOG.md
+            sed -i "/\\[unreleased\\]:/i [${NEW_VERSION}]: https://github.com/${{ github.repository }}/compare/${LAST_TAG:-v1.0.0}...v${NEW_VERSION}" CHANGELOG.md
           fi
 
           echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
