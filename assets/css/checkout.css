@@ -1,0 +1,89 @@
+/**
+ * Checkout Customization Styles
+ * 
+ * Additional styles to ensure the "ACCOUNT" text displays properly
+ * and maintains consistent styling with the original design.
+ */
+
+/* Ensure the ACCOUNT title maintains proper styling */
+.fc-step__substep-title.fc-step__substep-title--contact {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgb(83, 81, 86);
+    margin: 0;
+    padding: 0 5px 0 28px;
+    line-height: 18px;
+    font-family: "Noto Sans", sans-serif;
+    display: block;
+    position: relative;
+    text-transform: uppercase; /* Ensure ACCOUNT stays uppercase */
+}
+
+/* Optional: Add subtle animation for text changes */
+.fc-step__substep-title.fc-step__substep-title--contact {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Responsive considerations */
+@media (max-width: 768px) {
+    .fc-step__substep-title.fc-step__substep-title--contact {
+        font-size: 14px; /* Smaller font on mobile */
+        padding-left: 24px; /* Adjust for mobile spacing */
+    }
+}
+
+/* Dark mode support if theme supports it */
+@media (prefers-color-scheme: dark) {
+    .fc-step__substep-title.fc-step__substep-title--contact {
+        color: rgb(200, 200, 200); /* Lighter text for dark mode */
+    }
+}
+
+/* ========================================
+   FLUIDCHECKOUT MOBILE/TABLET LAYOUT FIX
+   ======================================== */
+
+/**
+ * Reorder FluidCheckout elements for mobile/tablet viewports ONLY
+ * - Order summary (sidebar) appears above checkout steps on mobile/tablet
+ * - Desktop layout remains completely untouched (uses FluidCheckout defaults)
+ */
+
+/* Mobile and Tablet ONLY: Order summary above checkout steps */
+@media (max-width: 1023px) {
+    .fc-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .fc-sidebar {
+        order: -1 !important; /* Move sidebar (order summary) to top */
+        width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+
+    .fc-inside {
+        order: 1 !important; /* Keep checkout steps below */
+        width: 100% !important;
+    }
+}
+
+/* Desktop: NO CUSTOM STYLES - Let FluidCheckout handle everything naturally */
+/* The absence of desktop-specific styles ensures FluidCheckout's original layout is preserved */
+
+/* ========================================
+   MOBILE/TABLET ORDER REVIEW BORDER FIX
+   ======================================== */
+
+/**
+ * Remove border from WooCommerce checkout order review on mobile/tablet only
+ * - Provides cleaner appearance on smaller screens
+ * - Desktop border styling remains untouched (preserves original design)
+ */
+
+/* Mobile and Tablet ONLY: Remove border from order review */
+@media (max-width: 1023px) {
+    .woocommerce-checkout-review-order {
+        border: none !important;
+    }
+}
