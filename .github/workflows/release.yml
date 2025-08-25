@@ -6,12 +6,17 @@ on:
     branches:
       - main
       - master
+      # Note: This workflow will skip execution for automated version bump PRs
+      # to prevent cascading releases (version bump PRs have branch pattern 'release/bump-v*')
 
 jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: >
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'release/bump-v') &&
+      !startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
 
     permissions:
       contents: write
@@ -37,6 +42,102 @@ jobs:
           fi
           echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
 
+      - name: Check if changes are non-functional
+        id: check-non-functional
+        run: |
+          # Get the list of changed files in this PR
+          CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path')
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Define patterns for non-functional files that should not trigger releases
+          NON_FUNCTIONAL_PATTERNS=(
+            # Documentation files
+            "^README\.md$"
+            "^CHANGELOG\.md$"
+            "^LICENSE$"
+            "^COPYING$"
+            "\.md$"
+            "^docs/"
+
+            # Development configuration files
+            "^\.gitignore$"
+            "^\.gitattributes$"
+            "^\.editorconfig$"
+            "^\.augmentignore$"
+            "^\.augment/"
+
+            # CI/CD configuration (unless changing core functionality)
+            "^\.github/workflows/"
+            "^\.github/ISSUE_TEMPLATE/"
+            "^\.github/PULL_REQUEST_TEMPLATE"
+
+            # IDE and editor files
+            "^\.vscode/"
+            "^\.idea/"
+            "\.swp$"
+            "\.swo$"
+            "\.tmp$"
+
+            # Test files
+            "^test/"
+            "^tests/"
+            "^spec/"
+            "^__tests__/"
+            "\.test\."
+            "\.spec\."
+
+            # Build artifacts and dependencies
+            "^dist/"
+            "^build/"
+            "^node_modules/"
+            "^vendor/"
+            "^coverage/"
+            "\.log$"
+            "\.cache$"
+
+            # Media assets (unless functional)
+            "^screenshot\.(jpg|jpeg|png|gif|webp)$"
+            "^assets/.*\.(jpg|jpeg|png|gif|webp|svg)$"
+          )
+
+          # Check if all changes are non-functional
+          NON_FUNCTIONAL_ONLY=true
+          while IFS= read -r file; do
+            if [[ -n "$file" ]]; then
+              IS_NON_FUNCTIONAL=false
+              for pattern in "${NON_FUNCTIONAL_PATTERNS[@]}"; do
+                if [[ "$file" =~ $pattern ]]; then
+                  echo "Non-functional file: $file (matches pattern: $pattern)"
+                  IS_NON_FUNCTIONAL=true
+                  break
+                fi
+              done
+
+              if [[ "$IS_NON_FUNCTIONAL" == "false" ]]; then
+                # Special case: check if style.css only has version changes
+                if [[ "$file" == "style.css" ]]; then
+                  git diff HEAD~1 HEAD -- style.css | grep -E "^\+" | grep -v "^\+\+\+" | grep -qE "Version: [0-9]+\.[0-9]+\.[0-9]+"
+                  if [[ $? -eq 0 ]] && [[ $(git diff HEAD~1 HEAD -- style.css | grep -E "^\+" | grep -v "^\+\+\+" | wc -l) -eq 1 ]]; then
+                    echo "Only version number changed in style.css"
+                    IS_NON_FUNCTIONAL=true
+                  fi
+                fi
+
+                if [[ "$IS_NON_FUNCTIONAL" == "false" ]]; then
+                  echo "Found functional file: $file"
+                  NON_FUNCTIONAL_ONLY=false
+                  break
+                fi
+              fi
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo "non-functional-only=${NON_FUNCTIONAL_ONLY}" >> $GITHUB_OUTPUT
+          echo "Non-functional-only changes: ${NON_FUNCTIONAL_ONLY}"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
       - name: Checkout repository at merge commit
         uses: actions/checkout@v4
         with:
@@ -57,8 +158,82 @@ jobs:
           git config --global user.email "automation@blazecommerce.io"
           git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
           
+      - name: Skip release for non-functional changes
+        if: steps.check-non-functional.outputs.non-functional-only == 'true'
+        run: |
+          echo "⏭️ Skipping release - changes are non-functional (documentation/tooling/config updates)"
+          echo "Changed files contain only:"
+          echo "- Documentation files (*.md, docs/, LICENSE)"
+          echo "- Development configuration (.gitignore, .editorconfig, etc.)"
+          echo "- CI/CD configuration files"
+          echo "- IDE/editor files"
+          echo "- Test files"
+          echo "- Build artifacts"
+          echo "- Media assets"
+          echo "- Augment tooling files (.augmentignore, .augment/)"
+          echo "- CSS version number updates"
+          echo "No functional changes detected - release not needed"
+          exit 0
+
+      - name: Validate CHANGELOG.md format
+        id: validate-changelog
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
+        run: |
+          set -e
+          echo "Validating CHANGELOG.md format compliance..."
+
+          # Check if CHANGELOG.md exists
+          if [[ ! -f "CHANGELOG.md" ]]; then
+            echo "❌ Error: CHANGELOG.md not found"
+            echo "Please create a CHANGELOG.md file following Keep a Changelog format"
+            exit 1
+          fi
+
+          # Validate required sections and format
+          VALIDATION_ERRORS=()
+
+          # Check for proper header
+          if ! grep -q "# Changelog" CHANGELOG.md; then
+            VALIDATION_ERRORS+=("Missing '# Changelog' header")
+          fi
+
+          # Check for Keep a Changelog reference
+          if ! grep -q "keepachangelog.com" CHANGELOG.md; then
+            VALIDATION_ERRORS+=("Missing Keep a Changelog reference")
+          fi
+
+          # Check for [Unreleased] section
+          if ! grep -q "## \[Unreleased\]" CHANGELOG.md; then
+            VALIDATION_ERRORS+=("Missing [Unreleased] section")
+          fi
+
+          # Check for semantic versioning reference
+          if ! grep -q "semver.org" CHANGELOG.md; then
+            VALIDATION_ERRORS+=("Missing Semantic Versioning reference")
+          fi
+
+          # Check for version links at bottom
+          if ! grep -q "\[unreleased\]:" CHANGELOG.md; then
+            VALIDATION_ERRORS+=("Missing version comparison links")
+          fi
+
+          # Report validation results
+          if [[ ${#VALIDATION_ERRORS[@]} -gt 0 ]]; then
+            echo "❌ CHANGELOG.md validation failed:"
+            for error in "${VALIDATION_ERRORS[@]}"; do
+              echo "  - $error"
+            done
+            echo ""
+            echo "Please ensure CHANGELOG.md follows Keep a Changelog v1.1.0 format:"
+            echo "https://keepachangelog.com/en/1.1.0/"
+            exit 1
+          fi
+
+          echo "✅ CHANGELOG.md format validation passed"
+
       - name: Get current version from style.css
         id: current-version
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           if grep -q "Version:" style.css; then
             CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9.]*\).*/\1/')
@@ -69,6 +244,7 @@ jobs:
           
       - name: Determine version bump
         id: version-bump
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           # Get commits since last tag or from beginning if no tags
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -97,6 +273,7 @@ jobs:
           
       - name: Calculate new version
         id: new-version
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           CURRENT="${{ steps.current-version.outputs.current-version }}"
           BUMP_TYPE="${{ steps.version-bump.outputs.bump-type }}"
@@ -127,6 +304,7 @@ jobs:
           
       - name: Update version in style.css
         id: update-version
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           set -e
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
@@ -165,29 +343,73 @@ jobs:
             exit 1
           fi
           
-      - name: Generate changelog
-        id: changelog
+      - name: Update CHANGELOG.md
+        id: update-changelog
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           set -e
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+          CURRENT_DATE=$(date +%Y-%m-%d)
+
+          # Validate CHANGELOG.md exists and has proper format
+          if [[ ! -f "CHANGELOG.md" ]]; then
+            echo "Error: CHANGELOG.md not found"
+            exit 1
+          fi
+
+          # Check if CHANGELOG.md has [Unreleased] section
+          if ! grep -q "## \[Unreleased\]" CHANGELOG.md; then
+            echo "Error: CHANGELOG.md missing [Unreleased] section"
+            exit 1
+          fi
+
           # Get commits since last tag for changelog
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$LAST_TAG" ]; then
             COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
-            COMPARE_URL="commits/v${{ steps.new-version.outputs.new-version }}"
+            COMPARE_URL="commits/v${NEW_VERSION}"
           else
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
-            COMPARE_URL="compare/${LAST_TAG}...v${{ steps.new-version.outputs.new-version }}"
+            COMPARE_URL="compare/${LAST_TAG}...v${NEW_VERSION}"
           fi
 
-          # Create changelog content
-          CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+          # Create temporary changelog content for release
+          RELEASE_CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+          echo -e "$RELEASE_CHANGELOG" > RELEASE_CHANGELOG.md
 
-          # Save to file for release
-          echo -e "$CHANGELOG" > CHANGELOG.md
-          echo "Generated changelog"
+          # Update CHANGELOG.md: move Unreleased to new version
+          # Create backup
+          cp CHANGELOG.md CHANGELOG.md.bak
+
+          # Replace [Unreleased] with new version and add new [Unreleased] section
+          python3 -c "
+          import re
+          with open('CHANGELOG.md', 'r') as f:
+              content = f.read()
+          new_version = '${NEW_VERSION}'
+          current_date = '${CURRENT_DATE}'
+          pattern = r'## \[Unreleased\]'
+          replacement = f'## [Unreleased]\n\n## [{new_version}] - {current_date}'
+          content = re.sub(pattern, replacement, content, count=1)
+          with open('CHANGELOG.md', 'w') as f:
+              f.write(content)
+          print(f'Updated CHANGELOG.md with version {new_version}')
+          "
+
+          # Update version links at bottom of changelog
+          if grep -q "\\[unreleased\\]:" CHANGELOG.md; then
+            # Update existing unreleased link and add new version link
+            sed -i "s|\\[unreleased\\]:.*|[unreleased]: https://github.com/${{ github.repository }}/compare/v${NEW_VERSION}...HEAD|" CHANGELOG.md
+
+            # Add new version link before the unreleased link
+            sed -i "/\\[unreleased\\]:/i [${NEW_VERSION}]: https://github.com/${{ github.repository }}/compare/${LAST_TAG:-v1.0.0}...v${NEW_VERSION}" CHANGELOG.md
+          fi
+
+          echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
           
       - name: Create version bump branch
         id: create-bump-branch
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         env:
           NEW_VERSION: ${{ steps.new-version.outputs.new-version }}
           BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
@@ -207,13 +429,14 @@ jobs:
           git branch -D "$BRANCH" 2>/dev/null || true
 
           git checkout -b "$BRANCH"
-          git add style.css
+          git add style.css CHANGELOG.md
           git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
           git push --set-upstream origin "$BRANCH"
 
           echo "branch-name=${BRANCH}" >> $GITHUB_OUTPUT
 
       - name: Open PR for version bump
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
@@ -221,7 +444,7 @@ jobs:
             const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
             const base = '${{ github.event.pull_request.base.ref }}';
             const title = `chore(release): bump theme version to ${{ steps.new-version.outputs.new-version }}`;
-            const body = `Automated post-release version bump to keep style.css in sync with the latest release.\n\nThis PR was created by the release workflow after PR #${{ github.event.pull_request.number }} was approved and merged.`;
+            const body = `Automated post-release version bump to keep style.css and CHANGELOG.md in sync with the latest release.\n\nThis PR was created by the release workflow after PR #${{ github.event.pull_request.number }} was approved and merged.\n\n### Changes:\n- Updated style.css version to ${{ steps.new-version.outputs.new-version }}\n- Updated CHANGELOG.md with release information`;
 
             // Check if a PR already exists
             const { data: prs } = await github.rest.pulls.list({
@@ -246,6 +469,7 @@ jobs:
             core.info(`Opened PR #${pr.number} for version bump`);
           
       - name: Create Git tag from version bump commit
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           set -e
           git fetch --tags
@@ -261,6 +485,7 @@ jobs:
           
       - name: Create theme ZIP
         id: create-zip
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           ZIP_NAME="blocksy-child-v${{ steps.new-version.outputs.new-version }}.zip"
           
@@ -308,17 +533,19 @@ jobs:
           
       - name: Create GitHub Release
         id: create_release
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
           tag_name: v${{ steps.new-version.outputs.new-version }}
           release_name: Release v${{ steps.new-version.outputs.new-version }}
-          body_path: CHANGELOG.md
+          body_path: RELEASE_CHANGELOG.md
           draft: false
           prerelease: false
           
       - name: Upload ZIP to Release
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

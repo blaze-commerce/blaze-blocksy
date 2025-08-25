@@ -1,0 +1,77 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Comprehensive versioning automation with Augment tooling exclusions
+- Enhanced GitHub Actions workflow with intelligent commit analysis
+- Automated changelog maintenance during releases
+
+### Changed
+- Improved release workflow to prevent cascading releases from tooling changes
+- Enhanced commit filtering to exclude non-functional changes
+
+### Fixed
+- Cascading versioning issue from automated version bump PRs
+- Empty releases triggered by Augment tooling file changes
+
+## [1.2.0] - 2025-08-23
+
+### Added
+- .augmentignore file for optimized codebase indexing
+- Comprehensive Augment documentation rules configuration
+- CI integration with taxonomy and validation enhancements
+
+### Changed
+- Switched to structured priority objects for Augment configuration
+- Enhanced YAML configuration with proper escaping
+
+### Fixed
+- YAML escaping issues in configuration files
+
+## [1.1.0] - 2025-08-22
+
+### Added
+- Automated semantic versioning with branch protection support
+- GitHub App token authentication for PR creation
+- Comprehensive theme functionality enhancements
+- Advanced theme customizations for Infinity Targets site
+- Image file extensions to .gitignore
+- Custom checkout styling and functionality
+- Search customizations and theme assets
+
+### Changed
+- Enhanced functions.php with comprehensive theme functionality
+- Modified style.css for Infinity Targets theme customizations
+- Enforced branch-protected release flow
+- Tightened ZIP exclusions for release packages
+
+### Fixed
+- GitHub Actions PR creation restrictions with App token
+- Existing release branches handling to prevent push conflicts
+- Critical workflow errors and security vulnerabilities
+- Command injection vulnerabilities with proper escaping
+- Changelog URL generation for first releases
+- Version format validation and update verification
+
+### Security
+- Added proper error handling with set -e throughout workflow
+- Implemented secure command escaping to prevent injection attacks
+- Enhanced token-based authentication for automated operations
+
+## [1.0.0] - 2025-08-14
+
+### Added
+- Initial Blocksy child theme implementation
+- Basic theme structure and configuration
+- Core theme files and assets
+
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/blaze-commerce/blaze-blocksy/releases/tag/v1.0.0
