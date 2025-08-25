@@ -47,26 +47,18 @@ add_action( 'wp_footer', function () {
 } );
 
 add_filter( 'woocommerce_product_loop_start', function ($echo) {
-	if ( ! is_product() || is_archive() )
-		return $echo;
-
-	do_action(
-		'qm/info',
-		[ 
-			'is_product' => is_product(),
-			'is_archive' => is_archive(),
-			'is_product_category' => is_product_category(),
-		]
-
-	);
+	// if (
+	// 	( ! isset( $_POST['action'] ) || $_POST['action'] !== 'get_recently_viewed_products' )
+	// 	( ! is_product() || is_archive() ) )
+	// 	return $echo;
 
 	return str_replace( '<ul', '<div', $echo );
 
 }, 999 );
 
 add_filter( 'woocommerce_product_loop_end', function ($echo) {
-	if ( ! is_product() || is_archive() )
-		return $echo;
+	// if ( ! is_product() || is_archive() )
+	// 	return $echo;
 
 	//replace ul with div with preg_replace
 	$echo = preg_replace( '/<\/ul>/', '</div>', $echo );

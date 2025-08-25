@@ -1,9 +1,11 @@
 .single-product article h1,
 .single-product article h2,
-.single-product article h3 {
+.single-product article h3,
+.single-product article h4,
+.single-product article h5,
+.single-product article h6 {
   color: var(--theme-palette-color-1);
 }
-
 .single-product .entry-summary .price {
   margin-bottom: 0 !important;
 }
@@ -120,13 +122,9 @@
   bottom: 15px;
 }
 
-/* .products .product .ct-woo-card-extra .ct-button {
-  background-color: transparent;
+.products .product .jdgm-prev-badge__text {
+  font-size: 14px;
 }
-
-.products .product .ct-woo-card-extra .ct-button svg {
-  fill: white !important;
-} */
 
 .ct-product-additional-info ul {
   display: flex;

@@ -16,10 +16,6 @@
   border-bottom: 1px solid var(--theme-border-color);
 }
 
-.archive #main-container .site-main > .ct-container {
-  padding-top: 0 !important;
-}
-
 .products .product {
   height: calc(100% - 1px);
   border: 1px solid #cdd1d4;
@@ -84,6 +80,10 @@
 .products .product .ct-woo-card-extra {
   top: auto;
   bottom: 15px;
+}
+
+.products .product .jdgm-prev-badge__text {
+  font-size: 14px;
 }
 
 #woo-filters-panel .ct-block-wrapper {

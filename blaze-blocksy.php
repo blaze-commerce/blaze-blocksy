@@ -86,29 +86,30 @@ include_once 'includes/customization/mini-cart.php';
 include_once 'includes/customization/related-carousel.php';
 include_once 'includes/customization/price-installment.php';
 include_once 'includes/customization/product-category.php';
+include_once 'includes/customization/recently-viewed-products.php';
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
-add_action( 'init', function () {
-	if ( is_admin() )
-		return;
+// add_action( 'init', function () {
+// 	if ( is_admin() )
+// 		return;
 
-	// Prevent the filters extension from initializing
-	remove_all_actions( 'blocksy:woocommerce:filters:init' );
+// 	// Prevent the filters extension from initializing
+// 	remove_all_actions( 'blocksy:woocommerce:filters:init' );
 
-	// Remove expensive taxonomy filters from Blocksy Companion Pro
-	remove_all_actions( 'blocksy:woocommerce:filters:product-taxonomies' );
-	remove_all_actions( 'blocksy:woocommerce:filters:product-attributes' );
-	remove_all_actions( 'blocksy:woocommerce:filters:product-price' );
-}, 20 );
+// 	// Remove expensive taxonomy filters from Blocksy Companion Pro
+// 	remove_all_actions( 'blocksy:woocommerce:filters:product-taxonomies' );
+// 	remove_all_actions( 'blocksy:woocommerce:filters:product-attributes' );
+// 	remove_all_actions( 'blocksy:woocommerce:filters:product-price' );
+// }, 20 );
 
 
-// Instrument Add to Cart AJAX for New Relic visibility
-add_action( 'wc_ajax_add_to_cart', function () {
-	if ( function_exists( 'newrelic_name_transaction' ) ) {
-		newrelic_name_transaction( 'wc_ajax_add_to_cart' );
-		newrelic_add_custom_parameter( 'source', 'manual_hook' );
-	}
-} );
+// // Instrument Add to Cart AJAX for New Relic visibility
+// add_action( 'wc_ajax_add_to_cart', function () {
+// 	if ( function_exists( 'newrelic_name_transaction' ) ) {
+// 		newrelic_name_transaction( 'wc_ajax_add_to_cart' );
+// 		newrelic_add_custom_parameter( 'source', 'manual_hook' );
+// 	}
+// } );
 
 /**
  * Helper Functions
