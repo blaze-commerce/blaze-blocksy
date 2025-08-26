@@ -28,7 +28,7 @@ add_filter( 'wc_get_template', function ($template, $template_name, $args) {
 /**
  * Add coupon form to mini cart before buttons
  */
-add_action( 'woocommerce_widget_shopping_cart_before_buttons', function () {
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 	?>
 	<div class="mini-cart-coupon-section">
 		<div class="coupon-toggle">
@@ -79,16 +79,6 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ($total_html) {
 			</div>
 		<?php endif; ?>
 
-		<div class="total-line shipping-line">
-			<span class="total-label">*<?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"></span>
-		</div>
-
-		<div class="total-line tax-line">
-			<span class="total-label">*<?php esc_html_e( 'Tax', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"></span>
-		</div>
-
 		<div class="shipping-tax-note">
 			<small><?php esc_html_e( '* Shipping and tax are calculated after the shipping step is completed.', 'blaze-blocksy' ); ?></small>
 		</div>
@@ -134,7 +124,7 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 		</div>
 	</div>
 	<?php
-} );
+}, 20 );
 
 /**
  * Get recommended products for mini cart display
@@ -251,12 +241,10 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 /**
  * Add "Need Help?" link after mini cart
  */
-add_action( 'woocommerce_after_mini_cart', 'blaze_blocksy_add_mini_cart_help_link' );
-
-function blaze_blocksy_add_mini_cart_help_link() {
+add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	?>
 	<div class="mini-cart-help">
-		<a href="#" class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
+		<a href="/contact" class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
 	</div>
 	<?php
-}
+}, 10 );

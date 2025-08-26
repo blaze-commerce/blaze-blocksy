@@ -1,7 +1,7 @@
 <?php
 
 add_action( 'blocksy:woocommerce:product-single:price:after', function () {
-
+	return;
 	if ( ! is_product() )
 		return;
 
