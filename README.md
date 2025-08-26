@@ -1,13 +1,15 @@
-# Blocksy Child Theme
+# Blocksy Child Theme - Blaze Commerce Edition
 
-A WordPress child theme for Blocksy by BlazeCommerce with automated semantic versioning and release management.
+A WordPress child theme for Blocksy by BlazeCommerce with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
 
 ## Features
 
-- Responsive visibility classes (hide/show on mobile, tablet, desktop)
-- Judge.me review carousel customizations
-- Sticky header z-index optimizations
-- Mobile-responsive design improvements
+- **Blaze Commerce Thank You Page**: Complete custom thank you page implementation with responsive design
+- **Responsive visibility classes**: Hide/show elements on mobile, tablet, desktop
+- **Judge.me review carousel customizations**: Enhanced product review displays
+- **Sticky header z-index optimizations**: Improved navigation behavior
+- **Mobile-responsive design improvements**: Optimized for all viewport sizes
+- **WooCommerce integration**: Enhanced checkout and order confirmation experience
 
 ## Automated Releases
 
@@ -27,6 +29,8 @@ This repository uses automated semantic versioning with GitHub Actions. Version 
 
 - [Versioning Strategy](docs/VERSIONING.md) - Complete guide to semantic versioning and conventional commits
 - [Testing Instructions](docs/TESTING.md) - How to test the automated release workflow
+- [Blaze Commerce Thank You Page](docs/THANK-YOU-PAGE-CUSTOMIZATION.md) - Complete customization guide
+- [Thank You Page Analysis](docs/thank-you-page-analysis.md) - Technical analysis and implementation details
 
 ## Installation
 
