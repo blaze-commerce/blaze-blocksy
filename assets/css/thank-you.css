@@ -1,0 +1,616 @@
+/**
+ * Thank You Page Blaze Commerce Design Implementation
+ *
+ * Complete layout redesign based on Blaze Commerce specifications.
+ * Pixel-perfect responsive implementation with preserved functionality.
+ *
+ * @package Blocksy_Child
+ * @since 2.0.3
+ */
+
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+
+.woocommerce-order {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: #333333;
+    background: #ffffff;
+}
+
+/* Hide default WooCommerce thank you message */
+.woocommerce-thankyou-order-received {
+    display: none;
+}
+
+/* ========================================
+   MAIN LAYOUT CONTAINER
+   ======================================== */
+
+.blaze-commerce-thank-you-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.blaze-commerce-thank-you-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 60px;
+    align-items: start;
+}
+
+/* ========================================
+   HEADER SECTION
+   ======================================== */
+
+.blaze-commerce-thank-you-header {
+    grid-column: 1 / -1;
+    margin-bottom: 40px;
+    /* CRITICAL FIX: Ensure header is always visible */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.blaze-commerce-thank-you-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 24px 0;
+    line-height: 1.2;
+}
+
+.blaze-commerce-order-confirmation {
+    font-size: 16px;
+    color: #666666;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+}
+
+.blaze-commerce-order-number {
+    font-size: 16px;
+    color: #666666;
+    margin: 0 0 16px 0;
+}
+
+.blaze-commerce-order-number strong {
+    color: #000000;
+    font-weight: 600;
+}
+
+.blaze-commerce-email-confirmation {
+    font-size: 14px;
+    color: #666666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ========================================
+   MAIN CONTENT AREA (LEFT COLUMN)
+   ======================================== */
+
+.blaze-commerce-main-content {
+    grid-column: 1;
+    /* CRITICAL FIX: Ensure main content is always visible */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* ========================================
+   ORDER DETAILS SECTION
+   ======================================== */
+
+.blaze-commerce-order-details {
+    margin-bottom: 40px;
+}
+
+.blaze-commerce-order-details h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+}
+
+.blaze-commerce-order-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+}
+
+.blaze-commerce-order-info-item {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.blaze-commerce-order-info-item strong {
+    color: #000000;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.blaze-commerce-order-info-item span {
+    color: #666666;
+}
+
+/* ========================================
+   SHIPPING & BILLING ADDRESSES
+   ======================================== */
+
+.blaze-commerce-addresses-section {
+    margin-bottom: 40px;
+}
+
+.blaze-commerce-addresses-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+.blaze-commerce-address-block {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.blaze-commerce-address-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+}
+
+.blaze-commerce-address-content {
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.blaze-commerce-address-content p {
+    margin: 0 0 4px 0;
+}
+
+.blaze-commerce-address-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   ACCOUNT CREATION SECTION
+   ======================================== */
+
+.blaze-commerce-account-creation {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 40px;
+}
+
+.blaze-commerce-account-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+}
+
+.blaze-commerce-account-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+.blaze-commerce-account-benefits li {
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.blaze-commerce-account-benefits li:before {
+    content: "•";
+    color: #000000;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.blaze-commerce-account-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.blaze-commerce-form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.blaze-commerce-form-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 8px;
+}
+
+.blaze-commerce-form-field input {
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #000000;
+    background: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.blaze-commerce-form-field input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.blaze-commerce-password-field {
+    grid-column: 1 / -1;
+}
+
+.blaze-commerce-create-account-btn {
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+}
+
+.blaze-commerce-create-account-btn:hover {
+    background: #b91c1c;
+}
+
+/* ========================================
+   ORDER SUMMARY SIDEBAR (RIGHT COLUMN)
+   ======================================== */
+
+.blaze-commerce-order-summary {
+    grid-column: 2;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 24px;
+    position: sticky;
+    top: 20px;
+    /* CRITICAL FIX: Ensure order summary is always visible */
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.blaze-commerce-summary-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blaze-commerce-summary-toggle {
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #666666;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.blaze-commerce-product-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.blaze-commerce-product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #e5e5e5;
+}
+
+.blaze-commerce-product-details {
+    flex: 1;
+}
+
+.blaze-commerce-product-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
+}
+
+.blaze-commerce-product-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+}
+
+.blaze-commerce-summary-breakdown {
+    margin-bottom: 24px;
+}
+
+.blaze-commerce-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.blaze-commerce-summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.blaze-commerce-summary-label {
+    color: #666666;
+}
+
+.blaze-commerce-summary-value {
+    color: #000000;
+    font-weight: 500;
+}
+
+.blaze-commerce-summary-total {
+    padding-top: 16px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blaze-commerce-total-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.blaze-commerce-total-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablet Styles (768px - 1023px) */
+@media (max-width: 1023px) {
+    .blaze-commerce-thank-you-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .blaze-commerce-order-summary {
+        order: -1;
+        position: static;
+        margin-bottom: 40px;
+    }
+
+    .blaze-commerce-addresses-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .blaze-commerce-account-form {
+        grid-template-columns: 1fr;
+    }
+
+    .blaze-commerce-order-meta {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Mobile Styles (< 768px) */
+@media (max-width: 767px) {
+    .blaze-commerce-thank-you-wrapper {
+        padding: 20px 16px;
+    }
+
+    .blaze-commerce-thank-you-container {
+        gap: 32px;
+    }
+
+    .blaze-commerce-thank-you-header {
+        margin-bottom: 32px;
+    }
+
+    .blaze-commerce-thank-you-title {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .blaze-commerce-order-details,
+    .blaze-commerce-addresses-section,
+    .blaze-commerce-account-creation {
+        margin-bottom: 32px;
+    }
+
+    .blaze-commerce-address-block,
+    .blaze-commerce-account-creation,
+    .blaze-commerce-order-summary {
+        padding: 20px;
+    }
+
+    .blaze-commerce-product-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .blaze-commerce-product-image {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* Small Mobile Styles (< 480px) */
+@media (max-width: 479px) {
+    .blaze-commerce-thank-you-wrapper {
+        padding: 16px 12px;
+    }
+
+    .blaze-commerce-thank-you-title {
+        font-size: 24px;
+    }
+
+    .blaze-commerce-address-block,
+    .blaze-commerce-account-creation,
+    .blaze-commerce-order-summary {
+        padding: 16px;
+    }
+
+    .blaze-commerce-product-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .blaze-commerce-create-account-btn {
+        padding: 14px 24px;
+        font-size: 14px;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .blaze-commerce-account-creation {
+        display: none;
+    }
+
+    .blaze-commerce-thank-you-wrapper {
+        padding: 0;
+    }
+
+    .blaze-commerce-thank-you-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .blaze-commerce-order-summary {
+        order: initial;
+        border: 1px solid #000;
+    }
+
+    .blaze-commerce-create-account-btn,
+    .blaze-commerce-summary-toggle {
+        display: none;
+    }
+}
+
+/* ========================================
+   CRITICAL VISIBILITY FIXES
+   ======================================== */
+
+/* CRITICAL FIX: Ensure all Blaze Commerce elements are visible by default */
+.blaze-commerce-thank-you-wrapper,
+.blaze-commerce-thank-you-container,
+.blaze-commerce-thank-you-header,
+.blaze-commerce-main-content,
+.blaze-commerce-order-details,
+.blaze-commerce-addresses-section,
+.blaze-commerce-account-creation,
+.blaze-commerce-order-summary,
+.blaze-commerce-summary-content,
+.blaze-commerce-product-item {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* Ensure grid containers display correctly */
+.blaze-commerce-thank-you-container {
+    display: grid !important;
+}
+
+.blaze-commerce-addresses-grid {
+    display: grid !important;
+}
+
+.blaze-commerce-account-form {
+    display: grid !important;
+}
+
+/* Ensure flex containers display correctly */
+.blaze-commerce-product-item,
+.blaze-commerce-summary-row,
+.blaze-commerce-summary-total {
+    display: flex !important;
+}
+
+/* Animation fallback - if animations fail, elements remain visible */
+.blaze-commerce-thank-you-header[style*="opacity: 0"],
+.blaze-commerce-order-summary[style*="opacity: 0"],
+.blaze-commerce-main-content[style*="opacity: 0"],
+.blaze-commerce-order-details[style*="opacity: 0"],
+.blaze-commerce-addresses-section[style*="opacity: 0"],
+.blaze-commerce-account-creation[style*="opacity: 0"] {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* ========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Focus styles for keyboard navigation */
+.blaze-commerce-form-field input:focus,
+.blaze-commerce-create-account-btn:focus,
+.blaze-commerce-summary-toggle:focus {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .blaze-commerce-address-block,
+    .blaze-commerce-account-creation,
+    .blaze-commerce-order-summary {
+        border-width: 2px;
+        border-color: #000000;
+    }
+
+    .blaze-commerce-create-account-btn {
+        border: 2px solid #000000;
+    }
+}
