@@ -68,54 +68,8 @@ include_once get_stylesheet_directory() . '/includes/customization/fibo-search-s
 // Thank you page customizations
 include_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
 
-// Disable WooCommerce terms and conditions server-side validation
-add_action( 'woocommerce_checkout_process', 'bypass_terms_and_conditions_validation', 1 );
-function bypass_terms_and_conditions_validation() {
-	// Automatically set the terms checkbox as accepted in the POST data
-	// This bypasses the server-side validation while maintaining other checkout validations
-	if ( ! isset( $_POST['terms'] ) || empty( $_POST['terms'] ) ) {
-		$_POST['terms'] = '1';
-	}
-}
-
-// Additional hook to ensure terms validation is bypassed for all payment methods
-add_action( 'woocommerce_before_checkout_process', 'ensure_terms_accepted', 1 );
-function ensure_terms_accepted() {
-	// Force terms acceptance in POST data before any validation occurs
-	$_POST['terms'] = '1';
-}
-
-// Remove terms validation from WooCommerce checkout fields
-add_filter( 'woocommerce_checkout_fields', 'remove_terms_validation_from_checkout_fields', 999 );
-function remove_terms_validation_from_checkout_fields( $fields ) {
-	// Remove terms field validation if it exists
-	if ( isset( $fields['order']['terms'] ) ) {
-		unset( $fields['order']['terms'] );
-	}
-	return $fields;
-}
-
 // Disable terms and conditions validation completely using WooCommerce settings filter
 add_filter( 'pre_option_woocommerce_terms_page_id', '__return_empty_string', 999 );
-
-// Alternative approach: Remove terms validation from WooCommerce form handler
-add_action( 'init', 'disable_woocommerce_terms_validation', 999 );
-function disable_woocommerce_terms_validation() {
-	// Remove the terms validation from WooCommerce form handler
-	remove_action( 'woocommerce_checkout_process', array( 'WC_Form_Handler', 'checkout_action' ), 20 );
-
-	// Add our own checkout action without terms validation
-	add_action( 'woocommerce_checkout_process', 'custom_checkout_process_without_terms', 20 );
-}
-
-function custom_checkout_process_without_terms() {
-	// Force terms to be accepted in the POST data
-	$_POST['terms'] = '1';
-
-	// Let WooCommerce handle the rest of the checkout process normally
-	// but with terms already set as accepted
-}
-
 
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
@@ -140,3 +94,28 @@ add_action( 'wc_ajax_add_to_cart', function () {
 		newrelic_add_custom_parameter( 'source', 'manual_hook' );
 	}
 } );
+
+// TO DO: FIX, NOT WORKING
+// Enqueue checkout assets
+// add_action( 'wp_enqueue_scripts', function() {
+// 	if ( is_checkout() && ! is_wc_endpoint_url() ) {
+// 		$template_uri = get_stylesheet_directory_uri();
+		
+// 		// Enqueue CSS
+// 		wp_enqueue_style(
+// 			'custom-checkout-css',
+// 			$template_uri . '/assets/css/checkout.css',
+// 			array(),
+// 			'1.0.0'
+// 		);
+		
+// 		// Enqueue JS
+// 		wp_enqueue_script(
+// 			'custom-checkout-js',
+// 			$template_uri . '/assets/js/checkout.js',
+// 			array( 'jquery' ),
+// 			'1.0.0',
+// 			true
+// 		);
+// 	}
+// }, 20 );

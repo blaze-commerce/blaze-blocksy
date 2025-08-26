@@ -21,7 +21,7 @@
 
 /* Hide default WooCommerce thank you message */
 .woocommerce-thankyou-order-received {
-    display: none;
+    display: none !important;
 }
 
 /* ========================================
@@ -613,4 +613,12 @@
     .blaze-commerce-create-account-btn {
         border: 2px solid #000000;
     }
+}
+
+.woocommerce-thankyou-order-details {
+    display: none !important;
+}
+
+.wp-block-heading {
+    display: none !important;
 }
