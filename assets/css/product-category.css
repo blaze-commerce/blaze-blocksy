@@ -2,14 +2,6 @@
   padding-top: 16px !important;
 }
 
-.archive .entry-header .ct-breadcrumbs .ct-separator {
-  color: var(--theme-palette-color-6);
-}
-
-.archive .entry-header .ct-breadcrumbs .last-item {
-  color: var(--theme-palette-color-6);
-}
-
 .archive .woo-listing-top {
   padding: 16px 0;
   border-top: 1px solid var(--theme-border-color);

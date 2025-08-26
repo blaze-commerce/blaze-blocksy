@@ -1,11 +1,3 @@
-.single-product article h1,
-.single-product article h2,
-.single-product article h3,
-.single-product article h4,
-.single-product article h5,
-.single-product article h6 {
-  color: var(--theme-palette-color-1);
-}
 .single-product .entry-summary .price {
   margin-bottom: 0 !important;
 }
@@ -158,20 +150,3 @@
 /**
 * BREADCRUMBS
 */
-
-@media screen and (max-width: 768px) {
-  .entry-header .ct-breadcrumbs[data-source="default"] > span {
-    display: none;
-  }
-
-  /**
-   * Show the first, second last, and last item only
-   */
-  .entry-header .ct-breadcrumbs[data-source="default"] > span:first-child,
-  .entry-header .ct-breadcrumbs[data-source="default"] > span:last-child,
-  .entry-header
-    .ct-breadcrumbs[data-source="default"]
-    > span:nth-last-child(2) {
-    display: inline-flex;
-  }
-}
