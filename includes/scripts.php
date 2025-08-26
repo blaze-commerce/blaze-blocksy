@@ -20,7 +20,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		array( 'parent-style' )
 	);
 
-		// Enqueue footer style
+		// Enqueue header style
     	wp_enqueue_style(
     		'blocksy-child-header-style',
     		$template_uri . '/assets/css/header.css',
