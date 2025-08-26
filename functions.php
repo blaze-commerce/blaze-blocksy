@@ -65,6 +65,9 @@ include_once get_stylesheet_directory() . '/includes/scripts.php';
 // fibo search customization
 include_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
 
+// Thank you page customizations
+include_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
+
 // Disable WooCommerce terms and conditions server-side validation
 add_action( 'woocommerce_checkout_process', 'bypass_terms_and_conditions_validation', 1 );
 function bypass_terms_and_conditions_validation() {
