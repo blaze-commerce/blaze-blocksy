@@ -5,3 +5,8 @@ ul#menu-footer-menu-2 li a:hover,
 ul#menu-footer-menu-2 li.current-menu-item a {
     color: #9B1B1E;
 }
+
+ul.wp-block-navigation__container li.wp-block-navigation-item a.wp-block-navigation-item__content:hover,
+ul.wp-block-navigation__container li.current-menu-item a.wp-block-navigation-item__content {
+    color: #9B1B1E;
+}
