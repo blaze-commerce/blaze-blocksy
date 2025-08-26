@@ -1,0 +1,7 @@
+/* Footer Menu Links - Current Page & Hover States */
+ul#menu-footer li.current-menu-item a,
+ul#menu-footer li a:hover,
+ul#menu-footer-menu-2 li a:hover,
+ul#menu-footer-menu-2 li.current-menu-item a {
+    color: #9B1B1E;
+}

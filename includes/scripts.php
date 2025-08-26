@@ -13,4 +13,11 @@ add_action( 'wp_enqueue_scripts', function () {
 		array( 'parent-style' )
 	);
 
+	// Enqueue footer style
+	wp_enqueue_style(
+		'blocksy-child-footer-style',
+		$template_uri . '/assets/css/footer.css',
+		array( 'parent-style' )
+	);
+
 } );
