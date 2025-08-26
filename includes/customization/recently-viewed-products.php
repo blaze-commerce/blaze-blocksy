@@ -19,16 +19,8 @@ add_action( 'woocommerce_after_single_product', 'display_recently_viewed_product
 function display_recently_viewed_products() {
 	global $product;
 
-	do_action( 'qm/info', [ 
-		'is_product' => is_product(),
-		'is_archive' => is_archive(),
-		'is_product_category' => is_product_category(),
-		"tester" => "tester"
-	] );
 	$current_product_id = $product->get_id();
 	?>
-
-	Muncul dong!
 
 	<button type="button" onclick="loadRecentlyViewedProducts()">Load Recently Viewed Products</button>
 

@@ -28,7 +28,6 @@
 
 .single-product .product-entry-wrapper {
   padding-bottom: 40px;
-  border-bottom: 1px solid var(--theme-border-color);
 }
 
 .products .owl-theme .owl-nav.disabled + .owl-dots {
@@ -142,4 +141,37 @@
 
 .jdgm-rev-widg__title {
   display: none !important;
+}
+
+.summary #payment-method-message {
+  height: auto !important;
+}
+
+/**
+* WHOLESALE
+*/
+
+.wwp-wholesale-pricing-details p {
+  margin-bottom: var(--product-element-spacing, 10px);
+}
+
+/**
+* BREADCRUMBS
+*/
+
+@media screen and (max-width: 768px) {
+  .entry-header .ct-breadcrumbs[data-source="default"] > span {
+    display: none;
+  }
+
+  /**
+   * Show the first, second last, and last item only
+   */
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:first-child,
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:last-child,
+  .entry-header
+    .ct-breadcrumbs[data-source="default"]
+    > span:nth-last-child(2) {
+    display: inline-flex;
+  }
 }
