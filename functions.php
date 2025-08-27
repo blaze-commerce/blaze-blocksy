@@ -68,6 +68,9 @@ include_once get_stylesheet_directory() . '/includes/customization/fibo-search-s
 // Thank you page customizations
 include_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
 
+// My Account page customizations
+include_once get_stylesheet_directory() . '/includes/customization/my-account.php';
+
 // Disable terms and conditions validation completely using WooCommerce settings filter
 add_filter( 'pre_option_woocommerce_terms_page_id', '__return_empty_string', 999 );
 
