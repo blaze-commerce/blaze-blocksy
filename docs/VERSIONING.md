@@ -186,6 +186,8 @@ Each release creates:
 - **Git Tag**: `vX.Y.Z` format
 - **GitHub Release**: With auto-generated changelog
 - **ZIP File**: `blocksy-child-vX.Y.Z.zip` for WordPress installation
+  - ZIP filename includes version for identification
+  - Extracted folder is consistently named `blocksy-child` (without version)
 - **Changelog**: Lists all changes since the previous release
 
 ## Integration with WordPress
@@ -194,6 +196,8 @@ The generated ZIP files are ready for WordPress installation:
 1. Download the ZIP from the GitHub release
 2. Upload via WordPress Admin → Appearance → Themes → Add New → Upload Theme
 3. Activate the theme
+
+**Note**: When extracted, the ZIP file will always create a folder named `blocksy-child` regardless of the version number, ensuring consistent folder naming across all releases.
 
 ## Version History
 
