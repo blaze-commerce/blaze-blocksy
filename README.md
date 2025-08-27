@@ -2,6 +2,11 @@
 
 A WordPress child theme for Blocksy by BlazeCommerce with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
 
+## Recent Updates
+
+- **Fixed GitHub Actions Workflow**: Resolved "fatal: tag already exists" error with intelligent tag handling
+- **Improved Release Automation**: Enhanced rollback functionality and pre-release cleanup
+
 ## Features
 
 - **Blaze Commerce Thank You Page**: Complete custom thank you page implementation with responsive design
