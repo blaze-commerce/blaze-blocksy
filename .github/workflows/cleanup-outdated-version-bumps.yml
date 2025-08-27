@@ -43,7 +43,7 @@ jobs:
           echo "Merged PR title: $PR_TITLE"
           
           # Extract version using regex
-          if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          if [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             MERGED_VERSION="${BASH_REMATCH[3]}"
             echo "Extracted merged version: $MERGED_VERSION"
             echo "merged-version=$MERGED_VERSION" >> $GITHUB_OUTPUT
@@ -87,7 +87,7 @@ jobs:
             PR_URL=$(echo "$pr" | jq -r '.url')
             
             # Extract version from PR title
-            if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            if [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
               PR_VERSION="${BASH_REMATCH[3]}"
               
               echo "Comparing versions: PR=$PR_VERSION vs Merged=$MERGED_VERSION"
@@ -144,7 +144,7 @@ jobs:
             PR_URL=$(echo "$pr" | jq -r '.url')
             
             # Extract version from PR title for the comment
-            if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            if [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
               PR_VERSION="${BASH_REMATCH[3]}"
             else
               PR_VERSION="unknown"
@@ -155,18 +155,18 @@ jobs:
             # Add explanatory comment
             COMMENT="🤖 **Automated Cleanup**
 
-This version bump PR is being automatically closed because version **$MERGED_VERSION** has already been released.
+            This version bump PR is being automatically closed because version **$MERGED_VERSION** has already been released.
 
-**Details:**
-- 📦 **Target version**: $PR_VERSION
-- ✅ **Released version**: $MERGED_VERSION  
-- 🔗 **Released via**: ${{ github.event.pull_request.html_url }}
-- 🕒 **Closed at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            **Details:**
+            - 📦 **Target version**: $PR_VERSION
+            - ✅ **Released version**: $MERGED_VERSION
+            - 🔗 **Released via**: ${{ github.event.pull_request.html_url }}
+            - 🕒 **Closed at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
-This version bump is no longer needed. If you believe this was closed in error, please contact the maintainers.
+            This version bump is no longer needed. If you believe this was closed in error, please contact the maintainers.
 
----
-*This action was performed automatically by the [cleanup workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/cleanup-outdated-version-bumps.yml).*"
+            ---
+            *This action was performed automatically by the [cleanup workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/cleanup-outdated-version-bumps.yml).*"
             
             # Add comment to PR
             gh pr comment "$PR_NUMBER" --body "$COMMENT"
