@@ -11,6 +11,7 @@
     z-index: 1000 !important;
 }
 
+
 /* Mobile Off-Canvas Menu Fix */
 /* Ensure off-canvas menu appears above header on mobile */
 @media (max-width: 999px) {
@@ -18,20 +19,24 @@
     .ct-panel-inner {
         z-index: 1001 !important;
     }
-    
+
     /* Off-canvas menu container */
     .ct-panel {
         z-index: 1001 !important;
     }
-    
+
     /* Mobile menu backdrop */
     .ct-panel-backdrop {
         z-index: 1000 !important;
     }
-    
+
     /* Hamburger menu button */
     .ct-header-trigger {
         z-index: 1002 !important;
+    }
+
+    span.ct-panel-heading {
+        color: #040711;
     }
 }
 
@@ -40,7 +45,7 @@
     .ct-header {
         z-index: 1000 !important;
     }
-    
+
     .ct-sticky-container {
         z-index: 1000;
     }
@@ -64,4 +69,14 @@
 
 .ct-header-trigger:hover {
     opacity: 0.8;
+}
+
+/* Mobile Off-Canvas Panel Heading Color */
+.ct-panel-actions .ct-panel-heading {
+    color: #040711 !important;
+}
+
+/* Alternative selector if above doesn't work */
+span.ct-panel-heading {
+    color: #040711 !important;
 }
