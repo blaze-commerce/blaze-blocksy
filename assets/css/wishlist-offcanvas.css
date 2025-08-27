@@ -1,6 +1,6 @@
 /**
  * Wishlist Off-Canvas Styles
- * 
+ *
  * Styles for the off-canvas wishlist functionality in Blocksy child theme.
  */
 
@@ -360,4 +360,211 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     display: flex !important;
     opacity: 1 !important;
     pointer-events: auto !important;
+}
+
+
+/* Guest notice above recommendations */
+.wishlist-guest-notice {
+    margin: 16px 20px 0 20px;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.wishlist-guest-notice .notice-text {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.wishlist-guest-notice .notice-actions .button.notice-signup {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .wishlist-guest-notice {
+        margin: 12px 12px 0 12px;
+        padding: 12px;
+    }
+}
+
+/* Wishlist Recommendations Section */
+.wishlist-recommendations {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.wishlist-recommendations .recommendations-title {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--theme-text-color, #333);
+    text-align: center;
+}
+
+.wishlist-recommendations .recommendations-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Recommendation item styling */
+.wishlist-recommendations .recommendation-item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.wishlist-recommendations .recommendation-item:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Recommendation item image */
+.wishlist-recommendations .recommendation-item-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: #f8f8f8;
+}
+
+.wishlist-recommendations .recommendation-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.wishlist-recommendations .recommendation-item-image:hover img {
+    transform: scale(1.03);
+}
+
+/* Recommendation item details */
+.wishlist-recommendations .recommendation-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.wishlist-recommendations .recommendation-item-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--theme-text-color, #333);
+}
+
+.wishlist-recommendations .recommendation-item-title a {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
+.wishlist-recommendations .recommendation-item-title a:hover {
+    color: var(--theme-link-hover-color, #0073aa);
+}
+
+/* Recommendation item price */
+.wishlist-recommendations .recommendation-item-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--theme-text-color, #333);
+    margin-bottom: 8px;
+}
+
+.wishlist-recommendations .recommendation-item-price del {
+    color: #999;
+    font-weight: 400;
+    margin-right: 6px;
+    font-size: 12px;
+}
+
+.wishlist-recommendations .recommendation-item-price ins {
+    text-decoration: none;
+    color: var(--woo-color-accent, #e74c3c);
+    font-weight: 700;
+}
+
+/* Recommendation item actions */
+.wishlist-recommendations .recommendation-item-actions {
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+.wishlist-recommendations .recommendation-item-actions .button {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    text-align: center;
+    background: var(--theme-button-background, #333);
+    color: var(--theme-button-text, #fff);
+}
+
+.wishlist-recommendations .recommendation-item-actions .button:hover {
+    background: var(--theme-button-hover-background, #555);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsiveness for recommendations */
+@media (max-width: 600px) {
+    .wishlist-recommendations .recommendations-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .wishlist-recommendations .recommendation-item-image {
+        height: 100px;
+    }
+
+    .wishlist-recommendations .recommendation-item-title {
+        font-size: 13px;
+    }
+
+    .wishlist-recommendations .recommendation-item-price {
+        font-size: 13px;
+    }
+
+    .wishlist-recommendations .recommendation-item-actions .button {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+}
+
+/* Dark mode support for recommendations */
+@media (prefers-color-scheme: dark) {
+    .wishlist-recommendations {
+        border-top-color: var(--theme-border-color, #444);
+    }
+
+    .wishlist-recommendations .recommendation-item {
+        background: var(--theme-background-color, #2a2a2a);
+        border-color: var(--theme-border-color, #444);
+    }
+
+    .wishlist-recommendations .recommendations-title,
+    .wishlist-recommendations .recommendation-item-title a,
+    .wishlist-recommendations .recommendation-item-price {
+        color: var(--theme-text-color, #fff);
+    }
 }

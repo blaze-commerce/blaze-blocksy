@@ -16,17 +16,10 @@ class BlocksyChildWishlistOffCanvas {
 	public function __construct() {
 		// Only initialize if the WooCommerce Extra extension is active
 		if ( ! $this->is_woocommerce_extra_active() ) {
-			error_log( 'WooCommerce Extra extension not active - wishlist off-canvas not initialized' );
 			return;
 		}
 
-		error_log( 'Initializing wishlist off-canvas functionality' );
 		$this->init_hooks();
-
-		// Add debug notice for testing (remove in production)
-		if ( is_admin() && function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
-			add_action( 'admin_notices', array( $this, 'debug_settings_notice' ) );
-		}
 	}
 
 	/**
@@ -66,9 +59,6 @@ class BlocksyChildWishlistOffCanvas {
 	 * Add off-canvas setting to wishlist customizer options
 	 */
 	public function add_offcanvas_setting( $opts ) {
-		// Debug: Log that the filter is being called
-		error_log( 'Wishlist off-canvas filter called' );
-
 		// First, add the display mode setting to the existing wishlist panel
 		if ( isset( $opts['has_wishlist_panel']['inner-options'] ) ) {
 			$opts['has_wishlist_panel']['inner-options']['wishlist_display_mode'] = array(
@@ -276,6 +266,49 @@ class BlocksyChildWishlistOffCanvas {
 					'desc' => __( 'Display remove button for each product in the off-canvas.', 'blocksy-companion' ),
 				),
 
+				// Recommendations Settings Section
+				blocksy_rand_md5() => array(
+					'type' => 'ct-title',
+					'label' => __( 'Recommendations Settings', 'blocksy-companion' ),
+					'desc' => __( 'Configure the "You May Also Like" section that appears below wishlist items.', 'blocksy-companion' ),
+				),
+
+				'wishlist_show_recommendations' => array(
+					'label' => __( 'Show Recommendations', 'blocksy-companion' ),
+					'type' => 'ct-switch',
+					'value' => 'yes',
+					'desc' => __( 'Display product recommendations below wishlist items.', 'blocksy-companion' ),
+				),
+
+				blocksy_rand_md5() => array(
+					'type' => 'ct-condition',
+					'condition' => array( 'wishlist_show_recommendations' => 'yes' ),
+					'options' => array(
+
+						'wishlist_recommendations_show_image' => array(
+							'label' => __( 'Show Product Image', 'blocksy-companion' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+							'desc' => __( 'Display product image in recommendations.', 'blocksy-companion' ),
+						),
+
+						'wishlist_recommendations_show_price' => array(
+							'label' => __( 'Show Product Price', 'blocksy-companion' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+							'desc' => __( 'Display product price in recommendations.', 'blocksy-companion' ),
+						),
+
+						'wishlist_recommendations_show_add_to_cart' => array(
+							'label' => __( 'Show Add to Cart Button', 'blocksy-companion' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+							'desc' => __( 'Display add to cart button for recommended products.', 'blocksy-companion' ),
+						),
+
+					),
+				),
+
 			),
 		);
 
@@ -431,9 +464,6 @@ class BlocksyChildWishlistOffCanvas {
 			return $elements;
 		}
 
-		// Debug: Log that we're adding the off-canvas panel
-		error_log( 'Adding wishlist off-canvas panel to footer' );
-
 		$elements[] = $this->render_wishlist_offcanvas();
 
 		return $elements;
@@ -523,23 +553,16 @@ class BlocksyChildWishlistOffCanvas {
 	 */
 	private function get_wishlist_content() {
 		if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) || ! blc_get_ext( 'woocommerce-extra' )->get_wish_list() ) {
-			error_log( 'Wishlist: Extension not available' );
 			return '<div class="ct-offcanvas-wishlist"><p>' . esc_html__( 'Wishlist functionality is not available.', 'blocksy-companion' ) . '</p></div>';
 		}
 
 		// Get current wishlist
 		$wishlist = blc_get_ext( 'woocommerce-extra' )->get_wish_list()->get_current_wish_list();
 
-		// Debug: Log wishlist data
-		error_log( 'Wishlist items count: ' . count( $wishlist ) );
-		error_log( 'Wishlist data: ' . print_r( $wishlist, true ) );
-
 		if ( empty( $wishlist ) ) {
-			error_log( 'Wishlist: Empty wishlist, showing empty content' );
 			return $this->get_empty_wishlist_content();
 		}
 
-		error_log( 'Wishlist: Rendering ' . count( $wishlist ) . ' items' );
 		return $this->render_wishlist_items( $wishlist );
 	}
 
@@ -547,13 +570,22 @@ class BlocksyChildWishlistOffCanvas {
 	 * Get empty wishlist content
 	 */
 	private function get_empty_wishlist_content() {
-		return '<div class="ct-offcanvas-wishlist">
-			<div class="wishlist-empty">
-				<p>' . esc_html__( 'Your wishlist is currently empty.', 'blocksy-companion' ) . '</p>
-				<p>' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>
-				<a href="' . esc_url( wp_registration_url() ) . '" class="button">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>
-			</div>
-		</div>';
+		$is_logged_in = is_user_logged_in();
+		$html         = '<div class="ct-offcanvas-wishlist">';
+		$html .= '<div class="wishlist-empty">';
+		$html .= '<p>' . esc_html__( 'Your wishlist is currently empty.', 'blocksy-companion' ) . '</p>';
+		if ( ! $is_logged_in ) {
+			$html .= '<p>' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>';
+			$html .= '<a href="' . esc_url( wp_registration_url() ) . '" class="button">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>';
+		}
+		$html .= '</div>';
+
+		// Always show recommendations below the empty state (if enabled)
+		// Avoid duplicating the guest notice here since we already showed it above (for logged-out users)
+		$html .= $this->get_recommendations_section( array( 'include_guest_notice' => false ) );
+
+		$html .= '</div>';
+		return $html;
 	}
 
 	/**
@@ -572,9 +604,6 @@ class BlocksyChildWishlistOffCanvas {
 			<div class="wishlist-items">';
 
 		foreach ( $items as $item ) {
-			// Debug: Log each item structure
-			error_log( 'Wishlist item structure: ' . print_r( $item, true ) );
-
 			// Extract product ID using the same logic as Blocksy's table
 			$product_id = null;
 
@@ -585,31 +614,23 @@ class BlocksyChildWishlistOffCanvas {
 			}
 
 			if ( ! $product_id ) {
-				error_log( 'Could not extract product ID from item: ' . print_r( $item, true ) );
 				continue;
 			}
 
-			error_log( 'Extracted product ID: ' . $product_id );
-
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				error_log( 'Product not found for ID: ' . $product_id );
 				continue;
 			}
 
 			// Check product status (same as Blocksy table)
 			$status = $product->get_status();
 			if ( $status === 'trash' ) {
-				error_log( 'Product is trashed, skipping: ' . $product_id );
 				continue;
 			}
 
 			if ( $status === 'private' && ! current_user_can( 'read_private_products' ) ) {
-				error_log( 'Product is private and user cannot read, skipping: ' . $product_id );
 				continue;
 			}
-
-			error_log( 'Product found and valid: ' . $product->get_name() );
 
 			$html .= '<div class="wishlist-item" data-product-id="' . esc_attr( $product_id ) . '">';
 
@@ -656,9 +677,231 @@ class BlocksyChildWishlistOffCanvas {
 	/**
 	 * Get recommendations section
 	 */
-	private function get_recommendations_section() {
-		// For now, return empty - can be enhanced later with actual recommendations
-		return '';
+	private function get_recommendations_section( $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'include_guest_notice' => true,
+		) );
+
+		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
+		// Check if recommendations are enabled
+		$show_recommendations = $get_mod( 'wishlist_show_recommendations', 'yes' ) === 'yes';
+		if ( ! $show_recommendations ) {
+			return '';
+		}
+
+		$recommended_products = $this->get_recommended_products();
+
+		if ( empty( $recommended_products ) ) {
+			return '';
+		}
+
+		$html = '';
+
+		// Show guest notice above recommendations for logged-out users when requested
+		if ( $args['include_guest_notice'] && ! is_user_logged_in() ) {
+			$html .= $this->get_guest_notice_html();
+		}
+
+		$html .= '<div class="wishlist-recommendations">
+			<h3 class="recommendations-title">' . esc_html__( 'You May Also Like', 'blocksy-companion' ) . '</h3>
+			<div class="recommendations-grid" data-columns="2">';
+
+		foreach ( $recommended_products as $product ) {
+			if ( ! $product || ! $product->is_visible() ) {
+				continue;
+			}
+
+			$html .= $this->render_recommendation_item( $product );
+		}
+
+		$html .= '</div></div>';
+
+		return $html;
+	}
+
+
+	/**
+	 * Guest notice HTML shown to logged-out users
+	 */
+	private function get_guest_notice_html() {
+		$signup_url = wp_registration_url();
+		$login_url  = wp_login_url();
+		$notice     = '<div class="wishlist-guest-notice">'
+			. '<p class="notice-text">' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>'
+			. '<div class="notice-actions">'
+			. '<a href="' . esc_url( $signup_url ) . '" class="button notice-signup">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>'
+			. '</div>'
+			. '</div>';
+
+		return $notice;
+	}
+
+	/**
+	 * Get recommended products based on wishlist items
+	 */
+	private function get_recommended_products() {
+		$recommended_ids = array();
+
+		// Get current wishlist
+		if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) || ! blc_get_ext( 'woocommerce-extra' )->get_wish_list() ) {
+			return array();
+		}
+
+		$wishlist = blc_get_ext( 'woocommerce-extra' )->get_wish_list()->get_current_wish_list();
+
+		// Extract product IDs from wishlist data structure
+		$wishlist_ids = array();
+		if ( ! empty( $wishlist ) ) {
+			foreach ( $wishlist as $item ) {
+				if ( is_array( $item ) && isset( $item['id'] ) ) {
+					$wishlist_ids[] = $item['id'];
+				} elseif ( is_numeric( $item ) ) {
+					$wishlist_ids[] = $item;
+				}
+			}
+		}
+
+		// Step 1 & 2: Get cross-sells and upsells from wishlist items
+		if ( ! empty( $wishlist_ids ) ) {
+			foreach ( $wishlist_ids as $product_id ) {
+				$product = wc_get_product( $product_id );
+				if ( ! $product ) {
+					continue;
+				}
+
+				// Get cross-sells
+				$cross_sells = $product->get_cross_sell_ids();
+				if ( ! empty( $cross_sells ) ) {
+					$recommended_ids = array_merge( $recommended_ids, $cross_sells );
+				}
+
+				// Get upsells
+				$upsells = $product->get_upsell_ids();
+				if ( ! empty( $upsells ) ) {
+					$recommended_ids = array_merge( $recommended_ids, $upsells );
+				}
+			}
+
+			// Remove duplicates and products already in wishlist
+			$recommended_ids = array_diff( array_unique( $recommended_ids ), $wishlist_ids );
+		}
+
+		// Step 3: Limit to 2 items if we have recommendations
+		if ( ! empty( $recommended_ids ) ) {
+			$recommended_ids = array_slice( $recommended_ids, 0, 2 );
+		} else {
+			// Step 4: If no cross-sells/upsells, get random products
+			$recommended_ids = $this->get_random_products( 2, $wishlist_ids );
+		}
+
+		// Convert IDs to product objects
+		$products = array();
+		foreach ( $recommended_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( $product && $product->is_visible() ) {
+				$products[] = $product;
+			}
+		}
+
+		return $products;
+	}
+
+	/**
+	 * Get random products excluding wishlist items
+	 */
+	private function get_random_products( $limit = 2, $exclude_ids = array() ) {
+		$args = array(
+			'post_type' => 'product',
+			'post_status' => 'publish',
+			'posts_per_page' => $limit,
+			'orderby' => 'rand',
+			'meta_query' => array(
+				array(
+					'key' => '_stock_status',
+					'value' => 'instock',
+					'compare' => '='
+				)
+			),
+			'tax_query' => array(
+				array(
+					'taxonomy' => 'product_visibility',
+					'field' => 'name',
+					'terms' => array( 'exclude-from-catalog', 'exclude-from-search' ),
+					'operator' => 'NOT IN',
+				),
+			),
+		);
+
+		if ( ! empty( $exclude_ids ) ) {
+			$args['post__not_in'] = $exclude_ids;
+		}
+
+		$query       = new WP_Query( $args );
+		$product_ids = array();
+
+		if ( $query->have_posts() ) {
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$product_ids[] = get_the_ID();
+			}
+			wp_reset_postdata();
+		}
+
+		return $product_ids;
+	}
+
+	/**
+	 * Render a single recommendation item
+	 */
+	private function render_recommendation_item( $product ) {
+		$product_id = $product->get_id();
+		$get_mod    = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
+		// Get recommendation-specific settings
+		$show_image       = $get_mod( 'wishlist_recommendations_show_image', 'yes' ) === 'yes';
+		$show_price       = $get_mod( 'wishlist_recommendations_show_price', 'yes' ) === 'yes';
+		$show_add_to_cart = $get_mod( 'wishlist_recommendations_show_add_to_cart', 'yes' ) === 'yes';
+
+		$html = '<div class="recommendation-item" data-product-id="' . esc_attr( $product_id ) . '">';
+
+		// Product image
+		if ( $show_image ) {
+			$html .= '<div class="recommendation-item-image">
+				<a href="' . esc_url( $product->get_permalink() ) . '">
+					' . $product->get_image( 'woocommerce_thumbnail' ) . '
+				</a>
+			</div>';
+		}
+
+		// Product details
+		$html .= '<div class="recommendation-item-details">
+			<h4 class="recommendation-item-title">
+				<a href="' . esc_url( $product->get_permalink() ) . '">' . esc_html( $product->get_name() ) . '</a>
+			</h4>';
+
+		// Price
+		if ( $show_price ) {
+			$html .= '<div class="recommendation-item-price">' . $product->get_price_html() . '</div>';
+		}
+
+		// Add to cart button (if product is purchasable and setting is enabled)
+		if ( $show_add_to_cart && $product->is_purchasable() && $product->is_in_stock() ) {
+			$html .= '<div class="recommendation-item-actions">
+				<a href="' . esc_url( $product->add_to_cart_url() ) . '"
+				   class="button add_to_cart_button"
+				   data-product_id="' . esc_attr( $product_id ) . '"
+				   data-product_sku="' . esc_attr( $product->get_sku() ) . '"
+				   aria-label="' . esc_attr( sprintf( __( 'Add "%s" to your cart', 'woocommerce' ), $product->get_name() ) ) . '"
+				   rel="nofollow">
+					' . esc_html( $product->add_to_cart_text() ) . '
+				</a>
+			</div>';
+		}
+
+		$html .= '</div></div>';
+
+		return $html;
 	}
 
 	/**
@@ -829,35 +1072,6 @@ class BlocksyChildWishlistOffCanvas {
 		return isset( $icons[ $type ] ) ? $icons[ $type ] : $icons['type-1'];
 	}
 
-	/**
-	 * Debug function to show current settings (for testing)
-	 */
-	public function debug_settings_notice() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		$display_mode = function_exists( 'blocksy_get_theme_mod' )
-			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
-			: get_theme_mod( 'wishlist_display_mode', 'page' );
-
-		$icon_source = function_exists( 'blocksy_get_theme_mod' )
-			? blocksy_get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' )
-			: get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
-
-		$custom_icon = function_exists( 'blocksy_get_theme_mod' )
-			? blocksy_get_theme_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) )
-			: get_theme_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) );
-
-		if ( $display_mode === 'offcanvas' ) {
-			echo '<div class="notice notice-info"><p>';
-			echo '<strong>Wishlist Off-Canvas Debug:</strong><br>';
-			echo 'Display Mode: ' . esc_html( $display_mode ) . '<br>';
-			echo 'Icon Source: ' . esc_html( $icon_source ) . '<br>';
-			echo 'Custom Icon: ' . esc_html( $custom_icon['icon'] ?? 'Not set' ) . '<br>';
-			echo '</p></div>';
-		}
-	}
 }
 
 // Initialize the off-canvas wishlist functionality
