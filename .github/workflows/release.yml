@@ -488,6 +488,9 @@ jobs:
           ZIP_NAME="blocksy-child-v${{ steps.new-version.outputs.new-version }}.zip"
           THEME_FOLDER="blocksy-child"
 
+          # Clean up any backup files created during the release process
+          rm -f *.bak *.backup *.old CHANGELOG.md.bak 2>/dev/null || true
+
           # Create temporary directory structure for consistent folder naming
           mkdir -p "temp-build/${THEME_FOLDER}"
 
@@ -496,6 +499,7 @@ jobs:
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.augment/' \
+            --exclude='.augmentignore' \
             --exclude='.gitignore' \
             --exclude='.gitattributes' \
             --exclude='docs/' \
@@ -510,6 +514,9 @@ jobs:
             --exclude='*.map' \
             --exclude='*.log' \
             --exclude='*.lock' \
+            --exclude='*.bak' \
+            --exclude='*.backup' \
+            --exclude='*.old' \
             --exclude='.env*' \
             --exclude='.vscode/' \
             --exclude='.idea/' \
