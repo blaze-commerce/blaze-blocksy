@@ -1,0 +1,201 @@
+name: Cleanup Outdated Version Bump PRs
+
+# Trigger when PRs are closed/merged to main branch
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+jobs:
+  cleanup-outdated-version-bumps:
+    name: Clean up outdated version bump PRs
+    runs-on: ubuntu-latest
+    
+    # Only run when a version bump PR is merged (not just closed)
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
+      (
+        startsWith(github.event.pull_request.title, 'chore(release): bump theme version to') ||
+        startsWith(github.event.pull_request.title, 'chore: bump version to')
+      )
+    
+    permissions:
+      contents: write
+      pull-requests: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Extract merged version
+        id: extract-version
+        run: |
+          set -euo pipefail
+          
+          # Extract version from the merged PR title
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "Merged PR title: $PR_TITLE"
+          
+          # Extract version using regex
+          if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            MERGED_VERSION="${BASH_REMATCH[3]}"
+            echo "Extracted merged version: $MERGED_VERSION"
+            echo "merged-version=$MERGED_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Could not extract version from PR title: $PR_TITLE"
+            exit 1
+          fi
+
+      - name: Find and analyze open version bump PRs
+        id: find-outdated-prs
+        run: |
+          set -euo pipefail
+          
+          MERGED_VERSION="${{ steps.extract-version.outputs.merged-version }}"
+          echo "🔍 Looking for outdated version bump PRs (merged version: $MERGED_VERSION)"
+          
+          # Get all open PRs created by the bot
+          OPEN_PRS=$(gh pr list \
+            --author "blazecommerce-automation-bot[bot]" \
+            --state open \
+            --json number,title,headRefName,url \
+            --jq '.[] | select(.title | test("^chore(\\(release\\))?: bump( theme)? version to [0-9]+\\.[0-9]+\\.[0-9]+"))')
+          
+          if [ -z "$OPEN_PRS" ]; then
+            echo "✅ No open version bump PRs found"
+            echo "outdated-prs=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "📋 Found open version bump PRs:"
+          echo "$OPEN_PRS" | jq -r '"  - PR #" + (.number | tostring) + ": " + .title'
+          
+          # Create temporary file for outdated PRs
+          TEMP_FILE=$(mktemp)
+          
+          # Analyze each PR to determine if it's outdated
+          echo "$OPEN_PRS" | jq -c '.' | while read -r pr; do
+            PR_NUMBER=$(echo "$pr" | jq -r '.number')
+            PR_TITLE=$(echo "$pr" | jq -r '.title')
+            PR_BRANCH=$(echo "$pr" | jq -r '.headRefName')
+            PR_URL=$(echo "$pr" | jq -r '.url')
+            
+            # Extract version from PR title
+            if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              PR_VERSION="${BASH_REMATCH[3]}"
+              
+              echo "Comparing versions: PR=$PR_VERSION vs Merged=$MERGED_VERSION"
+              
+              # Compare versions using sort -V (version sort)
+              if [ "$PR_VERSION" != "$MERGED_VERSION" ]; then
+                # Check if PR version is less than or equal to merged version
+                OLDER_VERSION=$(printf '%s\n%s\n' "$PR_VERSION" "$MERGED_VERSION" | sort -V | head -n1)
+                
+                if [ "$OLDER_VERSION" = "$PR_VERSION" ] || [ "$PR_VERSION" = "$MERGED_VERSION" ]; then
+                  echo "❌ PR #$PR_NUMBER (v$PR_VERSION) is outdated (merged: v$MERGED_VERSION)"
+                  echo "$pr" >> "$TEMP_FILE"
+                else
+                  echo "✅ PR #$PR_NUMBER (v$PR_VERSION) is newer than merged version (v$MERGED_VERSION)"
+                fi
+              else
+                echo "⚠️ PR #$PR_NUMBER has same version as merged PR (duplicate)"
+                echo "$pr" >> "$TEMP_FILE"
+              fi
+            else
+              echo "⚠️ Could not extract version from PR title: $PR_TITLE"
+            fi
+          done
+          
+          # Read outdated PRs from temp file
+          if [ -f "$TEMP_FILE" ] && [ -s "$TEMP_FILE" ]; then
+            OUTDATED_PRS=$(cat "$TEMP_FILE" | jq -s '.')
+            echo "outdated-prs=$OUTDATED_PRS" >> $GITHUB_OUTPUT
+            echo "📋 Outdated PRs to close:"
+            echo "$OUTDATED_PRS" | jq -r '.[] | "  - PR #" + (.number | tostring) + ": " + .title'
+          else
+            echo "✅ No outdated version bump PRs found"
+            echo "outdated-prs=" >> $GITHUB_OUTPUT
+          fi
+          
+          rm -f "$TEMP_FILE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close outdated version bump PRs
+        if: steps.find-outdated-prs.outputs.outdated-prs != ''
+        run: |
+          set -euo pipefail
+          
+          MERGED_VERSION="${{ steps.extract-version.outputs.merged-version }}"
+          OUTDATED_PRS='${{ steps.find-outdated-prs.outputs.outdated-prs }}'
+          
+          echo "🧹 Closing outdated version bump PRs..."
+          
+          echo "$OUTDATED_PRS" | jq -c '.[]' | while read -r pr; do
+            PR_NUMBER=$(echo "$pr" | jq -r '.number')
+            PR_TITLE=$(echo "$pr" | jq -r '.title')
+            PR_BRANCH=$(echo "$pr" | jq -r '.headRefName')
+            PR_URL=$(echo "$pr" | jq -r '.url')
+            
+            # Extract version from PR title for the comment
+            if [[ "$PR_TITLE" =~ chore(\(release\))?: bump( theme)? version to ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              PR_VERSION="${BASH_REMATCH[3]}"
+            else
+              PR_VERSION="unknown"
+            fi
+            
+            echo "🗑️ Closing PR #$PR_NUMBER (v$PR_VERSION)..."
+            
+            # Add explanatory comment
+            COMMENT="🤖 **Automated Cleanup**
+
+This version bump PR is being automatically closed because version **$MERGED_VERSION** has already been released.
+
+**Details:**
+- 📦 **Target version**: $PR_VERSION
+- ✅ **Released version**: $MERGED_VERSION  
+- 🔗 **Released via**: ${{ github.event.pull_request.html_url }}
+- 🕒 **Closed at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+This version bump is no longer needed. If you believe this was closed in error, please contact the maintainers.
+
+---
+*This action was performed automatically by the [cleanup workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/cleanup-outdated-version-bumps.yml).*"
+            
+            # Add comment to PR
+            gh pr comment "$PR_NUMBER" --body "$COMMENT"
+            
+            # Close the PR
+            gh pr close "$PR_NUMBER" --comment "Automatically closed - version $MERGED_VERSION already released"
+            
+            echo "✅ Closed PR #$PR_NUMBER"
+            
+            # Optional: Delete the branch (with safety check)
+            if [[ "$PR_BRANCH" =~ ^release/bump-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "🗑️ Deleting branch: $PR_BRANCH"
+              git push origin --delete "$PR_BRANCH" || echo "⚠️ Could not delete branch $PR_BRANCH (may already be deleted)"
+            else
+              echo "⚠️ Skipping branch deletion for non-standard branch name: $PR_BRANCH"
+            fi
+            
+            echo "---"
+          done
+          
+          echo "🎉 Cleanup completed successfully!"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "📊 **Cleanup Summary**"
+          echo "- 🎯 **Trigger**: Version bump PR merged (v${{ steps.extract-version.outputs.merged-version }})"
+          echo "- 🔍 **Scanned**: Open PRs created by blazecommerce-automation-bot[bot]"
+          echo "- 🧹 **Action**: Closed outdated version bump PRs and deleted branches"
+          echo "- ✅ **Status**: Cleanup completed"
