@@ -47,18 +47,20 @@ add_action( 'wp_footer', function () {
 } );
 
 add_filter( 'woocommerce_product_loop_start', function ($echo) {
-	// if (
-	// 	( ! isset( $_POST['action'] ) || $_POST['action'] !== 'get_recently_viewed_products' )
-	// 	( ! is_product() || is_archive() ) )
-	// 	return $echo;
+	if ( ( ! is_product() || is_archive() ) ) {
+		if ( ! isset( $_POST['action'] ) || $_POST['action'] !== 'get_recently_viewed_products' )
+			return $echo;
+	}
 
 	return str_replace( '<ul', '<div', $echo );
 
 }, 999 );
 
 add_filter( 'woocommerce_product_loop_end', function ($echo) {
-	// if ( ! is_product() || is_archive() )
-	// 	return $echo;
+	if ( ( ! is_product() || is_archive() ) ) {
+		if ( ! isset( $_POST['action'] ) || $_POST['action'] !== 'get_recently_viewed_products' )
+			return $echo;
+	}
 
 	//replace ul with div with preg_replace
 	$echo = preg_replace( '/<\/ul>/', '</div>', $echo );

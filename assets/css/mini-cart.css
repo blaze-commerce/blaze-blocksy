@@ -6,10 +6,27 @@
   --checkout-button-background: var(--theme-button-background-initial-color);
 }
 
-/* Existing suggested products styles */
-#woo-cart-panel .ct-panel-content-inner {
+#woo-cart-panel {
   --panel-padding: 24px;
 }
+
+#woo-cart-panel .ct-panel-actions {
+  border-bottom: 1px solid var(--mini-cart-divider-color);
+  padding-bottom: 12px;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+  padding-top: var(--panel-padding);
+  margin-left: var(--panel-padding);
+  margin-right: var(--panel-padding);
+}
+
+#woo-cart-panel .ct-panel-actions .ct-panel-heading {
+  font-size: 24px;
+  line-height: 36px;
+  color: var(--theme-palette-color-11, #4e594d);
+}
+
+/* Existing suggested products styles */
 
 .ct-suggested-products--mini-cart .flexy-view .flexy-items {
   gap: 8px;
