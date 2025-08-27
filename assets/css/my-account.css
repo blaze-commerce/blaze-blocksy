@@ -366,3 +366,6 @@
 .wp-block-group.is-layout-constrained.wp-container-core-group-is-layout-87fbb315.wp-block-group-is-layout-constrained {
     display: none;
 }
+.blaze-login-register span .required {
+    color: red;
+}
