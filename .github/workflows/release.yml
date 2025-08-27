@@ -486,15 +486,20 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           ZIP_NAME="blocksy-child-v${{ steps.new-version.outputs.new-version }}.zip"
-          
-          # Create temporary directory for clean theme files
-          mkdir -p temp-theme
-          
-          # Copy theme files (exclude dev, CI, and build files; include only what WP needs)
+          THEME_FOLDER="blocksy-child"
+
+          # Clean up any backup files created during the release process
+          rm -f *.bak *.backup *.old CHANGELOG.md.bak 2>/dev/null || true
+
+          # Create temporary directory structure for consistent folder naming
+          mkdir -p "temp-build/${THEME_FOLDER}"
+
+          # Copy theme files (exclude dev, CI, build files, and scripts; include only what WP needs)
           rsync -av --delete \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.augment/' \
+            --exclude='.augmentignore' \
             --exclude='.gitignore' \
             --exclude='.gitattributes' \
             --exclude='docs/' \
@@ -509,25 +514,36 @@ jobs:
             --exclude='*.map' \
             --exclude='*.log' \
             --exclude='*.lock' \
+            --exclude='*.bak' \
+            --exclude='*.backup' \
+            --exclude='*.old' \
+            --exclude='*.sh' \
+            --exclude='*.bash' \
+            --exclude='*.zsh' \
+            --exclude='*.fish' \
+            --exclude='*.ps1' \
+            --exclude='*.bat' \
+            --exclude='*.cmd' \
             --exclude='.env*' \
             --exclude='.vscode/' \
             --exclude='.idea/' \
-            --exclude='temp-theme/' \
+            --exclude='temp-build/' \
             --exclude='*.md' \
             --exclude='.DS_Store' \
             --exclude='Thumbs.db' \
-            . temp-theme/
-          
-          # Create ZIP from temp directory
-          cd temp-theme
-          zip -r "../${ZIP_NAME}" .
+            . "temp-build/${THEME_FOLDER}/"
+
+          # Create ZIP from temp-build directory (includes the theme folder)
+          cd temp-build
+          zip -r "../${ZIP_NAME}" "${THEME_FOLDER}"
           cd ..
-          
+
           # Clean up
-          rm -rf temp-theme
-          
+          rm -rf temp-build
+
           echo "zip-name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ZIP: ${ZIP_NAME}"
+          echo "Theme folder in ZIP: ${THEME_FOLDER}"
           
       - name: Create GitHub Release
         id: create_release

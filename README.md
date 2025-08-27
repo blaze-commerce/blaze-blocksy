@@ -38,6 +38,7 @@ This repository uses automated semantic versioning with GitHub Actions. Version 
 1. Go to the [Releases page](../../releases)
 2. Download the latest `blocksy-child-vX.Y.Z.zip` file
 3. Upload via WordPress Admin → Appearance → Themes → Add New → Upload Theme
+4. The extracted theme folder will be consistently named `blocksy-child` regardless of version
 
 ### Manual Installation
 1. Clone this repository to your WordPress themes directory
