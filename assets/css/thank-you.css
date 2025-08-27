@@ -3,7 +3,6 @@
  *
  * Complete layout redesign based on Blaze Commerce specifications.
  * Pixel-perfect responsive implementation with preserved functionality.
- * Enhanced for WooCommerce checkout enhancement integration.
  *
  * @package Blocksy_Child
  * @since 2.0.3
@@ -97,7 +96,9 @@
     /* CRITICAL FIX: Ensure main content is always visible */
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* ========================================
@@ -105,7 +106,7 @@
    ======================================== */
 
 .blaze-commerce-order-details {
-    margin-bottom: 40px;
+    border-bottom: 1px solid #CDD1D4;
 }
 
 .blaze-commerce-order-details h3 {
@@ -148,16 +149,14 @@
 }
 
 .blaze-commerce-addresses-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .blaze-commerce-address-block {
-    background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 24px;
+    border-bottom: 1px solid #CDD1D4;
+    padding-bottom: 24px;
 }
 
 .blaze-commerce-address-title {
@@ -227,8 +226,8 @@
 }
 
 .blaze-commerce-account-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -266,7 +265,7 @@
 }
 
 .blaze-commerce-create-account-btn {
-    background: #dc2626;
+    background-color: #dc2626 !important;
     color: #ffffff;
     border: none;
     padding: 16px 32px;
@@ -418,12 +417,12 @@
     }
 
     .blaze-commerce-addresses-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         gap: 24px;
     }
 
     .blaze-commerce-account-form {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .blaze-commerce-order-meta {
@@ -549,7 +548,7 @@
 .blaze-commerce-product-item {
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: block;
 }
 
 /* Ensure grid containers display correctly */
@@ -558,11 +557,12 @@
 }
 
 .blaze-commerce-addresses-grid {
-    display: grid !important;
+    display: flex;
 }
 
 .blaze-commerce-account-form {
-    display: grid !important;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Ensure flex containers display correctly */
@@ -616,10 +616,31 @@
     }
 }
 
+/* Hide Contents */
 .woocommerce-thankyou-order-details {
     display: none !important;
 }
-
 .wp-block-heading {
     display: none !important;
+}
+.hero-section {
+    display: none !important;
+}
+.ct-breadcrumbs {
+    display: none !important;
+}
+
+.blaze-commerce-product-quantity {
+    font-size: 14px;
+    color: #4E594D;
+    font-weight: 300;
+}
+
+.blaze-commerce-order-details-container {
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid var(--border, #CDD1D4);
+    gap: 24px;
 }

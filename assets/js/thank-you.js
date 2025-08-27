@@ -47,7 +47,7 @@ jQuery(document).ready(function($) {
         initAccountCreation();
         initAnimations();
         initCopyOrderNumber();
-        initPrintOrder();
+        // initPrintOrder();
         initResponsiveBehavior();
     }
     
