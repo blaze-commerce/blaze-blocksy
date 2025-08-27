@@ -341,6 +341,10 @@
   display: none !important;
 }
 
+#woo-cart-panel .mini_cart_item .product-info {
+  padding-right: 32px;
+}
+
 #woo-cart-panel .mini_cart_item .product-info a {
   font-family: var(--theme-button-font-family, var(--theme-font-family));
   font-weight: 500;
