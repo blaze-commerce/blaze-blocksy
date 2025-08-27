@@ -63,16 +63,18 @@
 }
 
 .blaze-commerce-order-confirmation {
-    font-size: 16px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     margin: 0 0 8px 0;
     line-height: 1.5;
+    font-weight: 600;
 }
 
 .blaze-commerce-order-number {
-    font-size: 16px;
-    color: #666666;
+    font-size: 18px;
+    color: #000000;
     margin: 0 0 16px 0;
+    opacity: 0.8;
 }
 
 .blaze-commerce-order-number strong {
@@ -81,8 +83,8 @@
 }
 
 .blaze-commerce-email-confirmation {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     margin: 0;
     line-height: 1.5;
 }
@@ -159,17 +161,23 @@
     padding-bottom: 24px;
 }
 
+.blaze-commerce-address-block:last-child {
+    border-bottom: 0px;
+    padding-bottom: 0px;
+}
+
 .blaze-commerce-address-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #000000;
     margin: 0 0 16px 0;
     line-height: 1.4;
+    opacity: 0.8;
 }
 
 .blaze-commerce-address-content {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     line-height: 1.6;
     margin: 0;
 }
@@ -197,7 +205,7 @@
 .blaze-commerce-account-title {
     font-size: 18px;
     font-weight: 600;
-    color: #000000;
+    color: #242424;
     margin: 0 0 24px 0;
     line-height: 1.4;
 }
@@ -209,12 +217,13 @@
 }
 
 .blaze-commerce-account-benefits li {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #000000;
     line-height: 1.6;
     margin-bottom: 8px;
     padding-left: 20px;
     position: relative;
+    opacity: 0.8;
 }
 
 .blaze-commerce-account-benefits li:before {
@@ -238,9 +247,9 @@
 }
 
 .blaze-commerce-form-field label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 400;
+    color: #242424;
     margin-bottom: 8px;
 }
 
@@ -270,8 +279,8 @@
     border: none;
     padding: 16px 32px;
     border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s ease;
     width: 100%;
@@ -300,9 +309,9 @@
 }
 
 .blaze-commerce-summary-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #000000;
+    font-size: 30px;
+    font-weight: 400;
+    color: #242424;
     margin: 0 0 24px 0;
     line-height: 1.4;
     display: flex;
@@ -340,9 +349,9 @@
 }
 
 .blaze-commerce-product-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 400;
+    color: #111827;
     margin: 0 0 4px 0;
     line-height: 1.4;
 }
@@ -371,12 +380,14 @@
 }
 
 .blaze-commerce-summary-label {
-    color: #666666;
+    color: #242424;
+    font-size: 18px;
 }
 
 .blaze-commerce-summary-value {
-    color: #000000;
-    font-weight: 500;
+    color: #242424;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 .blaze-commerce-summary-total {
@@ -388,15 +399,15 @@
 }
 
 .blaze-commerce-total-label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 700;
+    color: #242424;
 }
 
 .blaze-commerce-total-value {
-    font-size: 18px;
+    font-size: 30px;
     font-weight: 700;
-    color: #000000;
+    color: #242424;
 }
 
 /* ========================================
@@ -616,20 +627,6 @@
     }
 }
 
-/* Hide Contents */
-.woocommerce-thankyou-order-details {
-    display: none !important;
-}
-.wp-block-heading {
-    display: none !important;
-}
-.hero-section {
-    display: none !important;
-}
-.ct-breadcrumbs {
-    display: none !important;
-}
-
 .blaze-commerce-product-quantity {
     font-size: 14px;
     color: #4E594D;
@@ -643,4 +640,33 @@
     border-radius: 8px;
     border: 1px solid var(--border, #CDD1D4);
     gap: 24px;
+}
+
+.blaze-commerce-order-confirmation-container {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border, #CDD1D4);
+}
+
+/* Hide Contents */
+.woocommerce-thankyou-order-details {
+    display: none !important;
+}
+.wp-block-heading {
+    display: none !important;
+}
+.hero-section {
+    display: none !important;
+}
+.ct-breadcrumbs {
+    display: none !important;
+}
+.wp-block-group.is-layout-flow.wp-block-group-is-layout-flow {
+    display: none !important;
+}
+.wp-block-group.is-layout-constrained.wp-block-group-is-layout-constrained h2 {
+    display: none !important;
+}
+
+.ct-container-full {
+    padding-top: 0px !important;
 }
