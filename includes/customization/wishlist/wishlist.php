@@ -648,7 +648,22 @@ class BlocksyChildWishlistOffCanvas {
 				</h3>';
 
 			if ( $show_price ) {
-				$html .= '<div class="wishlist-item-price">' . $product->get_price_html() . '</div>';
+				$price_html = $product->get_price_html();
+				if ( empty( $price_html ) ) {
+					$regular_price = $product->get_regular_price();
+					$sale_price    = $product->get_sale_price();
+
+					if ( '' !== $sale_price && '' !== $regular_price ) {
+						$price_html = wc_format_sale_price( wc_price( $regular_price ), wc_price( $sale_price ) );
+					} else {
+						$display_price = wc_get_price_to_display( $product );
+						if ( '' !== $display_price && null !== $display_price ) {
+							$price_html = wc_price( $display_price );
+						}
+					}
+				}
+
+				$html .= '<div class="wishlist-item-price">' . $price_html . '</div>';
 			}
 
 			$html .= '<div class="wishlist-item-actions">';
