@@ -476,10 +476,31 @@ jobs:
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
           SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
 
-          git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
-          git push origin "v${NEW_VERSION}"
+          # Check if tag already exists and handle it
+          if git tag -l | grep -q "^v${NEW_VERSION}$"; then
+            echo "⚠️ Tag v${NEW_VERSION} already exists. Checking if it points to the same commit..."
+            EXISTING_TAG_COMMIT=$(git rev-list -n 1 "v${NEW_VERSION}")
+            CURRENT_COMMIT=$(git rev-parse HEAD)
 
-          echo "Tagged commit $(git rev-parse HEAD) as v${NEW_VERSION}"
+            if [ "$EXISTING_TAG_COMMIT" = "$CURRENT_COMMIT" ]; then
+              echo "✅ Tag v${NEW_VERSION} already points to current commit ${CURRENT_COMMIT}"
+              echo "Skipping tag creation"
+            else
+              echo "🔄 Tag v${NEW_VERSION} points to different commit ${EXISTING_TAG_COMMIT}, updating it..."
+              # Delete existing tag locally and remotely
+              git tag -d "v${NEW_VERSION}" || true
+              git push --delete origin "v${NEW_VERSION}" || true
+              # Create new tag
+              git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+              git push origin "v${NEW_VERSION}"
+              echo "Updated tag v${NEW_VERSION} to point to commit $(git rev-parse HEAD)"
+            fi
+          else
+            # Tag doesn't exist, create it normally
+            git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+            git push origin "v${NEW_VERSION}"
+            echo "Created new tag v${NEW_VERSION} for commit $(git rev-parse HEAD)"
+          fi
           
       - name: Create theme ZIP
         id: create-zip
@@ -545,6 +566,25 @@ jobs:
           echo "Created ZIP: ${ZIP_NAME}"
           echo "Theme folder in ZIP: ${THEME_FOLDER}"
           
+      - name: Check and clean up existing release
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+          echo "Checking for existing release v${NEW_VERSION}"
+
+          # Check if release already exists
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${NEW_VERSION} --jq '.id' 2>/dev/null || echo "")
+          if [ ! -z "$RELEASE_ID" ]; then
+            echo "⚠️ Release v${NEW_VERSION} already exists (ID: ${RELEASE_ID})"
+            echo "Deleting existing release to recreate it with updated information"
+            gh api -X DELETE repos/${{ github.repository }}/releases/${RELEASE_ID} || true
+            echo "Deleted existing release v${NEW_VERSION}"
+          else
+            echo "✅ No existing release found for v${NEW_VERSION}"
+          fi
+
       - name: Create GitHub Release
         id: create_release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -609,7 +649,9 @@ jobs:
           git config --global user.email "automation@blazecommerce.io"
           git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
 
-      - name: Rollback tag
+      - name: Rollback tag and release
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           VERSION="${{ needs.release.outputs.new-release-version }}"
           if [ ! -z "$VERSION" ]; then
@@ -617,8 +659,19 @@ jobs:
 
             # Delete the tag if it exists
             if git tag -l | grep -q "v${VERSION}"; then
+              echo "Deleting tag v${VERSION}"
               git tag -d "v${VERSION}" || true
               git push --delete origin "v${VERSION}" || true
+            fi
+
+            # Delete the release if it exists
+            echo "Checking for existing release v${VERSION}"
+            RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${VERSION} --jq '.id' 2>/dev/null || echo "")
+            if [ ! -z "$RELEASE_ID" ]; then
+              echo "Deleting release v${VERSION} (ID: ${RELEASE_ID})"
+              gh api -X DELETE repos/${{ github.repository }}/releases/${RELEASE_ID} || true
+            else
+              echo "No release found for v${VERSION}"
             fi
 
             echo "Rollback completed"
