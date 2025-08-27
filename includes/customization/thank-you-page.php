@@ -69,21 +69,28 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
             <!-- Header Section -->
             <div class="blaze-commerce-thank-you-header">
                 <h1 class="blaze-commerce-thank-you-title">Thank you for your Order!</h1>
-                <p class="blaze-commerce-order-confirmation">
-                    Your order number is <strong>#<?php echo $order->get_order_number(); ?></strong>
-                </p>
-                <p class="blaze-commerce-order-number">
-                    You will receive your confirmation email to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong> within 5 minutes. If you do not see the email in your inbox, please check your spam or junk folder
-                </p>
-                <p class="blaze-commerce-email-confirmation">
-                    If you still do not receive the email, please contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
-                </p>
             </div>
 
             <!-- Main Content Area -->
             <div class="blaze-commerce-main-content">
                 <div class="blaze-commerce-order-details-container">
-                    <?php blocksy_child_blaze_commerce_order_details( $order ); ?>
+                    
+                    <div class="blaze-commerce-order-confirmation-container">
+                        <p class="blaze-commerce-order-confirmation">
+                        Your order number is <strong>#<?php echo $order->get_order_number(); ?></strong>
+                        </p>
+                        <p class="blaze-commerce-order-number">
+                            You will receive your confirmation email to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong> within 5 minutes. If you do not see the email in your inbox, please check your spam or junk folder
+                        </p>
+                        <p class="blaze-commerce-email-confirmation">
+                            If you still do not receive the email, please contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
+                        </p>
+                    </div>
+                    <?php 
+
+                    // blocksy_child_blaze_commerce_order_details( $order ); 
+
+                    ?>
                     <?php blocksy_child_blaze_commerce_addresses_section( $order ); ?>
                 </div>
                 <?php blocksy_child_blaze_commerce_account_creation( $order ); ?>
@@ -253,8 +260,8 @@ function blocksy_child_blaze_commerce_order_summary( $order ) {
                 <div class="blaze-commerce-product-details">
                     <h4 class="blaze-commerce-product-name"><?php echo esc_html( $product->get_name() ); ?></h4>
                     <p class="blaze-commerce-product-quantity">Qty: <?php echo esc_html( $item->get_quantity() ); ?></p>
-                    <p class="blaze-commerce-product-price">$<?php echo number_format( $item->get_total(), 2 ); ?></p>
                 </div>
+                <p class="blaze-commerce-product-price">$<?php echo number_format( $item->get_total(), 2 ); ?></p>
             </div>
             <?php
         }
