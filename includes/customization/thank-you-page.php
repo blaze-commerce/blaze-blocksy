@@ -15,6 +15,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get formatted shipping display for order
+ *
+ * @param WC_Order $order The order object
+ * @return string Formatted shipping display
+ */
+function blocksy_child_get_shipping_display( $order ) {
+    // Get shipping methods from the order
+    $shipping_methods = $order->get_shipping_methods();
+    $shipping_total = $order->get_shipping_total();
+
+    // If no shipping methods or shipping is free
+    if ( empty( $shipping_methods ) || $shipping_total == 0 ) {
+        return 'Free';
+    }
+
+    // Get the first shipping method (most common case)
+    $shipping_method = reset( $shipping_methods );
+    $method_title = $shipping_method->get_method_title();
+
+    // Format the shipping cost
+    $formatted_cost = wc_price( $shipping_total );
+
+    // Return method name with cost, or just cost if no method name
+    if ( $method_title ) {
+        return $method_title . ' - ' . $formatted_cost;
+    } else {
+        return $formatted_cost;
+    }
+}
+
+/**
  * Replace the entire thank you page content with Blaze Commerce design
  *
  * @param int $order_id The order ID
@@ -42,17 +73,19 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
                     Your order number is <strong>#<?php echo $order->get_order_number(); ?></strong>
                 </p>
                 <p class="blaze-commerce-order-number">
-                    We have emailed your order confirmation to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong>. If you have not received it, please contact us at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
+                    You will receive your confirmation email to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong> within 5 minutes. If you do not see the email in your inbox, please check your spam or junk folder
                 </p>
                 <p class="blaze-commerce-email-confirmation">
-                    If you did not receive the email, please contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
+                    If you still do not receive the email, please contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
                 </p>
             </div>
 
             <!-- Main Content Area -->
             <div class="blaze-commerce-main-content">
-                <?php blocksy_child_blaze_commerce_order_details( $order ); ?>
-                <?php blocksy_child_blaze_commerce_addresses_section( $order ); ?>
+                <div class="blaze-commerce-order-details-container">
+                    <?php blocksy_child_blaze_commerce_order_details( $order ); ?>
+                    <?php blocksy_child_blaze_commerce_addresses_section( $order ); ?>
+                </div>
                 <?php blocksy_child_blaze_commerce_account_creation( $order ); ?>
             </div>
 
@@ -98,7 +131,7 @@ function blocksy_child_blaze_commerce_order_details( $order ) {
             </div>
             <div class="blaze-commerce-order-info-item">
                 <strong>Delivery:</strong>
-                <span>Free</span>
+                <span><?php echo blocksy_child_get_shipping_display( $order ); ?></span>
             </div>
         </div>
     </div>
@@ -201,7 +234,6 @@ function blocksy_child_blaze_commerce_order_summary( $order ) {
     <div class="blaze-commerce-summary-header">
         <h3 class="blaze-commerce-summary-title">
             ORDER SUMMARY
-            <button type="button" class="blaze-commerce-summary-toggle">Hide</button>
         </h3>
     </div>
 
@@ -220,6 +252,7 @@ function blocksy_child_blaze_commerce_order_summary( $order ) {
                 <img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?>" class="blaze-commerce-product-image">
                 <div class="blaze-commerce-product-details">
                     <h4 class="blaze-commerce-product-name"><?php echo esc_html( $product->get_name() ); ?></h4>
+                    <p class="blaze-commerce-product-quantity">Qty: <?php echo esc_html( $item->get_quantity() ); ?></p>
                     <p class="blaze-commerce-product-price">$<?php echo number_format( $item->get_total(), 2 ); ?></p>
                 </div>
             </div>
@@ -235,7 +268,7 @@ function blocksy_child_blaze_commerce_order_summary( $order ) {
 
             <div class="blaze-commerce-summary-row">
                 <span class="blaze-commerce-summary-label">Delivery</span>
-                <span class="blaze-commerce-summary-value">Free</span>
+                <span class="blaze-commerce-summary-value"><?php echo blocksy_child_get_shipping_display( $order ); ?></span>
             </div>
 
             <?php if ( $order->get_total_tax() > 0 ) : ?>
