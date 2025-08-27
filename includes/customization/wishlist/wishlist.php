@@ -385,7 +385,8 @@ class BlocksyChildWishlistOffCanvas {
 		<style id="wishlist-offcanvas-custom-css">
 			/* Canvas Width - Desktop */
 			#wishlist-offcanvas-panel[data-behaviour*="side"] {
-				width:
+				width: 100vw;
+				max-width:
 					<?php echo esc_attr( $canvas_width['desktop'] ); ?>
 				;
 			}
@@ -407,7 +408,8 @@ class BlocksyChildWishlistOffCanvas {
 			/* Tablet */
 			@media (max-width: 999px) {
 				#wishlist-offcanvas-panel[data-behaviour*="side"] {
-					width:
+					width: 100vw;
+					max-width:
 						<?php echo esc_attr( $canvas_width['tablet'] ); ?>
 					;
 				}
@@ -429,7 +431,8 @@ class BlocksyChildWishlistOffCanvas {
 			/* Mobile */
 			@media (max-width: 689px) {
 				#wishlist-offcanvas-panel[data-behaviour*="side"] {
-					width:
+					width: 100vw;
+					max-width:
 						<?php echo esc_attr( $canvas_width['mobile'] ); ?>
 					;
 				}
