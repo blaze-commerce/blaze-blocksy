@@ -232,9 +232,10 @@ After each test, verify:
 ### ZIP Distribution
 - [ ] ZIP file attached to release
 - [ ] ZIP filename follows format `blocksy-child-vX.Y.Z.zip`
-- [ ] ZIP contains all theme files
-- [ ] ZIP excludes `.git`, `docs/`, `.github/`, and `*.md` files
+- [ ] ZIP contains all theme files in `blocksy-child/` folder
+- [ ] ZIP excludes development files (`.git`, `docs/`, `.github/`, `.augmentignore`, `*.md`, `*.bak`)
 - [ ] ZIP is downloadable and extractable
+- [ ] Extracted folder is consistently named `blocksy-child` (without version suffix)
 
 ### WordPress Compatibility
 - [ ] ZIP file installs correctly in WordPress
@@ -306,6 +307,15 @@ gh run list --workflow=release.yml --limit=5
 ```bash
 # After downloading ZIP from release
 unzip -l blocksy-child-vX.Y.Z.zip
+
+# Verify folder structure (should show blocksy-child/ as root folder)
+# Expected output should show:
+#   blocksy-child/style.css
+#   blocksy-child/functions.php
+#   blocksy-child/assets/
+#   etc.
+# Should NOT contain:
+#   .augmentignore, *.bak, *.backup files, docs/, .github/, etc.
 ```
 
 ## Performance Benchmarks
