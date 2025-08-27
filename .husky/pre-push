@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Pre-push hook for comprehensive validation
+# Ensures all commits meet quality standards before remote push
+
+echo "🚀 Running pre-push quality validation..."
+echo "📖 Reference: .augment/rules/ALWAYS-comprehensive-code-review-standards.md"
+
+# Validate branch naming convention
+echo "🌿 Validating branch naming convention..."
+npm run branch:validate
+
+# Check branch naming validation exit code
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Branch naming validation failed"
+    echo "💡 Rename your branch to follow naming conventions"
+    echo "🔧 Get help: npm run branch:help"
+    echo "🚨 Emergency bypass: EMERGENCY_BYPASS=true git push"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Branch naming validation passed"
+
+# Run comprehensive pre-push quality check
+npm run quality:pre-push
+
+# Check exit code
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Pre-push quality validation failed"
+    echo "💡 Fix the issues above before pushing to remote"
+    echo "🔧 Emergency bypass: EMERGENCY_BYPASS=true git push"
+    echo "⚠️ Emergency bypass should only be used for critical production fixes"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Pre-push quality validation passed"

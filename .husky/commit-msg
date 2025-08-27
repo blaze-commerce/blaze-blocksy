@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Commit message validation hook
+# Enforces conventional commit format standards
+
+echo "📝 Validating commit message format..."
+
+# Run commit message validation with the commit message file
+npm run quality:commit-msg "$1"
+
+# Check exit code
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Commit message validation failed"
+    echo "💡 Use conventional commit format: type(scope): description"
+    echo "🔧 Example: feat(auth): add OAuth2 integration"
+    echo "🚨 Emergency bypass: EMERGENCY_BYPASS=true git commit -m 'message'"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Commit message validation passed"
