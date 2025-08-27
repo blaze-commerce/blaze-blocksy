@@ -33,8 +33,7 @@
 .products .product .woocommerce-loop-product__title,
 .products .product .jdgm-widget,
 .products .product .price,
-.products .product .ct-woo-card-actions,
-.products .product .noteware-backorder-chip {
+.products .product .ct-woo-card-actions {
   display: block;
   width: 100%;
   padding: 0 24px;
@@ -42,6 +41,14 @@
 
 .products .product .price .wwp-wholesale-pricing-details p {
   margin-bottom: var(--product-element-spacing, 10px);
+}
+
+.products .product .noteware-backorder-chip {
+  width: calc(100% - 48px) !important;
+  margin-left: 24px;
+  margin-right: 24px;
+  padding: 8px;
+  border-radius: 4px;
 }
 
 @media screen and (max-width: 768px) {
@@ -56,18 +63,15 @@
   .products .product .woocommerce-loop-product__title,
   .products .product .jdgm-widget,
   .products .product .price,
-  .products .product .ct-woo-card-actions,
-  .products .product .noteware-backorder-chip {
+  .products .product .ct-woo-card-actions {
     padding: 0 var(--product-element-spacing, 12px);
   }
-}
 
-.products .product .noteware-backorder-chip {
-  margin-left: 24px;
-  margin-right: 24px;
-  width: calc(100% - 48px) !important;
-  padding: 8px;
-  border-radius: 4px;
+  .products .product .noteware-backorder-chip {
+    width: calc(100% - 24px) !important;
+    margin-left: 12px;
+    margin-right: 12px;
+  }
 }
 
 .products .product .ct-woo-card-actions a {

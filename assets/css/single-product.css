@@ -1,3 +1,7 @@
+.single-product .entry-summary {
+  --product-element-spacing: 12px;
+}
+
 .single-product
   .entry-summary
   .ct-price-installment
@@ -59,6 +63,29 @@
   .products .product {
     text-align: left;
   }
+}
+
+.entry-summary .ct-product-divider + .ct-product-divider {
+  display: none;
+}
+
+.entry-summary .woocommerce-product-details__short-description p:last-child {
+  margin-bottom: 0;
+}
+
+.entry-summary .ct-cart-actions {
+  gap: var(--product-element-spacing);
+}
+
+.entry-summary .ppc-button-wrapper {
+  margin-bottom: var(--product-element-spacing);
+}
+
+.woocommerce .type-product .wcpay-express-checkout-wrapper,
+.wp-block-add-to-cart-form .wcpay-express-checkout-wrapper,
+.wc-proceed-to-checkout .wcpay-express-checkout-wrapper {
+  margin-top: var(--product-element-spacing) !important;
+  margin-bottom: var(--product-element-spacing) !important;
 }
 
 .products .product figure .ct-media-container {
@@ -143,6 +170,44 @@
   margin-bottom: var(--product-element-spacing, 10px);
 }
 
-/**
-* BREADCRUMBS
+/** 
+* CT Floating Bar 
 */
+.ct-drawer-canvas[data-location="end"] .ct-floating-bar .ct-media-container {
+  max-width: 70px !important;
+}
+
+.ct-drawer-canvas[data-location="end"] {
+  --floating-bar-height: 100px;
+}
+
+.ct-drawer-canvas[data-location="end"] .ct-drawer-inner {
+  height: auto !important;
+}
+
+.ct-drawer-canvas[data-location="end"] .ct-drawer-inner .ct-floating-bar {
+  height: auto !important;
+  padding: 16px 0;
+}
+
+.ct-floating-bar .product-price {
+  gap: 0 !important;
+}
+
+.ct-floating-bar
+  .ct-floating-bar-content
+  .product-price
+  .wwp-wholesale-pricing-details {
+  display: flex;
+  flex-flow: column;
+  gap: 0;
+}
+
+.ct-floating-bar
+  .ct-floating-bar-content
+  .product-price
+  .wwp-wholesale-pricing-details
+  p {
+  font-size: 12px;
+  margin: 0;
+}
