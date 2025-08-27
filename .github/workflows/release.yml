@@ -474,15 +474,44 @@ jobs:
           # Tag the version bump commit (current HEAD) instead of merge commit
           # This ensures the tagged commit contains the version update
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+
+          # Input validation for security
+          if [ -z "${NEW_VERSION}" ]; then
+            echo "❌ Error: NEW_VERSION is empty"
+            exit 1
+          fi
+
+          # Validate version format to prevent command injection
+          if ! echo "${NEW_VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Error: Invalid version format: ${NEW_VERSION}"
+            echo "Expected format: X.Y.Z (semantic version)"
+            exit 1
+          fi
+
           SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
+          echo "🏷️ Processing version: ${NEW_VERSION}"
 
-          # Check if tag already exists and handle it
-          if git tag -l | grep -q "^v${NEW_VERSION}$"; then
+          # Check if tag already exists and handle it (with proper regex escaping)
+          if git tag -l | grep -q "^v${NEW_VERSION}\$"; then
             echo "⚠️ Tag v${NEW_VERSION} already exists. Checking if it points to the same commit..."
-            EXISTING_TAG_COMMIT=$(git rev-list -n 1 "v${NEW_VERSION}")
-            CURRENT_COMMIT=$(git rev-parse HEAD)
 
-            if [ "$EXISTING_TAG_COMMIT" = "$CURRENT_COMMIT" ]; then
+            # Get commit hashes with proper error handling
+            EXISTING_TAG_COMMIT=$(git rev-list -n 1 "v${NEW_VERSION}" 2>/dev/null || echo "FAILED")
+            CURRENT_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+
+            # Validate git operations succeeded
+            if [ "${EXISTING_TAG_COMMIT}" = "FAILED" ]; then
+              echo "❌ Error: Failed to get existing tag commit hash"
+              echo "Tag may be corrupted or inaccessible"
+              exit 1
+            fi
+
+            if [ "${CURRENT_COMMIT}" = "FAILED" ]; then
+              echo "❌ Error: Failed to get current commit hash"
+              exit 1
+            fi
+
+            if [ "${EXISTING_TAG_COMMIT}" = "${CURRENT_COMMIT}" ]; then
               echo "✅ Tag v${NEW_VERSION} already points to current commit ${CURRENT_COMMIT}"
               echo "Skipping tag creation"
             else
@@ -493,13 +522,28 @@ jobs:
               # Create new tag
               git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
               git push origin "v${NEW_VERSION}"
-              echo "Updated tag v${NEW_VERSION} to point to commit $(git rev-parse HEAD)"
+
+              # Verify tag creation succeeded
+              FINAL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+              if [ "${FINAL_COMMIT}" != "FAILED" ]; then
+                echo "✅ Updated tag v${NEW_VERSION} to point to commit ${FINAL_COMMIT}"
+              else
+                echo "⚠️ Tag updated but could not verify final commit"
+              fi
             fi
           else
             # Tag doesn't exist, create it normally
+            echo "🆕 Creating new tag v${NEW_VERSION}"
             git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
             git push origin "v${NEW_VERSION}"
-            echo "Created new tag v${NEW_VERSION} for commit $(git rev-parse HEAD)"
+
+            # Verify tag creation succeeded
+            FINAL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+            if [ "${FINAL_COMMIT}" != "FAILED" ]; then
+              echo "✅ Created new tag v${NEW_VERSION} for commit ${FINAL_COMMIT}"
+            else
+              echo "⚠️ Tag created but could not verify commit"
+            fi
           fi
           
       - name: Create theme ZIP
@@ -572,15 +616,33 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
-          echo "Checking for existing release v${NEW_VERSION}"
 
-          # Check if release already exists
-          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${NEW_VERSION} --jq '.id' 2>/dev/null || echo "")
-          if [ ! -z "$RELEASE_ID" ]; then
+          # Input validation for security
+          if [ -z "${NEW_VERSION}" ]; then
+            echo "❌ Error: NEW_VERSION is empty"
+            exit 1
+          fi
+
+          # Validate version format to prevent command injection
+          if ! echo "${NEW_VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Error: Invalid version format: ${NEW_VERSION}"
+            exit 1
+          fi
+
+          echo "🔍 Checking for existing release v${NEW_VERSION}"
+
+          # Check if release already exists with proper error handling
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/v${NEW_VERSION}" --jq '.id' 2>/dev/null || echo "")
+          if [ -n "${RELEASE_ID}" ]; then
             echo "⚠️ Release v${NEW_VERSION} already exists (ID: ${RELEASE_ID})"
             echo "Deleting existing release to recreate it with updated information"
-            gh api -X DELETE repos/${{ github.repository }}/releases/${RELEASE_ID} || true
-            echo "Deleted existing release v${NEW_VERSION}"
+
+            # Attempt to delete with error handling
+            if gh api -X DELETE "repos/${{ github.repository }}/releases/${RELEASE_ID}" 2>/dev/null; then
+              echo "✅ Successfully deleted existing release v${NEW_VERSION}"
+            else
+              echo "⚠️ Failed to delete existing release, but continuing (may be already deleted)"
+            fi
           else
             echo "✅ No existing release found for v${NEW_VERSION}"
           fi
@@ -654,25 +716,48 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           VERSION="${{ needs.release.outputs.new-release-version }}"
-          if [ ! -z "$VERSION" ]; then
-            echo "Rolling back version $VERSION"
+          if [ -n "${VERSION}" ]; then
+            echo "🔄 Rolling back version ${VERSION}"
 
-            # Delete the tag if it exists
-            if git tag -l | grep -q "v${VERSION}"; then
-              echo "Deleting tag v${VERSION}"
-              git tag -d "v${VERSION}" || true
-              git push --delete origin "v${VERSION}" || true
+            # Validate version format for security
+            if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "❌ Error: Invalid version format for rollback: ${VERSION}"
+              exit 1
+            fi
+
+            # Delete the tag if it exists (with proper regex escaping)
+            if git tag -l | grep -q "^v${VERSION}\$"; then
+              echo "🏷️ Deleting tag v${VERSION}"
+              if git tag -d "v${VERSION}" 2>/dev/null; then
+                echo "✅ Local tag deleted successfully"
+              else
+                echo "⚠️ Failed to delete local tag (may not exist locally)"
+              fi
+
+              if git push --delete origin "v${VERSION}" 2>/dev/null; then
+                echo "✅ Remote tag deleted successfully"
+              else
+                echo "⚠️ Failed to delete remote tag (may not exist remotely)"
+              fi
+            else
+              echo "ℹ️ No tag v${VERSION} found to delete"
             fi
 
             # Delete the release if it exists
-            echo "Checking for existing release v${VERSION}"
-            RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${VERSION} --jq '.id' 2>/dev/null || echo "")
-            if [ ! -z "$RELEASE_ID" ]; then
-              echo "Deleting release v${VERSION} (ID: ${RELEASE_ID})"
-              gh api -X DELETE repos/${{ github.repository }}/releases/${RELEASE_ID} || true
+            echo "🔍 Checking for existing release v${VERSION}"
+            RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/v${VERSION}" --jq '.id' 2>/dev/null || echo "")
+            if [ -n "${RELEASE_ID}" ]; then
+              echo "🗑️ Deleting release v${VERSION} (ID: ${RELEASE_ID})"
+              if gh api -X DELETE "repos/${{ github.repository }}/releases/${RELEASE_ID}" 2>/dev/null; then
+                echo "✅ Release deleted successfully"
+              else
+                echo "⚠️ Failed to delete release (may be already deleted)"
+              fi
             else
-              echo "No release found for v${VERSION}"
+              echo "ℹ️ No release found for v${VERSION}"
             fi
 
-            echo "Rollback completed"
+            echo "✅ Rollback completed for version ${VERSION}"
+          else
+            echo "ℹ️ No version specified for rollback, skipping"
           fi
