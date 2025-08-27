@@ -1,0 +1,257 @@
+name: Pull Request Validation
+
+# Trigger on pull request events to validate before merging
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - master
+
+jobs:
+  validate-commits:
+    name: Validate Conventional Commits
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate conventional commit messages
+        id: validate-commits
+        run: |
+          set -euo pipefail
+          echo "🔍 Validating conventional commit messages in PR..."
+
+          # Get the base and head commit SHAs with validation
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          # Validate SHA format (40 character hex)
+          if [[ ! "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || [[ ! "$HEAD_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "❌ Invalid SHA format detected"
+            echo "Base SHA: $BASE_SHA"
+            echo "Head SHA: $HEAD_SHA"
+            exit 1
+          fi
+
+          echo "Base SHA: $BASE_SHA"
+          echo "Head SHA: $HEAD_SHA"
+
+          # Get all commit messages in the PR (safely quoted)
+          COMMITS=$(git log --pretty=format:"%H|%s" "${BASE_SHA}..${HEAD_SHA}" --no-merges)
+          
+          if [ -z "$COMMITS" ]; then
+            echo "⚠️ No commits found in this PR"
+            exit 0
+          fi
+          
+          echo "📝 Commits to validate:"
+          echo "$COMMITS" | while IFS='|' read -r commit_sha commit_msg; do
+            echo "  - $commit_sha: $commit_msg"
+          done
+          echo
+          
+          # Validation patterns (properly escaped for bash)
+          CONVENTIONAL_PATTERN="^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?: .+"
+          BREAKING_CHANGE_PATTERN="^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?!: .+"
+
+          # Create temporary files to track results (avoid subshell array issues)
+          TEMP_DIR=$(mktemp -d)
+          INVALID_FILE="$TEMP_DIR/invalid_commits"
+          VALID_FILE="$TEMP_DIR/valid_commits"
+
+          # Validate each commit message
+          INVALID_COUNT=0
+          VALID_COUNT=0
+
+          while IFS='|' read -r commit_sha commit_msg; do
+            # Check for conventional commit format
+            is_valid=false
+
+            # Check standard conventional commit pattern
+            if [[ "$commit_msg" =~ $CONVENTIONAL_PATTERN ]]; then
+              is_valid=true
+            fi
+
+            # Check for breaking change pattern (exclamation mark before colon)
+            if [[ "$commit_msg" == *"!"*": "* ]]; then
+              # More specific check for breaking change format
+              if echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)"; then
+                is_valid=true
+              fi
+            fi
+
+            if [ "$is_valid" = true ]; then
+              echo "✅ Valid: $commit_msg"
+              echo "$commit_sha: $commit_msg" >> "$VALID_FILE"
+              ((VALID_COUNT++))
+            else
+              echo "❌ Invalid: $commit_msg"
+              echo "$commit_sha: $commit_msg" >> "$INVALID_FILE"
+              ((INVALID_COUNT++))
+            fi
+          done <<< "$COMMITS"
+
+          # Create validation summary
+          TOTAL_COMMITS=$(echo "$COMMITS" | wc -l)
+          
+          echo
+          echo "📊 Validation Summary:"
+          echo "  Total commits: $TOTAL_COMMITS"
+          echo "  Valid commits: $VALID_COUNT"
+          echo "  Invalid commits: $INVALID_COUNT"
+          
+          # If there are invalid commits, fail the check
+          if [ $INVALID_COUNT -gt 0 ]; then
+            echo
+            echo "❌ Conventional commit validation failed!"
+            echo
+            echo "Invalid commit messages found:"
+            if [ -f "$INVALID_FILE" ]; then
+              while IFS= read -r invalid_commit; do
+                echo "  - $invalid_commit"
+              done < "$INVALID_FILE"
+            fi
+            echo
+            echo "📚 Conventional commit format:"
+            echo "  <type>[optional scope]: <description>"
+            echo
+            echo "🏷️ Valid types:"
+            echo "  feat:     New features"
+            echo "  fix:      Bug fixes"
+            echo "  docs:     Documentation changes"
+            echo "  style:    Code formatting (no logic changes)"
+            echo "  refactor: Code refactoring"
+            echo "  test:     Adding or updating tests"
+            echo "  chore:    Maintenance tasks"
+            echo "  ci:       CI/CD changes"
+            echo "  build:    Build system changes"
+            echo "  perf:     Performance improvements"
+            echo "  revert:   Reverting previous commits"
+            echo
+            echo "💡 Examples:"
+            echo "  feat: add new checkout customization feature"
+            echo "  fix: resolve mobile menu alignment issue"
+            echo "  docs: update installation instructions"
+            echo "  feat(checkout): add payment method validation"
+            echo "  fix!: remove deprecated API (breaking change)"
+            echo
+            echo "🔧 To fix this:"
+            echo "  1. Use 'git rebase -i' to edit commit messages"
+            echo "  2. Or squash commits with proper conventional format"
+            echo "  3. Force push the corrected commits"
+            
+            exit 1
+          else
+            echo
+            echo "✅ All commit messages follow conventional commit format!"
+            echo
+            echo "Valid commits:"
+            if [ -f "$VALID_FILE" ]; then
+              while IFS= read -r valid_commit; do
+                echo "  ✅ $valid_commit"
+              done < "$VALID_FILE"
+            fi
+          fi
+
+          # Cleanup temporary files
+          rm -rf "$TEMP_DIR"
+
+      - name: Validate PR title
+        id: validate-pr-title
+        run: |
+          set -euo pipefail
+          echo "🔍 Validating PR title..."
+          
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          
+          # PR title should also follow conventional commit format
+          CONVENTIONAL_PATTERN="^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?: .+"
+
+          # Check if PR title is valid
+          is_valid_title=false
+
+          if [[ "$PR_TITLE" =~ $CONVENTIONAL_PATTERN ]]; then
+            is_valid_title=true
+          fi
+
+          # Check for breaking change pattern in PR title
+          if [[ "$PR_TITLE" == *"!"*": "* ]]; then
+            # More specific check for breaking change format
+            if echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)"; then
+              is_valid_title=true
+            fi
+          fi
+
+          if [ "$is_valid_title" = true ]; then
+            echo "✅ PR title follows conventional commit format"
+          else
+            echo "❌ PR title does not follow conventional commit format"
+            echo
+            echo "📚 PR title should follow conventional commit format:"
+            echo "  <type>[optional scope]: <description>"
+            echo
+            echo "💡 Examples:"
+            echo "  feat: add new checkout customization feature"
+            echo "  fix: resolve mobile menu alignment issue"
+            echo "  docs: update installation instructions"
+            echo
+            echo "Current title: $PR_TITLE"
+            exit 1
+          fi
+
+      - name: Check for breaking changes
+        id: check-breaking-changes
+        run: |
+          set -euo pipefail
+          echo "🔍 Checking for breaking changes..."
+
+          # Get all commit messages in the PR (safely quoted)
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          COMMITS=$(git log --pretty=format:"%s" "${BASE_SHA}..${HEAD_SHA}" --no-merges)
+          
+          # Check for breaking change indicators
+          BREAKING_CHANGES=false
+
+          # Check for breaking change indicator (! before colon)
+          if echo "$COMMITS" | grep -q "!:"; then
+            echo "⚠️ Breaking change detected in commit message (! indicator)"
+            BREAKING_CHANGES=true
+          fi
+          
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE:"; then
+            echo "⚠️ Breaking change detected in commit body (BREAKING CHANGE: footer)"
+            BREAKING_CHANGES=true
+          fi
+          
+          if [ "$BREAKING_CHANGES" = true ]; then
+            echo
+            echo "🚨 This PR contains breaking changes!"
+            echo "This will trigger a MAJOR version bump (X.0.0)"
+            echo
+            echo "Please ensure:"
+            echo "  1. Breaking changes are documented in the PR description"
+            echo "  2. Migration guide is provided if needed"
+            echo "  3. All stakeholders are aware of the breaking changes"
+          else
+            echo "✅ No breaking changes detected"
+          fi
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo
+          echo "🎉 All validations passed!"
+          echo "✅ Commit messages follow conventional format"
+          echo "✅ PR title follows conventional format"
+          echo "✅ Ready for review and merge"

@@ -114,28 +114,66 @@ The versioning follows WordPress theme development standards:
 
 ### Branch Protection Requirements
 
-This repository enforces branch protection on `main`:
-- Pull Request approval is required before merging
-- All required status checks must pass before merge is allowed
-- Direct pushes to `main` are blocked
+This repository enforces comprehensive branch protection on `main`:
+- **Pull Request approval is required** before merging (minimum 1 approval)
+- **All required status checks must pass** before merge is allowed
+- **Direct pushes to `main` are blocked** - all changes must go through PRs
+- **Conversation resolution required** before merging
+- **Stale reviews are dismissed** when new commits are pushed
+- **Force pushes are prevented** to maintain history integrity
+- **Branch deletion is prevented** to protect the main branch
 
 These rules integrate with the automated release process by ensuring releases are only created from approved, verified changes.
 
+### Pre-commit Hooks (Required)
+
+All developers must install and use pre-commit hooks for code quality and commit message validation:
+
+```bash
+# Install pre-commit hooks (one-time setup)
+./scripts/setup-pre-commit.sh
+
+# Or manually:
+pip install pre-commit
+pre-commit install
+pre-commit install --hook-type commit-msg
+```
+
+**Automated Validations:**
+- **Conventional commit format** enforcement
+- **PHP syntax checking** for all PHP files
+- **CSS/SCSS linting** with automatic fixes
+- **File formatting** (trailing whitespace, line endings)
+- **Security checks** (private key detection, merge conflicts)
+- **File size limits** (prevents large files from being committed)
+
+### Pull Request Validation
+
+Every pull request is automatically validated with:
+- **Commit message format** validation for all commits in the PR
+- **PR title format** validation (must follow conventional commit format)
+- **Breaking change detection** and documentation requirements
+- **Code quality checks** via pre-commit hooks
+
 ### For Developers
 
-1. **Use Conventional Commits**: Always follow the conventional commit format
-2. **Write Clear Descriptions**: Make commit messages descriptive and specific
-3. **Group Related Changes**: Use a single commit for related changes when possible
-4. **Test Before Merging**: Ensure all changes work correctly before merging PRs
-5. **Respect Branch Protection**: All changes must go through PR review and pass status checks
+1. **Install Pre-commit Hooks**: Run `./scripts/setup-pre-commit.sh` for initial setup
+2. **Use Conventional Commits**: Always follow the conventional commit format (enforced by hooks)
+3. **Write Clear Descriptions**: Make commit messages descriptive and specific
+4. **Group Related Changes**: Use a single commit for related changes when possible
+5. **Test Before Merging**: Ensure all changes work correctly before merging PRs
+6. **Respect Branch Protection**: All changes must go through PR review and pass status checks
+7. **Follow PR Guidelines**: PR titles must also follow conventional commit format
 
 ### For Pull Requests
 
-1. **Descriptive Titles**: Use conventional commit format in PR titles
+1. **Conventional PR Titles**: Use conventional commit format in PR titles (automatically validated)
 2. **Detailed Descriptions**: Explain what changes were made and why
-3. **Breaking Changes**: Clearly document any breaking changes
+3. **Breaking Changes**: Clearly document any breaking changes (automatically detected)
 4. **Testing Instructions**: Include steps to test the changes
-5. **Approvals & Checks**: Request required approvals and ensure status checks pass before merging
+5. **Commit Message Quality**: Ensure all commits follow conventional format (automatically validated)
+6. **Approvals & Checks**: Request required approvals and ensure all status checks pass before merging
+7. **Conversation Resolution**: Resolve all review conversations before merging
 
 ### Examples of Good Commit Messages
 
