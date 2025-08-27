@@ -10,7 +10,7 @@ add_action( 'wp_enqueue_scripts', function () {
 
 add_action( 'wp_footer', function () {
 
-	if ( ! is_product_category() )
+	if ( ! is_product_category() && ! is_shop() )
 		return;
 
 	?>
