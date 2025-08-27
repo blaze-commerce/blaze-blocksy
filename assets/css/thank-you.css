@@ -29,16 +29,24 @@
    ======================================== */
 
 .blaze-commerce-thank-you-wrapper {
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px;
 }
 
 .blaze-commerce-thank-you-container {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
     align-items: start;
+}
+
+/* Desktop Grid Layout (1024px and above) */
+@media (min-width: 1024px) {
+    .blaze-commerce-thank-you-container {
+        display: grid;
+        grid-template-columns: 1fr 40%;
+        gap: 34px;
+        align-items: start;
+    }
 }
 
 /* ========================================
@@ -47,11 +55,10 @@
 
 .blaze-commerce-thank-you-header {
     grid-column: 1 / -1;
-    margin-bottom: 40px;
     /* CRITICAL FIX: Ensure header is always visible */
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: block;
 }
 
 .blaze-commerce-thank-you-title {
@@ -306,6 +313,7 @@
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
+    width: 100%;
 }
 
 .blaze-commerce-summary-title {
@@ -417,12 +425,12 @@
 /* Tablet Styles (768px - 1023px) */
 @media (max-width: 1023px) {
     .blaze-commerce-thank-you-container {
-        grid-template-columns: 1fr;
         gap: 40px;
     }
 
     .blaze-commerce-order-summary {
-        order: -1;
+        order: initial
+        ;
         position: static;
         margin-bottom: 40px;
     }
@@ -458,7 +466,6 @@
 
     .blaze-commerce-thank-you-title {
         font-size: 28px;
-        margin-bottom: 20px;
     }
 
     .blaze-commerce-order-details,
@@ -499,6 +506,7 @@
     .blaze-commerce-address-block,
     .blaze-commerce-account-creation,
     .blaze-commerce-order-summary {
+        order: initial;
         padding: 16px;
     }
 
@@ -562,9 +570,11 @@
     display: block;
 }
 
-/* Ensure grid containers display correctly */
-.blaze-commerce-thank-you-container {
-    display: grid !important;
+/* Ensure grid containers display correctly on desktop */
+@media (min-width: 1024px) {
+    .blaze-commerce-thank-you-container {
+        display: grid !important;
+    }
 }
 
 .blaze-commerce-addresses-grid {
@@ -658,9 +668,6 @@
     display: none !important;
 }
 .ct-breadcrumbs {
-    display: none !important;
-}
-.wp-block-group.is-layout-flow.wp-block-group-is-layout-flow {
     display: none !important;
 }
 .wp-block-group.is-layout-constrained.wp-block-group-is-layout-constrained h2 {
