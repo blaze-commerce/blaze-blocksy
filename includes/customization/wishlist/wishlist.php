@@ -16,10 +16,17 @@ class BlocksyChildWishlistOffCanvas {
 	public function __construct() {
 		// Only initialize if the WooCommerce Extra extension is active
 		if ( ! $this->is_woocommerce_extra_active() ) {
+			error_log( 'WooCommerce Extra extension not active - wishlist off-canvas not initialized' );
 			return;
 		}
 
+		error_log( 'Initializing wishlist off-canvas functionality' );
 		$this->init_hooks();
+
+		// Add debug notice for testing (remove in production)
+		if ( is_admin() && function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
+			add_action( 'admin_notices', array( $this, 'debug_settings_notice' ) );
+		}
 	}
 
 	/**
@@ -40,6 +47,19 @@ class BlocksyChildWishlistOffCanvas {
 
 		// Add custom CSS for the canvas width setting
 		add_action( 'wp_head', array( $this, 'add_canvas_width_css' ) );
+
+		// Add off-canvas panel to footer
+		add_filter( 'blocksy:footer:offcanvas-drawer', array( $this, 'add_offcanvas_to_footer' ), 10, 2 );
+
+		// Enqueue scripts and styles when off-canvas mode is enabled
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_offcanvas_assets' ) );
+
+		// Add AJAX handlers for off-canvas content
+		add_action( 'wp_ajax_load_wishlist_offcanvas', array( $this, 'ajax_load_wishlist_content' ) );
+		add_action( 'wp_ajax_nopriv_load_wishlist_offcanvas', array( $this, 'ajax_load_wishlist_content' ) );
+
+		// Modify wishlist header output when off-canvas is enabled
+		add_filter( 'blocksy:header:render-item', array( $this, 'modify_wishlist_header_output' ), 10, 2 );
 	}
 
 	/**
@@ -90,27 +110,10 @@ class BlocksyChildWishlistOffCanvas {
 					'desc' => __( 'Set the width of the off-canvas panel for different devices.', 'blocksy-companion' ),
 				),
 
-				'wishlist_offcanvas_width' => array(
-					'label' => __( 'Canvas Width', 'blocksy-companion' ),
-					'type' => 'ct-slider',
-					'value' => array(
-						'desktop' => '400px',
-						'tablet' => '350px',
-						'mobile' => '300px',
-					),
-					'units' => array(
-						array( 'unit' => 'px', 'min' => 250, 'max' => 800 ),
-						array( 'unit' => 'vw', 'min' => 20, 'max' => 90 ),
-						array( 'unit' => '%', 'min' => 20, 'max' => 90 ),
-					),
-					'responsive' => true,
-					'desc' => __( 'Set the width of the off-canvas panel for different devices.', 'blocksy-companion' ),
-				),
-
 				'wishlist_offcanvas_columns' => array(
 					'label' => __( 'Number of Columns', 'blocksy-companion' ),
 					'type' => 'ct-radio',
-					'value' => '1',
+					'value' => '2',
 					'view' => 'text',
 					'design' => 'block',
 					'choices' => array(
@@ -118,6 +121,131 @@ class BlocksyChildWishlistOffCanvas {
 						'2' => __( '2 Columns', 'blocksy-companion' ),
 					),
 					'desc' => __( 'Choose how many columns to display products in the off-canvas.', 'blocksy-companion' ),
+				),
+
+				'wishlist_offcanvas_position' => array(
+					'label' => __( 'Off-Canvas Position', 'blocksy-companion' ),
+					'type' => 'ct-radio',
+					'value' => 'right-side',
+					'view' => 'text',
+					'design' => 'block',
+					'choices' => array(
+						'left-side' => __( 'Left Side', 'blocksy-companion' ),
+						'right-side' => __( 'Right Side', 'blocksy-companion' ),
+					),
+					'desc' => __( 'Choose which side the off-canvas panel slides in from.', 'blocksy-companion' ),
+				),
+
+				// Header Icon Settings Section
+				blocksy_rand_md5() => array(
+					'type' => 'ct-title',
+					'label' => __( 'Header Icon Settings', 'blocksy-companion' ),
+					'desc' => __( 'Configure the wishlist icon that appears in the header when off-canvas mode is enabled.', 'blocksy-companion' ),
+				),
+
+				'wishlist_offcanvas_icon_source' => array(
+					'label' => __( 'Icon Source', 'blocksy-companion' ),
+					'type' => 'ct-radio',
+					'value' => 'header',
+					'view' => 'text',
+					'design' => 'block',
+					'desc' => __( 'Choose the source for the wishlist icon.', 'blocksy-companion' ),
+					'choices' => array(
+						'header' => __( 'Use Header Settings', 'blocksy-companion' ),
+						'custom' => __( 'Custom Configuration', 'blocksy-companion' ),
+					),
+				),
+
+				blocksy_rand_md5() => array(
+					'type' => 'ct-condition',
+					'condition' => array( 'wishlist_offcanvas_icon_source' => 'custom' ),
+					'options' => array(
+
+						'wishlist_offcanvas_icon_type_source' => array(
+							'label' => __( 'Icon Type', 'blocksy-companion' ),
+							'type' => 'ct-radio',
+							'value' => 'default',
+							'view' => 'text',
+							'design' => 'block',
+							'desc' => __( 'Choose between default icon types or custom icon.', 'blocksy-companion' ),
+							'choices' => array(
+								'default' => __( 'Default Icons', 'blocksy-companion' ),
+								'custom' => __( 'Custom Icon', 'blocksy-companion' ),
+							),
+						),
+
+						blocksy_rand_md5() => array(
+							'type' => 'ct-condition',
+							'condition' => array( 'wishlist_offcanvas_icon_type_source' => 'default' ),
+							'options' => array(
+								'wishlist_offcanvas_icon_type' => array(
+									'label' => __( 'Icon Style', 'blocksy-companion' ),
+									'type' => 'ct-image-picker',
+									'value' => 'type-1',
+									'attr' => array(
+										'data-type' => 'background',
+										'data-columns' => '3',
+									),
+									'desc' => __( 'Choose from predefined wishlist icon styles.', 'blocksy-companion' ),
+									'choices' => array(
+										'type-1' => array(
+											'src' => function_exists( 'blocksy_image_picker_file' ) ? blocksy_image_picker_file( 'wishlist-1' ) : '',
+											'title' => __( 'Type 1', 'blocksy-companion' ),
+										),
+										'type-2' => array(
+											'src' => function_exists( 'blocksy_image_picker_file' ) ? blocksy_image_picker_file( 'wishlist-2' ) : '',
+											'title' => __( 'Type 2', 'blocksy-companion' ),
+										),
+										'type-3' => array(
+											'src' => function_exists( 'blocksy_image_picker_file' ) ? blocksy_image_picker_file( 'wishlist-3' ) : '',
+											'title' => __( 'Type 3', 'blocksy-companion' ),
+										),
+									),
+								),
+							),
+						),
+
+						blocksy_rand_md5() => array(
+							'type' => 'ct-condition',
+							'condition' => array( 'wishlist_offcanvas_icon_type_source' => 'custom' ),
+							'options' => array(
+								'wishlist_offcanvas_custom_icon' => array(
+									'type' => 'icon-picker',
+									'label' => __( 'Custom Icon', 'blocksy-companion' ),
+									'design' => 'inline',
+									'value' => array(
+										'icon' => 'blc blc-heart'
+									),
+									'desc' => __( 'Select a custom icon for the wishlist header item.', 'blocksy-companion' ),
+								),
+							),
+						),
+
+						'wishlist_offcanvas_icon_size' => array(
+							'label' => __( 'Icon Size', 'blocksy-companion' ),
+							'type' => 'ct-slider',
+							'min' => 10,
+							'max' => 50,
+							'value' => array(
+								'desktop' => '18px',
+								'tablet' => '16px',
+								'mobile' => '16px',
+							),
+							'units' => array(
+								array( 'unit' => 'px', 'min' => 10, 'max' => 50 ),
+							),
+							'responsive' => true,
+							'desc' => __( 'Set the size of the wishlist icon.', 'blocksy-companion' ),
+						),
+
+					),
+				),
+
+				// Product Display Settings Section
+				blocksy_rand_md5() => array(
+					'type' => 'ct-title',
+					'label' => __( 'Product Display Settings', 'blocksy-companion' ),
+					'desc' => __( 'Configure what information to show for each product in the off-canvas.', 'blocksy-companion' ),
 				),
 
 				'wishlist_show_product_price' => array(
@@ -155,31 +283,93 @@ class BlocksyChildWishlistOffCanvas {
 	}
 
 	/**
-	 * Add custom CSS for canvas width setting
+	 * Add custom CSS for canvas width and icon settings
 	 */
 	public function add_canvas_width_css() {
-		$display_mode = get_theme_mod( 'wishlist_display_mode', 'page' );
+		$display_mode = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
+			: get_theme_mod( 'wishlist_display_mode', 'page' );
 
 		// Only add CSS if off-canvas mode is enabled
 		if ( $display_mode !== 'offcanvas' ) {
 			return;
 		}
 
+		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
 		// Get the canvas width setting
-		$canvas_width = get_theme_mod( 'wishlist_offcanvas_width', array(
+		$canvas_width = $get_mod( 'wishlist_offcanvas_width', array(
 			'desktop' => '400px',
 			'tablet' => '350px',
 			'mobile' => '300px',
 		) );
 
+		// Ensure $canvas_width is an array and has the required keys
+		if ( ! is_array( $canvas_width ) ) {
+			$canvas_width = array(
+				'desktop' => '400px',
+				'tablet' => '350px',
+				'mobile' => '300px',
+			);
+		}
+
+		// Ensure all required keys exist with default values
+		$canvas_width = wp_parse_args( $canvas_width, array(
+			'desktop' => '400px',
+			'tablet' => '350px',
+			'mobile' => '300px',
+		) );
+
+		// Get icon settings
+		$icon_source = $get_mod( 'wishlist_offcanvas_icon_source', 'header' );
+		$icon_size   = array();
+
+		if ( $icon_source === 'custom' ) {
+			$icon_size = $get_mod( 'wishlist_offcanvas_icon_size', array(
+				'desktop' => '18px',
+				'tablet' => '16px',
+				'mobile' => '16px',
+			) );
+
+			// Ensure icon size is an array
+			if ( ! is_array( $icon_size ) ) {
+				$icon_size = array(
+					'desktop' => '18px',
+					'tablet' => '16px',
+					'mobile' => '16px',
+				);
+			}
+
+			// Ensure all required keys exist
+			$icon_size = wp_parse_args( $icon_size, array(
+				'desktop' => '18px',
+				'tablet' => '16px',
+				'mobile' => '16px',
+			) );
+		}
+
 		?>
-		<style id="wishlist-offcanvas-width-css">
-			/* Desktop */
+		<style id="wishlist-offcanvas-custom-css">
+			/* Canvas Width - Desktop */
 			#wishlist-offcanvas-panel[data-behaviour*="side"] {
 				width:
 					<?php echo esc_attr( $canvas_width['desktop'] ); ?>
 				;
 			}
+
+			<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
+				/* Icon Size - Desktop */
+				.ct-header-wishlist svg,
+				.ct-header-wishlist .ct-icon {
+					width:
+						<?php echo esc_attr( $icon_size['desktop'] ); ?>
+						!important;
+					height:
+						<?php echo esc_attr( $icon_size['desktop'] ); ?>
+						!important;
+				}
+
+			<?php endif; ?>
 
 			/* Tablet */
 			@media (max-width: 999px) {
@@ -188,6 +378,19 @@ class BlocksyChildWishlistOffCanvas {
 						<?php echo esc_attr( $canvas_width['tablet'] ); ?>
 					;
 				}
+
+				<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
+					.ct-header-wishlist svg,
+					.ct-header-wishlist .ct-icon {
+						width:
+							<?php echo esc_attr( $icon_size['tablet'] ); ?>
+							!important;
+						height:
+							<?php echo esc_attr( $icon_size['tablet'] ); ?>
+							!important;
+					}
+
+				<?php endif; ?>
 			}
 
 			/* Mobile */
@@ -197,9 +400,463 @@ class BlocksyChildWishlistOffCanvas {
 						<?php echo esc_attr( $canvas_width['mobile'] ); ?>
 					;
 				}
+
+				<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
+					.ct-header-wishlist svg,
+					.ct-header-wishlist .ct-icon {
+						width:
+							<?php echo esc_attr( $icon_size['mobile'] ); ?>
+							!important;
+						height:
+							<?php echo esc_attr( $icon_size['mobile'] ); ?>
+							!important;
+					}
+
+				<?php endif; ?>
 			}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Add off-canvas panel to footer
+	 */
+	public function add_offcanvas_to_footer( $elements, $payload ) {
+		$display_mode = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
+			: get_theme_mod( 'wishlist_display_mode', 'page' );
+
+		// Only add off-canvas if mode is enabled and we're in the right location
+		if ( $display_mode !== 'offcanvas' || $payload['location'] !== 'start' ) {
+			return $elements;
+		}
+
+		// Debug: Log that we're adding the off-canvas panel
+		error_log( 'Adding wishlist off-canvas panel to footer' );
+
+		$elements[] = $this->render_wishlist_offcanvas();
+
+		return $elements;
+	}
+
+	/**
+	 * Enqueue off-canvas assets when needed
+	 */
+	public function enqueue_offcanvas_assets() {
+		$display_mode = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
+			: get_theme_mod( 'wishlist_display_mode', 'page' );
+
+		if ( $display_mode !== 'offcanvas' ) {
+			return;
+		}
+
+		// Enqueue CSS
+		wp_enqueue_style(
+			'wishlist-offcanvas',
+			get_stylesheet_directory_uri() . '/assets/css/wishlist-offcanvas.css',
+			array(),
+			wp_get_theme()->get( 'Version' )
+		);
+
+		// Enqueue JavaScript
+		wp_enqueue_script(
+			'wishlist-offcanvas',
+			get_stylesheet_directory_uri() . '/assets/js/wishlist-offcanvas.js',
+			array( 'jquery' ),
+			wp_get_theme()->get( 'Version' ),
+			true
+		);
+
+		// Localize script with AJAX data
+		wp_localize_script(
+			'wishlist-offcanvas',
+			'wishlistOffcanvas',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'wishlist_offcanvas_nonce' ),
+			)
+		);
+	}
+
+	/**
+	 * Render the wishlist off-canvas panel HTML
+	 */
+	public function render_wishlist_offcanvas( $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'has_container' => true,
+		) );
+
+		// Get wishlist content
+		$content = $this->get_wishlist_content();
+
+		$without_container = '<div class="ct-panel-content"><div class="ct-panel-content-inner">' . $content . '</div></div>';
+
+		if ( ! $args['has_container'] ) {
+			return $without_container;
+		}
+
+		// Get off-canvas settings
+		$get_mod    = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+		$behavior   = $get_mod( 'wishlist_offcanvas_position', 'right-side' );
+		$close_icon = '<svg class="ct-icon" width="12" height="12" viewBox="0 0 15 15"><path d="M1 15a1 1 0 01-.71-.29 1 1 0 010-1.41l5.8-5.8-5.8-5.8A1 1 0 011.7.29l5.8 5.8 5.8-5.8a1 1 0 011.41 1.41l-5.8 5.8 5.8 5.8a1 1 0 01-1.41 1.41l-5.8-5.8-5.8 5.8A1 1 0 011 15z"/></svg>';
+
+		// Get the wishlist icon for the heading
+		$wishlist_icon = $this->get_wishlist_icon();
+		$icon_html     = $wishlist_icon ? '<span class="ct-panel-heading-icon">' . $wishlist_icon . '</span> ' : '';
+
+		return '<div id="wishlist-offcanvas-panel" class="ct-panel ct-header" data-behaviour="' . esc_attr( $behavior ) . '" role="dialog" aria-label="' . esc_attr__( 'Wishlist panel', 'blocksy-companion' ) . '" inert="">
+			<div class="ct-panel-inner">
+				<div class="ct-panel-actions">
+					<span class="ct-panel-heading">' . $icon_html . esc_html__( 'Wishlist', 'blocksy-companion' ) . ' <span class="wishlist-count">(' . $this->get_wishlist_count() . ')</span></span>
+					<button class="ct-toggle-close" data-type="type-1" aria-label="' . esc_attr__( 'Close wishlist panel', 'blocksy-companion' ) . '">
+						' . $close_icon . '
+					</button>
+				</div>
+				' . $without_container . '
+			</div>
+		</div>';
+	}
+
+	/**
+	 * Get wishlist content HTML
+	 */
+	private function get_wishlist_content() {
+		if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) || ! blc_get_ext( 'woocommerce-extra' )->get_wish_list() ) {
+			error_log( 'Wishlist: Extension not available' );
+			return '<div class="ct-offcanvas-wishlist"><p>' . esc_html__( 'Wishlist functionality is not available.', 'blocksy-companion' ) . '</p></div>';
+		}
+
+		// Get current wishlist
+		$wishlist = blc_get_ext( 'woocommerce-extra' )->get_wish_list()->get_current_wish_list();
+
+		// Debug: Log wishlist data
+		error_log( 'Wishlist items count: ' . count( $wishlist ) );
+		error_log( 'Wishlist data: ' . print_r( $wishlist, true ) );
+
+		if ( empty( $wishlist ) ) {
+			error_log( 'Wishlist: Empty wishlist, showing empty content' );
+			return $this->get_empty_wishlist_content();
+		}
+
+		error_log( 'Wishlist: Rendering ' . count( $wishlist ) . ' items' );
+		return $this->render_wishlist_items( $wishlist );
+	}
+
+	/**
+	 * Get empty wishlist content
+	 */
+	private function get_empty_wishlist_content() {
+		return '<div class="ct-offcanvas-wishlist">
+			<div class="wishlist-empty">
+				<p>' . esc_html__( 'Your wishlist is currently empty.', 'blocksy-companion' ) . '</p>
+				<p>' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>
+				<a href="' . esc_url( wp_registration_url() ) . '" class="button">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>
+			</div>
+		</div>';
+	}
+
+	/**
+	 * Render wishlist items
+	 */
+	private function render_wishlist_items( $items ) {
+		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
+		$columns          = $get_mod( 'wishlist_offcanvas_columns', '2' );
+		$show_price       = $get_mod( 'wishlist_show_product_price', 'yes' ) === 'yes';
+		$show_image       = $get_mod( 'wishlist_show_product_image', 'yes' ) === 'yes';
+		$show_add_to_cart = $get_mod( 'wishlist_show_add_to_cart', 'yes' ) === 'yes';
+		$show_remove      = $get_mod( 'wishlist_show_remove_button', 'yes' ) === 'yes';
+
+		$html = '<div class="ct-offcanvas-wishlist" data-columns="' . esc_attr( $columns ) . '">
+			<div class="wishlist-items">';
+
+		foreach ( $items as $item ) {
+			// Debug: Log each item structure
+			error_log( 'Wishlist item structure: ' . print_r( $item, true ) );
+
+			// Extract product ID using the same logic as Blocksy's table
+			$product_id = null;
+
+			if ( isset( $item['id'] ) && is_numeric( $item['id'] ) ) {
+				$product_id = $item['id'];
+			} elseif ( is_numeric( $item ) ) {
+				$product_id = $item;
+			}
+
+			if ( ! $product_id ) {
+				error_log( 'Could not extract product ID from item: ' . print_r( $item, true ) );
+				continue;
+			}
+
+			error_log( 'Extracted product ID: ' . $product_id );
+
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				error_log( 'Product not found for ID: ' . $product_id );
+				continue;
+			}
+
+			// Check product status (same as Blocksy table)
+			$status = $product->get_status();
+			if ( $status === 'trash' ) {
+				error_log( 'Product is trashed, skipping: ' . $product_id );
+				continue;
+			}
+
+			if ( $status === 'private' && ! current_user_can( 'read_private_products' ) ) {
+				error_log( 'Product is private and user cannot read, skipping: ' . $product_id );
+				continue;
+			}
+
+			error_log( 'Product found and valid: ' . $product->get_name() );
+
+			$html .= '<div class="wishlist-item" data-product-id="' . esc_attr( $product_id ) . '">';
+
+			if ( $show_image ) {
+				$html .= '<div class="wishlist-item-image">
+					<a href="' . esc_url( $product->get_permalink() ) . '">
+						' . $product->get_image( 'woocommerce_thumbnail' ) . '
+					</a>
+				</div>';
+			}
+
+			$html .= '<div class="wishlist-item-details">
+				<h3 class="wishlist-item-title">
+					<a href="' . esc_url( $product->get_permalink() ) . '">' . esc_html( $product->get_name() ) . '</a>
+				</h3>';
+
+			if ( $show_price ) {
+				$html .= '<div class="wishlist-item-price">' . $product->get_price_html() . '</div>';
+			}
+
+			$html .= '<div class="wishlist-item-actions">';
+
+			if ( $show_add_to_cart && $product->is_purchasable() ) {
+				$html .= '<button class="button add_to_cart_button" data-product_id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Add to cart', 'woocommerce' ) . '</button>';
+			}
+
+			if ( $show_remove ) {
+				$html .= '<button class="ct-wishlist-remove" data-product-id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Remove', 'blocksy-companion' ) . '</button>';
+			}
+
+			$html .= '</div></div></div>';
+		}
+
+		$html .= '</div>';
+
+		// Add "You May Also Like" section if there are recommendations
+		$html .= $this->get_recommendations_section();
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Get recommendations section
+	 */
+	private function get_recommendations_section() {
+		// For now, return empty - can be enhanced later with actual recommendations
+		return '';
+	}
+
+	/**
+	 * Get wishlist count
+	 */
+	private function get_wishlist_count() {
+		if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) || ! blc_get_ext( 'woocommerce-extra' )->get_wish_list() ) {
+			return 0;
+		}
+
+		$wishlist = blc_get_ext( 'woocommerce-extra' )->get_wish_list()->get_current_wish_list();
+
+		return ! empty( $wishlist ) ? count( $wishlist ) : 0;
+	}
+
+	/**
+	 * AJAX handler for loading wishlist content
+	 */
+	public function ajax_load_wishlist_content() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'wishlist_offcanvas_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		$content = $this->get_wishlist_content();
+		$count   = $this->get_wishlist_count();
+
+		wp_send_json_success( array(
+			'content' => $content,
+			'count' => $count,
+		) );
+	}
+
+	/**
+	 * Modify wishlist header output when off-canvas is enabled
+	 */
+	public function modify_wishlist_header_output( $output, $item_id ) {
+		if ( $item_id !== 'wish-list' ) {
+			return $output;
+		}
+
+		$display_mode = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
+			: get_theme_mod( 'wishlist_display_mode', 'page' );
+
+		if ( $display_mode === 'offcanvas' ) {
+			// Get the appropriate icon based on settings
+			$icon_source = function_exists( 'blocksy_get_theme_mod' )
+				? blocksy_get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' )
+				: get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
+
+			// Only replace icon if we're using custom icon (not header settings)
+			if ( $icon_source === 'custom' ) {
+				$new_icon = $this->get_wishlist_icon();
+
+				if ( $new_icon ) {
+					// Use regex to replace the icon content
+					$output = preg_replace( '/<svg[^>]*>.*?<\/svg>/s', $new_icon, $output );
+				}
+			}
+
+			// Use regex to replace any href value with our off-canvas identifier
+			$output = preg_replace( '/href="[^"]*"/', 'href="#wishlist-offcanvas"', $output );
+
+			// Add a data attribute to identify this as an off-canvas trigger
+			$output = str_replace( 'class="', 'class="ct-offcanvas-trigger ', $output );
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Get header wishlist settings for icon configuration
+	 */
+	private function get_header_wishlist_settings() {
+		// Get the header builder data
+		$header_builder = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'header_placements', array() )
+			: get_theme_mod( 'header_placements', array() );
+
+		// Look for wishlist item in header builder
+		$wishlist_settings = array();
+
+		if ( is_array( $header_builder ) ) {
+			foreach ( $header_builder as $row ) {
+				if ( is_array( $row ) ) {
+					foreach ( $row as $section ) {
+						if ( is_array( $section ) ) {
+							foreach ( $section as $item ) {
+								if ( is_array( $item ) && isset( $item['id'] ) && $item['id'] === 'wish-list' ) {
+									$wishlist_settings = $item;
+									break 3; // Break out of all loops
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $wishlist_settings;
+	}
+
+	/**
+	 * Get the appropriate icon based on settings
+	 */
+	private function get_wishlist_icon() {
+		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
+		$icon_source = $get_mod( 'wishlist_offcanvas_icon_source', 'header' );
+
+		if ( $icon_source === 'custom' ) {
+			// Get the icon type source (default icons or custom icon)
+			$icon_type_source = $get_mod( 'wishlist_offcanvas_icon_type_source', 'default' );
+
+			if ( $icon_type_source === 'default' ) {
+				// Use predefined icon types
+				$icon_type = $get_mod( 'wishlist_offcanvas_icon_type', 'type-1' );
+				return $this->get_default_wishlist_icon( $icon_type );
+			} else {
+				// Use custom icon picker
+				$custom_icon = $get_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) );
+
+				if ( function_exists( 'blc_get_icon' ) && ! empty( $custom_icon['icon'] ) ) {
+					return blc_get_icon( array(
+						'icon_descriptor' => $custom_icon,
+						'icon_container' => false,
+					) );
+				}
+			}
+		}
+
+		// If using header settings or custom failed, get from header
+		$header_settings = $this->get_header_wishlist_settings();
+
+		if ( ! empty( $header_settings ) ) {
+			// Check if header uses custom icon
+			$header_icon_source = isset( $header_settings['icon_source'] ) ? $header_settings['icon_source'] : 'default';
+
+			if ( $header_icon_source === 'custom' && function_exists( 'blc_get_icon' ) ) {
+				$header_icon = isset( $header_settings['icon'] ) ? $header_settings['icon'] : array( 'icon' => 'blc blc-heart' );
+
+				return blc_get_icon( array(
+					'icon_descriptor' => $header_icon,
+					'icon_container' => false,
+				) );
+			} else {
+				// Use header's default icon type
+				$header_icon_type = isset( $header_settings['wishlist_item_type'] ) ? $header_settings['wishlist_item_type'] : 'type-1';
+				return $this->get_default_wishlist_icon( $header_icon_type );
+			}
+		}
+
+		// Fallback to default heart icon
+		return $this->get_default_wishlist_icon( 'type-1' );
+	}
+
+	/**
+	 * Get default wishlist icon based on type
+	 */
+	private function get_default_wishlist_icon( $type = 'type-1' ) {
+		$icons = array(
+			'type-1' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
+			'type-2' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
+			'type-3' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></svg>',
+		);
+
+		return isset( $icons[ $type ] ) ? $icons[ $type ] : $icons['type-1'];
+	}
+
+	/**
+	 * Debug function to show current settings (for testing)
+	 */
+	public function debug_settings_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$display_mode = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_display_mode', 'page' )
+			: get_theme_mod( 'wishlist_display_mode', 'page' );
+
+		$icon_source = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' )
+			: get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
+
+		$custom_icon = function_exists( 'blocksy_get_theme_mod' )
+			? blocksy_get_theme_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) )
+			: get_theme_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) );
+
+		if ( $display_mode === 'offcanvas' ) {
+			echo '<div class="notice notice-info"><p>';
+			echo '<strong>Wishlist Off-Canvas Debug:</strong><br>';
+			echo 'Display Mode: ' . esc_html( $display_mode ) . '<br>';
+			echo 'Icon Source: ' . esc_html( $icon_source ) . '<br>';
+			echo 'Custom Icon: ' . esc_html( $custom_icon['icon'] ?? 'Not set' ) . '<br>';
+			echo '</p></div>';
+		}
 	}
 }
 
