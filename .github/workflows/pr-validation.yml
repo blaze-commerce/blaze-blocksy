@@ -92,22 +92,23 @@ jobs:
             if [ "$is_valid" = true ]; then
               echo "✅ Valid: $commit_msg"
               echo "$commit_sha: $commit_msg" >> "$VALID_FILE"
-              ((VALID_COUNT++))
+              VALID_COUNT=$((VALID_COUNT + 1))
             else
               echo "❌ Invalid: $commit_msg"
               echo "$commit_sha: $commit_msg" >> "$INVALID_FILE"
-              ((INVALID_COUNT++))
+              INVALID_COUNT=$((INVALID_COUNT + 1))
             fi
           done <<< "$COMMITS"
 
           # Create validation summary
           TOTAL_COMMITS=$(echo "$COMMITS" | wc -l)
-          
+
           echo
           echo "📊 Validation Summary:"
           echo "  Total commits: $TOTAL_COMMITS"
           echo "  Valid commits: $VALID_COUNT"
           echo "  Invalid commits: $INVALID_COUNT"
+          echo "  Debug: VALID_COUNT=$VALID_COUNT, INVALID_COUNT=$INVALID_COUNT"
           
           # If there are invalid commits, fail the check
           if [ $INVALID_COUNT -gt 0 ]; then
