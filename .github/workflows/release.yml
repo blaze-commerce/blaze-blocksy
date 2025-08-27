@@ -494,7 +494,7 @@ jobs:
           # Create temporary directory structure for consistent folder naming
           mkdir -p "temp-build/${THEME_FOLDER}"
 
-          # Copy theme files (exclude dev, CI, and build files; include only what WP needs)
+          # Copy theme files (exclude dev, CI, build files, and scripts; include only what WP needs)
           rsync -av --delete \
             --exclude='.git/' \
             --exclude='.github/' \
@@ -517,6 +517,13 @@ jobs:
             --exclude='*.bak' \
             --exclude='*.backup' \
             --exclude='*.old' \
+            --exclude='*.sh' \
+            --exclude='*.bash' \
+            --exclude='*.zsh' \
+            --exclude='*.fish' \
+            --exclude='*.ps1' \
+            --exclude='*.bat' \
+            --exclude='*.cmd' \
             --exclude='.env*' \
             --exclude='.vscode/' \
             --exclude='.idea/' \
