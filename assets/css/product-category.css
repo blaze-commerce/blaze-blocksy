@@ -1,8 +1,10 @@
-.archive .entry-header.ct-container {
+.archive .entry-header.ct-container,
+.post-type-archive .entry-header.ct-container {
   padding-top: 16px !important;
 }
 
-.archive .woo-listing-top {
+.archive .woo-listing-top,
+.post-type-archive .woo-listing-top {
   padding: 16px 0;
   border-top: 1px solid var(--theme-border-color);
   border-bottom: 1px solid var(--theme-border-color);
@@ -127,3 +129,31 @@
 .products .product .ct-woo-card-extra .ct-button svg {
   fill: white !important;
 } */
+
+.ct-product-category-count {
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  line-height: 48px;
+  color: var(--theme-palette-color-1);
+  margin-bottom: 24px;
+}
+
+.ct-load-more-helper .ct-load-more {
+  border: 1px solid var(--theme-button-text-initial-color);
+  font-weight: 500;
+}
+
+.ct-product-category-description-wrapper {
+  margin-top: 40px;
+}
+.ct-product-category-description-wrapper .ct-module-title {
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 48px;
+  color: var(--theme-palette-color-1);
+}
+
+.ct-product-category-description-wrapper .ct-product-category-description {
+  margin-top: 24px;
+}
