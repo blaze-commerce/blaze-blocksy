@@ -47,6 +47,7 @@
 /* Panel positioning and z-index */
 #wishlist-offcanvas-panel {
     z-index: 999999 !important;
+    width: 100vw;
 }
 
 #wishlist-offcanvas-panel[data-behaviour="right-side"] {
@@ -576,6 +577,7 @@
 body[data-panel] #wishlist-offcanvas-panel.active {
     display: flex;
     width: 100vw;
+    background-color: rgba(18, 21, 25, 0.6);
 }
 
 /* Fallback styles for when Blocksy off-canvas is not available */
