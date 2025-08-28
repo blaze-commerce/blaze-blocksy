@@ -157,8 +157,8 @@
     margin-bottom: 40px;
 }
 
-/* Base addresses flexx - only applies when no specific layout class is present */
-.blaze-commerce-addresses-flexx:not(.pickup-billing):not(.shipping-billing) {
+/* Base addresses flex - only applies when no specific layout class is present */
+.blaze-commerce-addresses-flex:not(.pickup-billing):not(.shipping-billing) {
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -203,14 +203,14 @@
    ======================================== */
 
 /* Pickup-billing layout (pickup location + billing) - Consistent flex layout */
-.blaze-commerce-addresses-flexx.pickup-billing {
+.blaze-commerce-addresses-flex.pickup-billing {
     display: flex;
     flex-direction: column;
     gap: 32px;
 }
 
 /* Shipping-billing layout (shipping + billing) - Consistent flex layout */
-.blaze-commerce-addresses-flexx.shipping-billing {
+.blaze-commerce-addresses-flex.shipping-billing {
     display: flex;
     flex-direction: column;
     gap: 32px;
@@ -220,8 +220,8 @@
 
 /* Mobile responsive adjustments for conditional layouts */
 @media (max-width: 768px) {
-    .blaze-commerce-addresses-flexx.pickup-billing,
-    .blaze-commerce-addresses-flexx.shipping-billing {
+    .blaze-commerce-addresses-flex.pickup-billing,
+    .blaze-commerce-addresses-flex.shipping-billing {
         gap: 24px;
     }
 }
@@ -464,7 +464,7 @@
         margin-bottom: 40px;
     }
 
-    .blaze-commerce-addresses-flexx:not(.pickup-billing):not(.shipping-billing) {
+    .blaze-commerce-addresses-flex:not(.pickup-billing):not(.shipping-billing) {
         flex-direction: column;
         gap: 24px;
     }

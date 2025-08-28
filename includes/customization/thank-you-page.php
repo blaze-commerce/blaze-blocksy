@@ -326,7 +326,7 @@ function blocksy_child_blaze_commerce_addresses_section( $order ) {
     $is_pickup = blocksy_child_is_pickup_order( $order );
     ?>
     <div class="blaze-commerce-addresses-section">
-        <div class="blaze-commerce-addresses-flexx <?php echo $is_pickup ? 'pickup-billing' : 'shipping-billing'; ?>">
+        <div class="blaze-commerce-addresses-flex <?php echo $is_pickup ? 'pickup-billing' : 'shipping-billing'; ?>">
 
             <?php if ( $is_pickup ) : ?>
             <!-- Pickup Location(s) - Show above billing address for pickup orders -->
