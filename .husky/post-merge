@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Post-merge hook for cleanup and optimization
+# Automated quality assessment and repository maintenance
+
+echo "🔄 Running post-merge cleanup..."
+
+# Run post-merge cleanup and optimization
+npm run quality:post-merge
+
+# Note: Post-merge hooks don't block operations, so we don't exit on failure
+if [ $? -ne 0 ]; then
+    echo "⚠️ Post-merge cleanup encountered issues"
+    echo "💡 Check the output above for details"
+    echo "🔧 Manual cleanup may be required"
+else
+    echo "✅ Post-merge cleanup completed successfully"
+fi

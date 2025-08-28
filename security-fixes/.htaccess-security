@@ -1,0 +1,197 @@
+# WordPress Security Hardening .htaccess Rules
+# 
+# Critical security fixes for the identified vulnerabilities
+# 
+# @package BlazeCommerce\Security
+
+# Security Fix 1: Protect Configuration Files
+# Deny access to wp-config.php and other sensitive files
+<Files "wp-config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".htaccess">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "readme.html">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "license.txt">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "wp-config-sample.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Security Fix 2: Disable Directory Browsing
+Options -Indexes
+
+# Security Fix 3: Protect wp-includes and wp-admin
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Block access to wp-includes files
+    RewriteRule ^wp-includes/.*\.php$ - [F,L]
+    
+    # Block access to wp-admin without proper authentication
+    RewriteCond %{REQUEST_URI} ^/wp-admin/.*
+    RewriteCond %{HTTP_COOKIE} !wordpress_logged_in
+    RewriteRule ^wp-admin/(.*) /wp-login.php?redirect_to=%{REQUEST_URI} [R=302,L]
+</IfModule>
+
+# Security Fix 4: Add Security Headers
+<IfModule mod_headers.c>
+    # X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # X-XSS-Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Remove Server Information
+    Header unset Server
+    Header unset X-Powered-By
+    
+    # Content Security Policy (basic)
+    Header always set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com *.google.com *.facebook.com *.twitter.com *.instagram.com *.youtube.com *.vimeo.com *.gravatar.com *.w.org data: blob:;"
+</IfModule>
+
+# Security Fix 5: Disable XML-RPC
+<Files "xmlrpc.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Security Fix 6: Block Malicious Requests
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Block SQL injection attempts
+    RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+    RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+    RewriteCond %{QUERY_STRING} base64_(en|de)code[^(]*\([^)]*\) [OR]
+    RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (\<|%3C).*iframe.*(\>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (<|%3C)([^e]*e)+mbed.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (<|%3C)([^o]*o)+bject.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (<|%3C)([^a]*a)+pplet.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} \b(drop|alter|create|insert|update|delete|select|union)\b [NC]
+    RewriteRule ^(.*)$ - [F,L]
+    
+    # Block user enumeration attempts
+    RewriteCond %{QUERY_STRING} author=\d+ [NC]
+    RewriteRule ^(.*)$ /? [R=301,L]
+</IfModule>
+
+# Security Fix 7: Limit File Upload Types
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow PHP files only in specific directories
+<FilesMatch "^(index|wp-login|wp-cron)\.php$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Security Fix 8: Rate Limiting (Basic)
+<IfModule mod_evasive24.c>
+    DOSHashTableSize    2048
+    DOSPageCount        10
+    DOSSiteCount        50
+    DOSPageInterval     1
+    DOSSiteInterval     1
+    DOSBlockingPeriod   600
+</IfModule>
+
+# Security Fix 9: Protect Against Hotlinking
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?yourdomain\.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|webp|svg)$ - [F]
+</IfModule>
+
+# Security Fix 10: Force HTTPS (if SSL is available)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Security Fix 11: Prevent Access to Backup Files
+<FilesMatch "\.(bak|backup|old|orig|original|tmp|temp)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Security Fix 12: Block Suspicious User Agents
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(java|curl|wget) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} (winhttp|HTTrack|clshttp|archiver|loader|email|harvest|extract|grab|miner) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
+
+# Security Fix 13: Prevent Information Disclosure
+ServerTokens Prod
+ServerSignature Off
+
+# Security Fix 14: Cache Control for Security
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Don't cache sensitive pages
+    <FilesMatch "\.(php|cgi|pl|htm)$">
+        ExpiresActive Off
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+</IfModule>
+
+# Security Fix 15: Protect Against Click-jacking
+<IfModule mod_headers.c>
+    Header always append X-Frame-Options SAMEORIGIN
+</IfModule>
+
+# BEGIN WordPress Security Rules
+# The directives (lines) between "BEGIN WordPress Security" and "END WordPress Security" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+
+# END WordPress Security Rules

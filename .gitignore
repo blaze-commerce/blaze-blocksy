@@ -1,14 +1,45 @@
 # WordPress Child Theme .gitignore
 
+# ===================================
+# DEPENDENCY DIRECTORIES
+# ===================================
+
 # Node.js and Package Managers
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
 .npm/
 .yarn/
+.pnp.*
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Composer Dependencies
+vendor/
+
+# ===================================
+# LOCK FILES (Project Decision)
+# ===================================
+
+# Keep package-lock.json for consistent installs
+# Uncomment the line below if you prefer not to track it
+# package-lock.json
+
+# Keep composer.lock for consistent PHP dependencies
+# Uncomment the line below if you prefer not to track it
+# composer.lock
+
+# Alternative package manager lock files
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# ===================================
+# BUILD ARTIFACTS & COMPILED FILES
+# ===================================
 
 # Build and Compilation Outputs
 assets/dist/
@@ -18,65 +49,355 @@ build/
 *.min.css
 *.min.js
 *.map
+*.css.map
+*.js.map
+*.scss.map
+*.less.map
+*.sass.map
 
 # CSS Preprocessors and Source Files
 .sass-cache/
-*.css.map
-*.scss.map
-*.less.map
 src/
 
-# IDE and Editor Files
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
-*.swp
-*.swo
-*~
-
-# Operating System Files
-.DS_Store
-._*
-Thumbs.db
-desktop.ini
-
-# Logs and Temporary Files
-*.log
+# Webpack and Build Tool Caches
+.parcel-cache/
+.webpack/
+.rollup.cache/
 .cache/
 .tmp/
 
-# Environment Files
-.env
-.env.local
-.env.development
-.env.production
+# ===================================
+# TESTING & COVERAGE
+# ===================================
 
-# Composer (if used)
-vendor/
-composer.lock
+# Test Artifacts and Coverage Reports
+coverage/
+test-results/
+.phpunit.result.cache
+.phpunit.cache/
+.nyc_output/
+junit.xml
+test-summary.json
+playwright-results.json
+playwright-junit.xml
+performance-report.json
+lighthouse-results/
+*.lcov
+lcov.info
 
-# Backup Files
-*.bak
-*.backup
-*.old
+# Jest and Testing
+jest-results.json
+.jest-cache/
+
+# BlazeCommerce Testing Framework Artifacts
+security-baseline.json
+performance-baseline.json
+database-test-results.xml
+api-test-results.json
+*-baseline.json
+*-junit.xml
+security-scan-results.json
+vulnerability-report.json
+
+# ===================================
+# DEVELOPMENT TOOLS & CACHES
+# ===================================
 
 # Development Tools
 .eslintcache
 .stylelintcache
 phpunit.xml
 
-# Images and Media Files
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-*.tif
-*.svg
-*.webp
-*.ico
-*.avif
-*.heic
-*.heif
+# Linting and Formatting
+.prettiercache
+
+# ===================================
+# LOGS & TEMPORARY FILES
+# ===================================
+
+# Logs and Temporary Files
+*.log
+logs/
+debug.log
+error_log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===================================
+# ENVIRONMENT & CONFIGURATION FILES
+# ===================================
+
+# Environment Files
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# WordPress Configuration
+wp-config-local.php
+wp-config-staging.php
+wp-config-production.php
+wp-config-development.php
+wp-cli.local.yml
+wp-cli.yml
+
+# ===================================
+# IDE & EDITOR FILES
+# ===================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim/Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Atom
+.atom/
+
+# ===================================
+# OPERATING SYSTEM FILES
+# ===================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===================================
+# BACKUP & TEMPORARY FILES
+# ===================================
+
+# Backup Files
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.tmp
+.merge_file_*
+
+# ===================================
+# WORDPRESS SPECIFIC
+# ===================================
+
+# WordPress Core Files (if accidentally added)
+wp-admin/
+wp-includes/
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+wp-content/cache/
+wp-content/backups/
+
+# WordPress Security & Maintenance
+.htaccess.backup
+.maintenance
+.well-known/
+wp-config-sample.php
+readme.html
+license.txt
+
+# WordPress Logs
+error_log
+debug.log
+wp-errors.log
+
+# ===================================
+# GIT HOOKS & AUTOMATION
+# ===================================
+
+# Husky Git Hooks
+.husky/_/
+
+# ===================================
+# MEDIA & DESIGN FILES
+# ===================================
+
+# Large Design Files (Keep theme assets, ignore large design files)
+*.psd
+*.ai
+*.sketch
+*.fig
+*.xd
+*.indd
+*.eps
+
+# Large Media Files in uploads (if present)
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.gif
+uploads/*.mp4
+uploads/*.mov
+uploads/*.avi
+uploads/*.webm
+uploads/*.pdf
+
+# ===================================
+# SECURITY & SENSITIVE FILES
+# ===================================
+
+# Authentication & Security
+.htpasswd
+auth.json
+.secrets
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database dumps
+*.sql
+*.sqlite
+*.db
+
+# ===================================
+# KEEP IMPORTANT THEME FILES
+# ===================================
+
+# Ensure theme assets are kept
+!screenshot.jpg
+!screenshot.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.png
+!assets/**/*.gif
+!assets/**/*.svg
+!assets/**/*.ico
+!assets/**/*.webp
+!assets/**/*.woff
+!assets/**/*.woff2
+!assets/**/*.ttf
+!assets/**/*.eot
+
+# Keep documentation images
+!docs/**/*.jpg
+!docs/**/*.jpeg
+!docs/**/*.png
+!docs/**/*.gif
+!docs/**/*.svg
+
+# ===================================
+# PROJECT SPECIFIC
+# ===================================
+
+# Brain Monkey cache
+tests/cache/
+
+# Patchwork cache
+.patchwork-cache/
+
+# Local development files
+local-config.php
+local-development.php
+
+# ===================================
+# BLAZECOMMERCE TESTING FRAMEWORK
+# ===================================
+
+# Testing Framework Artifacts
+tests/security/security-baseline.json
+tests/performance/performance-baseline.json
+tests/api/api-test-results.json
+tests/database/database-test-results.xml
+
+# Performance Testing Results
+lighthouse-report.html
+lighthouse-report.json
+k6-results.json
+artillery-report.json
+performance-report.json
+
+# Security Testing Results
+security-scan-results.json
+vulnerability-report.json
+
+# Load Testing Artifacts
+load-test-*.json
+stress-test-*.json
+
+# Visual Regression Testing
+screenshots/
+test-screenshots/
+visual-regression/
+playwright-screenshots/
+
+# Coverage Reports (additional patterns)
+coverage-final.json
+lcov-report/
+clover.xml
+cobertura.xml
+
+# CI/CD Artifacts
+.github/test-results/
+.github/artifacts/
+
+# Temporary Testing Files
+test-*.tmp
+testing-*.log
+mock-data-*.json
