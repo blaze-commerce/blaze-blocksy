@@ -15,18 +15,190 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Check if order uses pickup shipping method
+ *
+ * @param WC_Order $order The order object
+ * @return bool True if pickup method, false otherwise
+ */
+function blocksy_child_is_pickup_order( $order ) {
+    $shipping_methods = $order->get_shipping_methods();
+
+    if ( empty( $shipping_methods ) ) {
+        // Fallback: Check if shipping total is 0 and no shipping address
+        $shipping_total = $order->get_shipping_total();
+        $has_shipping_address = ! empty( $order->get_shipping_address_1() );
+
+        if ( $shipping_total === 0.0 && ! $has_shipping_address ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    foreach ( $shipping_methods as $shipping_method ) {
+        $method_id = $shipping_method->get_method_id();
+        $method_title = strtolower( $shipping_method->get_method_title() );
+
+        // Check for pickup method indicators
+        if (
+            $method_id === 'local_pickup' ||
+            strpos( $method_title, 'pickup' ) !== false ||
+            strpos( $method_title, 'collection' ) !== false
+        ) {
+            return true;
+        }
+    }
+
+    // Additional fallback: Check order meta for pickup indicators
+    $delivery_method = $order->get_meta( '_delivery_method' );
+    if ( $delivery_method === 'pickup' ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Get pickup locations for an order
+ *
+ * @param WC_Order $order The order object
+ * @return array Array of pickup location data
+ */
+function blocksy_child_get_pickup_locations( $order ) {
+    $pickup_locations = array();
+
+    // First, try to get pickup location from the order's shipping method
+    $shipping_methods = $order->get_shipping_methods();
+
+    foreach ( $shipping_methods as $shipping_method ) {
+        $method_id = $shipping_method->get_method_id();
+        $instance_id = $shipping_method->get_instance_id();
+
+        // Check if this is a pickup method
+        if ( $method_id === 'local_pickup' || strpos( strtolower( $shipping_method->get_method_title() ), 'pickup' ) !== false ) {
+
+            // Try to get pickup location from shipping method instance settings
+            if ( $instance_id ) {
+                $shipping_method_settings = get_option( 'woocommerce_local_pickup_' . $instance_id . '_settings', array() );
+
+                if ( ! empty( $shipping_method_settings ) ) {
+                    $location_name = isset( $shipping_method_settings['title'] ) ? $shipping_method_settings['title'] : '';
+                    $location_address = '';
+
+                    // Try to build address from various fields
+                    $address_fields = array( 'address_1', 'address_2', 'city', 'state', 'postcode' );
+                    $address_parts = array();
+
+                    foreach ( $address_fields as $field ) {
+                        if ( isset( $shipping_method_settings[$field] ) && ! empty( $shipping_method_settings[$field] ) ) {
+                            $address_parts[] = $shipping_method_settings[$field];
+                        }
+                    }
+
+                    if ( ! empty( $address_parts ) ) {
+                        $location_address = implode( ', ', $address_parts );
+                    }
+
+                    if ( $location_name || $location_address ) {
+                        $pickup_locations[] = array(
+                            'name' => $location_name ?: 'Pickup Location',
+                            'address' => $location_address,
+                            'instructions' => isset( $shipping_method_settings['instructions'] ) ? $shipping_method_settings['instructions'] : ''
+                        );
+                    }
+                }
+            }
+
+            // If no specific location found, try order meta
+            $pickup_location_meta = $order->get_meta( '_pickup_location' );
+            if ( $pickup_location_meta && empty( $pickup_locations ) ) {
+                $pickup_locations[] = array(
+                    'name' => is_array( $pickup_location_meta ) && isset( $pickup_location_meta['name'] ) ? $pickup_location_meta['name'] : 'Pickup Location',
+                    'address' => is_array( $pickup_location_meta ) && isset( $pickup_location_meta['address'] ) ? $pickup_location_meta['address'] : $pickup_location_meta,
+                    'instructions' => is_array( $pickup_location_meta ) && isset( $pickup_location_meta['instructions'] ) ? $pickup_location_meta['instructions'] : ''
+                );
+            }
+        }
+    }
+
+    // If no pickup locations found from order, try WooCommerce store address as fallback
+    if ( empty( $pickup_locations ) ) {
+        $store_address = array();
+        $store_address_parts = array();
+
+        // Get WooCommerce store address settings
+        $address_1 = get_option( 'woocommerce_store_address' );
+        $address_2 = get_option( 'woocommerce_store_address_2' );
+        $city = get_option( 'woocommerce_store_city' );
+        $state = get_option( 'woocommerce_default_country' );
+        $postcode = get_option( 'woocommerce_store_postcode' );
+
+        // Parse country/state with input validation
+        if ( $state && strpos( $state, ':' ) !== false ) {
+            $parts = explode( ':', $state );
+            if ( count( $parts ) === 2 ) {
+                list( $country, $state_code ) = $parts;
+                $countries = WC()->countries->get_countries();
+                $states = WC()->countries->get_states( $country );
+
+                $country_name = isset( $countries[$country] ) ? $countries[$country] : $country;
+                $state_name = isset( $states[$state_code] ) ? $states[$state_code] : $state_code;
+            } else {
+                $country_name = '';
+                $state_name = $state;
+            }
+        } else {
+            $country_name = '';
+            $state_name = $state;
+        }
+
+        // Build address parts
+        if ( $address_1 ) $store_address_parts[] = $address_1;
+        if ( $address_2 ) $store_address_parts[] = $address_2;
+        if ( $city ) $store_address_parts[] = $city;
+        if ( $state_name ) $store_address_parts[] = $state_name;
+        if ( $postcode ) $store_address_parts[] = $postcode;
+        if ( $country_name && $country_name !== $state_name ) $store_address_parts[] = $country_name;
+
+        if ( ! empty( $store_address_parts ) ) {
+            $pickup_locations[] = array(
+                'name' => get_bloginfo( 'name' ) . ' Store',
+                'address' => implode( ', ', $store_address_parts ),
+                'instructions' => ''
+            );
+        }
+    }
+
+    // Return empty array if no valid pickup locations found
+    return $pickup_locations;
+}
+
+/**
  * Get formatted shipping display for order
  *
  * @param WC_Order $order The order object
  * @return string Formatted shipping display
  */
 function blocksy_child_get_shipping_display( $order ) {
+    // Check if this is a pickup order
+    if ( blocksy_child_is_pickup_order( $order ) ) {
+        $pickup_locations = blocksy_child_get_pickup_locations( $order );
+        if ( ! empty( $pickup_locations ) ) {
+            $first_location = reset( $pickup_locations );
+            $location_name = $first_location ? $first_location['name'] : 'Pickup Location';
+            return 'Pickup (' . $location_name . ') - Free';
+        } else {
+            // Generic pickup message when no specific location data available
+            return 'Pickup - Free';
+        }
+    }
+
     // Get shipping methods from the order
     $shipping_methods = $order->get_shipping_methods();
     $shipping_total = $order->get_shipping_total();
 
     // If no shipping methods or shipping is free
-    if ( empty( $shipping_methods ) || $shipping_total == 0 ) {
+    if ( empty( $shipping_methods ) || $shipping_total === 0.0 ) {
         return 'Free';
     }
 
@@ -146,16 +318,58 @@ function blocksy_child_blaze_commerce_order_details( $order ) {
 }
 
 /**
- * Generate addresses section matching Blaze Commerce design
+ * Generate addresses section with conditional display based on shipping method
  *
  * @param WC_Order $order The order object
  */
 function blocksy_child_blaze_commerce_addresses_section( $order ) {
+    $is_pickup = blocksy_child_is_pickup_order( $order );
     ?>
     <div class="blaze-commerce-addresses-section">
-        <div class="blaze-commerce-addresses-grid">
+        <div class="blaze-commerce-addresses-flexx <?php echo $is_pickup ? 'pickup-billing' : 'shipping-billing'; ?>">
 
-            <!-- Shipping Address -->
+            <?php if ( $is_pickup ) : ?>
+            <!-- Pickup Location(s) - Show above billing address for pickup orders -->
+            <?php
+            $pickup_locations = blocksy_child_get_pickup_locations( $order );
+            if ( ! empty( $pickup_locations ) ) :
+                foreach ( $pickup_locations as $index => $location ) :
+                    $location_title = count( $pickup_locations ) > 1 ? 'Pickup Location ' . ( $index + 1 ) : 'Pickup Location';
+            ?>
+            <div class="blaze-commerce-address-block">
+                <h4 class="blaze-commerce-address-title"><?php echo esc_html( $location_title ); ?></h4>
+                <div class="blaze-commerce-address-content">
+                    <?php if ( ! empty( $location['name'] ) ) : ?>
+                        <strong><?php echo esc_html( $location['name'] ); ?></strong><br>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $location['address'] ) ) : ?>
+                        <?php
+                        // Format address with proper line breaks
+                        $address_lines = explode( ', ', $location['address'] );
+                        foreach ( $address_lines as $line_index => $line ) {
+                            echo esc_html( trim( $line ) );
+                            if ( $line_index < count( $address_lines ) - 1 ) {
+                                echo '<br>';
+                            }
+                        }
+                        ?>
+                        <br>
+                    <?php endif; ?>
+
+                    <?php
+                    // Show custom instructions if available, otherwise default message
+                    $instructions = ! empty( $location['instructions'] ) ? $location['instructions'] : 'Please wait for email confirmation before pickup';
+                    ?>
+                    <em><?php echo esc_html( $instructions ); ?></em>
+                </div>
+            </div>
+            <?php
+                endforeach;
+            endif; // End pickup locations check
+            ?>
+            <?php else : ?>
+            <!-- Shipping Address - Only show for delivery orders -->
             <div class="blaze-commerce-address-block">
                 <h4 class="blaze-commerce-address-title">Shipping Address</h4>
                 <div class="blaze-commerce-address-content">
@@ -169,8 +383,9 @@ function blocksy_child_blaze_commerce_addresses_section( $order ) {
                     ?>
                 </div>
             </div>
+            <?php endif; ?>
 
-            <!-- Billing Address -->
+            <!-- Billing Address - Always show -->
             <div class="blaze-commerce-address-block">
                 <h4 class="blaze-commerce-address-title">Billing Address</h4>
                 <div class="blaze-commerce-address-content">
@@ -319,6 +534,7 @@ function blocksy_child_handle_account_creation_from_order() {
 
     $first_name = sanitize_text_field( $_POST['account_first_name'] );
     $last_name = sanitize_text_field( $_POST['account_last_name'] );
+    // Password intentionally not sanitized to preserve special characters for wp_create_user()
     $password = $_POST['account_password'];
     $email = $order->get_billing_email();
 
