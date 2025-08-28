@@ -103,7 +103,7 @@ add_action( 'wc_ajax_add_to_cart', function () {
 // add_action( 'wp_enqueue_scripts', function() {
 // 	if ( is_checkout() && ! is_wc_endpoint_url() ) {
 // 		$template_uri = get_stylesheet_directory_uri();
-		
+
 // 		// Enqueue CSS
 // 		wp_enqueue_style(
 // 			'custom-checkout-css',
@@ -111,7 +111,7 @@ add_action( 'wc_ajax_add_to_cart', function () {
 // 			array(),
 // 			'1.0.0'
 // 		);
-		
+
 // 		// Enqueue JS
 // 		wp_enqueue_script(
 // 			'custom-checkout-js',
