@@ -9,10 +9,10 @@ module.exports = {
 	ci: {
 		collect: {
 			url: [
-			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/',
-			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/shop/',
-			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/cart/',
-			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/checkout/'
+			process.env.LIGHTHOUSE_BASE_URL || 'https://example.com/',
+			(process.env.LIGHTHOUSE_BASE_URL || 'https://example.com') + '/shop/',
+			(process.env.LIGHTHOUSE_BASE_URL || 'https://example.com') + '/cart/',
+			(process.env.LIGHTHOUSE_BASE_URL || 'https://example.com') + '/checkout/'
 			],
 			numberOfRuns: 3,
 			settings: {

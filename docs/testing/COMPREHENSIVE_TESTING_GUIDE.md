@@ -96,7 +96,7 @@ npm run api:test-credentials
 # 2. Add to .env file:
 WC_CONSUMER_KEY=ck_your_consumer_key_here
 WC_CONSUMER_SECRET=cs_your_consumer_secret_here
-API_BASE_URL=https://stg-infinitytargetscom-sitebuild.kinsta.cloud
+API_BASE_URL=https://your-wordpress-site.com
 ```
 
 ### Commands:
@@ -229,11 +229,11 @@ npm run test:performance # Performance integration tests
 ### Required Secrets:
 ```bash
 # Add to GitHub Repository Secrets:
-STAGING_URL=https://stg-infinitytargetscom-sitebuild.kinsta.cloud
+STAGING_URL=https://your-wordpress-site.com
 WC_CONSUMER_KEY=ck_your_consumer_key_here
 WC_CONSUMER_SECRET=cs_your_consumer_secret_here
-TEST_USER_EMAIL=hello@blazecommerce.io
-TEST_USER_PASSWORD=nx$9G2AG1zu2x&d4
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=test-password
 ```
 
 ### Workflow Features:
@@ -281,7 +281,7 @@ TEST_USER_PASSWORD=nx$9G2AG1zu2x&d4
 3. **Performance Tests Timeout**
    ```bash
    # Check target URL accessibility
-   curl -I https://stg-infinitytargetscom-sitebuild.kinsta.cloud/
+   curl -I https://your-wordpress-site.com/
    
    # Reduce load test intensity
    # Edit tests/performance/k6-load-test.js
@@ -290,7 +290,7 @@ TEST_USER_PASSWORD=nx$9G2AG1zu2x&d4
 4. **Security Tests Failing**
    ```bash
    # Check if security fixes are deployed
-   curl -I https://stg-infinitytargetscom-sitebuild.kinsta.cloud/wp-config.php
+   curl -I https://your-wordpress-site.com/wp-config.php
    # Should return 403 or 404, not 200
    ```
 

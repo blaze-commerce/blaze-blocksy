@@ -103,15 +103,15 @@ class WooCommerceAPIKeyGenerator {
 WC_CONSUMER_KEY=${consumerKey}
 WC_CONSUMER_SECRET=${consumerSecret}
 API_BASE_URL=${this.baseURL}
-TEST_USER_EMAIL=hello@blazecommerce.io
-TEST_USER_PASSWORD=nx$9G2AG1zu2x&d4
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=test-password
 `;
   }
 }
 
 // Main execution
 async function main() {
-  const baseURL = process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud';
+  const baseURL = process.env.API_BASE_URL || 'https://your-wordpress-site.com';
   
   console.log('🔑 WooCommerce API Key Generator');
   console.log(`🌐 Target URL: ${baseURL}`);

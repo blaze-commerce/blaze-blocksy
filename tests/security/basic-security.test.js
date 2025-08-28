@@ -9,7 +9,7 @@
 const axios = require('axios');
 
 describe('Basic Security Tests', () => {
-  const baseURL = process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud';
+  const baseURL = process.env.API_BASE_URL || 'https://your-wordpress-site.com';
   let client;
   
   beforeAll(() => {

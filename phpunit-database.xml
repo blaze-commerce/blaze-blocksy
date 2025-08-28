@@ -47,8 +47,8 @@
 
     <php>
         <env name="DB_HOST" value="localhost"/>
-        <env name="DB_USER" value="testuser"/>
-        <env name="DB_PASSWORD" value="testpass"/>
+        <env name="DB_USER" value="[REPLACE_WITH_DB_USER]"/>
+        <env name="DB_PASSWORD" value="[REPLACE_WITH_DB_PASSWORD]"/>
         <env name="DB_PORT" value="3306"/>
         <env name="WP_DEBUG" value="true"/>
     </php>

@@ -5,7 +5,7 @@
 # @package BlazeCommerce\Tests\Performance
 
 config:
-  target: 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud'
+  target: '{{ $processEnvironment.ARTILLERY_TARGET_URL || "https://your-wordpress-site.com" }}'
   phases:
     # Warm-up phase
     - duration: 60

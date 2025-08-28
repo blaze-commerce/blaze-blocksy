@@ -68,7 +68,7 @@ const generateCustomerData = (overrides = {}) => {
   const randomString = global.testUtils.generateRandomString();
   
   const baseCustomer = {
-    email: `testcustomer${randomString}@blazecommerce.io`,
+    email: `testcustomer${randomString}@example.com`,
     first_name: 'Test',
     last_name: 'Customer',
     username: `testcustomer${randomString}`,
@@ -83,7 +83,7 @@ const generateCustomerData = (overrides = {}) => {
       state: 'CA',
       postcode: '90210',
       country: 'US',
-      email: `testcustomer${randomString}@blazecommerce.io`,
+      email: `testcustomer${randomString}@example.com`,
       phone: '555-123-4567'
     },
     shipping: {
@@ -131,7 +131,7 @@ const generateOrderData = (productId, customerId = null, overrides = {}) => {
       state: 'NY',
       postcode: '10001',
       country: 'US',
-      email: `testorder${randomString}@blazecommerce.io`,
+      email: `testorder${randomString}@example.com`,
       phone: '555-987-6543'
     },
     shipping: {

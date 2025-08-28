@@ -27,11 +27,11 @@ if (!defined('DB_HOST')) {
 }
 
 if (!defined('DB_USER')) {
-    define('DB_USER', getenv('DB_USER') ?: 'root');
+    define('DB_USER', getenv('DB_USER') ?: '[REPLACE_WITH_DB_USER]');
 }
 
 if (!defined('DB_PASSWORD')) {
-    define('DB_PASSWORD', getenv('DB_PASSWORD') ?: '');
+    define('DB_PASSWORD', getenv('DB_PASSWORD') ?: '[REPLACE_WITH_DB_PASSWORD]');
 }
 
 if (!defined('DB_PORT')) {

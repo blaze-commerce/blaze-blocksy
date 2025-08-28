@@ -71,7 +71,7 @@ export const options = {
 };
 
 // Base URL configuration
-const BASE_URL = __ENV.BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud';
+const BASE_URL = __ENV.BASE_URL || 'https://your-wordpress-site.com';
 
 // Test data
 const PRODUCTS = [1, 2, 3, 4, 5];

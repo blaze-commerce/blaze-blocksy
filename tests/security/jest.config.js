@@ -36,7 +36,7 @@ module.exports = {
   
   // Global variables for security testing
   globals: {
-    SECURITY_BASE_URL: process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud',
+    SECURITY_BASE_URL: process.env.API_BASE_URL || 'https://your-wordpress-site.com',
     SECURITY_TIMEOUT: 30000,
     ENABLE_VULNERABILITY_SCAN: process.env.ENABLE_VULNERABILITY_SCAN === 'true',
     SECURITY_BASELINE_PATH: '<rootDir>/tests/security/security-baseline.json'
