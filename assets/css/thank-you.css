@@ -29,16 +29,24 @@
    ======================================== */
 
 .blaze-commerce-thank-you-wrapper {
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 20px;
 }
 
 .blaze-commerce-thank-you-container {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
     align-items: start;
+}
+
+/* Desktop Grid Layout (1024px and above) */
+@media (min-width: 1024px) {
+    .blaze-commerce-thank-you-container {
+        display: grid;
+        grid-template-columns: 1fr 40%;
+        gap: 34px;
+        align-items: start;
+    }
 }
 
 /* ========================================
@@ -47,11 +55,10 @@
 
 .blaze-commerce-thank-you-header {
     grid-column: 1 / -1;
-    margin-bottom: 40px;
     /* CRITICAL FIX: Ensure header is always visible */
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: block;
 }
 
 .blaze-commerce-thank-you-title {
@@ -63,16 +70,18 @@
 }
 
 .blaze-commerce-order-confirmation {
-    font-size: 16px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     margin: 0 0 8px 0;
     line-height: 1.5;
+    font-weight: 600;
 }
 
 .blaze-commerce-order-number {
-    font-size: 16px;
-    color: #666666;
+    font-size: 18px;
+    color: #000000;
     margin: 0 0 16px 0;
+    opacity: 0.8;
 }
 
 .blaze-commerce-order-number strong {
@@ -81,8 +90,8 @@
 }
 
 .blaze-commerce-email-confirmation {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     margin: 0;
     line-height: 1.5;
 }
@@ -96,7 +105,9 @@
     /* CRITICAL FIX: Ensure main content is always visible */
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* ========================================
@@ -104,7 +115,7 @@
    ======================================== */
 
 .blaze-commerce-order-details {
-    margin-bottom: 40px;
+    border-bottom: 1px solid #CDD1D4;
 }
 
 .blaze-commerce-order-details h3 {
@@ -146,30 +157,35 @@
     margin-bottom: 40px;
 }
 
-.blaze-commerce-addresses-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
+/* Base addresses flex - only applies when no specific layout class is present */
+.blaze-commerce-addresses-flex:not(.pickup-billing):not(.shipping-billing) {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 .blaze-commerce-address-block {
-    background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 24px;
+    border-bottom: 1px solid #CDD1D4;
+    padding-bottom: 24px;
+}
+
+.blaze-commerce-address-block:last-child {
+    border-bottom: 0px;
+    padding-bottom: 0px;
 }
 
 .blaze-commerce-address-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #000000;
     margin: 0 0 16px 0;
     line-height: 1.4;
+    opacity: 0.8;
 }
 
 .blaze-commerce-address-content {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #242424;
     line-height: 1.6;
     margin: 0;
 }
@@ -180,6 +196,34 @@
 
 .blaze-commerce-address-content p:last-child {
     margin-bottom: 0;
+}
+
+/* ========================================
+   CONDITIONAL ADDRESS LAYOUTS
+   ======================================== */
+
+/* Pickup-billing layout (pickup location + billing) - Consistent flex layout */
+.blaze-commerce-addresses-flex.pickup-billing {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Shipping-billing layout (shipping + billing) - Consistent flex layout */
+.blaze-commerce-addresses-flex.shipping-billing {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Pickup location styling removed - now uses consistent address block styling */
+
+/* Mobile responsive adjustments for conditional layouts */
+@media (max-width: 768px) {
+    .blaze-commerce-addresses-flex.pickup-billing,
+    .blaze-commerce-addresses-flex.shipping-billing {
+        gap: 24px;
+    }
 }
 
 /* ========================================
@@ -197,7 +241,7 @@
 .blaze-commerce-account-title {
     font-size: 18px;
     font-weight: 600;
-    color: #000000;
+    color: #242424;
     margin: 0 0 24px 0;
     line-height: 1.4;
 }
@@ -209,12 +253,13 @@
 }
 
 .blaze-commerce-account-benefits li {
-    font-size: 14px;
-    color: #666666;
+    font-size: 18px;
+    color: #000000;
     line-height: 1.6;
     margin-bottom: 8px;
     padding-left: 20px;
     position: relative;
+    opacity: 0.8;
 }
 
 .blaze-commerce-account-benefits li:before {
@@ -226,8 +271,8 @@
 }
 
 .blaze-commerce-account-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
     margin-bottom: 24px;
 }
@@ -238,9 +283,9 @@
 }
 
 .blaze-commerce-form-field label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 400;
+    color: #242424;
     margin-bottom: 8px;
 }
 
@@ -265,13 +310,13 @@
 }
 
 .blaze-commerce-create-account-btn {
-    background: #dc2626;
+    background-color: #dc2626 !important;
     color: #ffffff;
     border: none;
     padding: 16px 32px;
     border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s ease;
     width: 100%;
@@ -297,12 +342,13 @@
     opacity: 1 !important;
     visibility: visible !important;
     display: block !important;
+    width: 100%;
 }
 
 .blaze-commerce-summary-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #000000;
+    font-size: 30px;
+    font-weight: 400;
+    color: #242424;
     margin: 0 0 24px 0;
     line-height: 1.4;
     display: flex;
@@ -340,9 +386,9 @@
 }
 
 .blaze-commerce-product-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 400;
+    color: #111827;
     margin: 0 0 4px 0;
     line-height: 1.4;
 }
@@ -371,12 +417,14 @@
 }
 
 .blaze-commerce-summary-label {
-    color: #666666;
+    color: #242424;
+    font-size: 18px;
 }
 
 .blaze-commerce-summary-value {
-    color: #000000;
-    font-weight: 500;
+    color: #242424;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 .blaze-commerce-summary-total {
@@ -388,15 +436,15 @@
 }
 
 .blaze-commerce-total-label {
-    font-size: 16px;
-    font-weight: 600;
-    color: #000000;
+    font-size: 18px;
+    font-weight: 700;
+    color: #242424;
 }
 
 .blaze-commerce-total-value {
-    font-size: 18px;
+    font-size: 30px;
     font-weight: 700;
-    color: #000000;
+    color: #242424;
 }
 
 /* ========================================
@@ -406,23 +454,23 @@
 /* Tablet Styles (768px - 1023px) */
 @media (max-width: 1023px) {
     .blaze-commerce-thank-you-container {
-        grid-template-columns: 1fr;
         gap: 40px;
     }
 
     .blaze-commerce-order-summary {
-        order: -1;
+        order: initial
+        ;
         position: static;
         margin-bottom: 40px;
     }
 
-    .blaze-commerce-addresses-grid {
-        grid-template-columns: 1fr;
+    .blaze-commerce-addresses-flex:not(.pickup-billing):not(.shipping-billing) {
+        flex-direction: column;
         gap: 24px;
     }
 
     .blaze-commerce-account-form {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .blaze-commerce-order-meta {
@@ -447,7 +495,6 @@
 
     .blaze-commerce-thank-you-title {
         font-size: 28px;
-        margin-bottom: 20px;
     }
 
     .blaze-commerce-order-details,
@@ -488,6 +535,7 @@
     .blaze-commerce-address-block,
     .blaze-commerce-account-creation,
     .blaze-commerce-order-summary {
+        order: initial;
         padding: 16px;
     }
 
@@ -548,20 +596,21 @@
 .blaze-commerce-product-item {
     opacity: 1 !important;
     visibility: visible !important;
-    display: block !important;
+    display: block;
 }
 
-/* Ensure grid containers display correctly */
-.blaze-commerce-thank-you-container {
-    display: grid !important;
+/* Ensure grid containers display correctly on desktop */
+@media (min-width: 1024px) {
+    .blaze-commerce-thank-you-container {
+        display: grid !important;
+    }
 }
 
-.blaze-commerce-addresses-grid {
-    display: grid !important;
-}
+/* Removed conflicting flex display - using specific grid layouts instead */
 
 .blaze-commerce-account-form {
-    display: grid !important;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Ensure flex containers display correctly */
@@ -615,10 +664,43 @@
     }
 }
 
+.blaze-commerce-product-quantity {
+    font-size: 14px;
+    color: #4E594D;
+    font-weight: 300;
+}
+
+.blaze-commerce-order-details-container {
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    border: 1px solid var(--border, #CDD1D4);
+    gap: 24px;
+}
+
+.blaze-commerce-order-confirmation-container {
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border, #CDD1D4);
+}
+
+/* Hide Contents */
 .woocommerce-thankyou-order-details {
     display: none !important;
 }
-
 .wp-block-heading {
     display: none !important;
+}
+.hero-section {
+    display: none !important;
+}
+.ct-breadcrumbs {
+    display: none !important;
+}
+.wp-block-group.is-layout-constrained.wp-block-group-is-layout-constrained h2 {
+    display: none !important;
+}
+
+.ct-container-full {
+    padding-top: 0px !important;
 }

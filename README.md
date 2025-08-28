@@ -2,6 +2,11 @@
 
 A WordPress child theme for Blocksy by BlazeCommerce with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
 
+## Recent Updates
+
+- **Fixed GitHub Actions Workflow**: Resolved "fatal: tag already exists" error with intelligent tag handling
+- **Improved Release Automation**: Enhanced rollback functionality and pre-release cleanup
+
 ## Features
 
 - **Blaze Commerce Thank You Page**: Complete custom thank you page implementation with responsive design
@@ -38,6 +43,7 @@ This repository uses automated semantic versioning with GitHub Actions. Version 
 1. Go to the [Releases page](../../releases)
 2. Download the latest `blocksy-child-vX.Y.Z.zip` file
 3. Upload via WordPress Admin → Appearance → Themes → Add New → Upload Theme
+4. The extracted theme folder will be consistently named `blocksy-child` regardless of version
 
 ### Manual Installation
 1. Clone this repository to your WordPress themes directory

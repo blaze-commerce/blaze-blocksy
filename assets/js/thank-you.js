@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
     $('.blaze-commerce-thank-you-wrapper, .blaze-commerce-thank-you-container, .blaze-commerce-thank-you-header, .blaze-commerce-main-content, .blaze-commerce-order-details, .blaze-commerce-addresses-section, .blaze-commerce-account-creation, .blaze-commerce-order-summary').css({
         'opacity': '1 !important',
         'visibility': 'visible !important',
-        'display': 'block !important'
+        'display': 'block'
     });
 
     // Ensure grid containers display correctly
@@ -47,7 +47,7 @@ jQuery(document).ready(function($) {
         initAccountCreation();
         initAnimations();
         initCopyOrderNumber();
-        initPrintOrder();
+        // initPrintOrder();
         initResponsiveBehavior();
     }
     
@@ -288,7 +288,6 @@ jQuery(document).ready(function($) {
 
             // Handle order summary positioning on mobile/tablet
             if (windowWidth < 1024) {
-                $('.blaze-commerce-order-summary').css('order', '-1');
                 $('.blaze-commerce-addresses-grid').css('grid-template-columns', '1fr');
                 $('.blaze-commerce-account-form').css('grid-template-columns', '1fr');
             } else {

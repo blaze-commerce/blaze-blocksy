@@ -15,6 +15,15 @@ add_action( 'plugins_loaded', function () {
 	}
 }, 1 );
 
+// Auto-merge workflow test: Add performance optimization for admin
+add_action( 'admin_init', function() {
+	// Optimize admin performance by reducing unnecessary queries
+	if ( is_admin() && ! wp_doing_ajax() ) {
+		remove_action( 'admin_print_styles', 'print_emoji_styles' );
+		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+	}
+} );
+
 // Fix REST API permissions for shop_coupon
 add_filter( 'rest_pre_dispatch', function ($result, $server, $request) {
 	$route = $request->get_route();
@@ -103,7 +112,7 @@ add_action( 'wc_ajax_add_to_cart', function () {
 // add_action( 'wp_enqueue_scripts', function() {
 // 	if ( is_checkout() && ! is_wc_endpoint_url() ) {
 // 		$template_uri = get_stylesheet_directory_uri();
-		
+
 // 		// Enqueue CSS
 // 		wp_enqueue_style(
 // 			'custom-checkout-css',
@@ -111,7 +120,7 @@ add_action( 'wc_ajax_add_to_cart', function () {
 // 			array(),
 // 			'1.0.0'
 // 		);
-		
+
 // 		// Enqueue JS
 // 		wp_enqueue_script(
 // 			'custom-checkout-js',
