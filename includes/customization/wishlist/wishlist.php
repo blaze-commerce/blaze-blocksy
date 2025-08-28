@@ -236,6 +236,23 @@ class BlocksyChildWishlistOffCanvas {
 					),
 				),
 
+				// Empty State Settings Section
+				blocksy_rand_md5() => array(
+					'type' => 'ct-title',
+					'label' => __( 'Empty State Settings', 'blocksy-companion' ),
+					'desc' => __( 'Configure what to display when the wishlist is empty.', 'blocksy-companion' ),
+				),
+
+				'wishlist_empty_state_image' => array(
+					'label' => __( 'Empty State Image', 'blocksy-companion' ),
+					'type' => 'ct-image-uploader',
+					'value' => array( 'attachment_id' => null ),
+					'attr' => array( 'data-type' => 'no-frame' ),
+					'emptyLabel' => __( 'Select Image', 'blocksy-companion' ),
+					'filledLabel' => __( 'Change Image', 'blocksy-companion' ),
+					'desc' => __( 'Upload an SVG or image to display when the wishlist is empty. Leave empty to show default cart icon.', 'blocksy-companion' ),
+				),
+
 				// Product Display Settings Section
 				blocksy_rand_md5() => array(
 					'type' => 'ct-title',
@@ -588,13 +605,38 @@ class BlocksyChildWishlistOffCanvas {
 	 * Get empty wishlist content
 	 */
 	private function get_empty_wishlist_content() {
+		$get_mod      = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
 		$is_logged_in = is_user_logged_in();
-		$html         = '<div class="ct-offcanvas-wishlist">';
+
+		// Get empty state image setting
+		$empty_state_image = $get_mod( 'wishlist_empty_state_image', array( 'attachment_id' => null ) );
+
+		$html = '<div class="ct-offcanvas-wishlist">';
 		$html .= '<div class="wishlist-empty">';
-		$html .= '<p>' . esc_html__( 'Your wishlist is currently empty.', 'blocksy-companion' ) . '</p>';
+
+		// Add empty state image if configured
+		if ( ! empty( $empty_state_image['attachment_id'] ) ) {
+			$image_url = wp_get_attachment_url( $empty_state_image['attachment_id'] );
+			$image_alt = get_post_meta( $empty_state_image['attachment_id'], '_wp_attachment_image_alt', true );
+
+			if ( $image_url ) {
+				$html .= '<div class="wishlist-empty-image">';
+				$html .= '<img src="' . esc_url( $image_url ) . '" alt="' . esc_attr( $image_alt ?: __( 'Empty wishlist', 'blocksy-companion' ) ) . '" />';
+				$html .= '</div>';
+			}
+		} else {
+			// Default cart icon (existing behavior)
+			$html .= '<div class="wishlist-empty-icon">';
+			$html .= '<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">';
+			$html .= '<path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>';
+			$html .= '</svg>';
+			$html .= '</div>';
+		}
+
+		$html .= '<p>' . esc_html__( 'Your Wishlist is Empty', 'blocksy-companion' ) . '</p>';
+
 		if ( ! $is_logged_in ) {
-			$html .= '<p>' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>';
-			$html .= '<a href="' . esc_url( wp_registration_url() ) . '" class="button">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>';
+			$html .= $this->get_guest_notice_html();
 		}
 		$html .= '</div>';
 
