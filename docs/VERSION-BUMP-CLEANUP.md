@@ -1,25 +1,29 @@
 # Version Bump PR Cleanup System
 
-This document describes the automated cleanup system for outdated version bump PRs created by the BlazeCommerce Automation Bot.
+This document describes the automated cleanup system for outdated version bump PRs created by the BlazeCommerce Automation Bot, working in conjunction with the auto-merge system.
 
 ## 🎯 Purpose
 
 The cleanup system prevents accumulation of stale version bump PRs by automatically:
-- Identifying outdated version bump PRs after a new version is released
+- Identifying outdated version bump PRs after a new version is auto-merged or manually released
 - Closing obsolete PRs with explanatory comments
 - Deleting associated feature branches to keep the repository clean
+- Supporting both auto-merged and manually merged version bump scenarios
 
 ## 🔧 Implementation Components
 
-### 1. **Automated Cleanup Workflow** (`.github/workflows/cleanup-outdated-version-bumps.yml`)
+### 1. **Enhanced Cleanup Workflow** (`.github/workflows/cleanup-outdated-version-bumps.yml`)
 
-**Trigger**: Runs when a version bump PR is merged to the main branch
+**Triggers**:
+- When a version bump PR is auto-merged or manually merged to the main branch
+- When any regular PR is merged (to clean up stale version bump PRs)
 
 **Process**:
-1. **Version Extraction**: Extracts the version number from the merged PR title
-2. **PR Discovery**: Finds all open PRs created by `blazecommerce-automation-bot[bot]`
-3. **Version Comparison**: Compares versions to identify outdated PRs
-4. **Cleanup Actions**: Closes outdated PRs and deletes branches
+1. **Trigger Detection**: Determines if trigger was from version bump PR or regular PR
+2. **Version Extraction**: Extracts version from PR title or latest Git tag
+3. **PR Discovery**: Finds all open PRs created by `blazecommerce-automation-bot[bot]`
+4. **Version Comparison**: Compares versions to identify outdated PRs
+5. **Cleanup Actions**: Closes outdated PRs and deletes branches with context-aware messages
 
 **Safety Features**:
 - Only targets PRs created by the automation bot
@@ -116,13 +120,23 @@ Use the script for one-off cleanups or testing:
 ./scripts/cleanup-version-bump-prs.sh 1.8.0
 ```
 
-### **Option 3: Integration with Auto-Approval Workflow**
-Add cleanup step to auto-approval workflow:
+### **Option 3: Integration with Auto-Merge Workflow**
+The cleanup workflow now automatically integrates with the auto-merge system:
 
 ```yaml
-- name: Cleanup after auto-merge
-  if: steps.auto-merge.outputs.merged == 'true'
-  run: ./scripts/cleanup-version-bump-prs.sh "$MERGED_VERSION"
+# Enhanced trigger conditions
+if: >
+  github.event.pull_request.merged == true &&
+  (
+    (
+      github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
+      startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
+    ) ||
+    (
+      github.event.pull_request.user.login != 'blazecommerce-automation-bot[bot]' &&
+      !startsWith(github.event.pull_request.head.ref, 'release/bump-v')
+    )
+  )
 ```
 
 ## 📊 Workflow Example
