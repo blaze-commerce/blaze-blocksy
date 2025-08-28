@@ -131,3 +131,50 @@ add_action( 'wc_ajax_add_to_cart', function () {
 // 		);
 // 	}
 // }, 20 );
+
+/**
+ * Register checkout sidebar widget area
+ *
+ * Creates a widget area that displays below the order summary
+ * on WooCommerce checkout pages only. Provides enhanced styling
+ * control with checkout-specific CSS classes.
+ *
+ * @since 1.0.0
+ */
+function blocksy_child_register_checkout_sidebar() {
+    register_sidebar( array(
+        'name'          => __( 'Checkout Sidebar', 'blocksy-child' ),
+        'id'            => 'checkout-sidebar',
+        'description'   => __( 'Widgets here will appear below the order summary on the checkout page.', 'blocksy-child' ),
+        'before_widget' => '<div id="%1$s" class="widget checkout-widget %2$s">',
+        'after_widget'  => '</div>',
+        'before_title'  => '<h3 class="widget-title">',
+        'after_title'   => '</h3>',
+    ) );
+}
+add_action( 'widgets_init', 'blocksy_child_register_checkout_sidebar' );
+
+/**
+ * Display checkout sidebar widget area below the order summary
+ *
+ * Outputs the checkout sidebar widget area on WooCommerce checkout pages only.
+ * Includes WooCommerce dependency check for enhanced error prevention and
+ * conditional display logic to ensure widgets only appear when appropriate.
+ *
+ * @since 1.0.0
+ */
+function blocksy_child_checkout_sidebar_output() {
+    // WooCommerce dependency check for enhanced error prevention
+    if ( ! function_exists( 'is_checkout' ) ) {
+        return;
+    }
+
+    if ( is_checkout() && ! is_wc_endpoint_url() ) {
+        if ( is_active_sidebar( 'checkout-sidebar' ) ) {
+            echo '<aside class="checkout-sidebar">';
+            dynamic_sidebar( 'checkout-sidebar' );
+            echo '</aside>';
+        }
+    }
+}
+add_action( 'woocommerce_checkout_after_order_review', 'blocksy_child_checkout_sidebar_output' );
