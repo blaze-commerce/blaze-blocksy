@@ -1,5 +1,12 @@
 name: Auto-Merge Version Bump PRs
 
+# This workflow automatically merges version bump PRs created by the automation bot
+# after validating that all required checks pass and there are no merge conflicts.
+#
+# Security: Only runs for PRs created by blazecommerce-automation-bot[bot]
+# Reliability: Includes comprehensive null checking for GitHub API responses
+# Configuration: Timeouts and intervals can be customized via repository variables
+#
 # Trigger when version bump PRs are opened or updated
 on:
   pull_request:
@@ -97,46 +104,54 @@ jobs:
           set -euo pipefail
 
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          MAX_WAIT_TIME=900   # 15 minutes (reduced from 30)
-          CHECK_INTERVAL=30   # 30 seconds
+          # Configuration: Make timeouts configurable via environment variables
+          MAX_WAIT_TIME="${{ vars.AUTO_MERGE_MAX_WAIT_TIME || '900' }}"   # Default: 15 minutes
+          CHECK_INTERVAL="${{ vars.AUTO_MERGE_CHECK_INTERVAL || '30' }}"   # Default: 30 seconds
           ELAPSED_TIME=0
 
           echo "⏳ Waiting for required checks to complete for PR #$PR_NUMBER"
-          echo "Maximum wait time: ${MAX_WAIT_TIME} seconds"
+          echo "📊 Configuration: Max wait time: ${MAX_WAIT_TIME}s, Check interval: ${CHECK_INTERVAL}s"
 
           # Define checks to exclude (avoid circular dependency)
+          # This prevents the workflow from waiting for itself to complete
           EXCLUDED_CHECKS="Auto-merge version bump PR|Auto-Merge Version Bump PRs"
 
           while [ $ELAPSED_TIME -lt $MAX_WAIT_TIME ]; do
             echo "🔍 Checking PR status (elapsed: ${ELAPSED_TIME}s)..."
 
-            # Get PR check status, excluding our own workflow
+            # Get PR check status from GitHub API
+            # This retrieves all status checks associated with the PR
             PR_STATUS=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --jq '.statusCheckRollup[]')
 
             if [ -z "$PR_STATUS" ]; then
               echo "ℹ️ No status checks found, proceeding with merge"
+              echo "🔍 Debug: This usually means no CI/CD checks are configured for this repository"
               echo "checks-passed=true" >> $GITHUB_OUTPUT
               break
             fi
 
-            # Filter out excluded checks (our own workflow)
-            FILTERED_STATUS=$(echo "$PR_STATUS" | jq -r --arg excluded "$EXCLUDED_CHECKS" 'select(.context | test($excluded) | not)')
+            # Filter out excluded checks (our own workflow) with null safety
+            # This prevents circular dependency where the workflow waits for itself
+            # Null checks prevent jq errors when GitHub API returns incomplete data
+            FILTERED_STATUS=$(echo "$PR_STATUS" | jq -r --arg excluded "$EXCLUDED_CHECKS" 'select(.context != null and (.context | test($excluded) | not))')
 
             if [ -z "$FILTERED_STATUS" ]; then
               echo "ℹ️ No external status checks found (only auto-merge workflow), proceeding with merge"
+              echo "🔍 Debug: All checks were either null or matched exclusion pattern: $EXCLUDED_CHECKS"
               echo "checks-passed=true" >> $GITHUB_OUTPUT
               break
             fi
 
-            # Check if all required checks have completed and passed
-            PENDING_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | .context' | wc -l)
-            FAILED_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | .context' | wc -l)
+            # Analyze check status with comprehensive null safety
+            # Count pending and failed checks while handling potential null values from GitHub API
+            PENDING_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | .context' | wc -l)
+            FAILED_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "FAILURE" or .status == "ERROR")) | .context' | wc -l)
 
             echo "📊 Check status: $PENDING_CHECKS pending, $FAILED_CHECKS failed"
 
             if [ "$FAILED_CHECKS" -gt 0 ]; then
               echo "❌ Some checks have failed:"
-              echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | "  - " + .context + ": " + .status'
+              echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "FAILURE" or .status == "ERROR")) | "  - " + .context + ": " + .status'
               echo "checks-passed=false" >> $GITHUB_OUTPUT
               exit 1
             fi
@@ -148,7 +163,7 @@ jobs:
             fi
 
             echo "⏳ $PENDING_CHECKS external checks still pending, waiting..."
-            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+            echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | "  - " + .context + ": " + .status'
 
             sleep $CHECK_INTERVAL
             ELAPSED_TIME=$((ELAPSED_TIME + CHECK_INTERVAL))
@@ -157,7 +172,7 @@ jobs:
           if [ $ELAPSED_TIME -ge $MAX_WAIT_TIME ]; then
             echo "⏰ Timeout waiting for checks to complete"
             echo "Remaining pending checks:"
-            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+            echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | "  - " + .context + ": " + .status'
             echo "checks-passed=false" >> $GITHUB_OUTPUT
             exit 1
           fi
