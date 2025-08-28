@@ -4,36 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Direct access forbidden.' );
 }
 
-// Load security hardening functions with enhanced error handling
-$security_file = get_stylesheet_directory() . '/security-fixes/security-hardening.php';
-if ( file_exists( $security_file ) && is_readable( $security_file ) ) {
-	try {
-		require_once $security_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load security hardening: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Security hardening file not found or not readable: ' . $security_file );
-}
-
-// Load performance enhancement functions with enhanced error handling
-$performance_file = get_stylesheet_directory() . '/performance-optimizations/performance-enhancements.php';
-if ( file_exists( $performance_file ) && is_readable( $performance_file ) ) {
-	try {
-		require_once $performance_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load performance enhancements: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Performance enhancement file not found or not readable: ' . $performance_file );
-}
-
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
 	'plugins_loaded',
@@ -48,15 +18,6 @@ add_action(
 	},
 	1
 );
-
-// Auto-merge workflow test: Add performance optimization for admin
-add_action( 'admin_init', function() {
-	// Optimize admin performance by reducing unnecessary queries
-	if ( is_admin() && ! wp_doing_ajax() ) {
-		remove_action( 'admin_print_styles', 'print_emoji_styles' );
-		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-	}
-} );
 
 // Fix REST API permissions for shop_coupon
 add_filter(
@@ -179,110 +140,6 @@ if ( file_exists( $my_account_file ) && is_readable( $my_account_file ) ) {
 	error_log( 'BlazeCommerce: My account file not found or not readable: ' . $my_account_file );
 }
 
-// Load security and performance improvements
-$security_performance_file = get_stylesheet_directory() . '/includes/security-performance-improvements.php';
-if ( file_exists( $security_performance_file ) && is_readable( $security_performance_file ) ) {
-	try {
-		require_once $security_performance_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load security performance improvements: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Security performance file not found or not readable: ' . $security_performance_file );
-}
-
-// Disable terms and conditions validation completely using WooCommerce settings filter
-add_filter( 'pre_option_woocommerce_terms_page_id', '__return_empty_string', 999 );
-
-// BlazeCommerce Security Configuration Filters
-// These filters allow customization of security features without modifying core security files
-
-/**
- * Configure whitelisted IPs for automation and monitoring systems
- * Add trusted IPs that should bypass login attempt limiting
- */
-add_filter( 'blaze_commerce_whitelisted_ips', function( $ips ) {
-	// Add your trusted IPs here
-	$trusted_ips = [
-		// Example: Monitoring services
-		// '192.168.1.100',
-		// '10.0.0.50',
-		// 'YOUR_MONITORING_SERVER_IP',
-		// 'YOUR_CI_CD_SYSTEM_IP'
-	];
-
-	// Allow environment-specific configuration
-	if ( defined( 'BLAZE_COMMERCE_TRUSTED_IPS' ) ) {
-		$env_ips = explode( ',', BLAZE_COMMERCE_TRUSTED_IPS );
-		$trusted_ips = array_merge( $trusted_ips, array_map( 'trim', $env_ips ) );
-	}
-
-	return array_merge( $ips, $trusted_ips );
-} );
-
-/**
- * Configure Content Security Policy
- * Disable CSP if it conflicts with your plugins
- */
-add_filter( 'blaze_commerce_enable_csp', function( $enabled ) {
-	// Disable CSP in development or if conflicts detected
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		// You can disable CSP in development if needed
-		// return false;
-	}
-
-	// Check for known conflicting plugins
-	$conflicting_plugins = [
-		'elementor/elementor.php',
-		'js_composer/js_composer.php', // WPBakery
-		'revslider/revslider.php',
-	];
-
-	foreach ( $conflicting_plugins as $plugin ) {
-		if ( is_plugin_active( $plugin ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "BlazeCommerce: CSP disabled due to conflicting plugin: $plugin" );
-			}
-			return false;
-		}
-	}
-
-	return $enabled;
-} );
-
-/**
- * Customize CSP sources for plugin compatibility
- */
-add_filter( 'blaze_commerce_csp_sources', function( $sources ) {
-	// Add additional sources if needed for your plugins
-
-	// Example: Add PayPal for WooCommerce
-	if ( class_exists( 'WooCommerce' ) ) {
-		$sources['paypal'] = '*.paypal.com *.paypalobjects.com';
-		$sources['stripe'] = '*.stripe.com';
-	}
-
-	// Example: Add Google Fonts if used by theme
-	$sources['fonts'] = 'fonts.googleapis.com fonts.gstatic.com';
-
-	return $sources;
-} );
-
-/**
- * Force enable login limiting even with security plugin conflicts
- * Use this if you want to override conflict detection
- */
-add_filter( 'blaze_commerce_force_login_limiting', function( $force ) {
-	// Enable this if you want to force login limiting despite detected conflicts
-	// return true;
-
-	return $force;
-} );
-
-
 // Disable Blocksy WooCommerce filters on shop/archive pages
 add_action(
 	'init',
@@ -338,9 +195,3 @@ add_action(
 // 		);
 // 	}
 // }, 20 );
-
-// Include Blaze Commerce Progressive 3-Step Checkout (if file exists)
-$blaze_checkout_file = get_stylesheet_directory() . '/includes/blaze-commerce-checkout.php';
-if ( file_exists( $blaze_checkout_file ) ) {
-    require_once $blaze_checkout_file;
-}
