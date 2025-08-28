@@ -105,6 +105,7 @@ The `blazecommerce-automation-bot` requires these permissions:
 | **CI Checks Fail** | Test failures, linting errors | Fix issues and push updates |
 | **Merge Conflicts** | Concurrent changes to same files | Manually resolve conflicts |
 | **Timeout** | Slow CI, external service issues | Check CI logs, retry if needed |
+| **Circular Dependency** | Workflow waiting for itself | Fixed in v1.11.0+ - workflow excludes itself |
 | **Permission Issues** | GitHub App misconfiguration | Verify app permissions and secrets |
 | **Invalid PR Format** | Incorrect title or author | Verify automation bot configuration |
 
@@ -125,11 +126,13 @@ The `blazecommerce-automation-bot` requires these permissions:
 
 **Timeout Settings** (in `auto-merge-version-bumps.yml`):
 ```yaml
-MAX_WAIT_TIME=1800  # 30 minutes
+MAX_WAIT_TIME=900   # 15 minutes (reduced from 30 to prevent long waits)
 CHECK_INTERVAL=30   # 30 seconds
 ```
 
-**Required Checks**: The workflow automatically detects and waits for all configured status checks. No manual configuration needed.
+**Required Checks**: The workflow automatically detects and waits for all configured status checks, **excluding the auto-merge workflow itself** to prevent circular dependencies. No manual configuration needed.
+
+**Circular Dependency Fix**: The workflow now excludes its own check runs from the list of checks it waits for, preventing the timeout issue that occurred in PR #48.
 
 **Merge Strategy**: Currently uses squash merge. Can be changed to:
 ```bash

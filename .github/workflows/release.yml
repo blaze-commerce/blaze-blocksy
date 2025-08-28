@@ -378,34 +378,157 @@ jobs:
           # Get commits since last tag for changelog
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$LAST_TAG" ]; then
-            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+            COMMITS=$(git log --pretty=format:"%s" --no-merges)
             COMPARE_URL="commits/v${NEW_VERSION}"
           else
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" --no-merges)
             COMPARE_URL="compare/${LAST_TAG}...v${NEW_VERSION}"
           fi
 
-          # Create temporary changelog content for release
-          RELEASE_CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+          # Create temporary changelog content for release (GitHub release description)
+          RELEASE_CHANGELOG="## What's Changed\n\n$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
           echo -e "$RELEASE_CHANGELOG" > RELEASE_CHANGELOG.md
 
-          # Update CHANGELOG.md: move Unreleased to new version and add new [Unreleased] section
           # Create backup
           cp CHANGELOG.md CHANGELOG.md.bak
 
-          # Replace [Unreleased] with new version and add new [Unreleased] section
+          # Enhanced changelog update with automatic categorization from conventional commits
           python3 -c "
           import re
+          import sys
+
+          def categorize_commit(commit_msg):
+              '''Categorize commit message based on conventional commit format'''
+              commit_msg = commit_msg.strip()
+
+              # Parse conventional commit format: type(scope): description
+              conventional_pattern = r'^(\w+)(\(.+\))?(!)?: (.+)$'
+              match = re.match(conventional_pattern, commit_msg)
+
+              if not match:
+                  return 'changed', commit_msg
+
+              commit_type = match.group(1).lower()
+              description = match.group(4)
+              is_breaking = match.group(3) == '!'
+
+              # Map conventional commit types to changelog categories
+              type_mapping = {
+                  'feat': 'added',
+                  'feature': 'added',
+                  'add': 'added',
+                  'fix': 'fixed',
+                  'bugfix': 'fixed',
+                  'hotfix': 'fixed',
+                  'docs': 'documentation',
+                  'doc': 'documentation',
+                  'style': 'changed',
+                  'refactor': 'changed',
+                  'perf': 'changed',
+                  'test': 'changed',
+                  'chore': 'changed',
+                  'ci': 'changed',
+                  'build': 'changed',
+                  'revert': 'fixed'
+              }
+
+              category = type_mapping.get(commit_type, 'changed')
+
+              # Breaking changes always go to 'changed' with special notation
+              if is_breaking:
+                  category = 'changed'
+                  description = f'**BREAKING:** {description}'
+
+              return category, description
+
+          def extract_unreleased_content(content):
+              '''Extract content from [Unreleased] section'''
+              # Find the [Unreleased] section
+              unreleased_pattern = r'## \[Unreleased\](.*?)(?=## \[|\Z)'
+              match = re.search(unreleased_pattern, content, re.DOTALL)
+
+              if not match:
+                  return ''
+
+              unreleased_content = match.group(1).strip()
+
+              # Check if it's just empty lines or minimal content
+              if not unreleased_content or len(unreleased_content.strip()) < 10:
+                  return ''
+
+              return unreleased_content
+
+          def generate_changelog_sections(commits_text):
+              '''Generate categorized changelog sections from commits'''
+              if not commits_text.strip():
+                  return ''
+
+              commits = [line.strip() for line in commits_text.split('\n') if line.strip()]
+
+              categories = {
+                  'added': [],
+                  'changed': [],
+                  'fixed': [],
+                  'documentation': [],
+                  'security': []
+              }
+
+              for commit in commits:
+                  category, description = categorize_commit(commit)
+                  if category in categories:
+                      categories[category].append(f'- {description}')
+
+              # Generate sections
+              sections = []
+
+              section_titles = {
+                  'added': 'Added',
+                  'changed': 'Changed',
+                  'fixed': 'Fixed',
+                  'documentation': 'Documentation',
+                  'security': 'Security'
+              }
+
+              for category in ['added', 'changed', 'fixed', 'documentation', 'security']:
+                  if categories[category]:
+                      sections.append(f'### {section_titles[category]}')
+                      sections.extend(categories[category])
+                      sections.append('')
+
+              return '\n'.join(sections).rstrip()
+
+          # Read current changelog
           with open('CHANGELOG.md', 'r') as f:
               content = f.read()
+
           new_version = '${NEW_VERSION}'
           current_date = '${CURRENT_DATE}'
-          pattern = r'## \[Unreleased\]'
-          replacement = f'## [Unreleased]\n\n## [{new_version}] - {current_date}'
-          content = re.sub(pattern, replacement, content, count=1)
+          commits_text = '''${COMMITS}'''
+
+          # Extract existing unreleased content
+          existing_unreleased = extract_unreleased_content(content)
+
+          # Generate new content from commits if unreleased section is empty/minimal
+          if not existing_unreleased:
+              print('Generating changelog sections from conventional commits...')
+              generated_content = generate_changelog_sections(commits_text)
+              version_content = generated_content if generated_content else '- Minor updates and improvements'
+          else:
+              print('Using existing unreleased content...')
+              version_content = existing_unreleased
+
+          # Replace [Unreleased] with new version and add new empty [Unreleased] section
+          pattern = r'## \[Unreleased\].*?(?=## \[|\Z)'
+          replacement = f'## [Unreleased]\n\n## [{new_version}] - {current_date}\n\n{version_content}\n\n'
+
+          content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+
           with open('CHANGELOG.md', 'w') as f:
               f.write(content)
+
           print(f'Updated CHANGELOG.md with version {new_version}')
+          if not existing_unreleased and commits_text.strip():
+              print(f'Generated {len([c for c in commits_text.split(chr(10)) if c.strip()])} changelog entries from conventional commits')
           "
 
           # Update version links at bottom of changelog
@@ -573,7 +696,8 @@ jobs:
           # Create temporary directory structure for consistent folder naming
           mkdir -p "temp-build/${THEME_FOLDER}"
 
-          # Copy theme files (exclude dev, CI, build files, and scripts; include only what WP needs)
+          # Copy theme files with comprehensive exclusions for production release
+          # Based on BlazeCommerce production release analysis
           rsync -av --delete \
             --exclude='.git/' \
             --exclude='.github/' \
@@ -581,8 +705,12 @@ jobs:
             --exclude='.augmentignore' \
             --exclude='.gitignore' \
             --exclude='.gitattributes' \
+            --exclude='.gitmodules' \
+            --exclude='.zipignore' \
             --exclude='docs/' \
             --exclude='tests/' \
+            --exclude='scripts/' \
+            --exclude='bin/' \
             --exclude='node_modules/' \
             --exclude='vendor/' \
             --exclude='dist/' \
@@ -590,12 +718,65 @@ jobs:
             --exclude='assets/dist/' \
             --exclude='assets/build/' \
             --exclude='src/' \
-            --exclude='*.map' \
-            --exclude='*.log' \
-            --exclude='*.lock' \
+            --exclude='coverage/' \
+            --exclude='test-results/' \
+            --exclude='test-releases/' \
+            --exclude='releases/' \
+            --exclude='agency_logo/' \
+            --exclude='performance-optimizations/' \
+            --exclude='security-fixes/' \
+            --exclude='.husky/' \
+            --exclude='.cache/' \
+            --exclude='.tmp/' \
+            --exclude='.sass-cache/' \
+            --exclude='.parcel-cache/' \
+            --exclude='.webpack/' \
+            --exclude='.rollup.cache/' \
+            --exclude='.phpunit.result.cache' \
+            --exclude='.phpunit.cache/' \
+            --exclude='.nyc_output/' \
+            --exclude='.jest-cache/' \
+            --exclude='screenshots/' \
+            --exclude='test-screenshots/' \
+            --exclude='visual-regression/' \
+            --exclude='playwright-screenshots/' \
+            --exclude='lighthouse-results/' \
+            --exclude='__pycache__/' \
+            --exclude='.patchwork-cache/' \
+            --exclude='.vscode/' \
+            --exclude='.idea/' \
+            --exclude='.atom/' \
+            --exclude='.history/' \
+            --exclude='*.code-workspace' \
+            --exclude='*.iml' \
+            --exclude='*.ipr' \
+            --exclude='*.iws' \
+            --exclude='*.sublime-project' \
+            --exclude='*.sublime-workspace' \
+            --exclude='*.swp' \
+            --exclude='*.swo' \
+            --exclude='*.tmp' \
             --exclude='*.bak' \
             --exclude='*.backup' \
             --exclude='*.old' \
+            --exclude='*.orig' \
+            --exclude='*.rej' \
+            --exclude='*.map' \
+            --exclude='*.css.map' \
+            --exclude='*.js.map' \
+            --exclude='*.scss.map' \
+            --exclude='*.less.map' \
+            --exclude='*.sass.map' \
+            --exclude='*.log' \
+            --exclude='*.lock' \
+            --exclude='*.lcov' \
+            --exclude='*.pid' \
+            --exclude='*.seed' \
+            --exclude='*.pid.lock' \
+            --exclude='*.py[cod]' \
+            --exclude='*.so' \
+            --exclude='*.egg-info/' \
+            --exclude='*.egg' \
             --exclude='*.sh' \
             --exclude='*.bash' \
             --exclude='*.zsh' \
@@ -603,13 +784,119 @@ jobs:
             --exclude='*.ps1' \
             --exclude='*.bat' \
             --exclude='*.cmd' \
+            --exclude='*.zip' \
+            --exclude='*.tar.gz' \
+            --exclude='*.tgz' \
+            --exclude='*.sql' \
+            --exclude='*.sqlite' \
+            --exclude='*.db' \
+            --exclude='*.psd' \
+            --exclude='*.ai' \
+            --exclude='*.sketch' \
+            --exclude='*.fig' \
+            --exclude='*.xd' \
+            --exclude='*.indd' \
+            --exclude='*.eps' \
+            --exclude='*.key' \
+            --exclude='*.pem' \
+            --exclude='*.p12' \
+            --exclude='*.pfx' \
             --exclude='.env*' \
-            --exclude='.vscode/' \
-            --exclude='.idea/' \
+            --exclude='!.env.example' \
+            --exclude='!.env.sample' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='yarn.lock' \
+            --exclude='pnpm-lock.yaml' \
+            --exclude='bun.lockb' \
+            --exclude='jest.config.js' \
+            --exclude='playwright.config.js' \
+            --exclude='stylelint.config.js' \
+            --exclude='lighthouserc.js' \
+            --exclude='webpack.config.js' \
+            --exclude='rollup.config.js' \
+            --exclude='vite.config.js' \
+            --exclude='tsconfig.json' \
+            --exclude='babel.config.js' \
+            --exclude='.eslintrc.*' \
+            --exclude='.prettierrc.*' \
+            --exclude='.stylelintrc.*' \
+            --exclude='phpunit.xml' \
+            --exclude='phpunit-*.xml' \
+            --exclude='patchwork.json' \
+            --exclude='wp-config-local.php' \
+            --exclude='wp-config-staging.php' \
+            --exclude='wp-config-production.php' \
+            --exclude='wp-config-development.php' \
+            --exclude='wp-cli.local.yml' \
+            --exclude='wp-cli.yml' \
+            --exclude='local-config.php' \
+            --exclude='local-development.php' \
+            --exclude='.htpasswd' \
+            --exclude='auth.json' \
+            --exclude='.secrets' \
+            --exclude='.htaccess.backup' \
+            --exclude='.maintenance' \
+            --exclude='.well-known/' \
+            --exclude='wp-config-sample.php' \
+            --exclude='readme.html' \
+            --exclude='license.txt' \
             --exclude='temp-build/' \
             --exclude='*.md' \
             --exclude='.DS_Store' \
+            --exclude='.AppleDouble' \
+            --exclude='.LSOverride' \
+            --exclude='._*' \
+            --exclude='.DocumentRevisions-V100' \
+            --exclude='.fseventsd' \
+            --exclude='.Spotlight-V100' \
+            --exclude='.TemporaryItems' \
+            --exclude='.Trashes' \
+            --exclude='.VolumeIcon.icns' \
+            --exclude='.com.apple.timemachine.donotpresent' \
             --exclude='Thumbs.db' \
+            --exclude='Thumbs.db:encryptable' \
+            --exclude='ehthumbs.db' \
+            --exclude='ehthumbs_vista.db' \
+            --exclude='*.stackdump' \
+            --exclude='[Dd]esktop.ini' \
+            --exclude='$RECYCLE.BIN/' \
+            --exclude='*.cab' \
+            --exclude='*.msi' \
+            --exclude='*.msix' \
+            --exclude='*.msm' \
+            --exclude='*.msp' \
+            --exclude='*.lnk' \
+            --exclude='.fuse_hidden*' \
+            --exclude='.directory' \
+            --exclude='.Trash-*' \
+            --exclude='.nfs*' \
+            --exclude='.eslintcache' \
+            --exclude='.stylelintcache' \
+            --exclude='.prettiercache' \
+            --exclude='*-baseline.json' \
+            --exclude='*-junit.xml' \
+            --exclude='security-scan-results.json' \
+            --exclude='vulnerability-report.json' \
+            --exclude='lighthouse-report.html' \
+            --exclude='lighthouse-report.json' \
+            --exclude='k6-results.json' \
+            --exclude='artillery-report.json' \
+            --exclude='performance-report.json' \
+            --exclude='load-test-*.json' \
+            --exclude='stress-test-*.json' \
+            --exclude='coverage-final.json' \
+            --exclude='lcov-report/' \
+            --exclude='clover.xml' \
+            --exclude='cobertura.xml' \
+            --exclude='junit.xml' \
+            --exclude='test-summary.json' \
+            --exclude='playwright-results.json' \
+            --exclude='playwright-junit.xml' \
+            --exclude='jest-results.json' \
+            --exclude='lcov.info' \
             . "temp-build/${THEME_FOLDER}/"
 
           # Create ZIP from temp-build directory (includes the theme folder)
@@ -623,6 +910,89 @@ jobs:
           echo "zip-name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ZIP: ${ZIP_NAME}"
           echo "Theme folder in ZIP: ${THEME_FOLDER}"
+
+          # Display ZIP contents summary for verification
+          echo "ZIP contents summary:"
+          unzip -l "${ZIP_NAME}" | head -20
+          echo "..."
+          unzip -l "${ZIP_NAME}" | tail -5
+
+      - name: Validate production ZIP contents
+        id: validate-zip
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
+        run: |
+          ZIP_NAME="${{ steps.create-zip.outputs.zip-name }}"
+          THEME_FOLDER="blocksy-child"
+
+          echo "🔍 Validating production ZIP contents..."
+
+          # Check for essential WordPress theme files
+          ESSENTIAL_FILES=("style.css" "functions.php")
+          MISSING_ESSENTIAL=()
+
+          for file in "${ESSENTIAL_FILES[@]}"; do
+            if ! unzip -l "${ZIP_NAME}" | grep -q "${THEME_FOLDER}/${file}"; then
+              MISSING_ESSENTIAL+=("${file}")
+            fi
+          done
+
+          if [[ ${#MISSING_ESSENTIAL[@]} -gt 0 ]]; then
+            echo "❌ ERROR: Missing essential WordPress theme files:"
+            for file in "${MISSING_ESSENTIAL[@]}"; do
+              echo "  - ${file}"
+            done
+            exit 1
+          fi
+
+          # Check that development artifacts are properly excluded
+          DEV_PATTERNS=(
+            "node_modules/"
+            "tests/"
+            "scripts/"
+            ".git/"
+            "package.json"
+            "composer.json"
+            "*.config.js"
+            "*.md"
+            ".github/"
+            "docs/"
+            "vendor/"
+            ".vscode/"
+            ".idea/"
+            "coverage/"
+            "*.log"
+            "*.lock"
+            "*.bak"
+            ".env"
+            "__pycache__/"
+            "agency_logo/"
+          )
+
+          FOUND_DEV_FILES=()
+          for pattern in "${DEV_PATTERNS[@]}"; do
+            if unzip -l "${ZIP_NAME}" | grep -q "${pattern}"; then
+              FOUND_DEV_FILES+=("${pattern}")
+            fi
+          done
+
+          if [[ ${#FOUND_DEV_FILES[@]} -gt 0 ]]; then
+            echo "⚠️ WARNING: Found development files in production ZIP:"
+            for file in "${FOUND_DEV_FILES[@]}"; do
+              echo "  - ${file}"
+            done
+            echo "These files should be excluded from production releases"
+            # Don't fail the build, but warn about it
+          fi
+
+          # Get ZIP file size for reporting
+          ZIP_SIZE=$(du -h "${ZIP_NAME}" | cut -f1)
+          FILE_COUNT=$(unzip -l "${ZIP_NAME}" | tail -1 | awk '{print $2}')
+
+          echo "✅ ZIP validation completed:"
+          echo "  - Size: ${ZIP_SIZE}"
+          echo "  - Files: ${FILE_COUNT}"
+          echo "  - Essential files: ✓ Present"
+          echo "  - Development artifacts: $([ ${#FOUND_DEV_FILES[@]} -eq 0 ] && echo "✓ Excluded" || echo "⚠️ Some found")"
 
       - name: Check and clean up existing release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'

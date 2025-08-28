@@ -1,323 +1,324 @@
 /**
  * Blocksy Child My Account CSS
- * 
+ *
  * Custom WooCommerce My Account page styling integrated from Blaze My Account plugin.
  * This file contains only structural styles.
  * All visual styles (colors, fonts, etc.) are applied dynamically via PHP.
- * 
+ *
  * @package Blocksy_Child
  * @since 1.5.0
  */
 
 /* ========================================
-   RESET & BASE STYLES
-   ======================================== */
+	RESET & BASE STYLES
+	======================================== */
 
 .blaze-login-register {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
 }
 
 .blaze-login-register *,
 .blaze-login-register *::before,
 .blaze-login-register *::after {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 
 
 /* ========================================
-   LOGIN FORM - TEMPLATE 1 (SIDE BY SIDE)
-   ======================================== */
+	LOGIN FORM - TEMPLATE 1 (SIDE BY SIDE)
+	======================================== */
 
 .blaze-login-register.template1 {
-    max-width: 1212px;
-    margin: 0 auto;
+	max-width: 1212px;
+	margin: 0 auto;
 }
 
 .blaze-login-register.template1 .blaze-columns {
-    display: flex;
-    gap: 40px;
+	display: flex;
+	gap: 40px;
 }
 
 .blaze-login-register.template1 .blaze-column {
-    flex: 1;
-    padding: 20px;
-    border: 1px solid #ddd;
+	flex: 1;
+	padding: 20px;
+	border: 1px solid #ddd;
 }
 
 /* Prevent conflicts with theme styles */
 .blaze-login-register.template1 label.woocommerce-form__label-for-checkbox {
-    width: unset;
+	width: unset;
 }
 
 .blaze-login-register.template1 .login-form-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 15px;
+	margin-bottom: 20px;
 }
 
 .blaze-login-register.template1 .login-form-footer .remember-me {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .blaze-login-register.template1 .login-form-footer .remember-me input {
-    margin-right: 5px;
+	margin-right: 5px;
 }
 
 /* Ensure buttons don't inherit unwanted styles */
 .blaze-login-register.template1 button,
 .blaze-login-register.template1 .button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    text-transform: none;
-    letter-spacing: normal;
-    line-height: normal;
-    height: auto;
-    font-weight: normal;
-    text-align: center;
-    box-shadow: none;
+	width: 100%;
+	padding: 12px;
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	text-transform: none;
+	letter-spacing: normal;
+	line-height: normal;
+	height: auto;
+	font-weight: normal;
+	text-align: center;
+	box-shadow: none;
 }
 
 .blaze-login-register.template1 .privacy-policy-text {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 /* ========================================
-   LOGIN FORM - TEMPLATE 2 (CENTERED)
-   ======================================== */
+	LOGIN FORM - TEMPLATE 2 (CENTERED)
+	======================================== */
 
 .blaze-login-register.template2 {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 30px;
-    border: 1px solid #ddd;
-    text-align: center !important;
+	max-width: 500px;
+	margin: 0 auto;
+	padding: 30px;
+	border: 1px solid #ddd;
+	text-align: center !important;
 }
 
 .blaze-login-register.template2 .login-container {
-    display: block;
+	display: block;
 }
 
 .blaze-login-register.template2 .register-container {
-    display: none;
+	display: none;
 }
 
 .blaze-login-register.template2 .login-form-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 15px;
 }
 
 .blaze-login-register.template2 .login-form-footer .remember-me {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .blaze-login-register.template2 .login-form-footer .remember-me input {
-    margin-right: 5px;
+	margin-right: 5px;
 }
 
 .blaze-login-register.template2 .register-link {
-    margin-top: 20px;
-    text-align: center;
+	margin-top: 20px;
+	text-align: center;
 }
 
 .blaze-login-register.template2 .show-register-form,
 .blaze-login-register.template2 .show-login-form {
-    cursor: pointer;
-    text-decoration: underline;
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 /* ========================================
-   FORM ELEMENTS
-   ======================================== */
+	FORM ELEMENTS
+	======================================== */
 
 .blaze-login-register input[type="text"],
 .blaze-login-register input[type="email"],
 .blaze-login-register input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    box-sizing: border-box;
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 15px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	box-sizing: border-box;
 }
 
 .blaze-login-register label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: normal;
+	display: block;
+	margin-bottom: 5px;
+	font-weight: normal;
 }
 
 /* ========================================
-   WOOCOMMERCE OVERRIDES
-   ======================================== */
+	WOOCOMMERCE OVERRIDES
+	======================================== */
 
 /* Override WooCommerce button styles */
 .woocommerce .blaze-login-register button,
 .woocommerce-page .blaze-login-register button,
 .woocommerce .blaze-login-register .button,
 .woocommerce-page .blaze-login-register .button {
-    width: 100% !important;
-    padding: 12px !important;
-    border: none !important;
-    border-radius: 3px !important;
-    cursor: pointer !important;
-    line-height: normal !important;
-    height: auto !important;
-    text-transform: none !important;
-    letter-spacing: normal !important;
-    font-weight: normal !important;
-    text-align: center !important;
-    box-shadow: none !important;
-    float: none !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+	width: 100% !important;
+	padding: 12px !important;
+	border: none !important;
+	border-radius: 3px !important;
+	cursor: pointer !important;
+	line-height: normal !important;
+	height: auto !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	font-weight: normal !important;
+	text-align: center !important;
+	box-shadow: none !important;
+	float: none !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
 }
 
 /* Fix for password visibility toggle */
 .blaze-login-register button.show-password-input,
 .woocommerce .blaze-login-register button.show-password-input,
 .woocommerce-page .blaze-login-register button.show-password-input {
-    width: auto !important;
-    padding: 0 !important;
-    background: none !important;
-    position: absolute !important;
-    right: 10px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    margin: 0 !important;
+	width: auto !important;
+	padding: 0 !important;
+	background: none !important;
+	position: absolute !important;
+	right: 10px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+	margin: 0 !important;
 }
 
 .blaze-login-register .password-input {
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
+	position: relative !important;
+	display: block !important;
+	width: 100% !important;
 }
 
 /* Fix for checkboxes */
 .blaze-login-register input[type="checkbox"] {
-    width: auto !important;
-    margin-right: 5px !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
+	width: auto !important;
+	margin-right: 5px !important;
+	display: inline-block !important;
+	vertical-align: middle !important;
 }
 
 /* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
+	RESPONSIVE DESIGN
+	======================================== */
 
 /* Tablet Styles (768px - 1023px) */
 @media (max-width: 1023px) {
-    .blaze-login-register.template1 .blaze-columns {
-        flex-direction: column;
-        gap: 20px;
-    }
+	.blaze-login-register.template1 .blaze-columns {
+		flex-direction: column;
+		gap: 20px;
+	}
 }
 
 /* Mobile Styles (< 768px) */
 @media (max-width: 767px) {
-    .blaze-login-register.template1,
-    .blaze-login-register.template2 {
-        padding: 20px;
-        margin: 10px;
-    }
+	.blaze-login-register.template1,
+	.blaze-login-register.template2 {
+		padding: 20px;
+		margin: 10px;
+	}
 
-    .blaze-login-register.template1 .blaze-column {
-        padding: 15px;
-    }
+	.blaze-login-register.template1 .blaze-column {
+		padding: 15px;
+	}
 
-    .blaze-login-register.template1 .login-form-footer,
-    .blaze-login-register.template2 .login-form-footer {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
+	.blaze-login-register.template1 .login-form-footer,
+	.blaze-login-register.template2 .login-form-footer {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
 }
 
 /* Small Mobile Styles (< 480px) */
 @media (max-width: 479px) {
-    .blaze-login-register.template1,
-    .blaze-login-register.template2 {
-        padding: 15px;
-    }
+	.blaze-login-register.template1,
+	.blaze-login-register.template2 {
+		padding: 15px;
+	}
 
-    .blaze-login-register.template1 .login-form-footer .remember-me,
-    .blaze-login-register.template2 .login-form-footer .remember-me {
-        margin-bottom: 10px;
-    }
+	.blaze-login-register.template1 .login-form-footer .remember-me,
+	.blaze-login-register.template2 .login-form-footer .remember-me {
+		margin-bottom: 10px;
+	}
 }
 
 /* ========================================
-   CUSTOM STYLES FOR SPECIFIC THEMES
-   ======================================== */
+	CUSTOM STYLES FOR SPECIFIC THEMES
+	======================================== */
 
 .blaze-login-register input.woocommerce-form__input-checkbox {
-    border-color: #CDD1D4 !important;
+	border-color: #CDD1D4 !important;
 }
 
 .blaze-login-register .login-form-footer span,
 .blaze-login-register .login-form-footer a,
 .blaze-login-register .woocommerce-privacy-policy-text p,
 .blaze-login-register .woocommerce-privacy-policy-text p a {
-    font-size: 14px !important;
+	font-size: 14px !important;
 }
 
 /* Integration with Blocksy theme */
 .idefense-my_account .ct-acount-nav {
-    border: 1px solid #CDD1D4 !important;
+	border: 1px solid #CDD1D4 !important;
 }
 
 .idefense-my_account .woocommerce-MyAccount-navigation {
-    --theme-box-shadow: none;
+	--theme-box-shadow: none;
 }
 
 .idefense-my_account p,
 .idefense-my_account a {
-    color: #242424;
+	color: #242424;
 }
 
 .idefense-my_account ul li.is-active {
-    --account-nav-background-active-color: #be252f;
+	--account-nav-background-active-color: #be252f;
 }
 
 .idefense-my_account ul li:hover {
-    --account-nav-background-active-color: #be252f;
+	--account-nav-background-active-color: #be252f;
 }
 
 /* ========================================
-   ACCESSIBILITY ENHANCEMENTS
-   ======================================== */
+	ACCESSIBILITY ENHANCEMENTS
+	======================================== */
 
 @media (prefers-reduced-motion: reduce) {
-    .blaze-my-account.template2 .tab-links li a {
-        transition: none !important;
-    }
+	.blaze-my-account.template2 .tab-links li a {
+		transition: none !important;
+	}
 }
 
 /* Focus styles for keyboard navigation */
 .blaze-login-register input:focus,
 .blaze-login-register button:focus,
 .blaze-login-register .button:focus {
-    outline: 2px solid #007cba;
-    outline-offset: 2px;
+	outline: 2px solid #007cba;
+	outline-offset: 2px;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-    .blaze-login-register.template1 .blaze-column,
-    .blaze-login-register.template2 {
-        border-width: 2px;
-        border-color: #000000;
-    }
+	.blaze-login-register.template1 .blaze-column,
+	.blaze-login-register.template2 {
+		border-width: 2px;
+		border-color: #000000;
+	}
 }
 
 
@@ -325,47 +326,56 @@
 /* Custom CSS */
 
 .blaze-login-register input.woocommerce-form__input-checkbox{
-    border-color: #CDD1D4 !important;
+	border-color: #CDD1D4 !important;
 }
 .blaze-login-register .login-form-footer span,
 .blaze-login-register .login-form-footer a,
 .blaze-login-register .woocommerce-privacy-policy-text p,
-.blaze-login-register .woocommerce-privacy-policy-text p a{
-    font-size: 14px !important;
+.blaze-login-register .woocommerce-privacy-policy-text p a,
+.blaze-login-register.template1 .login-form-footer span,
+.blaze-login-register.template1 .login-form-footer a,
+.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
+.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
+	font-size: 14px !important;
 }
 .idefense-my_account .ct-acount-nav{
-    border: 1px solid #CDD1D4 !important;
+	border: 1px solid #CDD1D4 !important;
 }
 .idefense-my_account .woocommerce-MyAccount-navigation{
-    --theme-box-shadow: none;
+	--theme-box-shadow: none;
 }
 
 #post-9 {
-    --theme-boxed-content-box-shadow: none;
+	--theme-boxed-content-box-shadow: none;
 }
 .idefense-my_account p,
 .idefense-my_account a{
-    color: #242424;
+	color: #242424;
 }
 .idefense-my_account ul li.is-active{
-    --account-nav-background-active-color: #be252f;
+	--account-nav-background-active-color: #be252f;
 }
 .idefense-my_account ul li:hover{
-    --account-nav-background-active-color: #be252f;
+	--account-nav-background-active-color: #be252f;
 }
 
 @media (max-width: 768px) {
-        .blaze-login-register .login-form-footer span,
-        .blaze-login-register .login-form-footer a,
-        .blaze-login-register .woocommerce-privacy-policy-text p,
-        .blaze-login-register .woocommerce-privacy-policy-text p a{
-            font-size: 12px !important;
-    }
+	.blaze-login-register .login-form-footer span,
+	.blaze-login-register .login-form-footer a,
+	.blaze-login-register .woocommerce-privacy-policy-text p,
+	.blaze-login-register .woocommerce-privacy-policy-text p a,
+	.blaze-login-register.template1 .login-form-footer span,
+	.blaze-login-register.template1 .login-form-footer a,
+	.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
+	.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
+		font-size: 12px !important;
+	}
 }
 
 .wp-block-group.is-layout-constrained.wp-container-core-group-is-layout-87fbb315.wp-block-group-is-layout-constrained {
-    display: none;
+	display: none;
 }
-.blaze-login-register span .required {
-    color: red;
+.blaze-login-register span .required,
+.blaze-login-register.template1 span.required {
+	color: red !important;
 }

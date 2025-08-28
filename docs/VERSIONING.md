@@ -110,6 +110,37 @@ The versioning follows WordPress theme development standards:
 - **Distribution**: Creates ZIP files compatible with WordPress theme installation
 - **Changelog**: Maintains release notes for each version
 
+## Changelog Generation
+
+The project uses an **automated changelog generation system** that creates detailed release notes from conventional commits. This ensures every release has meaningful, categorized information about what changed.
+
+### How It Works
+
+1. **Automatic Categorization**: Conventional commits are automatically categorized:
+   - `feat:` → **Added** section
+   - `fix:` → **Fixed** section
+   - `docs:` → **Documentation** section
+   - `style:`, `refactor:`, `perf:`, `chore:` → **Changed** section
+   - `security:` → **Security** section
+   - Breaking changes → **Changed** section with `**BREAKING:**` prefix
+
+2. **Manual Override**: Developers can add detailed entries to the `[Unreleased]` section in `CHANGELOG.md`, which takes precedence over automatic generation
+
+3. **Hybrid Approach**: The system preserves manual entries while automatically generating sections for commits not covered manually
+
+### For Developers
+
+**Option 1: Automatic (Minimal Effort)**
+- Use conventional commit format for all changes
+- Let the system generate changelog entries automatically
+
+**Option 2: Manual Enhancement (Recommended)**
+- Use conventional commits for all changes
+- Add detailed descriptions to `[Unreleased]` section for major features
+- System preserves your manual entries during release
+
+**See:** `docs/CHANGELOG-GENERATION.md` for complete documentation and examples.
+
 ## Best Practices
 
 ### Branch Protection Requirements

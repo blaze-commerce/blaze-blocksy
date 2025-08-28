@@ -1,82 +1,82 @@
 /* ==========================================================================
-   HEADER STYLES
-   ========================================================================== */
+	HEADER STYLES
+	========================================================================== */
 
 /* Header Container - Fixed positioning and z-index */
 .ct-sticky-container {
-    z-index: 1000;
+	z-index: 1000;
 }
 
 .ct-header {
-    z-index: 1000 !important;
+	z-index: 1000 !important;
 }
 
 
 /* Mobile Off-Canvas Menu Fix */
 /* Ensure off-canvas menu appears above header on mobile */
 @media (max-width: 999px) {
-    /* Off-canvas overlay */
-    .ct-panel-inner {
-        z-index: 1001 !important;
-    }
+	/* Off-canvas overlay */
+	.ct-panel-inner {
+		z-index: 1001 !important;
+	}
 
-    /* Off-canvas menu container */
-    .ct-panel {
-        z-index: 1001 !important;
-    }
+	/* Off-canvas menu container */
+	.ct-panel {
+		z-index: 1001 !important;
+	}
 
-    /* Mobile menu backdrop */
-    .ct-panel-backdrop {
-        z-index: 1000 !important;
-    }
+	/* Mobile menu backdrop */
+	.ct-panel-backdrop {
+		z-index: 1000 !important;
+	}
 
-    /* Hamburger menu button */
-    .ct-header-trigger {
-        z-index: 1002 !important;
-    }
+	/* Hamburger menu button */
+	.ct-header-trigger {
+		z-index: 1002 !important;
+	}
 
-    span.ct-panel-heading {
-        color: #040711;
-    }
+	span.ct-panel-heading {
+		color: #040711;
+	}
 }
 
 /* Desktop - Keep header on top */
 @media (min-width: 1000px) {
-    .ct-header {
-        z-index: 1000 !important;
-    }
+	.ct-header {
+		z-index: 1000 !important;
+	}
 
-    .ct-sticky-container {
-        z-index: 1000;
-    }
+	.ct-sticky-container {
+		z-index: 1000;
+	}
 }
 
 /* Additional Header Styling */
 .ct-header-transparent {
-    background-color: transparent;
+	background-color: transparent;
 }
 
 /* Header Navigation */
 .ct-header .ct-navigation {
-    position: relative;
+	position: relative;
 }
 
 /* Mobile Menu Toggle */
 .ct-header-trigger {
-    cursor: pointer;
-    transition: all 0.3s ease;
+	cursor: pointer;
+	transition: all 0.3s ease;
 }
 
 .ct-header-trigger:hover {
-    opacity: 0.8;
+	opacity: 0.8;
 }
 
 /* Mobile Off-Canvas Panel Heading Color */
 .ct-panel-actions .ct-panel-heading {
-    color: #040711 !important;
+	color: #040711 !important;
 }
 
 /* Alternative selector if above doesn't work */
 span.ct-panel-heading {
-    color: #040711 !important;
+	color: #040711 !important;
 }
