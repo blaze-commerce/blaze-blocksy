@@ -15,6 +15,15 @@ add_action( 'plugins_loaded', function () {
 	}
 }, 1 );
 
+// Auto-merge workflow test: Add performance optimization for admin
+add_action( 'admin_init', function() {
+	// Optimize admin performance by reducing unnecessary queries
+	if ( is_admin() && ! wp_doing_ajax() ) {
+		remove_action( 'admin_print_styles', 'print_emoji_styles' );
+		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+	}
+} );
+
 // Fix REST API permissions for shop_coupon
 add_filter( 'rest_pre_dispatch', function ($result, $server, $request) {
 	$route = $request->get_route();

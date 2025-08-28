@@ -30,9 +30,23 @@ jobs:
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
+        continue-on-error: true
         with:
           app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
           private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Validate merge commit SHA
         run: |
@@ -47,7 +61,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.merge_commit_sha }}
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Check if changes are non-functional
         id: check-non-functional
@@ -143,7 +157,7 @@ jobs:
           echo "non-functional-only=${NON_FUNCTIONAL_ONLY}" >> $GITHUB_OUTPUT
           echo "Non-functional-only changes: ${NON_FUNCTIONAL_ONLY}"
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
 
       - name: Install dependencies
         run: |
@@ -154,7 +168,7 @@ jobs:
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
           
       - name: Skip release for non-functional changes
         if: steps.check-non-functional.outputs.non-functional-only == 'true'
@@ -234,12 +248,12 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           if grep -q "Version:" style.css; then
-            CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9.]*\).*/\1/')
+            CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9\.]*\).*/\1/')
             echo "current-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "current-version=0.0.0" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Determine version bump
         id: version-bump
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -251,13 +265,13 @@ jobs:
           else
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" --no-merges)
           fi
-          
+
           echo "Analyzing commits:"
           echo "$COMMITS"
-          
+
           # Determine bump type
           BUMP_TYPE="patch"
-          
+
           if echo "$COMMITS" | grep -qE "^(feat!|fix!|BREAKING CHANGE)" || echo "$COMMITS" | grep -q "BREAKING CHANGE:"; then
             BUMP_TYPE="major"
           elif echo "$COMMITS" | grep -qE "^feat(\(.+\))?:"; then
@@ -265,22 +279,22 @@ jobs:
           elif echo "$COMMITS" | grep -qE "^fix(\(.+\))?:"; then
             BUMP_TYPE="patch"
           fi
-          
+
           echo "bump-type=${BUMP_TYPE}" >> $GITHUB_OUTPUT
           echo "Determined bump type: ${BUMP_TYPE}"
-          
+
       - name: Calculate new version
         id: new-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           CURRENT="${{ steps.current-version.outputs.current-version }}"
           BUMP_TYPE="${{ steps.version-bump.outputs.bump-type }}"
-          
+
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
           MAJOR=${VERSION_PARTS[0]:-0}
           MINOR=${VERSION_PARTS[1]:-0}
           PATCH=${VERSION_PARTS[2]:-0}
-          
+
           case $BUMP_TYPE in
             major)
               MAJOR=$((MAJOR + 1))
@@ -295,11 +309,11 @@ jobs:
               PATCH=$((PATCH + 1))
               ;;
           esac
-          
+
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "new-version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "New version: ${NEW_VERSION}"
-          
+
       - name: Update version in style.css
         id: update-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -340,7 +354,7 @@ jobs:
             echo "Error: Version update failed"
             exit 1
           fi
-          
+
       - name: Update CHANGELOG.md
         id: update-changelog
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -375,7 +389,7 @@ jobs:
           RELEASE_CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
           echo -e "$RELEASE_CHANGELOG" > RELEASE_CHANGELOG.md
 
-          # Update CHANGELOG.md: move Unreleased to new version
+          # Update CHANGELOG.md: move Unreleased to new version and add new [Unreleased] section
           # Create backup
           cp CHANGELOG.md CHANGELOG.md.bak
 
@@ -404,7 +418,7 @@ jobs:
           fi
 
           echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
-          
+
       - name: Create version bump branch
         id: create-bump-branch
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -437,7 +451,7 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.token-fallback.outputs.token }}
           script: |
             const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
             const base = '${{ github.event.pull_request.base.ref }}';
@@ -465,7 +479,7 @@ jobs:
               maintainer_can_modify: true
             });
             core.info(`Opened PR #${pr.number} for version bump`);
-          
+
       - name: Create Git tag from version bump commit
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
@@ -545,7 +559,7 @@ jobs:
               echo "⚠️ Tag created but could not verify commit"
             fi
           fi
-          
+
       - name: Create theme ZIP
         id: create-zip
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -609,11 +623,11 @@ jobs:
           echo "zip-name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ZIP: ${ZIP_NAME}"
           echo "Theme folder in ZIP: ${THEME_FOLDER}"
-          
+
       - name: Check and clean up existing release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
@@ -652,37 +666,41 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         with:
           tag_name: v${{ steps.new-version.outputs.new-version }}
           release_name: Release v${{ steps.new-version.outputs.new-version }}
           body_path: RELEASE_CHANGELOG.md
           draft: false
           prerelease: false
-          
+
       - name: Upload ZIP to Release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./${{ steps.create-zip.outputs.zip-name }}
           asset_name: ${{ steps.create-zip.outputs.zip-name }}
           asset_content_type: application/zip
-          
+
       - name: Notify on success
         if: success()
         run: |
           echo "✅ Successfully released version ${{ steps.new-version.outputs.new-version }}"
           echo "📦 ZIP file: ${{ steps.create-zip.outputs.zip-name }}"
           echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.new-version.outputs.new-version }}"
-          
+
       - name: Notify on failure
         if: failure()
         run: |
           echo "❌ Release workflow failed"
           echo "Please check the logs and fix any issues"
+          if [ "${{ steps.token-fallback.outputs.using-fallback }}" = "true" ]; then
+            echo "⚠️ Note: Workflow used GITHUB_TOKEN fallback due to GitHub App token failure"
+            echo "Consider checking GitHub App configuration for better functionality"
+          fi
           exit 1
 
   rollback:
@@ -695,25 +713,37 @@ jobs:
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
+        continue-on-error: true
         with:
           app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
           private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Configure Git
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
 
       - name: Rollback tag and release
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           VERSION="${{ needs.release.outputs.new-release-version }}"
           if [ -n "${VERSION}" ]; then
@@ -727,7 +757,7 @@ jobs:
 
             # Delete the tag if it exists (with proper regex escaping)
             if git tag -l | grep -q "^v${VERSION}\$"; then
-              echo "🏷️ Deleting tag v${VERSION}"
+              echo "🗑️ Deleting tag v${VERSION}"
               if git tag -d "v${VERSION}" 2>/dev/null; then
                 echo "✅ Local tag deleted successfully"
               else
