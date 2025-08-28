@@ -57,6 +57,7 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-top: 15px;
+	margin-bottom: 20px;
 }
 
 .blaze-login-register.template1 .login-form-footer .remember-me {
@@ -330,7 +331,11 @@
 .blaze-login-register .login-form-footer span,
 .blaze-login-register .login-form-footer a,
 .blaze-login-register .woocommerce-privacy-policy-text p,
-.blaze-login-register .woocommerce-privacy-policy-text p a{
+.blaze-login-register .woocommerce-privacy-policy-text p a,
+.blaze-login-register.template1 .login-form-footer span,
+.blaze-login-register.template1 .login-form-footer a,
+.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
+.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
 	font-size: 14px !important;
 }
 .idefense-my_account .ct-acount-nav{
@@ -355,17 +360,22 @@
 }
 
 @media (max-width: 768px) {
-		.blaze-login-register .login-form-footer span,
-		.blaze-login-register .login-form-footer a,
-		.blaze-login-register .woocommerce-privacy-policy-text p,
-		.blaze-login-register .woocommerce-privacy-policy-text p a{
-			font-size: 12px !important;
+	.blaze-login-register .login-form-footer span,
+	.blaze-login-register .login-form-footer a,
+	.blaze-login-register .woocommerce-privacy-policy-text p,
+	.blaze-login-register .woocommerce-privacy-policy-text p a,
+	.blaze-login-register.template1 .login-form-footer span,
+	.blaze-login-register.template1 .login-form-footer a,
+	.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
+	.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
+		font-size: 12px !important;
 	}
 }
 
 .wp-block-group.is-layout-constrained.wp-container-core-group-is-layout-87fbb315.wp-block-group-is-layout-constrained {
 	display: none;
 }
-.blaze-login-register span .required {
-	color: red;
+.blaze-login-register span .required,
+.blaze-login-register.template1 span.required {
+	color: red !important;
 }

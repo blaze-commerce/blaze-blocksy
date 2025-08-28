@@ -12,14 +12,23 @@ jobs:
   cleanup-outdated-version-bumps:
     name: Clean up outdated version bump PRs
     runs-on: ubuntu-latest
-    
-    # Only run when a version bump PR is merged (not just closed)
+
+    # Run when a version bump PR is merged (auto-merged or manually merged)
+    # OR when any regular PR is merged (to clean up any stale version bump PRs)
     if: >
       github.event.pull_request.merged == true &&
-      github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
       (
-        startsWith(github.event.pull_request.title, 'chore(release): bump theme version to') ||
-        startsWith(github.event.pull_request.title, 'chore: bump version to')
+        (
+          github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
+          (
+            startsWith(github.event.pull_request.title, 'chore(release): bump theme version to') ||
+            startsWith(github.event.pull_request.title, 'chore: bump version to')
+          )
+        ) ||
+        (
+          github.event.pull_request.user.login != 'blazecommerce-automation-bot[bot]' &&
+          !startsWith(github.event.pull_request.head.ref, 'release/bump-v')
+        )
       )
     
     permissions:
@@ -37,19 +46,31 @@ jobs:
         id: extract-version
         run: |
           set -euo pipefail
-          
-          # Extract version from the merged PR title
+
           PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+
           echo "Merged PR title: $PR_TITLE"
-          
-          # Extract version using regex
-          if [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          echo "Merged PR author: $PR_AUTHOR"
+
+          # Check if this is a version bump PR
+          if [[ "$PR_AUTHOR" == "blazecommerce-automation-bot[bot]" ]] && [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             MERGED_VERSION="${BASH_REMATCH[3]}"
             echo "Extracted merged version: $MERGED_VERSION"
             echo "merged-version=$MERGED_VERSION" >> $GITHUB_OUTPUT
+            echo "is-version-bump=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Could not extract version from PR title: $PR_TITLE"
-            exit 1
+            # This is a regular PR merge, we'll look for the latest version from tags
+            echo "This is a regular PR merge, finding latest version from tags..."
+            LATEST_TAG=$(git tag -l "v*" | sort -V | tail -n1 | sed 's/^v//')
+            if [ -n "$LATEST_TAG" ]; then
+              echo "Latest version from tags: $LATEST_TAG"
+              echo "merged-version=$LATEST_TAG" >> $GITHUB_OUTPUT
+            else
+              echo "No version tags found, using 0.0.0"
+              echo "merged-version=0.0.0" >> $GITHUB_OUTPUT
+            fi
+            echo "is-version-bump=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Find and analyze open version bump PRs
@@ -153,14 +174,23 @@ jobs:
             echo "🗑️ Closing PR #$PR_NUMBER (v$PR_VERSION)..."
             
             # Add explanatory comment
+            IS_VERSION_BUMP="${{ steps.extract-version.outputs.is-version-bump }}"
+            if [ "$IS_VERSION_BUMP" = "true" ]; then
+              TRIGGER_REASON="version **$MERGED_VERSION** has been auto-merged"
+              TRIGGER_VIA="Auto-merged via: ${{ github.event.pull_request.html_url }}"
+            else
+              TRIGGER_REASON="a newer release process has been triggered"
+              TRIGGER_VIA="Triggered by: ${{ github.event.pull_request.html_url }}"
+            fi
+
             COMMENT="🤖 **Automated Cleanup**
 
-            This version bump PR is being automatically closed because version **$MERGED_VERSION** has already been released.
+            This version bump PR is being automatically closed because $TRIGGER_REASON.
 
             **Details:**
             - 📦 **Target version**: $PR_VERSION
-            - ✅ **Released version**: $MERGED_VERSION
-            - 🔗 **Released via**: ${{ github.event.pull_request.html_url }}
+            - ✅ **Current version**: $MERGED_VERSION
+            - 🔗 **$TRIGGER_VIA**
             - 🕒 **Closed at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
             This version bump is no longer needed. If you believe this was closed in error, please contact the maintainers.
