@@ -226,7 +226,7 @@ function checkExistingDocumentation(requirements, config) {
   // Check for configuration documentation
   requirements.configurations.forEach(file => {
     const docPath = generateDocumentationPath(file, 'configuration', config);
-    if (!fs.existsExists(docPath)) {
+    if (!fs.existsSync(docPath)) {
       missing.configurations.push({ file, expectedDoc: docPath });
     }
   });

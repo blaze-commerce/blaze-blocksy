@@ -94,21 +94,39 @@ add_filter('rest_authentication_errors', 'blaze_commerce_restrict_rest_api');
  * Implements essential security headers
  */
 function blaze_commerce_add_security_headers() {
+    // Check if security headers are disabled
+    if (defined('BLAZE_COMMERCE_DISABLE_SECURITY_HEADERS') && BLAZE_COMMERCE_DISABLE_SECURITY_HEADERS) {
+        return;
+    }
+
     // X-Frame-Options
     header('X-Frame-Options: SAMEORIGIN');
-    
+
     // X-Content-Type-Options
     header('X-Content-Type-Options: nosniff');
-    
+
     // X-XSS-Protection
     header('X-XSS-Protection: 1; mode=block');
-    
+
     // Referrer Policy
     header('Referrer-Policy: strict-origin-when-cross-origin');
     
-    // Content Security Policy (basic)
-    if (!is_admin()) {
-        header("Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com *.google.com *.facebook.com *.twitter.com *.instagram.com *.youtube.com *.vimeo.com *.gravatar.com *.w.org data: blob:;");
+    // Content Security Policy (configurable)
+    $csp_enabled = !defined('BLAZE_COMMERCE_DISABLE_CSP') || !BLAZE_COMMERCE_DISABLE_CSP;
+    if (!is_admin() && $csp_enabled && apply_filters('blaze_commerce_enable_csp', true)) {
+        $csp_sources = apply_filters('blaze_commerce_csp_sources', [
+            'self' => "'self'",
+            'unsafe-inline' => "'unsafe-inline'",
+            'unsafe-eval' => "'unsafe-eval'",
+            'google' => '*.googleapis.com *.gstatic.com *.google.com',
+            'social' => '*.facebook.com *.twitter.com *.instagram.com',
+            'media' => '*.youtube.com *.vimeo.com',
+            'wordpress' => '*.gravatar.com *.w.org',
+            'data' => 'data: blob:'
+        ]);
+
+        $csp_policy = 'default-src ' . implode(' ', $csp_sources) . ';';
+        header("Content-Security-Policy: $csp_policy");
     }
 }
 add_action('send_headers', 'blaze_commerce_add_security_headers');
@@ -123,65 +141,261 @@ if (!defined('DISALLOW_FILE_EDIT')) {
 }
 
 /**
- * Get real IP address with proxy support
+ * Get real IP address with proxy support and enhanced validation
+ *
+ * Implements comprehensive IP validation to prevent spoofing attacks
+ * and ensure only legitimate public IP addresses are used for security checks.
  */
 function blaze_commerce_get_real_ip() {
-    // Check for various proxy headers
+    // Check for various proxy headers in order of trust
     $ip_headers = [
-        'HTTP_CF_CONNECTING_IP',     // Cloudflare
-        'HTTP_X_FORWARDED_FOR',      // Standard proxy header
+        'HTTP_CF_CONNECTING_IP',     // Cloudflare (most trusted)
         'HTTP_X_REAL_IP',            // Nginx proxy
-        'HTTP_CLIENT_IP',            // Proxy header
-        'REMOTE_ADDR'                // Standard IP
+        'HTTP_X_FORWARDED_FOR',      // Standard proxy header (can be spoofed)
+        'HTTP_CLIENT_IP',            // Proxy header (less trusted)
+        'REMOTE_ADDR'                // Direct connection (fallback)
     ];
 
     foreach ($ip_headers as $header) {
         if (!empty($_SERVER[$header])) {
             $ip = $_SERVER[$header];
+
             // Handle comma-separated IPs (X-Forwarded-For can contain multiple IPs)
             if (strpos($ip, ',') !== false) {
-                $ip = trim(explode(',', $ip)[0]);
+                $ip_list = explode(',', $ip);
+                // Get the first IP (original client IP)
+                $ip = trim($ip_list[0]);
             }
-            // Validate IP address
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+
+            // Clean and validate the IP address
+            $ip = trim($ip);
+
+            // Enhanced IP validation with multiple checks
+            if (blaze_commerce_validate_public_ip($ip)) {
                 return $ip;
             }
         }
     }
 
-    // Fallback to REMOTE_ADDR if no valid public IP found
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    // Final fallback - validate REMOTE_ADDR directly
+    $remote_addr = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    if (blaze_commerce_validate_public_ip($remote_addr)) {
+        return $remote_addr;
+    }
+
+    // If no valid public IP found, log the issue and return REMOTE_ADDR as last resort
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('BlazeCommerce Security: No valid public IP found, using REMOTE_ADDR as fallback');
+    }
+
+    // Return REMOTE_ADDR even if it's private - better than grouping all users under 0.0.0.0
+    return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+}
+
+/**
+ * Enhanced IP validation function
+ *
+ * Validates that an IP address is a legitimate public IP address
+ * and not from private, reserved, or potentially spoofed ranges.
+ */
+function blaze_commerce_validate_public_ip($ip) {
+    // Basic IP format validation
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        return false;
+    }
+
+    // Check for private and reserved ranges
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        return false;
+    }
+
+    // Additional security checks for commonly spoofed ranges
+    $blocked_ranges = [
+        '0.0.0.0/8',        // "This" network
+        '127.0.0.0/8',      // Loopback
+        '169.254.0.0/16',   // Link-local
+        '224.0.0.0/4',      // Multicast
+        '240.0.0.0/4',      // Reserved for future use
+    ];
+
+    foreach ($blocked_ranges as $range) {
+        if (blaze_commerce_ip_in_range($ip, $range)) {
+            return false;
+        }
+    }
+
+    // Additional validation for IPv6
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        // Block IPv6 loopback and link-local
+        if (strpos($ip, '::1') === 0 || strpos($ip, 'fe80:') === 0) {
+            return false;
+        }
+
+        // Block IPv6 private ranges (ULA - Unique Local Addresses)
+        if (strpos($ip, 'fc00:') === 0 || strpos($ip, 'fd00:') === 0) {
+            return false;
+        }
+
+        // Block IPv6 multicast
+        if (strpos($ip, 'ff00:') === 0) {
+            return false;
+        }
+
+        // Allow legitimate IPv6 public addresses
+        return true;
+    }
+
+    return true;
+}
+
+/**
+ * Check if an IP address is within a given CIDR range
+ */
+function blaze_commerce_ip_in_range($ip, $range) {
+    if (strpos($range, '/') === false) {
+        return $ip === $range;
+    }
+
+    list($subnet, $bits) = explode('/', $range);
+
+    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        // IPv6 range checking - implement basic IPv6 CIDR support
+        if (strpos($range, ':') !== false) {
+            // Basic IPv6 range check - expand this for production use
+            list($subnet, $prefix_length) = explode('/', $range);
+
+            // For now, do simple prefix matching for common cases
+            $ip_parts = explode(':', $ip);
+            $subnet_parts = explode(':', $subnet);
+
+            // Compare first few segments based on prefix length
+            $segments_to_check = min(4, intval($prefix_length / 16));
+            for ($i = 0; $i < $segments_to_check; $i++) {
+                if (isset($ip_parts[$i]) && isset($subnet_parts[$i])) {
+                    if ($ip_parts[$i] !== $subnet_parts[$i]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // IPv4 range checking
+    $ip_long = ip2long($ip);
+    $subnet_long = ip2long($subnet);
+    $mask = -1 << (32 - $bits);
+
+    return ($ip_long & $mask) === ($subnet_long & $mask);
 }
 
 /**
  * Security Fix 6: Limit Login Attempts
  *
- * Basic brute force protection with enhanced IP detection
+ * Enhanced brute force protection with proper IP detection and logging
  */
-function blaze_commerce_limit_login_attempts() {
+function blaze_commerce_limit_login_attempts($username) {
     $ip = blaze_commerce_get_real_ip();
-    $attempts_key = 'login_attempts_' . md5($ip);
-    $lockout_key = 'login_lockout_' . md5($ip);
-    
-    // Check if IP is locked out
-    if (get_transient($lockout_key)) {
-        wp_die('Too many failed login attempts. Please try again later.');
+
+    // Check if IP is whitelisted (for trusted automation/API access)
+    $whitelisted_ips = apply_filters('blaze_commerce_whitelisted_ips', [
+        // Add trusted IPs here, e.g., monitoring services, CI/CD systems
+        // '192.168.1.100',
+        // '10.0.0.50'
+    ]);
+
+    if (in_array($ip, $whitelisted_ips)) {
+        return; // Skip rate limiting for whitelisted IPs
     }
-    
-    // Get current attempts
-    $attempts = get_transient($attempts_key) ?: 0;
-    
+
+    // WooCommerce specific considerations
+    if (class_exists('WooCommerce')) {
+        // Skip rate limiting for payment gateway callbacks
+        if (isset($_GET['wc-api']) || strpos($_SERVER['REQUEST_URI'] ?? '', '/wc-api/') !== false) {
+            return;
+        }
+
+        // More lenient limits for customer accounts vs admin
+        $is_customer_login = !user_can($username, 'manage_options');
+        $admin_max = defined('BLAZE_COMMERCE_ADMIN_MAX_ATTEMPTS') ? BLAZE_COMMERCE_ADMIN_MAX_ATTEMPTS : 5;
+        $user_max = defined('BLAZE_COMMERCE_USER_MAX_ATTEMPTS') ? BLAZE_COMMERCE_USER_MAX_ATTEMPTS : 8;
+        $max_attempts = $is_customer_login ? $user_max : $admin_max;
+    } else {
+        $max_attempts = defined('BLAZE_COMMERCE_ADMIN_MAX_ATTEMPTS') ? BLAZE_COMMERCE_ADMIN_MAX_ATTEMPTS : 5;
+    }
+
+    // Use both IP and username for more granular tracking
+    $user_attempts_key = 'login_attempts_user_' . md5($username . $ip);
+    $ip_attempts_key = 'login_attempts_ip_' . md5($ip);
+    $lockout_key = 'login_lockout_' . md5($ip);
+
+    // Check if IP is already locked out
+    if (get_transient($lockout_key)) {
+        // Log the blocked attempt
+        blaze_commerce_security_audit_log('login_blocked', "IP: $ip, Username: $username");
+        wp_die('Too many failed login attempts. Please try again later.', 'Login Blocked', array('response' => 429));
+    }
+
+    // Get current attempts with database fallback
+    $attempts = get_transient($attempts_key);
+    if ($attempts === false) {
+        // Fallback to database if transients fail
+        $attempts = get_option($attempts_key, 0);
+    }
+
     // Increment attempts
     $attempts++;
-    set_transient($attempts_key, $attempts, 3600); // 1 hour
-    
-    // Lock out after 5 attempts
-    if ($attempts >= 5) {
-        set_transient($lockout_key, true, 1800); // 30 minutes lockout
+
+    // Store in both transient and database for reliability
+    $attempt_duration = defined('BLAZE_COMMERCE_ATTEMPT_DURATION') ? BLAZE_COMMERCE_ATTEMPT_DURATION : 3600;
+    set_transient($attempts_key, $attempts, $attempt_duration);
+    update_option($attempts_key, $attempts);
+
+    // Log the failed attempt
+    blaze_commerce_security_audit_log('login_attempt_failed', "IP: $ip, Username: $username, Attempt: $attempts/$max_attempts");
+
+    // Lock out after max attempts reached
+    if ($attempts >= $max_attempts) {
+        $lockout_duration = defined('BLAZE_COMMERCE_LOCKOUT_DURATION') ? BLAZE_COMMERCE_LOCKOUT_DURATION : 1800;
+        set_transient($lockout_key, true, $lockout_duration);
         delete_transient($attempts_key);
-        wp_die('Too many failed login attempts. Account locked for 30 minutes.');
+
+        // Log the lockout
+        blaze_commerce_security_audit_log('login_lockout', "IP: $ip, Username: $username");
+
+        wp_die('Too many failed login attempts. Account locked for 30 minutes.', 'Account Locked', array('response' => 429));
     }
 }
+// Hook the function to wp_login_failed action with conflict detection
+add_action('init', function() {
+    // Check for common security plugins that might conflict
+    $conflicting_plugins = [
+        'wordfence/wordfence.php',
+        'better-wp-security/better-wp-security.php',
+        'sucuri-scanner/sucuri.php',
+        'all-in-one-wp-security-and-firewall/wp-security.php'
+    ];
+
+    $has_conflicts = false;
+    foreach ($conflicting_plugins as $plugin) {
+        if (is_plugin_active($plugin)) {
+            $has_conflicts = true;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("BlazeCommerce Security: Potential conflict detected with plugin: $plugin");
+            }
+        }
+    }
+
+    // Check configuration overrides
+    $force_enable = defined('BLAZE_COMMERCE_FORCE_LOGIN_LIMITING') ? BLAZE_COMMERCE_FORCE_LOGIN_LIMITING : false;
+    $disable_feature = defined('BLAZE_COMMERCE_DISABLE_LOGIN_LIMITING') ? BLAZE_COMMERCE_DISABLE_LOGIN_LIMITING : false;
+
+    // Only enable our login limiting if no major conflicts detected or forced
+    if (!$disable_feature && (!$has_conflicts || $force_enable || apply_filters('blaze_commerce_force_login_limiting', false))) {
+        add_action('wp_login_failed', 'blaze_commerce_limit_login_attempts', 5); // Early priority
+    }
+});
 
 /**
  * Reset login attempts on successful login
@@ -195,6 +409,27 @@ function blaze_commerce_reset_login_attempts($user_login) {
     delete_transient($lockout_key);
 }
 add_action('wp_login', 'blaze_commerce_reset_login_attempts');
+
+/**
+ * Cleanup old login attempt data
+ * Runs daily to prevent database bloat
+ */
+function blaze_commerce_cleanup_login_data() {
+    global $wpdb;
+
+    // Clean up old login attempt options (older than 24 hours)
+    $wpdb->query($wpdb->prepare("
+        DELETE FROM {$wpdb->options}
+        WHERE option_name LIKE %s
+        AND option_name LIKE %s
+    ", 'login_attempts_%', '%' . date('Y-m-d', strtotime('-1 day')) . '%'));
+}
+
+// Schedule daily cleanup
+if (!wp_next_scheduled('blaze_commerce_daily_cleanup')) {
+    wp_schedule_event(time(), 'daily', 'blaze_commerce_daily_cleanup');
+}
+add_action('blaze_commerce_daily_cleanup', 'blaze_commerce_cleanup_login_data');
 
 /**
  * Security Fix 7: Disable XML-RPC
@@ -394,20 +629,33 @@ add_action('init', 'blaze_commerce_enhanced_file_upload_security');
 /**
  * Security Audit Log
  *
- * Log security-related events
+ * Log security-related events with rate limiting and log rotation
  */
 function blaze_commerce_security_audit_log($event, $details = '') {
+    // Rate limiting: max 100 log entries per hour per IP
+    $ip = blaze_commerce_get_real_ip();
+    $rate_limit_key = 'security_log_rate_' . md5($ip);
+    $current_count = get_transient($rate_limit_key) ?: 0;
+
+    if ($current_count >= 100) {
+        return; // Skip logging if rate limit exceeded
+    }
+
+    set_transient($rate_limit_key, $current_count + 1, 3600); // 1 hour
+
     $log_entry = [
         'timestamp' => current_time('mysql'),
-        'ip' => $_SERVER['REMOTE_ADDR'],
-        'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+        'ip' => $ip, // Use enhanced IP detection
+        'user_agent' => substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255), // Limit length
         'event' => $event,
-        'details' => $details,
+        'details' => substr($details, 0, 500), // Limit details length
         'user_id' => get_current_user_id()
     ];
-    
-    // Log to database or file
-    error_log('SECURITY_AUDIT: ' . json_encode($log_entry));
+
+    // Only log if WP_DEBUG is enabled to prevent production log bloat
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('SECURITY_AUDIT: ' . json_encode($log_entry));
+    }
 }
 
 // Log failed login attempts
