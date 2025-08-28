@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const { enforceDocumentation: enforceDocumentationRules } = require('./documentation-enforcer');
+const { organizeMarkdownFiles } = require('./organize-docs');
 
 // Configuration
 const CONFIG = {
@@ -299,6 +300,49 @@ function checkTestCoverage() {
 }
 
 /**
+ * Organize markdown documentation files
+ */
+function organizeDocumentation() {
+  console.log(chalk.yellow('📁 Organizing markdown documentation...'));
+
+  try {
+    // Check if there are any new .md files to organize
+    const stagedFiles = getStagedFiles();
+    const markdownFiles = stagedFiles.filter(file => file.endsWith('.md'));
+
+    if (markdownFiles.length === 0) {
+      console.log(chalk.gray('📄 No markdown files to organize'));
+      return;
+    }
+
+    console.log(chalk.blue(`📄 Found ${markdownFiles.length} markdown files to organize`));
+
+    // Run organization (not dry run)
+    const result = organizeMarkdownFiles(false);
+
+    if (result.moved > 0) {
+      console.log(chalk.green(`✅ Organized ${result.moved} markdown files`));
+
+      // Stage the organized files
+      try {
+        execSync('git add docs/', { stdio: 'pipe' });
+        console.log(chalk.green('📁 Staged organized documentation files'));
+      } catch (error) {
+        console.warn(chalk.yellow('⚠️ Could not stage organized files automatically'));
+      }
+    } else {
+      console.log(chalk.gray('📄 No files needed organization'));
+    }
+
+    qualityResults.passed++;
+  } catch (error) {
+    qualityResults.warnings++;
+    console.log(chalk.yellow('⚠️ Documentation organization failed:'), error.message);
+    console.log(chalk.gray('💡 This is a warning - commit will continue'));
+  }
+}
+
+/**
  * Enforce documentation requirements (Priority 2)
  */
 function enforceDocumentation() {
@@ -388,6 +432,7 @@ function main() {
   checkCodeStructure(stagedFiles);
   validateBuild();
   checkTestCoverage();
+  organizeDocumentation();
   enforceDocumentation();
 
   printResults();
