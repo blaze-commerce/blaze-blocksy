@@ -126,19 +126,29 @@ function validateBranchName(branchName, config) {
     errors: []
   };
 
-  // Check if it's a protected branch (always valid)
-  if (config.protected.regex.test(branchName)) {
-    results.valid = true;
-    results.pattern = 'protected';
-    return results;
+  try {
+    // Check if it's a protected branch (always valid)
+    const protectedRegex = new RegExp(config.protected.regex);
+    if (protectedRegex.test(branchName)) {
+      results.valid = true;
+      results.pattern = 'protected';
+      return results;
+    }
+  } catch (error) {
+    console.warn(chalk.yellow('⚠️ Protected branch regex invalid, skipping protected check'));
   }
 
   // Check against defined patterns
   for (const [patternName, pattern] of Object.entries(config.patterns)) {
-    if (pattern.regex.test(branchName)) {
-      results.valid = true;
-      results.pattern = patternName;
-      return results;
+    try {
+      const patternRegex = new RegExp(pattern.regex);
+      if (patternRegex.test(branchName)) {
+        results.valid = true;
+        results.pattern = patternName;
+        return results;
+      }
+    } catch (error) {
+      console.warn(chalk.yellow(`⚠️ Invalid regex for pattern ${patternName}, skipping`));
     }
   }
 
