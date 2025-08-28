@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2025-08-28
+
+## [1.10.0] - 2025-08-28
+
 ## [1.9.0] - 2025-08-27
 
 ## [1.8.0] - 2025-08-27
@@ -123,7 +127,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.7.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.6.0...v1.7.0
 [1.8.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.7.0...v1.8.0
 [1.9.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.9.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.9.0...HEAD
+[1.10.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.10.0
+[1.11.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.11.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.11.0...HEAD
 [1.3.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.0.0...v1.1.0

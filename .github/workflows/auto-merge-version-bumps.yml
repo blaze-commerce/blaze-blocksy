@@ -1,0 +1,286 @@
+name: Auto-Merge Version Bump PRs
+
+# Trigger when version bump PRs are opened or updated
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - master
+
+jobs:
+  auto-merge-version-bump:
+    name: Auto-merge version bump PR
+    runs-on: ubuntu-latest
+    
+    # Only run for version bump PRs created by the automation bot
+    if: >
+      github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
+      (
+        startsWith(github.event.pull_request.title, 'chore(release): bump theme version to') ||
+        startsWith(github.event.pull_request.title, 'chore: bump version to')
+      )
+    
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
+      
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
+          private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.token-fallback.outputs.token }}
+          fetch-depth: 1
+
+      - name: Validate version bump PR
+        id: validate-pr
+        run: |
+          set -euo pipefail
+          
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          
+          echo "🔍 Validating version bump PR #$PR_NUMBER"
+          echo "Title: $PR_TITLE"
+          echo "Author: $PR_AUTHOR"
+          
+          # Extract version from PR title
+          if [[ "$PR_TITLE" =~ chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[3]}"
+            echo "✅ Valid version bump PR for version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid version bump PR title format"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          # Validate author is the automation bot
+          if [ "$PR_AUTHOR" != "blazecommerce-automation-bot[bot]" ]; then
+            echo "❌ PR not created by automation bot"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "✅ Version bump PR validation passed"
+
+      - name: Wait for required checks
+        id: wait-for-checks
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+          
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          MAX_WAIT_TIME=1800  # 30 minutes
+          CHECK_INTERVAL=30   # 30 seconds
+          ELAPSED_TIME=0
+          
+          echo "⏳ Waiting for required checks to complete for PR #$PR_NUMBER"
+          echo "Maximum wait time: ${MAX_WAIT_TIME} seconds"
+          
+          while [ $ELAPSED_TIME -lt $MAX_WAIT_TIME ]; do
+            echo "🔍 Checking PR status (elapsed: ${ELAPSED_TIME}s)..."
+            
+            # Get PR check status
+            PR_STATUS=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --jq '.statusCheckRollup[]')
+            
+            if [ -z "$PR_STATUS" ]; then
+              echo "ℹ️ No status checks found, proceeding with merge"
+              echo "checks-passed=true" >> $GITHUB_OUTPUT
+              break
+            fi
+            
+            # Check if all required checks have completed and passed
+            PENDING_CHECKS=$(echo "$PR_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | .context' | wc -l)
+            FAILED_CHECKS=$(echo "$PR_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | .context' | wc -l)
+            
+            if [ "$FAILED_CHECKS" -gt 0 ]; then
+              echo "❌ Some checks have failed:"
+              echo "$PR_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | "  - " + .context + ": " + .status'
+              echo "checks-passed=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            if [ "$PENDING_CHECKS" -eq 0 ]; then
+              echo "✅ All checks have completed successfully"
+              echo "checks-passed=true" >> $GITHUB_OUTPUT
+              break
+            fi
+            
+            echo "⏳ $PENDING_CHECKS checks still pending, waiting..."
+            echo "$PR_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+            
+            sleep $CHECK_INTERVAL
+            ELAPSED_TIME=$((ELAPSED_TIME + CHECK_INTERVAL))
+          done
+          
+          if [ $ELAPSED_TIME -ge $MAX_WAIT_TIME ]; then
+            echo "⏰ Timeout waiting for checks to complete"
+            echo "checks-passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Check for merge conflicts
+        id: check-conflicts
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+          
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          echo "🔍 Checking for merge conflicts in PR #$PR_NUMBER"
+          
+          # Get PR mergeable status
+          MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable')
+          
+          case "$MERGEABLE" in
+            "MERGEABLE")
+              echo "✅ PR is mergeable, no conflicts detected"
+              echo "mergeable=true" >> $GITHUB_OUTPUT
+              ;;
+            "CONFLICTING")
+              echo "❌ PR has merge conflicts"
+              echo "mergeable=false" >> $GITHUB_OUTPUT
+              exit 1
+              ;;
+            "UNKNOWN")
+              echo "⚠️ Merge status unknown, GitHub may still be calculating"
+              echo "Waiting 30 seconds and checking again..."
+              sleep 30
+              MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable')
+              if [ "$MERGEABLE" = "MERGEABLE" ]; then
+                echo "✅ PR is mergeable after recheck"
+                echo "mergeable=true" >> $GITHUB_OUTPUT
+              else
+                echo "❌ PR merge status still unknown or conflicting"
+                echo "mergeable=false" >> $GITHUB_OUTPUT
+                exit 1
+              fi
+              ;;
+            *)
+              echo "❌ Unknown mergeable status: $MERGEABLE"
+              echo "mergeable=false" >> $GITHUB_OUTPUT
+              exit 1
+              ;;
+          esac
+
+      - name: Auto-merge version bump PR
+        id: auto-merge
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+          
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          VERSION="${{ steps.validate-pr.outputs.version }}"
+          
+          echo "🚀 Auto-merging version bump PR #$PR_NUMBER (v$VERSION)"
+          
+          # Add a comment explaining the auto-merge
+          COMMENT="🤖 **Automated Merge**
+
+          This version bump PR is being automatically merged as part of the release automation process.
+
+          **Details:**
+          - 📦 **Version**: $VERSION
+          - ✅ **All checks passed**: Required CI/CD checks completed successfully
+          - 🔄 **No conflicts**: PR is mergeable without conflicts
+          - 🕒 **Merged at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          This ensures the version bump is applied immediately after the release process completes.
+
+          ---
+          *This action was performed automatically by the [auto-merge workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-version-bumps.yml).*"
+          
+          # Add comment to PR
+          gh pr comment "$PR_NUMBER" --body "$COMMENT"
+          
+          # Merge the PR using squash merge
+          gh pr merge "$PR_NUMBER" --squash --delete-branch
+          
+          echo "✅ Successfully auto-merged PR #$PR_NUMBER"
+          echo "merged=true" >> $GITHUB_OUTPUT
+          echo "merged-version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Post-merge cleanup
+        if: steps.auto-merge.outputs.merged == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+          
+          VERSION="${{ steps.auto-merge.outputs.merged-version }}"
+          
+          echo "🧹 Running post-merge cleanup for version $VERSION"
+          
+          # The cleanup-outdated-version-bumps workflow will handle
+          # cleaning up any other outdated version bump PRs
+          echo "✅ Auto-merge completed, cleanup workflow will handle outdated PRs"
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "🎉 Version bump PR auto-merge completed successfully!"
+          echo "📦 Version: ${{ steps.validate-pr.outputs.version }}"
+          echo "🔗 PR: https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          echo "❌ Auto-merge workflow failed for PR #$PR_NUMBER"
+          
+          # Add a comment to the PR explaining the failure
+          FAILURE_COMMENT="🚨 **Auto-Merge Failed**
+
+          The automated merge process failed for this version bump PR. Manual intervention may be required.
+
+          **Possible reasons:**
+          - CI/CD checks failed or timed out
+          - Merge conflicts detected
+          - GitHub API issues
+          - Insufficient permissions
+
+          Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details and merge manually if appropriate.
+
+          ---
+          *This notification was generated by the [auto-merge workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-version-bumps.yml).*"
+          
+          gh pr comment "$PR_NUMBER" --body "$FAILURE_COMMENT" || echo "Failed to add failure comment"
+          
+          if [ "${{ steps.token-fallback.outputs.using-fallback }}" = "true" ]; then
+            echo "⚠️ Note: Workflow used GITHUB_TOKEN fallback due to GitHub App token failure"
+            echo "Consider checking GitHub App configuration for better functionality"
+          fi
+          
+          exit 1
