@@ -30,9 +30,23 @@ jobs:
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
+        continue-on-error: true
         with:
           app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
           private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+            echo "using-fallback=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Validate merge commit SHA
         run: |
@@ -47,7 +61,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.merge_commit_sha }}
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Check if changes are non-functional
         id: check-non-functional
@@ -143,7 +157,7 @@ jobs:
           echo "non-functional-only=${NON_FUNCTIONAL_ONLY}" >> $GITHUB_OUTPUT
           echo "Non-functional-only changes: ${NON_FUNCTIONAL_ONLY}"
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
 
       - name: Install dependencies
         run: |
@@ -154,7 +168,7 @@ jobs:
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
           
       - name: Skip release for non-functional changes
         if: steps.check-non-functional.outputs.non-functional-only == 'true'
@@ -234,12 +248,12 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           if grep -q "Version:" style.css; then
-            CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9.]*\).*/\1/')
+            CURRENT_VERSION=$(grep "Version:" style.css | sed 's/.*Version: *\([0-9\.]*\).*/\1/')
             echo "current-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "current-version=0.0.0" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Determine version bump
         id: version-bump
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -251,13 +265,13 @@ jobs:
           else
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" --no-merges)
           fi
-          
+
           echo "Analyzing commits:"
           echo "$COMMITS"
-          
+
           # Determine bump type
           BUMP_TYPE="patch"
-          
+
           if echo "$COMMITS" | grep -qE "^(feat!|fix!|BREAKING CHANGE)" || echo "$COMMITS" | grep -q "BREAKING CHANGE:"; then
             BUMP_TYPE="major"
           elif echo "$COMMITS" | grep -qE "^feat(\(.+\))?:"; then
@@ -265,22 +279,22 @@ jobs:
           elif echo "$COMMITS" | grep -qE "^fix(\(.+\))?:"; then
             BUMP_TYPE="patch"
           fi
-          
+
           echo "bump-type=${BUMP_TYPE}" >> $GITHUB_OUTPUT
           echo "Determined bump type: ${BUMP_TYPE}"
-          
+
       - name: Calculate new version
         id: new-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           CURRENT="${{ steps.current-version.outputs.current-version }}"
           BUMP_TYPE="${{ steps.version-bump.outputs.bump-type }}"
-          
+
           IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
           MAJOR=${VERSION_PARTS[0]:-0}
           MINOR=${VERSION_PARTS[1]:-0}
           PATCH=${VERSION_PARTS[2]:-0}
-          
+
           case $BUMP_TYPE in
             major)
               MAJOR=$((MAJOR + 1))
@@ -295,11 +309,11 @@ jobs:
               PATCH=$((PATCH + 1))
               ;;
           esac
-          
+
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "new-version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "New version: ${NEW_VERSION}"
-          
+
       - name: Update version in style.css
         id: update-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -340,7 +354,7 @@ jobs:
             echo "Error: Version update failed"
             exit 1
           fi
-          
+
       - name: Update CHANGELOG.md
         id: update-changelog
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -375,7 +389,7 @@ jobs:
           RELEASE_CHANGELOG="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
           echo -e "$RELEASE_CHANGELOG" > RELEASE_CHANGELOG.md
 
-          # Update CHANGELOG.md: move Unreleased to new version
+          # Update CHANGELOG.md: move Unreleased to new version and add new [Unreleased] section
           # Create backup
           cp CHANGELOG.md CHANGELOG.md.bak
 
@@ -404,7 +418,7 @@ jobs:
           fi
 
           echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
-          
+
       - name: Create version bump branch
         id: create-bump-branch
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -437,7 +451,7 @@ jobs:
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.token-fallback.outputs.token }}
           script: |
             const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
             const base = '${{ github.event.pull_request.base.ref }}';
@@ -465,7 +479,7 @@ jobs:
               maintainer_can_modify: true
             });
             core.info(`Opened PR #${pr.number} for version bump`);
-          
+
       - name: Create Git tag from version bump commit
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
@@ -474,13 +488,78 @@ jobs:
           # Tag the version bump commit (current HEAD) instead of merge commit
           # This ensures the tagged commit contains the version update
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+
+          # Input validation for security
+          if [ -z "${NEW_VERSION}" ]; then
+            echo "❌ Error: NEW_VERSION is empty"
+            exit 1
+          fi
+
+          # Validate version format to prevent command injection
+          if ! echo "${NEW_VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Error: Invalid version format: ${NEW_VERSION}"
+            echo "Expected format: X.Y.Z (semantic version)"
+            exit 1
+          fi
+
           SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
+          echo "🏷️ Processing version: ${NEW_VERSION}"
 
-          git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
-          git push origin "v${NEW_VERSION}"
+          # Check if tag already exists and handle it (with proper regex escaping)
+          if git tag -l | grep -q "^v${NEW_VERSION}\$"; then
+            echo "⚠️ Tag v${NEW_VERSION} already exists. Checking if it points to the same commit..."
 
-          echo "Tagged commit $(git rev-parse HEAD) as v${NEW_VERSION}"
-          
+            # Get commit hashes with proper error handling
+            EXISTING_TAG_COMMIT=$(git rev-list -n 1 "v${NEW_VERSION}" 2>/dev/null || echo "FAILED")
+            CURRENT_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+
+            # Validate git operations succeeded
+            if [ "${EXISTING_TAG_COMMIT}" = "FAILED" ]; then
+              echo "❌ Error: Failed to get existing tag commit hash"
+              echo "Tag may be corrupted or inaccessible"
+              exit 1
+            fi
+
+            if [ "${CURRENT_COMMIT}" = "FAILED" ]; then
+              echo "❌ Error: Failed to get current commit hash"
+              exit 1
+            fi
+
+            if [ "${EXISTING_TAG_COMMIT}" = "${CURRENT_COMMIT}" ]; then
+              echo "✅ Tag v${NEW_VERSION} already points to current commit ${CURRENT_COMMIT}"
+              echo "Skipping tag creation"
+            else
+              echo "🔄 Tag v${NEW_VERSION} points to different commit ${EXISTING_TAG_COMMIT}, updating it..."
+              # Delete existing tag locally and remotely
+              git tag -d "v${NEW_VERSION}" || true
+              git push --delete origin "v${NEW_VERSION}" || true
+              # Create new tag
+              git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+              git push origin "v${NEW_VERSION}"
+
+              # Verify tag creation succeeded
+              FINAL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+              if [ "${FINAL_COMMIT}" != "FAILED" ]; then
+                echo "✅ Updated tag v${NEW_VERSION} to point to commit ${FINAL_COMMIT}"
+              else
+                echo "⚠️ Tag updated but could not verify final commit"
+              fi
+            fi
+          else
+            # Tag doesn't exist, create it normally
+            echo "🆕 Creating new tag v${NEW_VERSION}"
+            git tag -a "v${NEW_VERSION}" -m "Release v${SAFE_VERSION}" HEAD
+            git push origin "v${NEW_VERSION}"
+
+            # Verify tag creation succeeded
+            FINAL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "FAILED")
+            if [ "${FINAL_COMMIT}" != "FAILED" ]; then
+              echo "✅ Created new tag v${NEW_VERSION} for commit ${FINAL_COMMIT}"
+            else
+              echo "⚠️ Tag created but could not verify commit"
+            fi
+          fi
+
       - name: Create theme ZIP
         id: create-zip
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
@@ -544,43 +623,84 @@ jobs:
           echo "zip-name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ZIP: ${ZIP_NAME}"
           echo "Theme folder in ZIP: ${THEME_FOLDER}"
-          
+
+      - name: Check and clean up existing release
+        if: steps.check-non-functional.outputs.non-functional-only != 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+
+          # Input validation for security
+          if [ -z "${NEW_VERSION}" ]; then
+            echo "❌ Error: NEW_VERSION is empty"
+            exit 1
+          fi
+
+          # Validate version format to prevent command injection
+          if ! echo "${NEW_VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "❌ Error: Invalid version format: ${NEW_VERSION}"
+            exit 1
+          fi
+
+          echo "🔍 Checking for existing release v${NEW_VERSION}"
+
+          # Check if release already exists with proper error handling
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/v${NEW_VERSION}" --jq '.id' 2>/dev/null || echo "")
+          if [ -n "${RELEASE_ID}" ]; then
+            echo "⚠️ Release v${NEW_VERSION} already exists (ID: ${RELEASE_ID})"
+            echo "Deleting existing release to recreate it with updated information"
+
+            # Attempt to delete with error handling
+            if gh api -X DELETE "repos/${{ github.repository }}/releases/${RELEASE_ID}" 2>/dev/null; then
+              echo "✅ Successfully deleted existing release v${NEW_VERSION}"
+            else
+              echo "⚠️ Failed to delete existing release, but continuing (may be already deleted)"
+            fi
+          else
+            echo "✅ No existing release found for v${NEW_VERSION}"
+          fi
+
       - name: Create GitHub Release
         id: create_release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         with:
           tag_name: v${{ steps.new-version.outputs.new-version }}
           release_name: Release v${{ steps.new-version.outputs.new-version }}
           body_path: RELEASE_CHANGELOG.md
           draft: false
           prerelease: false
-          
+
       - name: Upload ZIP to Release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./${{ steps.create-zip.outputs.zip-name }}
           asset_name: ${{ steps.create-zip.outputs.zip-name }}
           asset_content_type: application/zip
-          
+
       - name: Notify on success
         if: success()
         run: |
           echo "✅ Successfully released version ${{ steps.new-version.outputs.new-version }}"
           echo "📦 ZIP file: ${{ steps.create-zip.outputs.zip-name }}"
           echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.new-version.outputs.new-version }}"
-          
+
       - name: Notify on failure
         if: failure()
         run: |
           echo "❌ Release workflow failed"
           echo "Please check the logs and fix any issues"
+          if [ "${{ steps.token-fallback.outputs.using-fallback }}" = "true" ]; then
+            echo "⚠️ Note: Workflow used GITHUB_TOKEN fallback due to GitHub App token failure"
+            echo "Consider checking GitHub App configuration for better functionality"
+          fi
           exit 1
 
   rollback:
@@ -593,33 +713,81 @@ jobs:
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
+        continue-on-error: true
         with:
           app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
           private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Configure Git
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
 
-      - name: Rollback tag
+      - name: Rollback tag and release
+        env:
+          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           VERSION="${{ needs.release.outputs.new-release-version }}"
-          if [ ! -z "$VERSION" ]; then
-            echo "Rolling back version $VERSION"
+          if [ -n "${VERSION}" ]; then
+            echo "🔄 Rolling back version ${VERSION}"
 
-            # Delete the tag if it exists
-            if git tag -l | grep -q "v${VERSION}"; then
-              git tag -d "v${VERSION}" || true
-              git push --delete origin "v${VERSION}" || true
+            # Validate version format for security
+            if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "❌ Error: Invalid version format for rollback: ${VERSION}"
+              exit 1
             fi
 
-            echo "Rollback completed"
+            # Delete the tag if it exists (with proper regex escaping)
+            if git tag -l | grep -q "^v${VERSION}\$"; then
+              echo "🗑️ Deleting tag v${VERSION}"
+              if git tag -d "v${VERSION}" 2>/dev/null; then
+                echo "✅ Local tag deleted successfully"
+              else
+                echo "⚠️ Failed to delete local tag (may not exist locally)"
+              fi
+
+              if git push --delete origin "v${VERSION}" 2>/dev/null; then
+                echo "✅ Remote tag deleted successfully"
+              else
+                echo "⚠️ Failed to delete remote tag (may not exist remotely)"
+              fi
+            else
+              echo "ℹ️ No tag v${VERSION} found to delete"
+            fi
+
+            # Delete the release if it exists
+            echo "🔍 Checking for existing release v${VERSION}"
+            RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/v${VERSION}" --jq '.id' 2>/dev/null || echo "")
+            if [ -n "${RELEASE_ID}" ]; then
+              echo "🗑️ Deleting release v${VERSION} (ID: ${RELEASE_ID})"
+              if gh api -X DELETE "repos/${{ github.repository }}/releases/${RELEASE_ID}" 2>/dev/null; then
+                echo "✅ Release deleted successfully"
+              else
+                echo "⚠️ Failed to delete release (may be already deleted)"
+              fi
+            else
+              echo "ℹ️ No release found for v${VERSION}"
+            fi
+
+            echo "✅ Rollback completed for version ${VERSION}"
+          else
+            echo "ℹ️ No version specified for rollback, skipping"
           fi

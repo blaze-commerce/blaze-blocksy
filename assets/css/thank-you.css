@@ -35,10 +35,20 @@
 }
 
 .blaze-commerce-thank-you-container {
-	display: grid;
-	grid-template-columns: 1fr 350px;
-	gap: 60px;
+	display: flex;
+	flex-direction: column;
+	gap: 34px;
 	align-items: start;
+}
+
+/* Desktop Grid Layout (1024px and above) */
+@media (min-width: 1024px) {
+    .blaze-commerce-thank-you-container {
+        display: grid;
+        grid-template-columns: 1fr 40%;
+        gap: 34px;
+        align-items: start;
+    }
 }
 
 /* ========================================
@@ -306,6 +316,7 @@
 	opacity: 1 !important;
 	visibility: visible !important;
 	display: block !important;
+	width: 100%;
 }
 
 .blaze-commerce-summary-title {
@@ -417,7 +428,6 @@
 /* Tablet Styles (768px - 1023px) */
 @media (max-width: 1023px) {
 	.blaze-commerce-thank-you-container {
-		grid-template-columns: 1fr;
 		gap: 40px;
 	}
 
@@ -499,6 +509,7 @@
 	.blaze-commerce-address-block,
 	.blaze-commerce-account-creation,
 	.blaze-commerce-order-summary {
+		order: initial;
 		padding: 16px;
 	}
 
@@ -562,9 +573,11 @@
 	display: block;
 }
 
-/* Ensure grid containers display correctly */
-.blaze-commerce-thank-you-container {
-	display: grid !important;
+/* Ensure grid containers display correctly on desktop */
+@media (min-width: 1024px) {
+	.blaze-commerce-thank-you-container {
+		display: grid !important;
+	}
 }
 
 .blaze-commerce-addresses-grid {

@@ -130,24 +130,24 @@ add_action(
 // TO DO: FIX, NOT WORKING
 // Enqueue checkout assets
 // add_action( 'wp_enqueue_scripts', function() {
-// if ( is_checkout() && ! is_wc_endpoint_url() ) {
-// $template_uri = get_stylesheet_directory_uri();
+// 	if ( is_checkout() && ! is_wc_endpoint_url() ) {
+// 		$template_uri = get_stylesheet_directory_uri();
 
-// Enqueue CSS
-// wp_enqueue_style(
-// 'custom-checkout-css',
-// $template_uri . '/assets/css/checkout.css',
-// array(),
-// '1.0.0'
-// );
+// 		// Enqueue CSS
+// 		wp_enqueue_style(
+// 			'custom-checkout-css',
+// 			$template_uri . '/assets/css/checkout.css',
+// 			array(),
+// 			'1.0.0'
+// 		);
 
-// Enqueue JS
-// wp_enqueue_script(
-// 'custom-checkout-js',
-// $template_uri . '/assets/js/checkout.js',
-// array( 'jquery' ),
-// '1.0.0',
-// true
-// );
-// }
+// 		// Enqueue JS
+// 		wp_enqueue_script(
+// 			'custom-checkout-js',
+// 			$template_uri . '/assets/js/checkout.js',
+// 			array( 'jquery' ),
+// 			'1.0.0',
+// 			true
+// 		);
+// 	}
 // }, 20 );

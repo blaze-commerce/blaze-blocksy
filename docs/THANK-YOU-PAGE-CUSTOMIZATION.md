@@ -184,13 +184,32 @@ gtag('event', 'share', {
 
 ## Performance Considerations
 
-### Conditional Loading
-Assets are only loaded on the thank you page:
+### Enhanced Conditional Loading
+Assets are only loaded on the thank you page using multiple conditional checks for maximum reliability:
 
 ```php
-if ( is_wc_endpoint_url( 'order-received' ) ) {
-    wp_enqueue_style( 'blocksy-child-thank-you-css' );
-    wp_enqueue_script( 'blocksy-child-thank-you-js' );
+/**
+ * Enhanced conditional loading with multiple safety checks:
+ * 1. WooCommerce active verification
+ * 2. Primary: is_wc_endpoint_url('order-received')
+ * 3. Fallback: is_order_received_page()
+ * 4. URL pattern matching for edge cases
+ * 5. File existence validation
+ * 6. Automatic cache busting with filemtime
+ */
+function blocksy_child_enqueue_thank_you_assets() {
+    if ( ! blocksy_child_is_thank_you_page() ) {
+        return; // Exit early if not thank you page
+    }
+
+    // Only enqueue if files exist
+    if ( file_exists( $css_path ) ) {
+        wp_enqueue_style( 'blocksy-child-thank-you-css', $css_url, array(), filemtime( $css_path ) );
+    }
+
+    if ( file_exists( $js_path ) ) {
+        wp_enqueue_script( 'blocksy-child-thank-you-js', $js_url, array( 'jquery' ), filemtime( $js_path ), true );
+    }
 }
 ```
 
@@ -248,16 +267,48 @@ wp_verify_nonce( $_POST['nonce'], 'thank_you_action' );
 
 ## Troubleshooting
 
+### Optimization Features
+
+1. **Multi-Level Conditional Checks**
+   - Primary: `is_wc_endpoint_url('order-received')`
+   - Fallback: `is_order_received_page()`
+   - URL pattern matching for edge cases
+   - WooCommerce active verification
+
+2. **Performance Optimizations**
+   - File existence validation before enqueueing
+   - Automatic cache busting with `filemtime()`
+   - Early exit if not on thank you page
+   - Optimized hook priority (15) for WooCommerce compatibility
+
+3. **Error Handling**
+   - Graceful fallback if WooCommerce functions unavailable
+   - Debug logging for missing files (WP_DEBUG mode)
+   - Safe execution without fatal errors
+
+4. **Cache Management**
+   - Automatic version bumping when files change
+   - Proper browser cache invalidation
+   - Development-friendly asset reloading
+
 ### Common Issues
 
 1. **Styles not loading**
-   - Check if `is_wc_endpoint_url( 'order-received' )` returns true
-   - Verify file paths in `wp_enqueue_style`
+   - Check if WooCommerce is active and functioning
+   - Verify file exists at `/assets/css/thank-you.css`
+   - Check WP_DEBUG logs for file path errors
+   - Ensure `blocksy_child_is_thank_you_page()` returns true
 
 2. **JavaScript not working**
    - Check browser console for errors
    - Verify jQuery dependency is loaded
    - Ensure proper DOM ready state
+   - Check if `/assets/js/thank-you.js` file exists
+
+3. **Assets not updating**
+   - Clear browser cache (automatic cache busting should handle this)
+   - Check file modification times
+   - Verify WP_DEBUG is enabled for error logging
 
 3. **Order data not displaying**
    - Verify order ID is passed correctly

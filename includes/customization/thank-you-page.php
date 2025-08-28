@@ -386,10 +386,64 @@ function blocksy_child_hide_default_thank_you_message( $message, $order ) {
 add_filter( 'woocommerce_thankyou_order_received_text', 'blocksy_child_hide_default_thank_you_message', 10, 2 );
 
 /**
- * Enqueue thank you page specific styles and scripts
+ * Check if we're on the WooCommerce thank you/order received page
+ *
+ * Uses multiple conditional checks for maximum reliability:
+ * 1. Primary: is_wc_endpoint_url('order-received') - WooCommerce standard
+ * 2. Fallback: is_order_received_page() - Alternative WooCommerce function
+ * 3. URL-based: Secure pattern matching for edge cases with sanitization
+ *
+ * @return bool True if on thank you page, false otherwise
+ * @since 2.0.3
+ */
+function blocksy_child_is_thank_you_page() {
+    // Ensure WooCommerce is active before using WooCommerce functions
+    if ( ! function_exists( 'is_wc_endpoint_url' ) ) {
+        return false;
+    }
+
+    // Primary check: WooCommerce endpoint detection
+    if ( is_wc_endpoint_url( 'order-received' ) ) {
+        return true;
+    }
+
+    // Secondary check: Alternative WooCommerce function (if available)
+    if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
+        return true;
+    }
+
+    // Fallback check: Secure URL pattern matching for edge cases
+    $current_url = sanitize_text_field( $_SERVER['REQUEST_URI'] ?? '' );
+    if ( ! empty( $current_url ) ) {
+        // Use specific regex pattern to match order-received endpoint with order ID
+        // Pattern: /order-received/[digits]/ or /order-received/[digits]?key=...
+        if ( preg_match( '/\/order-received\/\d+(?:\/|\?|$)/', $current_url ) ) {
+            return true;
+        }
+
+        // Check for checkout with order-received parameter (more specific)
+        // Pattern: /checkout/ followed by order-received somewhere in query
+        if ( preg_match( '/\/checkout\/.*[?&].*order-received/', $current_url ) ) {
+            return true;
+        }
+
+        // Additional check for WooCommerce endpoint structure
+        // Pattern: /checkout/order-received/[digits]/
+        if ( preg_match( '/\/checkout\/order-received\/\d+/', $current_url ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Enqueue thank you page assets with enhanced detection
+ *
+ * @since 2.0.3
  */
 function blocksy_child_enqueue_thank_you_assets() {
-	if ( is_wc_endpoint_url( 'order-received' ) ) {
+	if ( blocksy_child_is_thank_you_page() ) {
 		wp_enqueue_style(
 			'blocksy-child-thank-you-css',
 			get_stylesheet_directory_uri() . '/assets/css/thank-you.css',
@@ -410,40 +464,179 @@ function blocksy_child_enqueue_thank_you_assets() {
 			'blocksy-child-thank-you-js',
 			'
             // CRITICAL FIX: Ensure Blaze Commerce elements are visible immediately
-            jQuery(document).ready(function($) {
-                console.log("🔧 Applying visibility fixes for Blaze Commerce elements");
 
-                // Remove any opacity: 0 styles that might be hiding elements
+/**
+ * Get file version for cache busting with proper validation
+ *
+ * @param string $file_path Absolute file path
+ * @return string Version string (validated filemtime or fallback)
+ * @since 2.0.3
+ */
+function blocksy_child_get_file_version( $file_path ) {
+    if ( file_exists( $file_path ) ) {
+        $mtime = filemtime( $file_path );
+
+        // Validate filemtime return value (can return false on failure)
+        if ( $mtime !== false && is_numeric( $mtime ) && $mtime > 0 ) {
+            return (string) $mtime;
+        }
+
+        // Log warning if filemtime failed but file exists
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( 'Blaze Commerce: filemtime() failed for existing file: ' . $file_path );
+        }
+    }
+
+    // Use WordPress version as fallback for better cache management
+    global $wp_version;
+    $fallback_version = '2.0.3';
+
+    // Include WP version if available for better cache differentiation
+    if ( ! empty( $wp_version ) ) {
+        $fallback_version .= '-wp' . sanitize_key( $wp_version );
+    }
+
+    return $fallback_version;
+}
+
+/**
+ * Centralized logging function for missing assets
+ *
+ * @param string $type Asset type (CSS, JS, etc.)
+ * @param string $path File path that was not found
+ * @since 2.0.3
+ */
+function blocksy_child_log_missing_asset( $type, $path ) {
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        error_log( sprintf(
+            'Blaze Commerce: Thank you page %s file not found: %s',
+            sanitize_text_field( $type ),
+            sanitize_text_field( $path )
+        ) );
+    }
+}
+
+/**
+ * Add thank you page inline script functionality
+ *
+ * Now uses external JavaScript file for better caching and maintainability.
+ * Falls back to inline script if external file is not available.
+ *
+ * @since 2.0.3
+ */
+function blocksy_child_add_thank_you_inline_script() {
+    $inline_js_path = get_stylesheet_directory() . '/assets/js/thank-you-inline.js';
+    $inline_js_url = get_stylesheet_directory_uri() . '/assets/js/thank-you-inline.js';
+
+    // Prefer external file for better caching
+    if ( file_exists( $inline_js_path ) ) {
+        wp_enqueue_script(
+            'blocksy-child-thank-you-inline',
+            $inline_js_url,
+            array( 'blocksy-child-thank-you-js', 'jquery' ), // Dependencies
+            blocksy_child_get_file_version( $inline_js_path ),
+            true // Load in footer
+        );
+    } else {
+        // Fallback to inline script if external file not found
+        blocksy_child_log_missing_asset( 'Inline JS', $inline_js_path );
+
+        // Minimal inline fallback for critical functionality
+        wp_add_inline_script( 'blocksy-child-thank-you-js', '
+            // CRITICAL FALLBACK: Basic visibility fixes
+            jQuery(document).ready(function($) {
+                console.log("🔧 Applying fallback visibility fixes for Blaze Commerce elements");
+
                 $(".blaze-commerce-thank-you-header, .blaze-commerce-order-summary, .blaze-commerce-main-content, .blaze-commerce-order-details, .blaze-commerce-addresses-section, .blaze-commerce-account-creation").css({
                     "opacity": "1",
                     "visibility": "visible",
                     "display": "block"
                 });
 
-                // Ensure the blocksy_child_blaze_commerce_order_summary function is available globally
+                // Basic global function for compatibility
                 window.blocksy_child_blaze_commerce_order_summary = function() {
-                    console.log("✅ blocksy_child_blaze_commerce_order_summary function called");
                     return true;
                 };
 
-                console.log("✅ Blaze Commerce elements visibility fixed");
-
-                // Order summary toggle functionality
-                $(".blaze-commerce-summary-toggle").on("click", function() {
-                    var $content = $(".blaze-commerce-summary-content");
-                    var $button = $(this);
-
-                    $content.slideToggle(300, function() {
-                        if ($content.is(":visible")) {
-                            $button.text("Hide");
-                        } else {
-                            $button.text("Show");
-                        }
-                    });
-                });
+                console.log("✅ Fallback visibility fixes applied");
             });
         '
 		);
 	}
 }
-add_action( 'wp_enqueue_scripts', 'blocksy_child_enqueue_thank_you_assets' );
+
+/**
+ * Enqueue thank you page specific styles and scripts with enhanced conditional loading
+ *
+ * Features:
+ * - Multiple conditional checks for reliability
+ * - File existence validation with static caching
+ * - Automatic cache busting with filemtime
+ * - Graceful error handling
+ * - Performance optimized loading with reduced file operations
+ *
+ * @since 2.0.3
+ */
+function blocksy_child_enqueue_thank_you_assets() {
+    // Only proceed if we're on the thank you page
+    if ( ! blocksy_child_is_thank_you_page() ) {
+        return;
+    }
+
+    // Static cache for file paths and existence checks to avoid repeated operations
+    static $asset_cache = null;
+
+    if ( $asset_cache === null ) {
+        $base_dir = get_stylesheet_directory();
+        $base_uri = get_stylesheet_directory_uri();
+
+        $asset_cache = array(
+            'css' => array(
+                'path' => $base_dir . '/assets/css/thank-you.css',
+                'url'  => $base_uri . '/assets/css/thank-you.css',
+                'exists' => null
+            ),
+            'js' => array(
+                'path' => $base_dir . '/assets/js/thank-you.js',
+                'url'  => $base_uri . '/assets/js/thank-you.js',
+                'exists' => null
+            )
+        );
+
+        // Check file existence once and cache results
+        $asset_cache['css']['exists'] = file_exists( $asset_cache['css']['path'] );
+        $asset_cache['js']['exists'] = file_exists( $asset_cache['js']['path'] );
+    }
+
+    // Enqueue CSS if file exists
+    if ( $asset_cache['css']['exists'] ) {
+        wp_enqueue_style(
+            'blocksy-child-thank-you-css',
+            $asset_cache['css']['url'],
+            array(), // No dependencies for CSS
+            blocksy_child_get_file_version( $asset_cache['css']['path'] ),
+            'all' // Media type
+        );
+    } else {
+        blocksy_child_log_missing_asset( 'CSS', $asset_cache['css']['path'] );
+    }
+
+    // Enqueue JavaScript if file exists
+    if ( $asset_cache['js']['exists'] ) {
+        wp_enqueue_script(
+            'blocksy-child-thank-you-js',
+            $asset_cache['js']['url'],
+            array( 'jquery' ), // jQuery dependency
+            blocksy_child_get_file_version( $asset_cache['js']['path'] ),
+            true // Load in footer
+        );
+
+        // Add inline script functionality
+        blocksy_child_add_thank_you_inline_script();
+    } else {
+        blocksy_child_log_missing_asset( 'JS', $asset_cache['js']['path'] );
+    }
+}
+
+// Hook with priority 15 to ensure WooCommerce has initialized
+add_action( 'wp_enqueue_scripts', 'blocksy_child_enqueue_thank_you_assets', 15 );

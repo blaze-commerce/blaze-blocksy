@@ -18,5 +18,19 @@ add_action(
 			$template_uri . '/assets/css/search.css',
 			array( 'parent-style' )
 		);
+
+		// Enqueue footer style
+		wp_enqueue_style(
+			'blocksy-child-footer-style',
+			$template_uri . '/assets/css/footer.css',
+			array( 'parent-style' )
+		);
+
+		// Enqueue header style
+		wp_enqueue_style(
+			'blocksy-child-header-style',
+			$template_uri . '/assets/css/header.css',
+			array( 'parent-style' )
+		);
 	}
 );
