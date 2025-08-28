@@ -87,6 +87,7 @@ include_once 'includes/customization/related-carousel.php';
 include_once 'includes/customization/price-installment.php';
 include_once 'includes/customization/product-category.php';
 include_once 'includes/customization/recently-viewed-products.php';
+include_once 'includes/customization/load-more-counter.php';
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
 // add_action( 'init', function () {
