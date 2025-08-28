@@ -340,7 +340,7 @@ class Blocksy_Child_My_Account_Customizer {
 		}
 
 		return is_account_page() || is_page( 'my-account' ) ||
-				( isset( $_GET['page'] ) && $_GET['page'] === 'my-account' );
+				( isset( $_GET['page'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === 'my-account' );
 	}
 
 	/**

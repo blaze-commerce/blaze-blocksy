@@ -179,6 +179,21 @@ if ( file_exists( $my_account_file ) && is_readable( $my_account_file ) ) {
 	error_log( 'BlazeCommerce: My account file not found or not readable: ' . $my_account_file );
 }
 
+// Load security and performance improvements
+$security_performance_file = get_stylesheet_directory() . '/includes/security-performance-improvements.php';
+if ( file_exists( $security_performance_file ) && is_readable( $security_performance_file ) ) {
+	try {
+		require_once $security_performance_file;
+	} catch ( Error $e ) {
+		// Log error but don't break the site
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'BlazeCommerce: Failed to load security performance improvements: ' . $e->getMessage() );
+		}
+	}
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	error_log( 'BlazeCommerce: Security performance file not found or not readable: ' . $security_performance_file );
+}
+
 // Disable terms and conditions validation completely using WooCommerce settings filter
 add_filter( 'pre_option_woocommerce_terms_page_id', '__return_empty_string', 999 );
 

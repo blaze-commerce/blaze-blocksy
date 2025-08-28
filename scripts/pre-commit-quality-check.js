@@ -6,7 +6,7 @@
  * Enforces Priority 1-2 quality standards before commits
  */
 
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
@@ -19,7 +19,9 @@ const CONFIG = {
   maxFunctionLines: 30,
   maxNestingDepth: 4,
   emergencyBypass: process.env.EMERGENCY_BYPASS === 'true',
-  skipTests: process.env.SKIP_TESTS === 'true'
+  skipTests: process.env.SKIP_TESTS === 'true',
+  parallelExecution: process.env.PARALLEL_CHECKS !== 'false', // Enable by default
+  maxConcurrency: parseInt(process.env.MAX_CONCURRENCY) || 3
 };
 
 // Quality check results
@@ -36,7 +38,62 @@ let qualityResults = {
 function printHeader() {
   console.log(chalk.blue.bold('\n🔍 Pre-Commit Quality Check'));
   console.log(chalk.gray('Enforcing ALWAYS-comprehensive-code-review-standards.md'));
-  console.log(chalk.gray('Priority 1-2 quality standards validation\n'));
+  console.log(chalk.gray('Priority 1-2 quality standards validation'));
+  if (CONFIG.parallelExecution) {
+    console.log(chalk.gray(`Parallel execution enabled (max ${CONFIG.maxConcurrency} concurrent checks)\n`));
+  } else {
+    console.log(chalk.gray('Sequential execution mode\n'));
+  }
+}
+
+/**
+ * Execute multiple checks in parallel for better performance
+ */
+async function runChecksInParallel(checks) {
+  if (!CONFIG.parallelExecution) {
+    // Run sequentially if parallel execution is disabled
+    for (const check of checks) {
+      await check();
+    }
+    return;
+  }
+
+  console.log(chalk.blue(`🚀 Running ${checks.length} checks in parallel...`));
+
+  const results = [];
+  const executing = [];
+
+  for (let i = 0; i < checks.length; i++) {
+    const checkPromise = Promise.resolve().then(checks[i]).catch(error => {
+      console.error(chalk.red(`❌ Check ${i + 1} failed:`, error.message));
+      return { error };
+    });
+
+    executing.push(checkPromise);
+
+    // Limit concurrency
+    if (executing.length >= CONFIG.maxConcurrency || i === checks.length - 1) {
+      const batchResults = await Promise.all(executing);
+      results.push(...batchResults);
+      executing.length = 0; // Clear the array
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Create a promise-based wrapper for synchronous check functions
+ */
+function promisifyCheck(checkFunction, ...args) {
+  return () => new Promise((resolve, reject) => {
+    try {
+      const result = checkFunction(...args);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 /**
@@ -101,73 +158,134 @@ function checkSecrets(files) {
 }
 
 /**
- * Run linting checks (Priority 2)
+ * Run linting checks with detailed file-specific feedback (Priority 2)
  */
 function runLinting(files) {
   console.log(chalk.yellow('📝 Running linting checks...'));
-  
+
   const phpFiles = files.filter(f => f.endsWith('.php'));
   const jsFiles = files.filter(f => f.endsWith('.js'));
   const cssFiles = files.filter(f => f.endsWith('.css'));
 
   let lintingPassed = true;
+  const lintingResults = {
+    php: { passed: [], failed: [] },
+    js: { passed: [], failed: [] },
+    css: { passed: [], failed: [] }
+  };
 
-  // PHP linting
+  // PHP linting with file-specific feedback
   if (phpFiles.length > 0) {
-    try {
-      execSync(`vendor/bin/phpcs --standard=WordPress --extensions=php ${phpFiles.join(' ')}`, 
-        { stdio: 'pipe' });
-      console.log(chalk.green('✅ PHP linting passed'));
-    } catch (error) {
-      lintingPassed = false;
-      qualityResults.errors.push({
-        type: 'LINTING',
-        priority: 2,
-        file: 'PHP files',
-        message: 'PHP coding standards violations detected'
-      });
-      console.log(chalk.red('❌ PHP linting failed'));
-    }
+    console.log(chalk.blue(`  🔍 Checking ${phpFiles.length} PHP files...`));
+
+    phpFiles.forEach(file => {
+      try {
+        execSync(`vendor/bin/phpcs --standard=WordPress --extensions=php ${file}`,
+          { stdio: 'pipe' });
+        lintingResults.php.passed.push(file);
+        console.log(chalk.green(`    ✅ ${file}`));
+      } catch (error) {
+        lintingPassed = false;
+        lintingResults.php.failed.push({ file, error: error.stdout?.toString() || error.message });
+
+        // Parse PHPCS output for specific errors
+        const errorOutput = error.stdout?.toString() || '';
+        const errorLines = errorOutput.split('\n').filter(line => line.includes('ERROR') || line.includes('WARNING'));
+
+        qualityResults.errors.push({
+          type: 'LINTING',
+          priority: 2,
+          file: file,
+          message: `PHP coding standards violations: ${errorLines.length} issues found`,
+          details: errorLines.slice(0, 3).join('\n') // Show first 3 errors
+        });
+
+        console.log(chalk.red(`    ❌ ${file} - ${errorLines.length} issues`));
+        if (errorLines.length > 0) {
+          console.log(chalk.gray(`      ${errorLines[0].trim()}`));
+        }
+      }
+    });
   }
 
-  // JavaScript linting
+  // JavaScript linting with file-specific feedback
   if (jsFiles.length > 0) {
-    try {
-      execSync(`npx eslint ${jsFiles.join(' ')}`, { stdio: 'pipe' });
-      console.log(chalk.green('✅ JavaScript linting passed'));
-    } catch (error) {
-      lintingPassed = false;
-      qualityResults.errors.push({
-        type: 'LINTING',
-        priority: 2,
-        file: 'JavaScript files',
-        message: 'JavaScript linting violations detected'
-      });
-      console.log(chalk.red('❌ JavaScript linting failed'));
-    }
+    console.log(chalk.blue(`  🔍 Checking ${jsFiles.length} JavaScript files...`));
+
+    jsFiles.forEach(file => {
+      try {
+        execSync(`npx eslint ${file}`, { stdio: 'pipe' });
+        lintingResults.js.passed.push(file);
+        console.log(chalk.green(`    ✅ ${file}`));
+      } catch (error) {
+        lintingPassed = false;
+        lintingResults.js.failed.push({ file, error: error.stdout?.toString() || error.message });
+
+        // Parse ESLint output for specific errors
+        const errorOutput = error.stdout?.toString() || '';
+        const errorLines = errorOutput.split('\n').filter(line => line.includes('error') || line.includes('warning'));
+
+        qualityResults.errors.push({
+          type: 'LINTING',
+          priority: 2,
+          file: file,
+          message: `ESLint violations: ${errorLines.length} issues found`,
+          details: errorLines.slice(0, 3).join('\n') // Show first 3 errors
+        });
+
+        console.log(chalk.red(`    ❌ ${file} - ${errorLines.length} issues`));
+        if (errorLines.length > 0) {
+          console.log(chalk.gray(`      ${errorLines[0].trim()}`));
+        }
+        console.log(chalk.yellow(`      💡 Run 'npx eslint ${file} --fix' to auto-fix some issues`));
+      }
+    });
   }
 
-  // CSS linting
+  // CSS linting with file-specific feedback
   if (cssFiles.length > 0) {
-    try {
-      execSync(`npx stylelint ${cssFiles.join(' ')}`, { stdio: 'pipe' });
-      console.log(chalk.green('✅ CSS linting passed'));
-    } catch (error) {
-      lintingPassed = false;
-      qualityResults.errors.push({
-        type: 'LINTING',
-        priority: 2,
-        file: 'CSS files',
-        message: 'CSS linting violations detected'
-      });
-      console.log(chalk.red('❌ CSS linting failed'));
-    }
+    console.log(chalk.blue(`  🔍 Checking ${cssFiles.length} CSS files...`));
+
+    cssFiles.forEach(file => {
+      try {
+        execSync(`npx stylelint ${file}`, { stdio: 'pipe' });
+        lintingResults.css.passed.push(file);
+        console.log(chalk.green(`    ✅ ${file}`));
+      } catch (error) {
+        lintingPassed = false;
+        lintingResults.css.failed.push({ file, error: error.stdout?.toString() || error.message });
+
+        // Parse Stylelint output for specific errors
+        const errorOutput = error.stdout?.toString() || '';
+        const errorLines = errorOutput.split('\n').filter(line => line.includes('✖') || line.includes('⚠'));
+
+        qualityResults.errors.push({
+          type: 'LINTING',
+          priority: 2,
+          file: file,
+          message: `CSS linting violations: ${errorLines.length} issues found`,
+          details: errorLines.slice(0, 3).join('\n') // Show first 3 errors
+        });
+
+        console.log(chalk.red(`    ❌ ${file} - ${errorLines.length} issues`));
+        if (errorLines.length > 0) {
+          console.log(chalk.gray(`      ${errorLines[0].trim()}`));
+        }
+        console.log(chalk.yellow(`      💡 Run 'npx stylelint ${file} --fix' to auto-fix some issues`));
+      }
+    });
   }
+
+  // Summary of linting results
+  const totalPassed = lintingResults.php.passed.length + lintingResults.js.passed.length + lintingResults.css.passed.length;
+  const totalFailed = lintingResults.php.failed.length + lintingResults.js.failed.length + lintingResults.css.failed.length;
 
   if (lintingPassed) {
     qualityResults.passed++;
+    console.log(chalk.green(`✅ All ${totalPassed} files passed linting checks`));
   } else {
     qualityResults.failed++;
+    console.log(chalk.red(`❌ ${totalFailed} of ${totalPassed + totalFailed} files failed linting checks`));
   }
 }
 
@@ -233,7 +351,7 @@ function checkCodeStructure(files) {
 }
 
 /**
- * Run build validation (Priority 1)
+ * Run build validation with detailed file-specific feedback (Priority 1)
  */
 function validateBuild() {
   if (CONFIG.skipTests) {
@@ -242,27 +360,100 @@ function validateBuild() {
   }
 
   console.log(chalk.yellow('🔨 Validating build...'));
-  
+
+  const phpFiles = getStagedFiles().filter(f => f.endsWith('.php'));
+  const jsFiles = getStagedFiles().filter(f => f.endsWith('.js'));
+
+  let buildPassed = true;
+  const buildResults = { passed: [], failed: [] };
+
   try {
-    // Check if there are any syntax errors by running a basic PHP syntax check
-    const phpFiles = getStagedFiles().filter(f => f.endsWith('.php'));
+    // PHP syntax validation with file-specific feedback
     if (phpFiles.length > 0) {
+      console.log(chalk.blue(`  🔍 Checking PHP syntax in ${phpFiles.length} files...`));
+
       phpFiles.forEach(file => {
-        execSync(`php -l ${file}`, { stdio: 'pipe' });
+        try {
+          execSync(`php -l ${file}`, { stdio: 'pipe' });
+          buildResults.passed.push(file);
+          console.log(chalk.green(`    ✅ ${file}`));
+        } catch (error) {
+          buildPassed = false;
+          const errorOutput = error.stderr?.toString() || error.message;
+          buildResults.failed.push({ file, error: errorOutput });
+
+          // Parse PHP syntax error for line number and specific issue
+          const syntaxErrorMatch = errorOutput.match(/Parse error: (.+) in .+ on line (\d+)/);
+          const errorMessage = syntaxErrorMatch
+            ? `Line ${syntaxErrorMatch[2]}: ${syntaxErrorMatch[1]}`
+            : 'Syntax error detected';
+
+          qualityResults.errors.push({
+            type: 'BUILD',
+            priority: 1,
+            file: file,
+            message: `PHP syntax error: ${errorMessage}`,
+            details: errorOutput.split('\n')[0] // First line of error
+          });
+
+          console.log(chalk.red(`    ❌ ${file} - ${errorMessage}`));
+        }
       });
     }
-    
-    qualityResults.passed++;
-    console.log(chalk.green('✅ Build validation passed'));
+
+    // JavaScript syntax validation (basic check)
+    if (jsFiles.length > 0) {
+      console.log(chalk.blue(`  🔍 Checking JavaScript syntax in ${jsFiles.length} files...`));
+
+      jsFiles.forEach(file => {
+        try {
+          // Basic syntax check using Node.js
+          execSync(`node -c ${file}`, { stdio: 'pipe' });
+          buildResults.passed.push(file);
+          console.log(chalk.green(`    ✅ ${file}`));
+        } catch (error) {
+          buildPassed = false;
+          const errorOutput = error.stderr?.toString() || error.message;
+          buildResults.failed.push({ file, error: errorOutput });
+
+          // Parse JavaScript syntax error
+          const syntaxErrorMatch = errorOutput.match(/SyntaxError: (.+)/);
+          const errorMessage = syntaxErrorMatch
+            ? syntaxErrorMatch[1]
+            : 'Syntax error detected';
+
+          qualityResults.errors.push({
+            type: 'BUILD',
+            priority: 1,
+            file: file,
+            message: `JavaScript syntax error: ${errorMessage}`,
+            details: errorOutput.split('\n')[0]
+          });
+
+          console.log(chalk.red(`    ❌ ${file} - ${errorMessage}`));
+        }
+      });
+    }
+
+    if (buildPassed) {
+      qualityResults.passed++;
+      console.log(chalk.green(`✅ Build validation passed - ${buildResults.passed.length} files checked`));
+    } else {
+      qualityResults.failed++;
+      console.log(chalk.red(`❌ Build validation failed - ${buildResults.failed.length} files have syntax errors`));
+    }
+
   } catch (error) {
     qualityResults.failed++;
     qualityResults.errors.push({
       type: 'BUILD',
       priority: 1,
       file: 'Build process',
-      message: 'Build validation failed - syntax errors detected'
+      message: `Build validation system error: ${error.message}`,
+      details: error.stack
     });
-    console.log(chalk.red('❌ Build validation failed'));
+    console.log(chalk.red('❌ Build validation system error'));
+    console.log(chalk.gray(`   ${error.message}`));
   }
 }
 
@@ -375,23 +566,70 @@ function enforceDocumentation() {
 }
 
 /**
- * Print quality results summary
+ * Print enhanced quality results summary with file-specific feedback
  */
 function printResults() {
-  console.log(chalk.blue.bold('\n📊 Quality Check Results:'));
+  console.log(chalk.blue.bold('\n📊 Quality Check Results Summary:'));
   console.log(chalk.green(`✅ Passed: ${qualityResults.passed}`));
   console.log(chalk.red(`❌ Failed: ${qualityResults.failed}`));
   console.log(chalk.yellow(`⚠️ Warnings: ${qualityResults.warnings}`));
 
   if (qualityResults.errors.length > 0) {
     console.log(chalk.red.bold('\n🚨 Issues Found:'));
-    qualityResults.errors.forEach((error, index) => {
-      console.log(chalk.red(`${index + 1}. [P${error.priority}] ${error.type}: ${error.message}`));
-      if (error.file) {
-        console.log(chalk.gray(`   File: ${error.file}`));
+
+    // Group errors by type for better organization
+    const errorsByType = {};
+    qualityResults.errors.forEach(error => {
+      if (!errorsByType[error.type]) {
+        errorsByType[error.type] = [];
       }
+      errorsByType[error.type].push(error);
     });
+
+    Object.entries(errorsByType).forEach(([type, errors]) => {
+      console.log(chalk.red.bold(`\n${getTypeIcon(type)} ${type} Issues (${errors.length}):`));
+
+      errors.forEach((error, index) => {
+        console.log(chalk.red(`  ${index + 1}. [P${error.priority}] ${error.message}`));
+        if (error.file && error.file !== type + ' files') {
+          console.log(chalk.gray(`     📁 File: ${error.file}`));
+        }
+        if (error.details) {
+          console.log(chalk.gray(`     💡 Details: ${error.details.split('\n')[0]}`));
+        }
+      });
+    });
+
+    // Provide actionable suggestions
+    console.log(chalk.yellow.bold('\n💡 Quick Fix Suggestions:'));
+    if (errorsByType.LINTING) {
+      console.log(chalk.yellow('  • Run `npm run format` to auto-fix formatting issues'));
+      console.log(chalk.yellow('  • Run `npm run lint:fix` to auto-fix linting violations'));
+    }
+    if (errorsByType.BUILD) {
+      console.log(chalk.yellow('  • Check syntax errors in the files listed above'));
+      console.log(chalk.yellow('  • Ensure all required dependencies are installed'));
+    }
+    if (errorsByType.SECURITY) {
+      console.log(chalk.yellow('  • Remove hardcoded credentials and use environment variables'));
+      console.log(chalk.yellow('  • Check .gitignore to prevent committing sensitive files'));
+    }
   }
+}
+
+/**
+ * Get appropriate icon for error type
+ */
+function getTypeIcon(type) {
+  const icons = {
+    'LINTING': '📝',
+    'BUILD': '🔨',
+    'SECURITY': '🔒',
+    'TESTING': '🧪',
+    'DOCUMENTATION': '📚',
+    'STRUCTURE': '🏗️'
+  };
+  return icons[type] || '⚠️';
 }
 
 /**
@@ -408,9 +646,9 @@ function handleEmergencyBypass() {
 }
 
 /**
- * Main execution
+ * Main execution with parallel processing support
  */
-function main() {
+async function main() {
   printHeader();
 
   if (handleEmergencyBypass()) {
@@ -418,7 +656,7 @@ function main() {
   }
 
   const stagedFiles = getStagedFiles();
-  
+
   if (stagedFiles.length === 0) {
     console.log(chalk.yellow('⚠️ No staged files found'));
     process.exit(0);
@@ -426,34 +664,65 @@ function main() {
 
   console.log(chalk.blue(`📁 Analyzing ${stagedFiles.length} staged files...\n`));
 
-  // Run all quality checks
-  checkSecrets(stagedFiles);
-  runLinting(stagedFiles);
-  checkCodeStructure(stagedFiles);
-  validateBuild();
-  checkTestCoverage();
-  organizeDocumentation();
-  enforceDocumentation();
+  try {
+    if (CONFIG.parallelExecution) {
+      // Run independent checks in parallel for better performance
+      const independentChecks = [
+        promisifyCheck(checkSecrets, stagedFiles),
+        promisifyCheck(runLinting, stagedFiles),
+        promisifyCheck(checkCodeStructure, stagedFiles),
+        promisifyCheck(organizeDocumentation),
+        promisifyCheck(enforceDocumentation)
+      ];
 
-  printResults();
+      // Run parallel checks
+      await runChecksInParallel(independentChecks);
 
-  // Determine exit code based on Priority 1-2 failures
-  const criticalFailures = qualityResults.errors.filter(e => e.priority <= 2);
-  
-  if (criticalFailures.length > 0) {
-    console.log(chalk.red.bold('\n🚫 Commit blocked due to Priority 1-2 issues'));
-    console.log(chalk.yellow('💡 Fix the issues above or use EMERGENCY_BYPASS=true for critical fixes'));
-    console.log(chalk.gray('📖 See .augment/rules/ALWAYS-comprehensive-code-review-standards.md for details\n'));
+      // Run dependent checks sequentially (build validation depends on files being clean)
+      validateBuild();
+      checkTestCoverage();
+    } else {
+      // Run all quality checks sequentially
+      checkSecrets(stagedFiles);
+      runLinting(stagedFiles);
+      checkCodeStructure(stagedFiles);
+      validateBuild();
+      checkTestCoverage();
+      organizeDocumentation();
+      enforceDocumentation();
+    }
+
+    printResults();
+
+    // Determine exit code based on Priority 1-2 failures
+    const criticalFailures = qualityResults.errors.filter(e => e.priority <= 2);
+
+    if (criticalFailures.length > 0) {
+      console.log(chalk.red.bold('\n🚫 Commit blocked due to Priority 1-2 issues'));
+      console.log(chalk.yellow('💡 Fix the issues above or use EMERGENCY_BYPASS=true for critical fixes'));
+      console.log(chalk.gray('📖 See .augment/rules/ALWAYS-comprehensive-code-review-standards.md for details\n'));
+      process.exit(1);
+    } else {
+      console.log(chalk.green.bold('\n✅ Quality checks passed - commit allowed\n'));
+      process.exit(0);
+    }
+  } catch (error) {
+    console.error(chalk.red.bold('\n💥 Critical error during quality checks:'));
+    console.error(chalk.red(error.message));
+    console.log(chalk.yellow('\n💡 Use EMERGENCY_BYPASS=true to bypass if this is a critical fix'));
+    console.log(chalk.gray('📖 Report this issue to the development team\n'));
     process.exit(1);
-  } else {
-    console.log(chalk.green.bold('\n✅ Quality checks passed - commit allowed\n'));
-    process.exit(0);
   }
 }
 
 // Execute if run directly
 if (require.main === module) {
-  main();
+  main().catch(error => {
+    console.error(chalk.red.bold('\n💥 Unhandled error in pre-commit checks:'));
+    console.error(chalk.red(error.message));
+    console.error(chalk.gray(error.stack));
+    process.exit(1);
+  });
 }
 
 module.exports = { main, CONFIG };

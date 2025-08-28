@@ -173,12 +173,21 @@ function blaze_commerce_optimize_javascript() {
         }
     }, 100);
     
-    // Optimize jQuery loading
+    // Optimize jQuery loading with fallback
     add_action('wp_enqueue_scripts', function() {
-        if (!is_admin()) {
-            // Use jQuery from CDN for better caching
+        if (!is_admin() && !defined('BLAZE_COMMERCE_DISABLE_CDN_JQUERY')) {
+            // Use jQuery from CDN for better caching with integrity check
             wp_deregister_script('jquery');
             wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', array(), '3.6.0', true);
+
+            // Add integrity and crossorigin attributes for security
+            add_filter('script_loader_tag', function($tag, $handle) {
+                if ($handle === 'jquery' && strpos($tag, 'googleapis.com') !== false) {
+                    $tag = str_replace('<script ', '<script integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous" ', $tag);
+                }
+                return $tag;
+            }, 10, 2);
+
             wp_enqueue_script('jquery');
         }
     }, 1);
