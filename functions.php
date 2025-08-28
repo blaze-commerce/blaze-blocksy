@@ -177,4 +177,69 @@ function blocksy_child_checkout_sidebar_output() {
         }
     }
 }
+
+// Hook into standard WooCommerce hooks for compatibility with other checkout systems
 add_action( 'woocommerce_checkout_after_order_review', 'blocksy_child_checkout_sidebar_output' );
+add_action( 'fc_checkout_after_order_review', 'blocksy_child_checkout_sidebar_output' );
+
+/**
+ * Inject checkout sidebar widget area via JavaScript for maximum compatibility
+ *
+ * Uses wp_footer hook to inject widget content dynamically, ensuring compatibility
+ * with FluidCheckout, WooCommerce Blocks, and other modern checkout systems.
+ *
+ * @since 1.0.0
+ */
+add_action( 'wp_footer', function() {
+    // Only load on checkout pages to improve performance
+    if ( is_checkout() && ! is_wc_endpoint_url() ) {
+        ?>
+        <script>
+        // Ensure jQuery is available before proceeding
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).ready(function($) {
+            // Find the order summary section and add our widget area after it
+            var orderSummary = $('.wp-block-woocommerce-checkout-order-summary-block, .fc-checkout__order-summary, .woocommerce-checkout-review-order, .checkout-review-order');
+
+            if (orderSummary.length > 0) {
+                // Create the widget area HTML
+                var widgetAreaHtml = '<aside class="checkout-sidebar" style="margin-top: 20px; padding: 20px; border: 1px solid #ddd;">';
+
+                <?php if ( is_active_sidebar( 'checkout-sidebar' ) ) : ?>
+                    widgetAreaHtml += '<?php
+                        ob_start();
+                        dynamic_sidebar( 'checkout-sidebar' );
+                        $widget_content = ob_get_clean();
+                        // Properly escape content for JavaScript context to prevent XSS
+                        echo wp_json_encode( $widget_content );
+                    ?>';
+                <?php else : ?>
+                    widgetAreaHtml += '<div style="text-align: center; color: #666; font-style: italic;">';
+                    widgetAreaHtml += '<p>Checkout Sidebar Widget Area</p>';
+                    widgetAreaHtml += '<p><small>Add widgets in WordPress Admin → Appearance → Widgets → Checkout Sidebar</small></p>';
+                    widgetAreaHtml += '</div>';
+                <?php endif; ?>
+
+                widgetAreaHtml += '</aside>';
+
+                // Insert after the order summary
+                orderSummary.after(widgetAreaHtml);
+
+                console.log('✅ Checkout sidebar widget area added successfully');
+            } else {
+                console.log('❌ Order summary section not found');
+            }
+            });
+        } else {
+            console.log('❌ jQuery not available for checkout sidebar widget area');
+        }
+        </script>
+        <?php
+    }
+} );
+
+// Include Blaze Commerce Progressive 3-Step Checkout (if file exists)
+$blaze_checkout_file = get_stylesheet_directory() . '/includes/blaze-commerce-checkout.php';
+if ( file_exists( $blaze_checkout_file ) ) {
+    require_once $blaze_checkout_file;
+}
