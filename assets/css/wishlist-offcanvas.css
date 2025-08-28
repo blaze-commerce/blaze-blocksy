@@ -95,16 +95,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
 }
 
 #wishlist-offcanvas-panel .ct-panel-heading-icon svg {
     width: 100%;
     height: 100%;
-    fill: currentColor;
-    stroke: currentColor;
+    fill: none;
 }
 
 #wishlist-offcanvas-panel .ct-panel-heading-icon .ct-icon {

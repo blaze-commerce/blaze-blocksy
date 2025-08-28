@@ -51,8 +51,8 @@ class BlocksyChildWishlistOffCanvas {
 		add_action( 'wp_ajax_load_wishlist_offcanvas', array( $this, 'ajax_load_wishlist_content' ) );
 		add_action( 'wp_ajax_nopriv_load_wishlist_offcanvas', array( $this, 'ajax_load_wishlist_content' ) );
 
-		// Modify wishlist header output when off-canvas is enabled
-		add_filter( 'blocksy:header:render-item', array( $this, 'modify_wishlist_header_output' ), 10, 2 );
+		// Modify wishlist header output when off-canvas is enabled (run late to ensure we replace final markup)
+		add_filter( 'blocksy:header:render-item', array( $this, 'modify_wishlist_header_output' ), 999, 2 );
 	}
 
 	/**
@@ -213,19 +213,24 @@ class BlocksyChildWishlistOffCanvas {
 
 						'wishlist_offcanvas_icon_size' => array(
 							'label' => __( 'Icon Size', 'blocksy-companion' ),
-							'type' => 'ct-slider',
-							'min' => 10,
-							'max' => 50,
-							'value' => array(
-								'desktop' => '18px',
-								'tablet' => '16px',
-								'mobile' => '16px',
+							'type' => 'text',
+							'value' => '18',
+							'attr' => array(
+								'placeholder' => '18'
 							),
-							'units' => array(
-								array( 'unit' => 'px', 'min' => 10, 'max' => 50 ),
+							'setting' => array( 'transport' => 'postMessage' ),
+							'desc' => __( 'Set the size of the wishlist icon in pixels (e.g., 18).', 'blocksy-companion' ),
+						),
+
+						'wishlist_offcanvas_close_icon_size' => array(
+							'label' => __( 'Close Icon Size', 'blocksy-companion' ),
+							'type' => 'text',
+							'value' => '32',
+							'attr' => array(
+								'placeholder' => '32'
 							),
-							'responsive' => true,
-							'desc' => __( 'Set the size of the wishlist icon.', 'blocksy-companion' ),
+							'setting' => array( 'transport' => 'postMessage' ),
+							'desc' => __( 'Set the size of the close icon in pixels (e.g., 32).', 'blocksy-companion' ),
 						),
 
 					),
@@ -331,16 +336,23 @@ class BlocksyChildWishlistOffCanvas {
 		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
 
 		// Get the canvas width setting
-		$canvas_width = $get_mod( 'wishlist_offcanvas_width', array(
+		$canvas_width_raw = $get_mod( 'wishlist_offcanvas_width', null );
+		$canvas_width     = $get_mod( 'wishlist_offcanvas_width', array(
 			'desktop' => '400px',
 			'tablet' => '350px',
 			'mobile' => '300px',
 		) );
 
-		// Ensure $canvas_width is an array and has the required keys
+		// Handle both string and array formats from Customizer
 		if ( ! is_array( $canvas_width ) ) {
+			// If it's a string (like "445px"), use it for desktop and set defaults for others
+			if ( is_string( $canvas_width ) && ! empty( $canvas_width ) ) {
+				$desktop_value = $canvas_width;
+			} else {
+				$desktop_value = '400px';
+			}
 			$canvas_width = array(
-				'desktop' => '400px',
+				'desktop' => $desktop_value,
 				'tablet' => '350px',
 				'mobile' => '300px',
 			);
@@ -354,31 +366,37 @@ class BlocksyChildWishlistOffCanvas {
 		) );
 
 		// Get icon settings
-		$icon_source = $get_mod( 'wishlist_offcanvas_icon_source', 'header' );
-		$icon_size   = array();
+		$icon_source     = $get_mod( 'wishlist_offcanvas_icon_source', 'header' );
+		$icon_size       = array();
+		$close_icon_size = '';
 
 		if ( $icon_source === 'custom' ) {
-			$icon_size = $get_mod( 'wishlist_offcanvas_icon_size', array(
-				'desktop' => '18px',
-				'tablet' => '16px',
-				'mobile' => '16px',
-			) );
+			$icon_size_value = $get_mod( 'wishlist_offcanvas_icon_size', '18' );
 
-			// Ensure icon size is an array
-			if ( ! is_array( $icon_size ) ) {
-				$icon_size = array(
-					'desktop' => '18px',
-					'tablet' => '16px',
-					'mobile' => '16px',
-				);
+			// Ensure we have a valid size value
+			if ( empty( $icon_size_value ) ) {
+				$icon_size_value = '18';
 			}
 
-			// Ensure all required keys exist
-			$icon_size = wp_parse_args( $icon_size, array(
-				'desktop' => '18px',
-				'tablet' => '16px',
-				'mobile' => '16px',
-			) );
+			// Add 'px' if it's just a number
+			$icon_size = $icon_size_value;
+			if ( is_numeric( $icon_size_value ) ) {
+				$icon_size = $icon_size_value . 'px';
+			}
+		}
+
+		// Get close icon size (always available)
+		$close_icon_size_value = $get_mod( 'wishlist_offcanvas_close_icon_size', '32' );
+
+		// Ensure we have a valid close icon size value
+		if ( empty( $close_icon_size_value ) ) {
+			$close_icon_size_value = '32';
+		}
+
+		// Add 'px' if it's just a number
+		$close_icon_size = $close_icon_size_value;
+		if ( is_numeric( $close_icon_size_value ) ) {
+			$close_icon_size = $close_icon_size_value . 'px';
 		}
 
 		?>
@@ -388,18 +406,37 @@ class BlocksyChildWishlistOffCanvas {
 				width: 100vw;
 				max-width:
 					<?php echo esc_attr( $canvas_width['desktop'] ); ?>
-				;
+					!important;
 			}
 
 			<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
-				/* Icon Size - Desktop */
-				.ct-header-wishlist svg,
-				.ct-header-wishlist .ct-icon {
+				/* Icon Size - Only for off-canvas wishlist trigger */
+				#wishlist-offcanvas-panel .ct-icon,
+				.ct-offcanvas-wishlist-trigger .ct-icon {
+					font-size:
+						<?php echo esc_attr( $icon_size ); ?>
+						!important;
 					width:
-						<?php echo esc_attr( $icon_size['desktop'] ); ?>
+						<?php echo esc_attr( $icon_size ); ?>
 						!important;
 					height:
-						<?php echo esc_attr( $icon_size['desktop'] ); ?>
+						<?php echo esc_attr( $icon_size ); ?>
+						!important;
+				}
+
+			<?php endif; ?>
+
+			<?php if ( ! empty( $close_icon_size ) ) : ?>
+				/* Close Icon Size */
+				#wishlist-offcanvas-panel .ct-toggle-close .ct-icon {
+					font-size:
+						<?php echo esc_attr( $close_icon_size ); ?>
+						!important;
+					width:
+						<?php echo esc_attr( $close_icon_size ); ?>
+						!important;
+					height:
+						<?php echo esc_attr( $close_icon_size ); ?>
 						!important;
 				}
 
@@ -414,18 +451,7 @@ class BlocksyChildWishlistOffCanvas {
 					;
 				}
 
-				<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
-					.ct-header-wishlist svg,
-					.ct-header-wishlist .ct-icon {
-						width:
-							<?php echo esc_attr( $icon_size['tablet'] ); ?>
-							!important;
-						height:
-							<?php echo esc_attr( $icon_size['tablet'] ); ?>
-							!important;
-					}
 
-				<?php endif; ?>
 			}
 
 			/* Mobile */
@@ -437,18 +463,7 @@ class BlocksyChildWishlistOffCanvas {
 					;
 				}
 
-				<?php if ( $icon_source === 'custom' && ! empty( $icon_size ) ) : ?>
-					.ct-header-wishlist svg,
-					.ct-header-wishlist .ct-icon {
-						width:
-							<?php echo esc_attr( $icon_size['mobile'] ); ?>
-							!important;
-						height:
-							<?php echo esc_attr( $icon_size['mobile'] ); ?>
-							!important;
-					}
 
-				<?php endif; ?>
 			}
 		</style>
 		<?php
@@ -538,7 +553,7 @@ class BlocksyChildWishlistOffCanvas {
 		$wishlist_icon = $this->get_wishlist_icon();
 		$icon_html     = $wishlist_icon ? '<span class="ct-panel-heading-icon">' . $wishlist_icon . '</span> ' : '';
 
-		return '<div id="wishlist-offcanvas-panel" class="ct-panel ct-header" data-behaviour="' . esc_attr( $behavior ) . '" role="dialog" aria-label="' . esc_attr__( 'Wishlist panel', 'blocksy-companion' ) . '" inert="">
+		return '<div id="wishlist-offcanvas-panel" class="ct-panel ct-header ct-header-wishlist" data-behaviour="' . esc_attr( $behavior ) . '" role="dialog" aria-label="' . esc_attr__( 'Wishlist panel', 'blocksy-companion' ) . '" inert="">
 			<div class="ct-panel-inner">
 				<div class="ct-panel-actions">
 					<span class="ct-panel-heading">' . $icon_html . esc_html__( 'Wishlist', 'blocksy-companion' ) . ' <span class="wishlist-count">(' . $this->get_wishlist_count() . ')</span></span>
@@ -966,19 +981,12 @@ class BlocksyChildWishlistOffCanvas {
 			: get_theme_mod( 'wishlist_display_mode', 'page' );
 
 		if ( $display_mode === 'offcanvas' ) {
-			// Get the appropriate icon based on settings
-			$icon_source = function_exists( 'blocksy_get_theme_mod' )
-				? blocksy_get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' )
-				: get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
+			// Always try to get the appropriate icon based on settings
+			$new_icon = $this->get_wishlist_icon();
 
-			// Only replace icon if we're using custom icon (not header settings)
-			if ( $icon_source === 'custom' ) {
-				$new_icon = $this->get_wishlist_icon();
-
-				if ( $new_icon ) {
-					// Use regex to replace the icon content
-					$output = preg_replace( '/<svg[^>]*>.*?<\/svg>/s', $new_icon, $output );
-				}
+			if ( $new_icon ) {
+				// Replace the first inline SVG in the header output with our icon
+				$output = preg_replace( '/<svg[^>]*>.*?<\/svg>/s', $new_icon, $output );
 			}
 
 			// Use regex to replace any href value with our off-canvas identifier
@@ -1043,11 +1051,15 @@ class BlocksyChildWishlistOffCanvas {
 				// Use custom icon picker
 				$custom_icon = $get_mod( 'wishlist_offcanvas_custom_icon', array( 'icon' => 'blc blc-heart' ) );
 
-				if ( function_exists( 'blc_get_icon' ) && ! empty( $custom_icon['icon'] ) ) {
-					return blc_get_icon( array(
+				if ( function_exists( 'blc_get_icon' ) && is_array( $custom_icon ) ) {
+					// Simply pass the icon descriptor to blc_get_icon without manipulation
+					// The blc_get_icon function handles attachments and library icons automatically
+					$result = blc_get_icon( array(
 						'icon_descriptor' => $custom_icon,
 						'icon_container' => false,
+						'icon_html_atts' => array( 'class' => 'ct-icon' ),
 					) );
+					return $result;
 				}
 			}
 		}

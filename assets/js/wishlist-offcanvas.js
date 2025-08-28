@@ -172,7 +172,11 @@
                 quantity: 1
             }, function (response) {
                 if (response.error) {
-                    alert(response.error);
+                    // Show error message in a more user-friendly way
+                    $button.text('Error').addClass('error');
+                    setTimeout(function () {
+                        $button.text('Add to cart').removeClass('error').prop('disabled', false);
+                    }, DELAYS.BUTTON_RESET);
                 } else {
                     // Trigger cart update
                     $(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
@@ -186,7 +190,10 @@
                 }
             }).fail(function () {
                 $button.removeClass('loading').prop('disabled', false);
-                alert('Error adding to cart');
+                $button.text('Error').addClass('error');
+                setTimeout(function () {
+                    $button.text('Add to cart').removeClass('error').prop('disabled', false);
+                }, DELAYS.BUTTON_RESET);
             });
         });
     }
@@ -280,14 +287,6 @@
         }
     });
 
-    // Expose function for testing
-    window.testWishlistOffCanvas = function () {
-        const panel = document.querySelector(SELECTORS.PANEL);
-        if (panel) {
-            openWishlistOffCanvas();
-        } else {
-            console.log('Off-canvas panel not found. Check if off-canvas mode is enabled in Customizer.');
-        }
-    };
+
 
 })(jQuery);
