@@ -110,6 +110,29 @@
   padding: 0 24px;
 }
 
+@media screen and (max-width: 768px) {
+  [data-products] .product figure {
+    --product-element-spacing: 12px;
+  }
+  .products.columns-4 {
+    grid-column-gap: 12px;
+    grid-row-gap: 12px;
+  }
+
+  .products .product .woocommerce-loop-product__title,
+  .products .product .jdgm-widget,
+  .products .product .price,
+  .products .product .ct-woo-card-actions {
+    padding: 0 var(--product-element-spacing, 12px);
+  }
+
+  .products .product .noteware-backorder-chip {
+    width: calc(100% - 24px) !important;
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
 .products .product .noteware-backorder-chip {
   margin-left: 24px;
   margin-right: 24px;

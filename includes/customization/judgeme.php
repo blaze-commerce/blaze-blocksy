@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_filter( 'woocommerce_product_tabs', function (array $tabs) {
 	$tabs['judgeme_tab'] = array(
-		'title' => __( 'Judgeme', 'textdomain' ),
+		'title' => __( 'Reviews', 'textdomain' ),
 		'priority' => 50,
 		'callback' => 'blaze_blocksy_render_judgeme_tab',
 	);
