@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-08-27T21:57:31.637Z",
+  "url": "https://example.com/",
+  "navigation": {
+    "loadTime": 0,
+    "domContentLoaded": 0,
+    "responseTime": 53.800000000046566,
+    "ttfb": 52.700000000186265,
+    "domInteractive": null,
+    "domComplete": null
+  },
+  "resources": {
+    "total": 0,
+    "totalSize": 0,
+    "byType": {}
+  },
+  "memory": {
+    "usedJSHeapSize": 10000000,
+    "totalJSHeapSize": 10000000,
+    "jsHeapSizeLimit": 3760000000
+  }
+}

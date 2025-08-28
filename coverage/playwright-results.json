@@ -1,0 +1,395 @@
+{
+  "config": {
+    "configFile": "/mnt/persist/workspace/playwright.config.js",
+    "rootDir": "/mnt/persist/workspace/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/mnt/persist/workspace/tests/e2e/global-setup.js",
+    "globalTeardown": "/mnt/persist/workspace/tests/e2e/global-teardown.js",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "coverage/playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "coverage/playwright-results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "coverage/playwright-junit.xml"
+        }
+      ],
+      [
+        "line",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/mnt/persist/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Google Chrome",
+        "name": "Google Chrome",
+        "testDir": "/mnt/persist/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "performance.spec.js",
+      "file": "performance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Performance Tests @performance",
+          "file": "performance.spec.js",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should meet Core Web Vitals thresholds",
+              "ok": true,
+              "tags": [
+                "performance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2984,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Metrics: {\n  loadTime: \u001b[33m0\u001b[39m,\n  domContentLoaded: \u001b[33m0\u001b[39m,\n  responseTime: \u001b[33m53.39999999990687\u001b[39m,\n  ttfb: \u001b[33m52\u001b[39m\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-27T21:57:29.204Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0395ec5c307b4a8c0388-e64bfadd165ad710ade2",
+              "file": "performance.spec.js",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "should have reasonable resource loading times",
+              "ok": true,
+              "tags": [
+                "performance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 868,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Loaded 0 resources\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-27T21:57:29.156Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0395ec5c307b4a8c0388-8be1f9ebe356216c8426",
+              "file": "performance.spec.js",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "should have good accessibility performance",
+              "ok": true,
+              "tags": [
+                "performance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 782,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Accessibility Metrics: {\n  hasTitle: \u001b[33mtrue\u001b[39m,\n  hasLang: \u001b[33mfalse\u001b[39m,\n  hasHeadings: \u001b[33mtrue\u001b[39m,\n  hasImages: \u001b[33m0\u001b[39m,\n  imagesWithAlt: \u001b[33m0\u001b[39m,\n  hasLinks: \u001b[33m1\u001b[39m,\n  linksWithText: \u001b[33m1\u001b[39m\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-27T21:57:30.117Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0395ec5c307b4a8c0388-7c742de741f7f34e43b1",
+              "file": "performance.spec.js",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "should generate performance report",
+              "ok": false,
+              "tags": [
+                "performance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 816,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /mnt/persist/workspace/tests/e2e/performance.spec.js:206:45",
+                        "location": {
+                          "file": "/mnt/persist/workspace/tests/e2e/performance.spec.js",
+                          "column": 45,
+                          "line": 206
+                        },
+                        "snippet": "  204 |     expect(performanceData.navigation.loadTime).toBeLessThan(5000);\n  205 |     expect(performanceData.navigation.ttfb).toBeLessThan(1000);\n> 206 |     expect(performanceData.resources.total).toBeGreaterThan(0);\n      |                                             ^\n  207 |   });\n  208 |\n  209 | });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/mnt/persist/workspace/tests/e2e/performance.spec.js",
+                            "column": 45,
+                            "line": 206
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  204 |     expect(performanceData.navigation.loadTime).toBeLessThan(5000);\n  205 |     expect(performanceData.navigation.ttfb).toBeLessThan(1000);\n> 206 |     expect(performanceData.resources.total).toBeGreaterThan(0);\n      |                                             ^\n  207 |   });\n  208 |\n  209 | });\n    at /mnt/persist/workspace/tests/e2e/performance.spec.js:206:45"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Performance Report: {\n  \"timestamp\": \"2025-08-27T21:57:31.637Z\",\n  \"url\": \"https://example.com/\",\n  \"navigation\": {\n    \"loadTime\": 0,\n    \"domContentLoaded\": 0,\n    \"responseTime\": 53.800000000046566,\n    \"ttfb\": 52.700000000186265,\n    \"domInteractive\": null,\n    \"domComplete\": null\n  },\n  \"resources\": {\n    \"total\": 0,\n    \"totalSize\": 0,\n    \"byType\": {}\n  },\n  \"memory\": {\n    \"usedJSHeapSize\": 10000000,\n    \"totalJSHeapSize\": 10000000,\n    \"jsHeapSizeLimit\": 3760000000\n  }\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-27T21:57:30.914Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/mnt/persist/workspace/test-results/performance-Performance-Te-33cb7-generate-performance-report-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/mnt/persist/workspace/test-results/performance-Performance-Te-33cb7-generate-performance-report-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/mnt/persist/workspace/test-results/performance-Performance-Te-33cb7-generate-performance-report-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/mnt/persist/workspace/tests/e2e/performance.spec.js",
+                        "column": 45,
+                        "line": 206
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0395ec5c307b4a8c0388-3f332235b289ec541dc6",
+              "file": "performance.spec.js",
+              "line": 156,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-27T21:57:28.292Z",
+    "duration": 4063.9079999999994,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

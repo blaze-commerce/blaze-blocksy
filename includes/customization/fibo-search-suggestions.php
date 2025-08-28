@@ -12,11 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Add custom JavaScript to work with existing heading structure
  */
-add_action( 'wp_footer', function () {
-	if ( ! wp_script_is( 'jquery-dgwt-wcas', 'enqueued' ) ) {
-		return;
-	}
-	?>
+add_action(
+	'wp_footer',
+	function () {
+		if ( ! wp_script_is( 'jquery-dgwt-wcas', 'enqueued' ) ) {
+			return;
+		}
+		?>
 	<script type="text/javascript">
 		jQuery(document).ready(function ($) {
 			console.log('FiboSearch Custom: Script loaded');
@@ -166,6 +168,8 @@ add_action( 'wp_footer', function () {
 
 		});
 	</script>
-	<?php
-}, 999 );
+		<?php
+	},
+	999
+);
 

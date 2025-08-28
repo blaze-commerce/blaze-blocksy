@@ -76,6 +76,7 @@ phpunit.xml
 *.tif
 *.svg
 *.webp
+*.webm
 *.ico
 *.avif
 *.heic

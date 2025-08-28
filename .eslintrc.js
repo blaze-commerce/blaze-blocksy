@@ -6,8 +6,7 @@ module.exports = {
     jquery: true
   },
   extends: [
-    'eslint:recommended',
-    '@wordpress/eslint-plugin/recommended'
+    'eslint:recommended'
   ],
   parserOptions: {
     ecmaVersion: 'latest',
