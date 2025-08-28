@@ -1,0 +1,133 @@
+# Pre-commit hooks configuration for Blaze Commerce Blocksy Child Theme
+# =======================================================================
+# This configuration enforces code quality and conventional commit standards
+# 
+# Installation:
+# 1. Install pre-commit: pip install pre-commit
+# 2. Install hooks: pre-commit install
+# 3. Install commit-msg hook: pre-commit install --hook-type commit-msg
+#
+# Usage:
+# - Hooks run automatically on git commit
+# - To run manually: pre-commit run --all-files
+# - To skip hooks: git commit --no-verify
+
+repos:
+  # Conventional Commit Message Validation
+  # =====================================
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args:
+          - --types=feat,fix,docs,style,refactor,test,chore,ci,build,perf,revert
+          - --scopes=checkout,thank-you,my-account,css,js,php,docs,ci,release
+        description: "Ensure commit messages follow conventional commit format"
+
+  # General Code Quality Hooks
+  # ==========================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # File formatting and cleanup
+      - id: trailing-whitespace
+        description: "Remove trailing whitespace"
+        exclude: '\.md$'
+      
+      - id: end-of-file-fixer
+        description: "Ensure files end with newline"
+        exclude: '\.min\.(css|js)$'
+      
+      - id: mixed-line-ending
+        description: "Ensure consistent line endings"
+        args: ['--fix=lf']
+      
+      # File validation
+      - id: check-yaml
+        description: "Validate YAML files"
+        files: '\.(yml|yaml)$'
+      
+      - id: check-json
+        description: "Validate JSON files"
+        files: '\.json$'
+      
+      - id: check-xml
+        description: "Validate XML files"
+        files: '\.xml$'
+      
+      # Security checks
+      - id: detect-private-key
+        description: "Detect private keys"
+      
+      - id: check-merge-conflict
+        description: "Check for merge conflict markers"
+      
+      # File size limits
+      - id: check-added-large-files
+        description: "Prevent large files from being committed"
+        args: ['--maxkb=1000']  # 1MB limit
+      
+      # WordPress specific checks
+      - id: check-case-conflict
+        description: "Check for case conflicts (important for case-sensitive servers)"
+
+  # PHP Code Quality (if PHP files are present)
+  # ===========================================
+  - repo: local
+    hooks:
+      - id: php-syntax-check
+        name: PHP Syntax Check
+        entry: php -l
+        language: system
+        files: '\.php$'
+        description: "Check PHP syntax errors"
+
+  # CSS/SCSS Validation
+  # ==================
+  - repo: https://github.com/pre-commit/mirrors-stylelint
+    rev: v15.11.0
+    hooks:
+      - id: stylelint
+        files: '\.(css|scss)$'
+        args: ['--fix']
+        description: "Lint and fix CSS/SCSS files"
+        additional_dependencies:
+          - stylelint-config-standard
+
+  # WordPress Coding Standards (Optional - requires PHPCS)
+  # ======================================================
+  # Uncomment if you have PHP_CodeSniffer and WordPress Coding Standards installed
+  # - repo: local
+  #   hooks:
+  #     - id: phpcs-wordpress
+  #       name: WordPress Coding Standards
+  #       entry: phpcs
+  #       language: system
+  #       files: '\.php$'
+  #       args: ['--standard=WordPress', '--extensions=php']
+  #       description: "Check WordPress coding standards"
+
+# Configuration for specific hooks
+# ================================
+default_language_version:
+  python: python3
+
+# Files to exclude from all hooks
+exclude: |
+  (?x)^(
+    \.git/.*|
+    \.augment/.*|
+    node_modules/.*|
+    vendor/.*|
+    .*\.min\.(css|js)|
+    .*\.map|
+    screenshot\.(jpg|jpeg|png|gif)|
+    .*\.log
+  )$
+
+# Fail fast - stop on first failure
+fail_fast: false
+
+# Default stages for hooks
+default_stages: [commit, push]

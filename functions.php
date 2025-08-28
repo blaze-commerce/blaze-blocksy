@@ -59,15 +59,20 @@ add_filter( 'rest_endpoints', function ($endpoints) {
 	return $endpoints;
 } );
 
-
-
 // Enqueue theme styles and scripts
 include_once get_stylesheet_directory() . '/includes/scripts.php';
-
 
 // fibo search customization
 include_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
 
+// Thank you page customizations
+include_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
+
+// My Account page customizations
+include_once get_stylesheet_directory() . '/includes/customization/my-account.php';
+
+// Disable terms and conditions validation completely using WooCommerce settings filter
+add_filter( 'pre_option_woocommerce_terms_page_id', '__return_empty_string', 999 );
 
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
@@ -92,3 +97,28 @@ add_action( 'wc_ajax_add_to_cart', function () {
 		newrelic_add_custom_parameter( 'source', 'manual_hook' );
 	}
 } );
+
+// TO DO: FIX, NOT WORKING
+// Enqueue checkout assets
+// add_action( 'wp_enqueue_scripts', function() {
+// 	if ( is_checkout() && ! is_wc_endpoint_url() ) {
+// 		$template_uri = get_stylesheet_directory_uri();
+
+// 		// Enqueue CSS
+// 		wp_enqueue_style(
+// 			'custom-checkout-css',
+// 			$template_uri . '/assets/css/checkout.css',
+// 			array(),
+// 			'1.0.0'
+// 		);
+
+// 		// Enqueue JS
+// 		wp_enqueue_script(
+// 			'custom-checkout-js',
+// 			$template_uri . '/assets/js/checkout.js',
+// 			array( 'jquery' ),
+// 			'1.0.0',
+// 			true
+// 		);
+// 	}
+// }, 20 );
