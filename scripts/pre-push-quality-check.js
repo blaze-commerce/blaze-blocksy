@@ -10,6 +10,14 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const chalk = require('chalk');
 
+// Import branch naming validator with error handling
+let branchValidator;
+try {
+  branchValidator = require('./branch-naming-validator');
+} catch (error) {
+  console.warn(chalk.yellow('⚠️ Branch naming validator not available, using fallback validation'));
+}
+
 // Configuration
 const CONFIG = {
   emergencyBypass: process.env.EMERGENCY_BYPASS === 'true',
@@ -357,6 +365,95 @@ function printResults() {
 }
 
 /**
+ * Validate branch naming with robust error handling
+ */
+function validateBranchNaming() {
+  console.log(chalk.yellow('🌿 Validating branch naming convention...'));
+
+  try {
+    const currentBranch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+
+    if (!currentBranch) {
+      qualityResults.warnings++;
+      console.log(chalk.yellow('⚠️ Could not determine current branch name'));
+      return;
+    }
+
+    // Try to use the branch naming validator if available
+    if (branchValidator && typeof branchValidator.validateBranchName === 'function') {
+      try {
+        const config = branchValidator.loadConfiguration ? branchValidator.loadConfiguration() : {};
+        const validation = branchValidator.validateBranchName(currentBranch, config);
+
+        if (validation.valid) {
+          qualityResults.passed++;
+          console.log(chalk.green(`✅ Branch name "${currentBranch}" follows ${validation.pattern} pattern`));
+        } else {
+          qualityResults.failed++;
+          qualityResults.errors.push({
+            type: 'BRANCH_NAMING',
+            priority: 2,
+            branch: currentBranch,
+            message: `Branch name "${currentBranch}" does not follow naming conventions`,
+            suggestions: validation.suggestions || []
+          });
+          console.log(chalk.red(`❌ Branch name "${currentBranch}" violates naming conventions`));
+
+          if (validation.suggestions && validation.suggestions.length > 0) {
+            console.log(chalk.yellow('💡 Suggested alternatives:'));
+            validation.suggestions.slice(0, 3).forEach(suggestion => {
+              console.log(chalk.gray(`  • ${suggestion}`));
+            });
+          }
+        }
+      } catch (validatorError) {
+        console.warn(chalk.yellow('⚠️ Branch validator error, using fallback validation'));
+        fallbackBranchValidation(currentBranch);
+      }
+    } else {
+      // Fallback validation
+      fallbackBranchValidation(currentBranch);
+    }
+  } catch (error) {
+    qualityResults.warnings++;
+    console.log(chalk.yellow('⚠️ Branch naming validation failed:', error.message));
+  }
+}
+
+/**
+ * Fallback branch naming validation
+ */
+function fallbackBranchValidation(branchName) {
+  const validPatterns = [
+    /^feature\/[a-z0-9-]+$/,
+    /^fix\/[a-z0-9-]+$/,
+    /^hotfix\/[a-z0-9-]+$/,
+    /^bugfix\/[a-z0-9-]+$/,
+    /^chore\/[a-z0-9-]+$/,
+    /^docs\/[a-z0-9-]+$/,
+    /^refactor\/[a-z0-9-]+$/,
+    /^(main|master|develop|dev|staging|production|prod)$/
+  ];
+
+  const isValid = validPatterns.some(pattern => pattern.test(branchName));
+
+  if (isValid) {
+    qualityResults.passed++;
+    console.log(chalk.green(`✅ Branch name "${branchName}" follows basic naming conventions`));
+  } else {
+    qualityResults.failed++;
+    qualityResults.errors.push({
+      type: 'BRANCH_NAMING',
+      priority: 2,
+      branch: branchName,
+      message: `Branch name "${branchName}" should follow pattern: type/description (e.g., feature/user-auth)`
+    });
+    console.log(chalk.red(`❌ Branch name "${branchName}" should follow pattern: type/description`));
+    console.log(chalk.yellow('💡 Examples: feature/user-auth, fix/login-bug, hotfix/security-patch'));
+  }
+}
+
+/**
  * Handle emergency bypass
  */
 function handleEmergencyBypass() {
@@ -388,7 +485,8 @@ function main() {
 
   console.log(chalk.blue(`📁 Analyzing ${commits.length} commits for push...\n`));
 
-  // Run all quality checks
+  // Run all quality checks with branch naming validation first
+  validateBranchNaming();
   validateCommitQuality(commits);
   runTestSuite();
   checkMergeConflicts();

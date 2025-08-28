@@ -530,11 +530,16 @@ function blocksy_child_handle_account_creation_from_order() {
 		return;
 	}
 
-	$order_id = intval( $_POST['order_id'] );
-	$order    = wc_get_order( $order_id );
+	$order_id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+
+	if ( ! $order_id ) {
+		wp_die( esc_html__( 'Invalid order ID.', 'blocksy' ), esc_html__( 'Error', 'blocksy' ), array( 'response' => 400 ) );
+	}
+
+	$order = wc_get_order( $order_id );
 
 	if ( ! $order ) {
-		return;
+		wp_die( esc_html__( 'Order not found.', 'blocksy' ), esc_html__( 'Error', 'blocksy' ), array( 'response' => 404 ) );
 	}
 
 	$first_name = sanitize_text_field( $_POST['account_first_name'] );
