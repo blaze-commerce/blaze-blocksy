@@ -34,6 +34,7 @@ This repository uses automated semantic versioning with GitHub Actions. Version 
 
 - [Versioning Strategy](docs/VERSIONING.md) - Complete guide to semantic versioning and conventional commits
 - [Testing Instructions](docs/TESTING.md) - How to test the automated release workflow
+- [GitHub Actions Troubleshooting](docs/GITHUB-ACTIONS-TROUBLESHOOTING.md) - Fix common workflow failures
 - [Blaze Commerce Thank You Page](docs/THANK-YOU-PAGE-CUSTOMIZATION.md) - Complete customization guide
 - [Thank You Page Analysis](docs/thank-you-page-analysis.md) - Technical analysis and implementation details
 
