@@ -95,53 +95,69 @@ jobs:
           GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           set -euo pipefail
-          
+
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          MAX_WAIT_TIME=1800  # 30 minutes
+          MAX_WAIT_TIME=900   # 15 minutes (reduced from 30)
           CHECK_INTERVAL=30   # 30 seconds
           ELAPSED_TIME=0
-          
+
           echo "⏳ Waiting for required checks to complete for PR #$PR_NUMBER"
           echo "Maximum wait time: ${MAX_WAIT_TIME} seconds"
-          
+
+          # Define checks to exclude (avoid circular dependency)
+          EXCLUDED_CHECKS="Auto-merge version bump PR|Auto-Merge Version Bump PRs"
+
           while [ $ELAPSED_TIME -lt $MAX_WAIT_TIME ]; do
             echo "🔍 Checking PR status (elapsed: ${ELAPSED_TIME}s)..."
-            
-            # Get PR check status
+
+            # Get PR check status, excluding our own workflow
             PR_STATUS=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --jq '.statusCheckRollup[]')
-            
+
             if [ -z "$PR_STATUS" ]; then
               echo "ℹ️ No status checks found, proceeding with merge"
               echo "checks-passed=true" >> $GITHUB_OUTPUT
               break
             fi
-            
-            # Check if all required checks have completed and passed
-            PENDING_CHECKS=$(echo "$PR_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | .context' | wc -l)
-            FAILED_CHECKS=$(echo "$PR_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | .context' | wc -l)
-            
-            if [ "$FAILED_CHECKS" -gt 0 ]; then
-              echo "❌ Some checks have failed:"
-              echo "$PR_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | "  - " + .context + ": " + .status'
-              echo "checks-passed=false" >> $GITHUB_OUTPUT
-              exit 1
-            fi
-            
-            if [ "$PENDING_CHECKS" -eq 0 ]; then
-              echo "✅ All checks have completed successfully"
+
+            # Filter out excluded checks (our own workflow)
+            FILTERED_STATUS=$(echo "$PR_STATUS" | jq -r --arg excluded "$EXCLUDED_CHECKS" 'select(.context | test($excluded) | not)')
+
+            if [ -z "$FILTERED_STATUS" ]; then
+              echo "ℹ️ No external status checks found (only auto-merge workflow), proceeding with merge"
               echo "checks-passed=true" >> $GITHUB_OUTPUT
               break
             fi
-            
-            echo "⏳ $PENDING_CHECKS checks still pending, waiting..."
-            echo "$PR_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
-            
+
+            # Check if all required checks have completed and passed
+            PENDING_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | .context' | wc -l)
+            FAILED_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | .context' | wc -l)
+
+            echo "📊 Check status: $PENDING_CHECKS pending, $FAILED_CHECKS failed"
+
+            if [ "$FAILED_CHECKS" -gt 0 ]; then
+              echo "❌ Some checks have failed:"
+              echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | "  - " + .context + ": " + .status'
+              echo "checks-passed=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+
+            if [ "$PENDING_CHECKS" -eq 0 ]; then
+              echo "✅ All external checks have completed successfully"
+              echo "checks-passed=true" >> $GITHUB_OUTPUT
+              break
+            fi
+
+            echo "⏳ $PENDING_CHECKS external checks still pending, waiting..."
+            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+
             sleep $CHECK_INTERVAL
             ELAPSED_TIME=$((ELAPSED_TIME + CHECK_INTERVAL))
           done
-          
+
           if [ $ELAPSED_TIME -ge $MAX_WAIT_TIME ]; then
             echo "⏰ Timeout waiting for checks to complete"
+            echo "Remaining pending checks:"
+            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
             echo "checks-passed=false" >> $GITHUB_OUTPUT
             exit 1
           fi
