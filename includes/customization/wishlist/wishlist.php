@@ -53,6 +53,9 @@ class BlocksyChildWishlistOffCanvas {
 
 		// Modify wishlist header output when off-canvas is enabled (run late to ensure we replace final markup)
 		add_filter( 'blocksy:header:render-item', array( $this, 'modify_wishlist_header_output' ), 999, 2 );
+
+		// Force enable recently viewed products tracking
+		add_action( 'template_redirect', array( $this, 'force_track_product_view' ), 25 );
 	}
 
 	/**
@@ -771,6 +774,12 @@ class BlocksyChildWishlistOffCanvas {
 			return '';
 		}
 
+		// Check if wishlist is empty to determine the title
+		$wishlist_is_empty = $this->is_wishlist_empty();
+		$title             = $wishlist_is_empty
+			? esc_html__( 'Recently Viewed Items', 'blocksy-companion' )
+			: esc_html__( 'You May Also Like', 'blocksy-companion' );
+
 		$html = '';
 
 		// Show guest notice above recommendations for logged-out users when requested
@@ -779,7 +788,7 @@ class BlocksyChildWishlistOffCanvas {
 		}
 
 		$html .= '<div class="wishlist-recommendations">
-			<h3 class="recommendations-title">' . esc_html__( 'You May Also Like', 'blocksy-companion' ) . '</h3>
+			<h3 class="recommendations-title">' . $title . '</h3>
 			<div class="recommendations-grid" data-columns="2">';
 
 		foreach ( $recommended_products as $product ) {
@@ -835,6 +844,11 @@ class BlocksyChildWishlistOffCanvas {
 					$wishlist_ids[] = $item;
 				}
 			}
+		}
+
+		// If wishlist is empty, return recently viewed products
+		if ( empty( $wishlist_ids ) ) {
+			return $this->get_recently_viewed_products( 2 );
 		}
 
 		// Step 1 & 2: Get cross-sells and upsells from wishlist items
@@ -924,6 +938,100 @@ class BlocksyChildWishlistOffCanvas {
 		}
 
 		return $product_ids;
+	}
+
+	/**
+	 * Get recently viewed products
+	 */
+	private function get_recently_viewed_products( $limit = 2 ) {
+		// Get recently viewed product IDs from cookie
+		$recently_viewed_ids = array();
+
+		if ( ! empty( $_COOKIE['woocommerce_recently_viewed'] ) ) {
+			$recently_viewed_ids = wp_parse_id_list(
+				(array) explode(
+					'|',
+					wp_unslash( $_COOKIE['woocommerce_recently_viewed'] )
+				)
+			);
+
+			// Reverse to get most recent first
+			$recently_viewed_ids = array_reverse( $recently_viewed_ids );
+
+			// Limit the results
+			$recently_viewed_ids = array_slice( $recently_viewed_ids, 0, $limit );
+		}
+
+		// Convert IDs to product objects
+		$products = array();
+		foreach ( $recently_viewed_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( $product && $product->is_visible() ) {
+				$products[] = $product;
+			}
+		}
+
+		return $products;
+	}
+
+	/**
+	 * Check if wishlist is empty
+	 */
+	private function is_wishlist_empty() {
+		// Get current wishlist
+		if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) || ! blc_get_ext( 'woocommerce-extra' )->get_wish_list() ) {
+			return true;
+		}
+
+		$wishlist = blc_get_ext( 'woocommerce-extra' )->get_wish_list()->get_current_wish_list();
+
+		// Extract product IDs from wishlist data structure
+		$wishlist_ids = array();
+		if ( ! empty( $wishlist ) ) {
+			foreach ( $wishlist as $item ) {
+				if ( is_array( $item ) && isset( $item['id'] ) ) {
+					$wishlist_ids[] = $item['id'];
+				} elseif ( is_numeric( $item ) ) {
+					$wishlist_ids[] = $item;
+				}
+			}
+		}
+
+		return empty( $wishlist_ids );
+	}
+
+	/**
+	 * Force track product views for recently viewed functionality
+	 * This bypasses WooCommerce's requirement for the Recently Viewed Products widget to be active
+	 */
+	public function force_track_product_view() {
+		if ( ! is_singular( 'product' ) ) {
+			return;
+		}
+
+		global $post;
+
+		if ( empty( $_COOKIE['woocommerce_recently_viewed'] ) ) {
+			$viewed_products = array();
+		} else {
+			$viewed_products = wp_parse_id_list( (array) explode( '|', wp_unslash( $_COOKIE['woocommerce_recently_viewed'] ) ) );
+		}
+
+		// Unset if already in viewed products list.
+		$keys = array_flip( $viewed_products );
+
+		if ( isset( $keys[ $post->ID ] ) ) {
+			unset( $viewed_products[ $keys[ $post->ID ] ] );
+		}
+
+		$viewed_products[] = $post->ID;
+
+		if ( count( $viewed_products ) > 15 ) {
+			array_shift( $viewed_products );
+		}
+
+		// Store for session only.
+		wc_setcookie( 'woocommerce_recently_viewed', implode( '|', $viewed_products ) );
 	}
 
 	/**
