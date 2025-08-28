@@ -85,6 +85,14 @@
   font-weight: bold;
 }
 
+@media screen and (max-width: 768px) {
+  .products .product .ct-woo-card-actions a {
+    font-size: 14px;
+    min-height: 0;
+    padding: 4px 0;
+  }
+}
+
 .products .product .price .sale-price {
   flex-flow: row-reverse;
 }
