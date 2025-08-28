@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0] - 2025-08-28
+
+### Added
+- remove checkout sidebar widget area implementation (#66)
+- improve code quality and security in blocksy-child theme (#64)
+- implement automated markdown file organization system with intelligent categorization (#62)
+- integrate comprehensive production release exclusions with GitHub Actions workflow (#60)
+- implement enhanced changelog generation system and restore missing version history (#58)
+- enhance changelog generation scripts with comprehensive code quality improvements (#56)
+- enhance auto-merge workflow with configuration and comprehensive improvements (#55)
+- comprehensive testing framework implementation with code review enhancements (#35)
+- implement checkout sidebar widget area with security improvements (#50)
+- integrate auto-merge workflow with BlazeCommerce automation bot for version bump PRs
+- standardize address grid layout and update CSS naming convention (#44)
+- implement critical security fixes and performance optimizations for WooCommerce thank you page asset loading (#40)
+- add workflow fix documentation to README (#38)
+- implement three-tier responsive layout for thank-you page container
+- implement automated cleanup system for outdated version bump PRs
+- implement comprehensive semantic versioning workflow with automated validation
+- improve WordPress theme ZIP structure for consistent folder naming
+
+### Changed
+- bump theme version to 1.18.0 (#65)
+- bump theme version to 1.17.0 (#63)
+- bump theme version to 1.16.0 (#61)
+- bump theme version to 1.15.0 (#57)
+- bump theme version to 1.14.0 (#54)
+- bump theme version to 1.13.0 (#53)
+- bump theme version to 1.12.0 (#52)
+- update my-account custom css
+- bump theme version to 1.11.0 (#48)
+- optimize admin performance by removing emoji scripts (#47)
+- verify auto-merge workflow functionality (#46)
+- bump theme version to 1.10.0 (#45)
+- Fix/header z index mobile menu (#23)
+- bump theme version to 1.9.0 (#41)
+- exclude shell scripts and executable files from release ZIP
+
+### Fixed
+- respect branch protection rules in auto-merge workflow (#59)
+- respect branch protection rules in auto-merge workflow
+- add null checks to prevent jq errors in auto-merge workflow
+- resolve circular dependency in auto-merge workflow that caused PR #48 failure (#51)
+- resolve GitHub Actions workflow authentication failure (#42)
+- resolve GitHub Actions workflow failure with existing tags (#39)
+- resolve GitHub Actions workflow failure with existing tags
+- resolve YAML syntax error and regex patterns in cleanup workflow
+- resolve bash arithmetic operation failure in PR validation workflow
+- exclude .augmentignore and backup files from release ZIP
+
+### Documentation
+- enhance auto-merge workflow with configuration and documentation
+
 ## [1.18.0] - 2025-08-28
 
 ### Added
@@ -348,7 +401,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.16.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.16.0
 [1.17.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.17.0
 [1.18.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.18.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.18.0...HEAD
+[1.19.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.19.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.19.0...HEAD
 [1.3.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.0.0...v1.1.0
