@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Enqueue product category styles
+ */
 add_action( 'wp_enqueue_scripts', function () {
 	if ( ! is_product_category() && ! is_product_tag() && ! is_shop() )
 		return;
@@ -8,6 +11,9 @@ add_action( 'wp_enqueue_scripts', function () {
 } );
 
 
+/**
+ * Update product count after filtering
+ */
 add_action( 'wp_footer', function () {
 
 	if ( ! is_product_category() && ! is_shop() )
@@ -226,6 +232,9 @@ add_action( 'wp_footer', function () {
 	<?php
 } );
 
+/**
+ * Display category description
+ */
 add_action( 'woocommerce_after_shop_loop', function () {
 	if ( ! is_product_category() ) {
 		return;
