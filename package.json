@@ -64,7 +64,14 @@
     "husky:pre-commit": "husky add .husky/pre-commit 'npm run quality:pre-commit'",
     "husky:commit-msg": "husky add .husky/commit-msg 'npm run quality:commit-msg'",
     "husky:pre-push": "husky add .husky/pre-push 'npm run quality:pre-push'",
-    "husky:post-merge": "husky add .husky/post-merge 'npm run quality:post-merge'"
+    "husky:post-merge": "husky add .husky/post-merge 'npm run quality:post-merge'",
+    "release": "bash scripts/create-production-release.sh",
+    "release:version": "bash scripts/create-production-release.sh",
+    "release:skip-build": "bash scripts/create-production-release.sh --skip-build",
+    "release:test": "bash scripts/create-production-release.sh --skip-build --output-dir test-releases",
+    "release:clean": "rm -rf releases/ test-releases/",
+    "release:validate": "npm run build && npm run release:test",
+    "release:test-exclusions": "bash scripts/test-release-exclusions.sh"
   },
   "lint-staged": {
     "*.php": [
