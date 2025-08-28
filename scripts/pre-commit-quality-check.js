@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { enforceDocumentation } = require('./documentation-enforcer');
+const { enforceDocumentation: enforceDocumentationRules } = require('./documentation-enforcer');
 
 // Configuration
 const CONFIG = {
@@ -305,7 +305,7 @@ function enforceDocumentation() {
   console.log(chalk.yellow('📚 Checking documentation requirements...'));
 
   try {
-    const result = require('./documentation-enforcer').enforceDocumentation();
+    const result = enforceDocumentationRules();
 
     if (result.success) {
       qualityResults.passed++;

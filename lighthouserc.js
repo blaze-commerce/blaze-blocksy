@@ -9,15 +9,11 @@ module.exports = {
 	ci: {
 		collect: {
 			url: [
-			'http://localhost:8080',
-			'http://localhost:8080/sample-page',
-			'http://localhost:8080/shop',
-			'http://localhost:8080/cart',
-			'http://localhost:8080/checkout'
+			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/',
+			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/shop/',
+			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/cart/',
+			'https://stg-infinitytargetscom-sitebuild.kinsta.cloud/checkout/'
 			],
-			startServerCommand: 'npm run dev',
-			startServerReadyPattern: 'ready',
-			startServerReadyTimeout: 30000,
 			numberOfRuns: 3,
 			settings: {
 				chromeFlags: '--no-sandbox --disable-dev-shm-usage',

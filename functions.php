@@ -4,6 +4,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Direct access forbidden.' );
 }
 
+// Load security hardening functions with enhanced error handling
+$security_file = get_stylesheet_directory() . '/security-fixes/security-hardening.php';
+if ( file_exists( $security_file ) && is_readable( $security_file ) ) {
+	try {
+		require_once $security_file;
+	} catch ( Error $e ) {
+		// Log error but don't break the site
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'BlazeCommerce: Failed to load security hardening: ' . $e->getMessage() );
+		}
+	}
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	error_log( 'BlazeCommerce: Security hardening file not found or not readable: ' . $security_file );
+}
+
+// Load performance enhancement functions with enhanced error handling
+$performance_file = get_stylesheet_directory() . '/performance-optimizations/performance-enhancements.php';
+if ( file_exists( $performance_file ) && is_readable( $performance_file ) ) {
+	try {
+		require_once $performance_file;
+	} catch ( Error $e ) {
+		// Log error but don't break the site
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'BlazeCommerce: Failed to load performance enhancements: ' . $e->getMessage() );
+		}
+	}
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	error_log( 'BlazeCommerce: Performance enhancement file not found or not readable: ' . $performance_file );
+}
+
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
 	'plugins_loaded',
