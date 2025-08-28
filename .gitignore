@@ -66,18 +66,85 @@ composer.lock
 .stylelintcache
 phpunit.xml
 
-# Images and Media Files
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-*.tif
-*.svg
-*.webp
-*.webm
-*.ico
-*.avif
-*.heic
-*.heif
+# Test Artifacts and Coverage Reports
+coverage/
+test-results/
+.phpunit.result.cache
+.nyc_output/
+junit.xml
+test-summary.json
+playwright-results.json
+playwright-junit.xml
+performance-report.json
+lighthouse-results/
+
+# Husky Git Hooks
+.husky/_/
+
+# WordPress Specific
+wp-config-local.php
+wp-config-staging.php
+wp-config-production.php
+.htaccess.backup
+error_log
+debug.log
+wp-cli.local.yml
+
+# Build Tool Caches
+.parcel-cache/
+.webpack/
+.rollup.cache/
+
+# Package Manager Alternative Lock Files
+pnpm-lock.yaml
+bun.lockb
+
+# IDE and Editor Specific
+*.code-workspace
+.history/
+.vscode/settings.json
+.vscode/launch.json
+
+# OS and System Files
+*.lnk
+*.url
+.fuse_hidden*
+.nfs*
+
+# Development and Debug Files
+*.orig
+*.rej
+.merge_file_*
+
+# Large Media Files (Keep theme assets, ignore large uploads)
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.gif
+uploads/*.mp4
+uploads/*.mov
+uploads/*.avi
+uploads/*.webm
+*.psd
+*.ai
+*.sketch
+*.fig
+*.xd
+
+# Security and Sensitive Files
+.htpasswd
+.well-known/
+wp-config-sample.php
+readme.html
+license.txt
+
+# Keep Important Theme Files
+!screenshot.jpg
+!screenshot.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.png
+!assets/**/*.gif
+!assets/**/*.svg
+!assets/**/*.ico
+!assets/**/*.webp

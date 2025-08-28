@@ -159,6 +159,46 @@ coverage/
 **/jest-coverage/
 **/mochawesome-report/
 
+# WordPress Child Theme Specific
+**/wp-content/themes/*/node_modules/
+**/wp-content/themes/*/vendor/
+**/wp-content/themes/*/coverage/
+**/wp-content/themes/*/test-results/
+
+# Blocksy Theme Specific
+**/wp-content/themes/blocksy/
+**/wp-content/themes/blocksy-*/node_modules/
+**/wp-content/themes/blocksy-*/vendor/
+
+# PHP Development
+.phpunit.result.cache
+**/psalm.xml
+**/phpcs.xml
+**/phpmd.xml
+
+# JavaScript Testing and Build
+jest-coverage/
+.jest-cache/
+playwright-report/
+
+# Husky Git Hooks
+.husky/_/
+.husky/commit-msg
+.husky/pre-commit
+.husky/pre-push
+.husky/post-merge
+
+# WordPress Development
+wp-cli.local.yml
+wp-cli.yml
+.wp-cli/
+**/wp-content/debug.log
+**/wp-content/error_log
+
+# Performance and Monitoring
+lighthouse-results/
+.lighthouseci/
+
 # Generated documentation
 **/docs/api/
 **/docs/generated/
@@ -179,6 +219,12 @@ desktop.ini
 # IDE directories
 .idea/
 .vscode/
+
+# Development Tools
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+.history/
 
 # Temporary editor files
 *.swp
