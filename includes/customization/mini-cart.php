@@ -173,35 +173,12 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 		foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
 			$product = wc_get_product( $product_id );
 			if ( $product ) {
-				blaze_blocksy_render_mini_cart_product_item( $product );
+				$GLOBALS['product'] = $product;
+				wc_get_template_part( 'product/recommend-product-card' );
 			}
 		}
 		echo '</div>';
 	}
-}
-
-/**
- * Render individual product item for mini cart recommendations
- */
-function blaze_blocksy_render_mini_cart_product_item( $product ) {
-	$product_url = $product->get_permalink();
-	$product_image = $product->get_image( 'thumbnail' );
-	$product_name = $product->get_name();
-	$product_price = $product->get_price_html();
-
-	?>
-	<div class="recommended-product-item">
-		<a href="<?php echo esc_url( $product_url ); ?>" class="product-link">
-			<div class="product-image">
-				<?php echo $product_image; ?>
-			</div>
-			<div class="product-info">
-				<h5 class="product-title"><?php echo esc_html( $product_name ); ?></h5>
-				<div class="product-price"><?php echo $product_price; ?></div>
-			</div>
-		</a>
-	</div>
-	<?php
 }
 
 /**
@@ -248,3 +225,5 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	</div>
 	<?php
 }, 10 );
+
+

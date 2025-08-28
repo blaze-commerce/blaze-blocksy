@@ -26,9 +26,6 @@ add_action( 'wp_footer', function () {
 			dots: true,
 			responsive: {
 				0: {
-					items: 1,
-				},
-				600: {
 					items: 2,
 				},
 				1000: {
@@ -37,10 +34,10 @@ add_action( 'wp_footer', function () {
 			}
 		}
 		jQuery(document).ready(function ($) {
-			$('.related.products .products, .upsells.products .products').addClass('owl-carousel owl-theme');
+			$('.related.products .products, .up-sells.products .products').addClass('owl-carousel owl-theme');
 			$('.related.products .owl-carousel').owlCarousel(carouselConfig);
 
-			$('.upsells.products .owl-carousel').owlCarousel(carouselConfig);
+			$('.up-sells.products .owl-carousel').owlCarousel(carouselConfig);
 		});
 	</script>
 	<?php
@@ -70,12 +67,19 @@ add_filter( 'woocommerce_product_loop_end', function ($echo) {
 
 // modify wc_get_template_part filter for content-content
 add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
+
+	if ( 'product/recommend-product-card' === $slug ) {
+		return BLAZE_BLOCKSY_PATH . '/woocommerce/product/recommend-product-card.php';
+	}
+
 	if ( ! is_product() || is_archive() )
 		return $template;
 
 	if ( 'content' === $slug && 'product' === $name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/content/product.php';
 	}
+
+
 	return $template;
 }, 10, 3 );
 

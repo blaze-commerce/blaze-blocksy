@@ -19,6 +19,52 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Get recently viewed products from localStorage (we'll use cookie as fallback)
+$recently_viewed_products = array();
+if ( function_exists( 'get_recently_viewed_products_from_cookie' ) ) {
+	$recently_viewed_ids = get_recently_viewed_products_from_cookie();
+	$recently_viewed_ids = array_slice( $recently_viewed_ids, 0, 2 ); // Limit to 4
+
+	foreach ( $recently_viewed_ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( $product && $product->is_visible() ) {
+			$recently_viewed_products[] = $product;
+		}
+	}
+}
+
+// Get wishlist products
+$wishlist_products = array();
+if ( function_exists( 'blc_get_ext' ) ) {
+
+	try {
+		$wishlist_instance = blc_get_ext( 'woocommerce-extra' )->get_wish_list();
+		$wishlist_items = $wishlist_instance->get_current_wish_list();
+
+		do_action( 'qm/info', [ 'wishlist' => $wishlist_items ] );
+
+		if ( ! empty( $wishlist_items ) ) {
+			$wishlist_items = array_map( function ($item) {
+				return $item['id'];
+			}, $wishlist_items );
+
+			// remove duplicates from $recently_viewed_products
+			$wishlist_items = array_diff( $wishlist_items, $recently_viewed_ids );
+			$wishlist_items = array_slice( $wishlist_items, 0, 2 ); // Limit to 4
+
+			foreach ( $wishlist_items as $item_id ) {
+				$product = wc_get_product( $item_id );
+
+				if ( $product && $product->is_visible() ) {
+					$wishlist_products[] = $product;
+				}
+			}
+		}
+	} catch (Exception $e) {
+		do_action( 'qm/info', [ 'wishlist_error' => $e->getMessage() ] );
+	}
+}
+
 do_action( 'woocommerce_before_mini_cart' ); ?>
 
 <?php if ( WC()->cart && ! WC()->cart->is_empty() ) : ?>
@@ -118,7 +164,55 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 
 <?php else : ?>
 
-	<p class="woocommerce-mini-cart__empty-message"><?php esc_html_e( 'No products in the cart.', 'woocommerce' ); ?></p>
+	<div class="woocommerce-mini-cart__empty-message">
+		<div class="empty-cart-content">
+			<!-- Empty Cart Icon and Message -->
+
+			<div class="empty-cart-message">
+				<p><?php esc_html_e( 'Your cart is empty, continue to shopping to add item', 'blaze-blocksy' ); ?></p>
+			</div>
+
+			<!-- Continue Shopping Button -->
+			<div class="continue-shopping-wrapper">
+				<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="continue-shopping-btn">
+					<?php esc_html_e( 'CONTINUE TO SHOPPING', 'blaze-blocksy' ); ?>
+					<span class="arrow">→</span>
+				</a>
+			</div>
+
+			<!-- Recently Viewed Items Section -->
+			<?php if ( ! empty( $recently_viewed_products ) ) : ?>
+				<div class="recommendations-section recently-viewed-section">
+					<div class="recommendations-header">
+						<h4><?php esc_html_e( 'Recently View Items', 'blaze-blocksy' ); ?></h4>
+					</div>
+					<div class="recommended-products-grid">
+						<?php
+						foreach ( $recently_viewed_products as $product ) :
+							$GLOBALS['product'] = $product;
+							wc_get_template_part( 'product/recommend-product-card', );
+						endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Favorite Items Section -->
+			<?php if ( ! empty( $wishlist_products ) ) : ?>
+				<div class="recommendations-section favorite-section">
+					<div class="recommendations-header">
+						<h4><?php esc_html_e( 'Favorite', 'blaze-blocksy' ); ?></h4>
+					</div>
+					<div class="recommended-products-grid">
+						<?php foreach ( $wishlist_products as $product ) :
+							$GLOBALS['product'] = $product;
+							wc_get_template_part( 'product/recommend-product-card' );
+						endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<div class="widget_shopping_cart_content"> </div>
 
 <?php endif; ?>
 

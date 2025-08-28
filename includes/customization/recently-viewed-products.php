@@ -47,7 +47,7 @@ function display_recently_viewed_products() {
 	$product_ids = array_filter( $recently_viewed_products, function ($id) use ($current_product_id) {
 		return intval( $id ) !== $current_product_id;
 	} );
-	$product_ids = array_slice( $product_ids, 0, 4 );
+	$product_ids = array_slice( $product_ids, 0, 10 );
 
 	// If no products to show, don't display the section
 	if ( empty( $product_ids ) ) {

@@ -45,6 +45,14 @@
     height: 4px;
     margin: 0;
   }
+
+  .single-product .product-entry-wrapper {
+    padding-bottom: 0px;
+  }
+
+  .product > .woocommerce-tabs {
+    padding-top: 24px;
+  }
 }
 
 .products .owl-carousel .owl-stage {
@@ -168,6 +176,29 @@
 
 .summary #payment-method-message {
   height: auto !important;
+}
+
+/**
+* PRODUCT TABS
+*/
+
+@media screen and (max-width: 768px) {
+  .woocommerce-tabs .ct-accordion-tab .ct-accordion-heading {
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+
+/**
+* RECENTLY SECTION
+*/
+
+@media screen and (max-width: 768px) {
+  .related.products .ct-module-title,
+  .up-sells.products .ct-module-title {
+    font-size: 24px !important;
+    line-height: 32px !important;
+  }
 }
 
 /**
