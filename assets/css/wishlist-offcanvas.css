@@ -14,8 +14,8 @@
     /* Padding/p-4 */
     --wishlist-card-spacing: 16px;
     /* gap-4 */
-    --wishlist-image-height: 200px;
-    --wishlist-foreground: #242424;
+    --wishlist-image-height: 192px;
+    --wishlist-foreground: #4E594D;
     /* foreground */
 }
 
@@ -64,19 +64,27 @@
     align-items: center;
     gap: 8px;
     font-weight: 700;
-    color: var(--wishlist-foreground);
+    color: var(--wishlist-foreground, #4E594D);
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    /* 150% */
 }
 
 #wishlist-offcanvas-panel .wishlist-count {
-    color: var(--secondary-foreground, #4e594d);
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--wishlist-foreground, #4E594D);
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
 }
 
 #wishlist-offcanvas-panel .ct-toggle-close {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--wishlist-border-color);
     border-radius: 50%;
+    padding: 0px !important;
 }
 
 #wishlist-offcanvas-panel .ct-toggle-close svg {
@@ -156,7 +164,7 @@
 /* Wishlist item image */
 .ct-offcanvas-wishlist .wishlist-item-image {
     width: 100%;
-    height: var(--wishlist-image-height, 200px);
+    height: var(--wishlist-image-height, 192px);
     overflow: hidden;
     background: #f8f8f8;
 }
@@ -182,7 +190,7 @@
 }
 
 .ct-offcanvas-wishlist .wishlist-item-title {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-size: 16px;
     font-weight: 600;
     line-height: 1.4;
@@ -390,6 +398,7 @@
 /* Integration with Blocksy off-canvas system */
 body[data-panel] #wishlist-offcanvas-panel.active {
     display: flex;
+    width: 100vw;
 }
 
 /* Fallback styles for when Blocksy off-canvas is not available */
@@ -406,7 +415,7 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 
 /* Guest notice above recommendations */
 .wishlist-guest-notice {
-    margin: 16px 20px 0 20px;
+    margin: 16px 0 0 0;
 }
 
 .wishlist-guest-notice .notice-text {
@@ -415,9 +424,13 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     color: #555;
 }
 
+.wishlist-guest-notice .notice-actions a:before {
+    content: '';
+    display: none;
+}
+
 .wishlist-guest-notice .notice-actions .button.notice-signup {
     width: 100%;
-    display: inline-block;
     text-align: center;
     font-weight: 700;
     background: #fff;
@@ -436,15 +449,19 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 .wishlist-recommendations {
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid #e0e0e0;
+
 }
 
 .wishlist-recommendations .recommendations-title {
     margin: 0 0 16px 0;
     font-size: 18px;
     font-weight: 600;
-    color: var(--theme-text-color, #333);
+    color: var(--theme-text-color, #242424);
     text-align: left;
+    font-style: normal;
+    /* 155.556% */
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
 }
 
 .wishlist-recommendations .recommendations-grid {
@@ -597,7 +614,7 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 /* Dark mode support for recommendations */
 @media (prefers-color-scheme: dark) {
     .wishlist-recommendations {
-        border-top-color: var(--theme-border-color, #444);
+        border-bottom-color: var(--theme-border-color, #444);
     }
 
     .wishlist-recommendations .recommendation-item {
@@ -621,12 +638,18 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 
 #wishlist-offcanvas-panel .wishlist-item-title a,
 #wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-title a {
-    color: var(--wishlist-foreground);
+    color: #242424;
 }
 
 #wishlist-offcanvas-panel .wishlist-item-price,
 #wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-price {
     color: var(--wishlist-foreground);
+
+}
+
+#wishlist-offcanvas-panel .wishlist-item-price .sale-price,
+#wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-price .sale-price {
+    display: inline;
 }
 
 /* Optional: soften panel body background to match Figma */
@@ -701,11 +724,15 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 /* Title */
 .ct-offcanvas-wishlist .wishlist-item-title,
 .wishlist-recommendations .recommendation-item-title {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-size: 16px;
-    font-weight: 600;
     line-height: 1.4;
-    color: var(--theme-text-color, #333);
+    color: #242424;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+    /* 155.556% */
 }
 
 .ct-offcanvas-wishlist .wishlist-item-title a,
@@ -729,15 +756,20 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     font-size: 16px;
     font-weight: 700;
     color: var(--theme-text-color, #333);
-    margin-bottom: 12px;
 }
 
 .ct-offcanvas-wishlist .wishlist-item-price del,
 .wishlist-recommendations .recommendation-item-price del {
-    color: #999;
-    font-weight: 400;
+
     margin-right: 8px;
+    color: #4E594D;
+    text-align: right;
     font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    /* 114.286% */
+    text-decoration-line: line-through;
 }
 
 .ct-offcanvas-wishlist .wishlist-item-price ins,
@@ -745,6 +777,7 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     text-decoration: none;
     color: var(--wishlist-foreground);
     font-weight: 700;
+    font-size: 18px;
 }
 
 .ct-offcanvas-wishlist .wishlist-item-price .woocommerce-Price-amount,
@@ -810,7 +843,6 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     .ct-offcanvas-wishlist .wishlist-item-title,
     .wishlist-recommendations .recommendation-item-title {
         font-size: 14px;
-        margin-bottom: 6px;
     }
 
     .ct-offcanvas-wishlist .wishlist-item-price,
