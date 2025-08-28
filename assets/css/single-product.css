@@ -119,6 +119,14 @@
   font-weight: bold;
 }
 
+.products .product .ct-woo-card-actions a.loading {
+  background-color: #eee !important;
+}
+
+.products .product .ct-woo-card-actions a.added_to_cart {
+  display: none !important;
+}
+
 @media screen and (max-width: 768px) {
   .products .product .ct-woo-card-actions a {
     font-size: 14px;
@@ -129,14 +137,6 @@
 
 .products .product .price .sale-price {
   flex-flow: row-reverse;
-}
-
-.products .product .woocommerce-LoopProduct-link {
-  color: var(--theme-palette-color-11);
-}
-
-.products .product .add_to_cart_button {
-  background-color: var(--theme-palette-color-11);
 }
 
 .products .product .ct-woo-card-extra {
