@@ -23,8 +23,8 @@ class DatabaseValidationTest extends TestCase
     {
         // Database connection configuration
         $host = getenv('DB_HOST') ?: 'localhost';
-        $username = getenv('DB_USER') ?: 'root';
-        $password = getenv('DB_PASSWORD') ?: '';
+        $username = getenv('DB_USER') ?: '[REPLACE_WITH_DB_USER]';
+        $password = getenv('DB_PASSWORD') ?: '[REPLACE_WITH_DB_PASSWORD]';
         $port = getenv('DB_PORT') ?: '3306';
         
         try {

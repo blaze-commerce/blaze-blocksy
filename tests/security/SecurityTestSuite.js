@@ -10,7 +10,7 @@ const axios = require('axios');
 const { expect } = require('@jest/globals');
 
 describe('Security Testing Framework', () => {
-  const baseURL = process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud';
+  const baseURL = process.env.API_BASE_URL || 'https://your-wordpress-site.com';
   let client;
   
   beforeAll(() => {

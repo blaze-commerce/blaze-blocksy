@@ -10,7 +10,7 @@ const axios = require('axios');
 
 // Global test configuration
 global.API_CONFIG = {
-  baseURL: process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud',
+  baseURL: process.env.API_BASE_URL || 'https://your-wordpress-site.com',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -28,8 +28,8 @@ global.WC_CONFIG = {
 
 // Test user credentials
 global.TEST_CREDENTIALS = {
-  email: process.env.TEST_USER_EMAIL || 'hello@blazecommerce.io',
-  password: process.env.TEST_USER_PASSWORD || 'nx$9G2AG1zu2x&d4'
+  email: process.env.TEST_USER_EMAIL || 'test@example.com',
+  password: process.env.TEST_USER_PASSWORD || 'test-password'
 };
 
 // Global axios instance for API calls
@@ -66,7 +66,7 @@ global.testUtils = {
    * Generate random email
    */
   generateRandomEmail: () => {
-    return `test-${global.testUtils.generateRandomString()}@blazecommerce.io`;
+    return `test-${global.testUtils.generateRandomString()}@example.com`;
   },
   
   /**

@@ -36,11 +36,11 @@ module.exports = {
   
   // Global variables for API testing
   globals: {
-    API_BASE_URL: process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud',
+    API_BASE_URL: process.env.API_BASE_URL || 'https://your-wordpress-site.com',
     WC_CONSUMER_KEY: process.env.WC_CONSUMER_KEY || '',
     WC_CONSUMER_SECRET: process.env.WC_CONSUMER_SECRET || '',
-    TEST_USER_EMAIL: process.env.TEST_USER_EMAIL || 'hello@blazecommerce.io',
-    TEST_USER_PASSWORD: process.env.TEST_USER_PASSWORD || 'nx$9G2AG1zu2x&d4'
+    TEST_USER_EMAIL: process.env.TEST_USER_EMAIL || 'test@example.com',
+    TEST_USER_PASSWORD: process.env.TEST_USER_PASSWORD || 'test-password'
   },
   
   // Transform configuration

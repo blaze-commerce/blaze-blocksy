@@ -10,7 +10,7 @@ const SecurityBaseline = require('./SecurityBaseline');
 
 // Global security testing configuration
 global.SECURITY_CONFIG = {
-  baseURL: process.env.API_BASE_URL || 'https://stg-infinitytargetscom-sitebuild.kinsta.cloud',
+  baseURL: process.env.API_BASE_URL || 'https://your-wordpress-site.com',
   timeout: 30000,
   enableVulnerabilityScan: process.env.ENABLE_VULNERABILITY_SCAN === 'true',
   maxRetries: 3,

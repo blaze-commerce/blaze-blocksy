@@ -48,15 +48,15 @@ Integrate all advanced testing frameworks into a comprehensive CI/CD pipeline fo
 ### GitHub Repository Secrets:
 ```bash
 # Staging Environment
-STAGING_URL=https://stg-infinitytargetscom-sitebuild.kinsta.cloud
+STAGING_URL=https://your-wordpress-site.com
 
 # WooCommerce API Credentials
 WC_CONSUMER_KEY=ck_your_consumer_key_here
 WC_CONSUMER_SECRET=cs_your_consumer_secret_here
 
 # Test User Credentials
-TEST_USER_EMAIL=hello@blazecommerce.io
-TEST_USER_PASSWORD=nx$9G2AG1zu2x&d4
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=test-password
 
 # Optional: Lighthouse CI GitHub App Token
 LHCI_GITHUB_APP_TOKEN=your_lighthouse_github_app_token
