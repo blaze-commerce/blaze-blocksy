@@ -65,3 +65,18 @@ composer.lock
 .eslintcache
 .stylelintcache
 phpunit.xml
+
+# Images and Media Files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.webp
+*.ico
+*.avif
+*.heic
+*.heif
