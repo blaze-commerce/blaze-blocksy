@@ -1,7 +1,8 @@
 name: Auto-Merge Version Bump PRs
 
-# This workflow automatically merges version bump PRs created by the automation bot
+# This workflow automatically enables auto-merge for version bump PRs created by the automation bot
 # after validating that all required checks pass and there are no merge conflicts.
+# The PR will be merged automatically once all branch protection requirements are satisfied.
 #
 # Security: Only runs for PRs created by blazecommerce-automation-bot[bot]
 # Reliability: Includes comprehensive null checking for GitHub API responses
@@ -232,20 +233,20 @@ jobs:
           PR_NUMBER="${{ github.event.pull_request.number }}"
           VERSION="${{ steps.validate-pr.outputs.version }}"
           
-          echo "🚀 Auto-merging version bump PR #$PR_NUMBER (v$VERSION)"
+          echo "🚀 Enabling auto-merge for version bump PR #$PR_NUMBER (v$VERSION)"
           
           # Add a comment explaining the auto-merge
-          COMMENT="🤖 **Automated Merge**
+          COMMENT="🤖 **Auto-Merge Enabled**
 
-          This version bump PR is being automatically merged as part of the release automation process.
+          This version bump PR has been queued for automatic merge as part of the release automation process.
 
           **Details:**
           - 📦 **Version**: $VERSION
-          - ✅ **All checks passed**: Required CI/CD checks completed successfully
+          - ✅ **Checks status**: Required CI/CD checks completed successfully
           - 🔄 **No conflicts**: PR is mergeable without conflicts
-          - 🕒 **Merged at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          - ⏰ **Auto-merge enabled at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
-          This ensures the version bump is applied immediately after the release process completes.
+          The PR will be automatically merged once all branch protection requirements are satisfied (approvals, status checks, etc.).
 
           ---
           *This action was performed automatically by the [auto-merge workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-version-bumps.yml).*"
@@ -253,34 +254,37 @@ jobs:
           # Add comment to PR
           gh pr comment "$PR_NUMBER" --body "$COMMENT"
           
-          # Merge the PR using squash merge
-          gh pr merge "$PR_NUMBER" --squash --delete-branch
+          # Enable auto-merge for the PR using squash merge
+          # This respects branch protection rules and will merge automatically
+          # once all required checks pass and approvals are obtained
+          gh pr merge "$PR_NUMBER" --squash --delete-branch --auto
           
-          echo "✅ Successfully auto-merged PR #$PR_NUMBER"
-          echo "merged=true" >> $GITHUB_OUTPUT
-          echo "merged-version=$VERSION" >> $GITHUB_OUTPUT
+          echo "✅ Successfully enabled auto-merge for PR #$PR_NUMBER"
+          echo "auto-merge-enabled=true" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Post-merge cleanup
-        if: steps.auto-merge.outputs.merged == 'true'
+      - name: Post-merge setup
+        if: steps.auto-merge.outputs.auto-merge-enabled == 'true'
         env:
           GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           set -euo pipefail
-          
-          VERSION="${{ steps.auto-merge.outputs.merged-version }}"
-          
-          echo "🧹 Running post-merge cleanup for version $VERSION"
-          
+
+          VERSION="${{ steps.auto-merge.outputs.version }}"
+
+          echo "🧹 Auto-merge enabled for version $VERSION"
+
           # The cleanup-outdated-version-bumps workflow will handle
-          # cleaning up any other outdated version bump PRs
-          echo "✅ Auto-merge completed, cleanup workflow will handle outdated PRs"
+          # cleaning up any other outdated version bump PRs after merge completes
+          echo "✅ Auto-merge enabled, cleanup workflow will handle outdated PRs after merge"
 
       - name: Notify on success
         if: success()
         run: |
-          echo "🎉 Version bump PR auto-merge completed successfully!"
+          echo "🎉 Version bump PR auto-merge enabled successfully!"
           echo "📦 Version: ${{ steps.validate-pr.outputs.version }}"
           echo "🔗 PR: https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          echo "⏰ The PR will be automatically merged once all branch protection requirements are satisfied."
 
       - name: Notify on failure
         if: failure()
@@ -299,6 +303,7 @@ jobs:
           **Possible reasons:**
           - CI/CD checks failed or timed out
           - Merge conflicts detected
+          - Branch protection requirements not met (missing approvals, status checks, etc.)
           - GitHub API issues
           - Insufficient permissions
 

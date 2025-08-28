@@ -7,29 +7,131 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Enhanced changelog generation system with automatic categorization from conventional commits
+- Comprehensive changelog generation script (`scripts/generate-changelog.py`) for manual use
+- Detailed documentation for changelog maintenance and best practices
+
+### Changed
+- Improved release workflow to automatically generate detailed changelog sections when [Unreleased] is empty
+- Enhanced Python script in release workflow to parse conventional commits and categorize changes
+- Updated changelog generation to preserve manual entries while providing automatic fallback
+
+### Fixed
+- Changelog generation issue where versions after 2.0.3 had empty sections
+- Missing categorized information (Added, Changed, Fixed, Documentation, etc.) in recent releases
+- Workflow dependency on manual changelog maintenance that was causing empty release notes
+
+### Documentation
+- Added `docs/CHANGELOG-GENERATION.md` with comprehensive guide for developers
+- Updated workflow documentation to explain new automatic changelog generation
+- Provided examples and best practices for conventional commits and manual changelog entries
+
 ## [1.15.0] - 2025-08-28
 
 ## [1.14.0] - 2025-08-28
 
 ## [1.13.0] - 2025-08-28
 
+### Added
+- Comprehensive testing framework implementation with code review enhancements
+- Checkout sidebar widget area with security improvements
+
 ## [1.12.0] - 2025-08-28
+
+### Added
+- Checkout sidebar widget area with security improvements
+
+### Changed
+- Updated my-account custom CSS styling
+
+### Fixed
+- Circular dependency in auto-merge workflow that caused PR #48 failure
 
 ## [1.11.0] - 2025-08-28
 
+### Added
+- Auto-merge workflow integration with BlazeCommerce automation bot for version bump PRs
+
+### Changed
+- Updated my-account custom CSS styling
+- Optimized admin performance by removing emoji scripts
+- Verified auto-merge workflow functionality
+
+### Fixed
+- Circular dependency in auto-merge workflow that caused PR #48 failure
+
 ## [1.10.0] - 2025-08-28
+
+### Added
+- Auto-merge workflow integration with BlazeCommerce automation bot for version bump PRs
+- Standardized address grid layout and updated CSS naming convention
+
+### Changed
+- Optimized admin performance by removing emoji scripts
+- Verified auto-merge workflow functionality
+- Fixed header z-index for mobile menu
+
+### Fixed
+- GitHub Actions workflow authentication failure
 
 ## [1.9.0] - 2025-08-27
 
+### Added
+- Standardized address grid layout and updated CSS naming convention
+- Critical security fixes and performance optimizations for WooCommerce thank you page asset loading
+- Workflow fix documentation to README
+- Three-tier responsive layout for thank-you page container
+- Automated cleanup system for outdated version bump PRs
+- Comprehensive semantic versioning workflow with automated validation
+- WordPress theme ZIP structure improvements for consistent folder naming
+
+### Changed
+- Fixed header z-index for mobile menu
+
+### Fixed
+- GitHub Actions workflow authentication failure
+- GitHub Actions workflow failure with existing tags (multiple instances)
+- YAML syntax error and regex patterns in cleanup workflow
+- Bash arithmetic operation failure in PR validation workflow
+- Excluded .augmentignore and backup files from release ZIP
+
+### Security
+- Excluded shell scripts and executable files from release ZIP
+
 ## [1.8.0] - 2025-08-27
+
+### Added
+- My-account settings migration to WordPress Customizer with live preview
+
+### Changed
+- Enhanced my-account customization functionality
 
 ## [1.7.0] - 2025-08-27
 
+### Added
+- Enhanced thank you page styling and layout for Blaze Commerce
+
 ## [1.6.0] - 2025-08-27
+
+### Added
+- Complete Blaze Commerce thank you page implementation
+- Thank you page customization integration with WooCommerce for checkout enhancement
 
 ## [1.5.0] - 2025-08-26
 
+### Added
+- Checkout customizations integration with Blaze Commerce theme
+- Reorganized Augment rules configuration structure
+
 ## [1.4.0] - 2025-08-26
+
+### Added
+- Complete Blaze Commerce rebranding and critical fixes for thank you page (v2.0.3)
+
+### Documentation
+- Updated CHANGELOG.md with v2.0.3 Blaze Commerce branding release
+- Added comprehensive Blaze Commerce documentation and branding updates
 
 ## [2.0.3] - 2025-08-26
 
