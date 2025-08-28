@@ -232,12 +232,19 @@
 }
 
 /* Mini Cart Recommendations */
-.mini-cart-recommendations {
+.product_list_widget li.mini-cart-recommendations {
+  display: flex !important;
+  flex-flow: column;
   margin-top: 16px;
+}
+
+.recommendations-header {
+  width: 100%;
 }
 
 .recommendations-header h4 {
   margin: 0 0 24px 0;
+  width: 100%;
   font-size: 18px;
   line-height: 28px;
   font-weight: 500;
