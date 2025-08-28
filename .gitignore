@@ -73,6 +73,7 @@ src/
 # Test Artifacts and Coverage Reports
 coverage/
 test-results/
+test-release-validation/
 .phpunit.result.cache
 .phpunit.cache/
 .nyc_output/
