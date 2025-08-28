@@ -120,7 +120,8 @@ jobs:
             fi
 
             # Filter out excluded checks (our own workflow)
-            FILTERED_STATUS=$(echo "$PR_STATUS" | jq -r --arg excluded "$EXCLUDED_CHECKS" 'select(.context | test($excluded) | not)')
+            # Add null checks to prevent jq errors when context is null
+            FILTERED_STATUS=$(echo "$PR_STATUS" | jq -r --arg excluded "$EXCLUDED_CHECKS" 'select(.context != null and (.context | test($excluded) | not))')
 
             if [ -z "$FILTERED_STATUS" ]; then
               echo "ℹ️ No external status checks found (only auto-merge workflow), proceeding with merge"
@@ -129,14 +130,15 @@ jobs:
             fi
 
             # Check if all required checks have completed and passed
-            PENDING_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | .context' | wc -l)
-            FAILED_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | .context' | wc -l)
+            # Add null checks to prevent errors when status or context fields are null
+            PENDING_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | .context' | wc -l)
+            FAILED_CHECKS=$(echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "FAILURE" or .status == "ERROR")) | .context' | wc -l)
 
             echo "📊 Check status: $PENDING_CHECKS pending, $FAILED_CHECKS failed"
 
             if [ "$FAILED_CHECKS" -gt 0 ]; then
               echo "❌ Some checks have failed:"
-              echo "$FILTERED_STATUS" | jq -r 'select(.status == "FAILURE" or .status == "ERROR") | "  - " + .context + ": " + .status'
+              echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "FAILURE" or .status == "ERROR")) | "  - " + .context + ": " + .status'
               echo "checks-passed=false" >> $GITHUB_OUTPUT
               exit 1
             fi
@@ -148,7 +150,7 @@ jobs:
             fi
 
             echo "⏳ $PENDING_CHECKS external checks still pending, waiting..."
-            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+            echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | "  - " + .context + ": " + .status'
 
             sleep $CHECK_INTERVAL
             ELAPSED_TIME=$((ELAPSED_TIME + CHECK_INTERVAL))
@@ -157,7 +159,7 @@ jobs:
           if [ $ELAPSED_TIME -ge $MAX_WAIT_TIME ]; then
             echo "⏰ Timeout waiting for checks to complete"
             echo "Remaining pending checks:"
-            echo "$FILTERED_STATUS" | jq -r 'select(.status == "PENDING" or .status == "IN_PROGRESS") | "  - " + .context + ": " + .status'
+            echo "$FILTERED_STATUS" | jq -r 'select(.status != null and .context != null and (.status == "PENDING" or .status == "IN_PROGRESS")) | "  - " + .context + ": " + .status'
             echo "checks-passed=false" >> $GITHUB_OUTPUT
             exit 1
           fi
