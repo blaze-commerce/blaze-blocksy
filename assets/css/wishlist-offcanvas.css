@@ -131,7 +131,6 @@
 /* Responsive column adjustments */
 @media (max-width: 600px) {
     .ct-offcanvas-wishlist[data-columns="2"] .wishlist-items {
-        grid-template-columns: 1fr;
         gap: 16px;
     }
 }
@@ -214,7 +213,6 @@
     font-size: 16px;
     font-weight: 700;
     color: var(--theme-text-color, #333);
-    margin-bottom: 12px;
 }
 
 /* Style for sale prices with strikethrough */
@@ -247,7 +245,6 @@
     display: flex;
     gap: 8px;
     margin-top: auto;
-    padding-top: 8px;
 }
 
 .ct-offcanvas-wishlist .wishlist-item-actions .button,
@@ -300,7 +297,7 @@
 /* Empty wishlist state */
 .ct-offcanvas-wishlist .wishlist-empty {
     text-align: center;
-    padding: 40px 0px;
+    padding: 40px 0px 0px;
     color: var(--theme-text-color, #666);
 }
 
@@ -417,7 +414,6 @@
 
     .ct-offcanvas-wishlist .wishlist-item-price {
         font-size: 14px;
-        margin-bottom: 8px;
     }
 
     .ct-offcanvas-wishlist .wishlist-item-actions {
@@ -495,8 +491,8 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 
 @media (max-width: 600px) {
     .wishlist-guest-notice {
-        margin: 12px 12px 0 12px;
-        padding: 12px;
+        margin: 12px 0px;
+        padding: 12px 0px;
     }
 }
 
@@ -521,7 +517,7 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 
 .wishlist-recommendations .recommendations-grid {
     display: grid;
-    gap: 16px;
+    gap: 12px;
     grid-template-columns: repeat(2, 1fr);
 }
 
@@ -597,7 +593,6 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     font-size: 14px;
     font-weight: 700;
     color: var(--theme-text-color, #333);
-    margin-bottom: 8px;
 }
 
 .wishlist-recommendations .recommendation-item-price del {
@@ -644,7 +639,6 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
 /* Mobile responsiveness for recommendations */
 @media (max-width: 600px) {
     .wishlist-recommendations .recommendations-grid {
-        grid-template-columns: 1fr;
         gap: 12px;
     }
 
@@ -853,7 +847,6 @@ body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
     display: flex;
     gap: 8px;
     margin-top: auto;
-    padding-top: 8px;
 }
 
 .ct-offcanvas-wishlist .wishlist-item-actions .button,

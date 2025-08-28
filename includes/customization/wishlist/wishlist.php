@@ -256,6 +256,26 @@ class BlocksyChildWishlistOffCanvas {
 					'desc' => __( 'Upload an SVG or image to display when the wishlist is empty. Leave empty to show default cart icon.', 'blocksy-companion' ),
 				),
 
+				'wishlist_signup_button_url' => array(
+					'label' => __( 'Sign Up Button URL', 'blocksy-companion' ),
+					'type' => 'text',
+					'value' => '',
+					'attr' => array(
+						'placeholder' => wp_registration_url()
+					),
+					'desc' => __( 'Custom URL for the sign up button. Leave empty to use the default WordPress registration URL.', 'blocksy-companion' ),
+				),
+
+				'wishlist_signup_button_text' => array(
+					'label' => __( 'Sign Up Button Text', 'blocksy-companion' ),
+					'type' => 'text',
+					'value' => __( 'Sign Up', 'blocksy-companion' ),
+					'attr' => array(
+						'placeholder' => __( 'Sign Up', 'blocksy-companion' )
+					),
+					'desc' => __( 'Custom text for the sign up button.', 'blocksy-companion' ),
+				),
+
 				// Product Display Settings Section
 				blocksy_rand_md5() => array(
 					'type' => 'ct-title',
@@ -729,17 +749,22 @@ class BlocksyChildWishlistOffCanvas {
 				$html .= '<div class="wishlist-item-price">' . $price_html . '</div>';
 			}
 
-			$html .= '<div class="wishlist-item-actions">';
+			// Only show actions div if there are buttons to display
+			if ( ( $show_add_to_cart && $product->is_purchasable() ) || $show_remove ) {
+				$html .= '<div class="wishlist-item-actions">';
 
-			if ( $show_add_to_cart && $product->is_purchasable() ) {
-				$html .= '<button class="button add_to_cart_button" data-product_id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Add to cart', 'woocommerce' ) . '</button>';
+				if ( $show_add_to_cart && $product->is_purchasable() ) {
+					$html .= '<button class="button add_to_cart_button" data-product_id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Add to cart', 'woocommerce' ) . '</button>';
+				}
+
+				if ( $show_remove ) {
+					$html .= '<button class="ct-wishlist-remove" data-product-id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Remove', 'blocksy-companion' ) . '</button>';
+				}
+
+				$html .= '</div>';
 			}
 
-			if ( $show_remove ) {
-				$html .= '<button class="ct-wishlist-remove" data-product-id="' . esc_attr( $product_id ) . '">' . esc_html__( 'Remove', 'blocksy-companion' ) . '</button>';
-			}
-
-			$html .= '</div></div></div>';
+			$html .= '</div></div>';
 		}
 
 		$html .= '</div>';
@@ -809,12 +834,19 @@ class BlocksyChildWishlistOffCanvas {
 	 * Guest notice HTML shown to logged-out users
 	 */
 	private function get_guest_notice_html() {
-		$signup_url = wp_registration_url();
-		$login_url  = wp_login_url();
-		$notice     = '<div class="wishlist-guest-notice">'
+		$get_mod = function_exists( 'blocksy_get_theme_mod' ) ? 'blocksy_get_theme_mod' : 'get_theme_mod';
+
+		// Get custom settings or use defaults
+		$custom_signup_url = $get_mod( 'wishlist_signup_button_url', '' );
+		$signup_url        = ! empty( $custom_signup_url ) ? $custom_signup_url : wp_registration_url();
+
+		$signup_button_text = $get_mod( 'wishlist_signup_button_text', __( 'Sign Up', 'blocksy-companion' ) );
+
+		$login_url = wp_login_url();
+		$notice    = '<div class="wishlist-guest-notice">'
 			. '<p class="notice-text">' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>'
 			. '<div class="notice-actions">'
-			. '<a href="' . esc_url( $signup_url ) . '" class="button notice-signup">' . esc_html__( 'Sign Up', 'blocksy-companion' ) . '</a>'
+			. '<a href="' . esc_url( $signup_url ) . '" class="button notice-signup">' . esc_html( $signup_button_text ) . '</a>'
 			. '</div>'
 			. '</div>';
 
