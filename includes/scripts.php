@@ -1,5 +1,9 @@
 <?php
 
+// Ensure is_plugin_active() function is available
+if ( ! function_exists( 'is_plugin_active' ) ) {
+	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+}
 
 add_action( 'wp_enqueue_scripts', function () {
 
@@ -13,4 +17,17 @@ add_action( 'wp_enqueue_scripts', function () {
 		array( 'parent-style' )
 	);
 
+	// Enqueue footer style
+	wp_enqueue_style(
+		'blocksy-child-footer-style',
+		$template_uri . '/assets/css/footer.css',
+		array( 'parent-style' )
+	);
+
+	// Enqueue header style
+	wp_enqueue_style(
+		'blocksy-child-header-style',
+		$template_uri . '/assets/css/header.css',
+		array( 'parent-style' )
+	);
 } );
