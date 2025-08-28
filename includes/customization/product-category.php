@@ -35,13 +35,19 @@ add_action( 'wp_footer', function () {
 			const updateCounters = function () {
 				const resultCountEl = document.querySelector('.woocommerce-result-count');
 				const productsContainer = document.querySelector('.products');
-				const navCountEl = document.querySelector('.ct-product-category-count');
+				let navCountEl = document.querySelector('.ct-product-category-count');
+
+				// Ensure navigation counter element exists
+				if (!navCountEl && $('.ct-pagination').length > 0) {
+					$('.ct-pagination').prepend('<div class="ct-product-category-count"></div>');
+					navCountEl = document.querySelector('.ct-product-category-count');
+				}
 
 				if (!resultCountEl || !productsContainer) {
 					return;
 				}
 
-				const currentProducts = productsContainer.querySelectorAll('.product').length;
+				const currentProducts = productsContainer.querySelectorAll('.product:not(.hidden)').length;
 				const originalText = resultCountEl.textContent;
 				const totalMatch = originalText.match(/of\s+(\d+)/i);
 
@@ -56,17 +62,23 @@ add_action( 'wp_footer', function () {
 					if (navCountEl) {
 						navCountEl.textContent = newText;
 					}
-
-					<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-					console.log('[BlazeBlocksy LoadMore] Updated counters:', currentProducts + '/' + totalCount);
-					<?php endif; ?>
+				} else {
+					// Fallback: use the original text if no match found
+					if (navCountEl) {
+						navCountEl.textContent = originalText;
+					}
 				}
 			};
 
 			/**
-			 * Display initial product count
+			 * Display initial product count and ensure element exists
 			 */
 			const displayProductCount = function () {
+				// Ensure the element exists
+				if ($('.ct-product-category-count').length === 0) {
+					$('.ct-pagination').prepend('<div class="ct-product-category-count"></div>');
+				}
+
 				const theText = $('.woocommerce-result-count').text();
 				$('.ct-product-category-count').text(theText);
 			};
@@ -95,35 +107,25 @@ add_action( 'wp_footer', function () {
 				displayProductCount();
 
 				// Initialize load more counter functionality
-				<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-				console.log('[BlazeBlocksy LoadMore] Initializing load more counter');
-				<?php endif; ?>
-
 				// Listen for Blocksy theme events
 				if (window.ctEvents) {
-					<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-					console.log('[BlazeBlocksy LoadMore] Blocksy ctEvents found, binding events');
-					<?php endif; ?>
 
 					// Primary event for infinite scroll load
-					ctEvents.on('ct:infinite-scroll:load', function() {
+					ctEvents.on('ct:infinite-scroll:load', function () {
 						setTimeout(debouncedUpdateCounters, 500);
 					});
 
 					// Secondary event for frontend initialization
-					ctEvents.on('blocksy:frontend:init', function() {
+					ctEvents.on('blocksy:frontend:init', function () {
 						setTimeout(debouncedUpdateCounters, 500);
 					});
 				}
 
 				// Fallback: Listen for Load More button clicks
-				$(document).on('click', '.ct-load-more', function() {
-					<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-					console.log('[BlazeBlocksy LoadMore] Load More button clicked');
-					<?php endif; ?>
+				$(document).on('click', '.ct-load-more', function () {
 
 					// Wait for AJAX to complete and DOM to update
-					setTimeout(function() {
+					setTimeout(function () {
 						debouncedUpdateCounters();
 					}, 1000);
 				});
@@ -131,20 +133,17 @@ add_action( 'wp_footer', function () {
 				// Fallback: MutationObserver for DOM changes
 				const productsContainer = document.querySelector('.products');
 				if (productsContainer) {
-					<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-					console.log('[BlazeBlocksy LoadMore] Setting up MutationObserver');
-					<?php endif; ?>
 
-					const observer = new MutationObserver(function(mutations) {
+					const observer = new MutationObserver(function (mutations) {
 						let shouldUpdate = false;
 
-						mutations.forEach(function(mutation) {
+						mutations.forEach(function (mutation) {
 							if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
 								// Check if any added nodes are product items
 								for (let node of mutation.addedNodes) {
 									if (node.nodeType === Node.ELEMENT_NODE &&
 										(node.classList.contains('product') ||
-										 node.querySelector && node.querySelector('.product'))) {
+											node.querySelector && node.querySelector('.product'))) {
 										shouldUpdate = true;
 										break;
 									}
@@ -153,9 +152,6 @@ add_action( 'wp_footer', function () {
 						});
 
 						if (shouldUpdate) {
-							<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ): ?>
-							console.log('[BlazeBlocksy LoadMore] Products container changed, updating counters');
-							<?php endif; ?>
 							debouncedUpdateCounters();
 						}
 					});
@@ -167,8 +163,62 @@ add_action( 'wp_footer', function () {
 				}
 
 				// Listen for WooCommerce events
-				$(document.body).on('wc_fragments_refreshed', function() {
+				$(document.body).on('wc_fragments_refreshed', function () {
 					setTimeout(debouncedUpdateCounters, 300);
+				});
+
+				// Listen for filter plugin events
+				const filterEvents = [
+					'berocket_ajax_filtering_end',    // BeRocket AJAX Product Filters
+					'yith-wcan-ajax-filtered',        // YITH WooCommerce Ajax Product Filter
+					'facetwp-loaded',                 // FacetWP
+					'jet-filter-content-rendered',    // Jet Smart Filters
+					'wpf_ajax_success',               // WooCommerce Product Filter
+					'sf:ajaxfinish',                  // SearchAndFilter
+					'prdctfltr-reload',               // Product Filter Pro
+					'blocksy:ajax:filters:done',      // Blocksy theme filters
+					'wc_fragments_loaded',            // WooCommerce fragments
+					'updated_wc_div',                 // WooCommerce div updates
+					'woocommerce_update_checkout'     // WooCommerce checkout updates
+				];
+
+				// Bind filter events
+				filterEvents.forEach(function (eventName) {
+					$(document).on(eventName, function () {
+						// Different plugins need different delays
+						const delays = {
+							'berocket_ajax_filtering_end': 100,
+							'yith-wcan-ajax-filtered': 200,
+							'facetwp-loaded': 50,
+							'jet-filter-content-rendered': 150,
+							'wpf_ajax_success': 100,
+							'sf:ajaxfinish': 100,
+							'blocksy:ajax:filters:done': 50,
+							'wc_fragments_loaded': 200,
+							'updated_wc_div': 150
+						};
+
+						const delay = delays[eventName] || 100;
+						setTimeout(function () {
+							displayProductCount(); // Ensure element exists
+							debouncedUpdateCounters();
+						}, delay);
+					});
+				});
+
+				// Additional fallback for generic AJAX complete
+				$(document).ajaxComplete(function (event, xhr, settings) {
+					// Check if this is a filter-related AJAX call
+					if (settings.url && (
+						settings.url.includes('wc-ajax') ||
+						settings.url.includes('admin-ajax') ||
+						settings.url.includes('filter')
+					)) {
+						setTimeout(function () {
+							displayProductCount();
+							debouncedUpdateCounters();
+						}, 200);
+					}
 				});
 			});
 		})(jQuery)
