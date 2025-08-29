@@ -660,34 +660,6 @@ function blocksy_child_is_thank_you_page() {
 }
 
 /**
- * Enqueue thank you page assets with enhanced detection
- *
- * @since 2.0.3
- */
-function blocksy_child_enqueue_thank_you_assets() {
-	if ( blocksy_child_is_thank_you_page() ) {
-		wp_enqueue_style(
-			'blocksy-child-thank-you-css',
-			get_stylesheet_directory_uri() . '/assets/css/thank-you.css',
-			array(),
-			'2.0.3'
-		);
-
-		wp_enqueue_script(
-			'blocksy-child-thank-you-js',
-			get_stylesheet_directory_uri() . '/assets/js/thank-you.js',
-			array( 'jquery' ),
-			'2.0.3',
-			true
-		);
-
-		// Add inline script for immediate visibility fix and order summary toggle
-		wp_add_inline_script(
-			'blocksy-child-thank-you-js',
-			'
-            // CRITICAL FIX: Ensure Blaze Commerce elements are visible immediately
-
-/**
  * Get file version for cache busting with proper validation
  *
  * @param string $file_path Absolute file path
