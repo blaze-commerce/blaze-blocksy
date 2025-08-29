@@ -4,6 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Direct access forbidden.' );
 }
 
+define( 'BLAZE_BLOCKSY_URL', get_stylesheet_directory_uri() );
+define( 'BLAZE_BLOCKSY_PATH', get_stylesheet_directory() );
+
+
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
 	'plugins_loaded',
@@ -22,12 +26,12 @@ add_action(
 // Fix REST API permissions for shop_coupon
 add_filter(
 	'rest_pre_dispatch',
-	function ( $result, $server, $request ) {
+	function ($result, $server, $request) {
 		$route = $request->get_route();
 		if (
-		strpos( $route, '/wp/v2/shop_coupon' ) !== false ||
-		strpos( $route, '/wc/v3/coupons' ) !== false ||
-		strpos( $route, '/wp/v2/types/shop_coupon' ) !== false
+			strpos( $route, '/wp/v2/shop_coupon' ) !== false ||
+			strpos( $route, '/wc/v3/coupons' ) !== false ||
+			strpos( $route, '/wp/v2/types/shop_coupon' ) !== false
 		) {
 			if ( current_user_can( 'manage_woocommerce' ) ) {
 				return null; // Allow the request to proceed
@@ -42,7 +46,7 @@ add_filter(
 // Ensure proper REST API capabilities
 add_filter(
 	'rest_shop_coupon_query',
-	function ( $args, $request ) {
+	function ($args, $request) {
 		if ( current_user_can( 'manage_woocommerce' ) ) {
 			$args['post_status'] = array( 'publish', 'draft', 'pending' );
 		}
@@ -59,8 +63,8 @@ add_action(
 		add_post_type_support( 'shop_coupon', 'custom-fields' );
 		global $wp_post_types;
 		if ( isset( $wp_post_types['shop_coupon'] ) ) {
-			$wp_post_types['shop_coupon']->show_in_rest          = true;
-			$wp_post_types['shop_coupon']->rest_base             = 'shop_coupon';
+			$wp_post_types['shop_coupon']->show_in_rest = true;
+			$wp_post_types['shop_coupon']->rest_base = 'shop_coupon';
 			$wp_post_types['shop_coupon']->rest_controller_class = 'WP_REST_Posts_Controller';
 		}
 	},
@@ -70,7 +74,7 @@ add_action(
 // Add REST API endpoints support
 add_filter(
 	'rest_endpoints',
-	function ( $endpoints ) {
+	function ($endpoints) {
 		if ( isset( $endpoints['/wp/v2/types/shop_coupon'] ) ) {
 			$endpoints['/wp/v2/types/shop_coupon'][0]['permission_callback'] = function () {
 				return current_user_can( 'manage_woocommerce' );
@@ -81,63 +85,33 @@ add_filter(
 );
 
 // Enqueue theme styles and scripts with enhanced error handling
-$scripts_file = get_stylesheet_directory() . '/includes/scripts.php';
-if ( file_exists( $scripts_file ) && is_readable( $scripts_file ) ) {
-	try {
-		require_once $scripts_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load scripts file: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Scripts file not found or not readable: ' . $scripts_file );
-}
+$required_files = [ 
+	'/includes/scripts.php',
+	'/includes/features/shipping.php',
+	'/includes/features/product-information.php',
+	'/includes/customization/fibo-search-suggestions.php',
+	'/includes/customization/thank-you-page.php',
+	'/includes/customization/my-account.php',
+	'/includes/customization/judgeme.php',
+	'/includes/customization/mini-cart.php',
+	'/includes/customization/related-carousel.php',
+	'/includes/customization/product-category.php',
+	'/includes/customization/recently-viewed-products.php',
+];
 
-// Fibo search customization with enhanced error handling
-$fibo_search_file = get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
-if ( file_exists( $fibo_search_file ) && is_readable( $fibo_search_file ) ) {
-	try {
-		require_once $fibo_search_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load fibo search customization: ' . $e->getMessage() );
+foreach ( $required_files as $file ) {
+	$file_path = get_stylesheet_directory() . $file;
+	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
+		try {
+			require_once $file_path;
+		} catch (Error $e) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
+			}
 		}
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( 'BlazeCommerce: File not found: ' . $file_path );
 	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Fibo search file not found or not readable: ' . $fibo_search_file );
-}
-
-// Thank you page customizations with enhanced error handling
-$thank_you_file = get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
-if ( file_exists( $thank_you_file ) && is_readable( $thank_you_file ) ) {
-	try {
-		require_once $thank_you_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load thank you page customization: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: Thank you page file not found or not readable: ' . $thank_you_file );
-}
-
-// My Account page customizations with enhanced error handling
-$my_account_file = get_stylesheet_directory() . '/includes/customization/my-account.php';
-if ( file_exists( $my_account_file ) && is_readable( $my_account_file ) ) {
-	try {
-		require_once $my_account_file;
-	} catch ( Error $e ) {
-		// Log error but don't break the site
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'BlazeCommerce: Failed to load my account customization: ' . $e->getMessage() );
-		}
-	}
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'BlazeCommerce: My account file not found or not readable: ' . $my_account_file );
 }
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
