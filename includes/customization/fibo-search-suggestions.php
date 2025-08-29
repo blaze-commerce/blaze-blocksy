@@ -168,7 +168,7 @@ add_action(
 
 		});
 	</script>
-		<?php
+	<?php
 	},
 	999
 );
