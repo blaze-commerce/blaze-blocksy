@@ -216,12 +216,55 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 }
 
 /**
+ * Add field URL to Blocksy cart customizer options
+ */
+add_filter( 'blocksy:options:retrieve', function ($options, $path, $pass_inside) {
+	// Check if this is the cart options file
+	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
+		return $options;
+	}
+
+	// Add custom options to cart settings
+	$custom_options = array(
+		'bmcu_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_section_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Custom URL Settings', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_help_url' => array(
+			'label' => __( 'Help Link URL', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '/contact',
+			'design' => 'block',
+			'desc' => __( 'Enter URL for the "Need Help?" link in mini cart.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+	);
+
+	// Merge our options with existing options
+	return array_merge( $options, $custom_options );
+}, 10, 3 );
+
+/**
  * Add "Need Help?" link after mini cart
  */
 add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
+	// Get URL from Blocksy cart options
+	if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
+		$header = new Blocksy_Header_Builder_Render();
+		$atts = $header->get_item_data_for( 'cart' );
+		$help_url = blocksy_akg( 'mini_cart_help_url', $atts, '/contact' );
+	} else {
+		$help_url = '/contact'; // Fallback
+	}
 	?>
 	<div class="mini-cart-help">
-		<a href="/contact" class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
+		<a href="<?php echo esc_url( $help_url ); ?>"
+			class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
 	</div>
 	<?php
 }, 10 );
