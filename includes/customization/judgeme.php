@@ -16,6 +16,10 @@ add_filter( 'woocommerce_product_tabs', function (array $tabs) {
 
 function blaze_blocksy_render_judgeme_tab() {
 	global $product;
+
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+		return;
+	}
 	?>
 	<h2>Customer Review</h2>
 	<div>

@@ -7,7 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $product;
 
 if ( ! $product || ! method_exists( $product, 'get_name' ) ) {
-	do_action( 'qm/info', [ 'product' => $product ] );
 	return;
 }
 

@@ -85,18 +85,34 @@ add_filter(
 );
 
 // Enqueue theme styles and scripts with enhanced error handling
-require_once get_stylesheet_directory() . '/includes/scripts.php';
+$required_files = [ 
+	'/includes/scripts.php',
+	'/includes/features/shipping.php',
+	'/includes/features/product-information.php',
+	'/includes/customization/fibo-search-suggestions.php',
+	'/includes/customization/thank-you-page.php',
+	'/includes/customization/my-account.php',
+	'/includes/customization/judgeme.php',
+	'/includes/customization/mini-cart.php',
+	'/includes/customization/related-carousel.php',
+	'/includes/customization/product-category.php',
+	'/includes/customization/recently-viewed-products.php',
+];
 
-require_once get_stylesheet_directory() . '/includes/features/shipping.php';
-require_once get_stylesheet_directory() . '/includes/features/product-information.php';
-require_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
-require_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
-require_once get_stylesheet_directory() . '/includes/customization/my-account.php';
-require_once get_stylesheet_directory() . '/includes/customization/judgeme.php';
-require_once get_stylesheet_directory() . '/includes/customization/mini-cart.php';
-require_once get_stylesheet_directory() . '/includes/customization/related-carousel.php';
-require_once get_stylesheet_directory() . '/includes/customization/product-category.php';
-require_once get_stylesheet_directory() . '/includes/customization/recently-viewed-products.php';
+foreach ( $required_files as $file ) {
+	$file_path = get_stylesheet_directory() . $file;
+	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
+		try {
+			require_once $file_path;
+		} catch (Error $e) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
+			}
+		}
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( 'BlazeCommerce: File not found: ' . $file_path );
+	}
+}
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
 add_action(

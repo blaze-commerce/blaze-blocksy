@@ -41,8 +41,6 @@ if ( function_exists( 'blc_get_ext' ) ) {
 		$wishlist_instance = blc_get_ext( 'woocommerce-extra' )->get_wish_list();
 		$wishlist_items = $wishlist_instance->get_current_wish_list();
 
-		do_action( 'qm/info', [ 'wishlist' => $wishlist_items ] );
-
 		if ( ! empty( $wishlist_items ) ) {
 			$wishlist_items = array_map( function ($item) {
 				return $item['id'];
