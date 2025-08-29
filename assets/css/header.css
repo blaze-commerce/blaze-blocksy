@@ -11,10 +11,14 @@
 	z-index: 1000 !important;
 }
 
+#header .ct-header-content-block .stk-block {
+	margin-bottom: 0px;
+}
 
 /* Mobile Off-Canvas Menu Fix */
 /* Ensure off-canvas menu appears above header on mobile */
 @media (max-width: 999px) {
+
 	/* Off-canvas overlay */
 	.ct-panel-inner {
 		z-index: 1001 !important;
