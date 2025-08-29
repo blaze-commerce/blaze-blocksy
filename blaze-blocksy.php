@@ -84,7 +84,6 @@ include_once 'includes/customization/fibo-search-suggestions.php';
 include_once 'includes/customization/judgeme.php';
 include_once 'includes/customization/mini-cart.php';
 include_once 'includes/customization/related-carousel.php';
-include_once 'includes/customization/price-installment.php';
 include_once 'includes/customization/product-category.php';
 include_once 'includes/customization/recently-viewed-products.php';
 

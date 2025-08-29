@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+return;
+
 /**
  * Add custom JavaScript to work with existing heading structure
  */

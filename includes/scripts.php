@@ -1,6 +1,6 @@
 <?php
 
-
+return;
 add_action( 'wp_enqueue_scripts', function () {
 
 	// $template_uri = get_stylesheet_directory_uri();
