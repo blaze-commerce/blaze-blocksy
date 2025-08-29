@@ -222,7 +222,7 @@ class Blocksy_Child_Blaze_My_Account {
 			}
 
 			// Fallback: Load on any page that might be WooCommerce related
-			$current_url = $_SERVER['REQUEST_URI'] ?? '';
+			$current_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( ! empty( $current_url ) ) {
 				if ( strpos( $current_url, 'my-account' ) !== false ||
 					strpos( $current_url, 'account' ) !== false ||

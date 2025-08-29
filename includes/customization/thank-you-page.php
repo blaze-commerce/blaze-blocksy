@@ -530,11 +530,16 @@ function blocksy_child_handle_account_creation_from_order() {
 		return;
 	}
 
-	$order_id = intval( $_POST['order_id'] );
-	$order    = wc_get_order( $order_id );
+	$order_id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+
+	if ( ! $order_id ) {
+		wp_die( esc_html__( 'Invalid order ID.', 'blocksy' ), esc_html__( 'Error', 'blocksy' ), array( 'response' => 400 ) );
+	}
+
+	$order = wc_get_order( $order_id );
 
 	if ( ! $order ) {
-		return;
+		wp_die( esc_html__( 'Order not found.', 'blocksy' ), esc_html__( 'Error', 'blocksy' ), array( 'response' => 404 ) );
 	}
 
 	$first_name = sanitize_text_field( $_POST['account_first_name'] );
@@ -653,34 +658,6 @@ function blocksy_child_is_thank_you_page() {
 
     return false;
 }
-
-/**
- * Enqueue thank you page assets with enhanced detection
- *
- * @since 2.0.3
- */
-function blocksy_child_enqueue_thank_you_assets() {
-	if ( blocksy_child_is_thank_you_page() ) {
-		wp_enqueue_style(
-			'blocksy-child-thank-you-css',
-			get_stylesheet_directory_uri() . '/assets/css/thank-you.css',
-			array(),
-			'2.0.3'
-		);
-
-		wp_enqueue_script(
-			'blocksy-child-thank-you-js',
-			get_stylesheet_directory_uri() . '/assets/js/thank-you.js',
-			array( 'jquery' ),
-			'2.0.3',
-			true
-		);
-
-		// Add inline script for immediate visibility fix and order summary toggle
-		wp_add_inline_script(
-			'blocksy-child-thank-you-js',
-			'
-            // CRITICAL FIX: Ensure Blaze Commerce elements are visible immediately
 
 /**
  * Get file version for cache busting with proper validation

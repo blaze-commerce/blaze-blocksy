@@ -1,11 +1,88 @@
 # Blocksy Child Theme - Blaze Commerce Edition
 
-A WordPress child theme for Blocksy by BlazeCommerce with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
+A **site-agnostic** and **portable** WordPress child theme for Blocksy with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
+
+> **✅ All site-specific references removed - Ready for deployment on any WordPress site**
+
+## 🚀 Quick Start
+
+This theme is designed to be **completely portable** across different WordPress installations. All hardcoded URLs, domain references, and site-specific configurations have been removed and replaced with configurable environment variables.
+
+### Prerequisites
+
+- WordPress 5.0+
+- Blocksy parent theme
+- PHP 7.4+
+- Node.js 16+ (for development)
+- Composer (for PHP dependencies)
+
+### Installation
+
+1. **Download** the theme files
+2. **Upload** to your WordPress site via Admin → Appearance → Themes → Add New → Upload Theme
+3. **Activate** the child theme
+4. **Configure** environment variables (see Configuration section below)
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure for your site:
+
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit with your site details
+API_BASE_URL=https://your-wordpress-site.com
+WC_CONSUMER_KEY=ck_your_consumer_key_here
+WC_CONSUMER_SECRET=cs_your_consumer_secret_here
+TEST_USER_EMAIL=test@your-domain.com
+TEST_USER_PASSWORD=your-test-password
+```
+
+### WooCommerce API Setup
+
+1. Go to **WooCommerce → Settings → Advanced → REST API**
+2. Click **Add Key**
+3. Set permissions to **Read/Write**
+4. Copy the generated keys to your `.env` file
+
+### Testing Configuration
+
+Set these environment variables for testing:
+
+- `LIGHTHOUSE_BASE_URL` - For Lighthouse performance testing
+- `ARTILLERY_TARGET_URL` - For load testing
+- `BASE_URL` - For K6 performance testing
 
 ## Recent Updates
 
+- **🧹 Site-Agnostic Cleanup (Latest)**: Removed all hardcoded site-specific references and automation implementations
+  - Removed hardcoded URLs from all configuration files
+  - Replaced site-specific credentials with generic examples
+  - Updated all test configurations to use environment variables
+  - Removed site-specific documentation files
+  - Made all automation scripts configurable via environment variables
 - **Fixed GitHub Actions Workflow**: Resolved "fatal: tag already exists" error with intelligent tag handling
 - **Improved Release Automation**: Enhanced rollback functionality and pre-release cleanup
+
+## 🔧 Site-Agnostic Features
+
+This theme has been **completely cleaned** of site-specific references:
+
+### ✅ What Was Removed/Updated:
+- **Hardcoded URLs**: All `infinitytargets` and staging site URLs replaced with environment variables
+- **Site-Specific Documentation**: Removed analysis files tied to specific sites
+- **Test Credentials**: Replaced with generic examples in `.env.example`
+- **Configuration Files**: Updated to use configurable environment variables
+- **Automation Scripts**: Made portable across different WordPress installations
+
+### 🎯 Benefits:
+- **Zero Manual Cleanup**: Deploy on any WordPress site without editing code
+- **Environment-Based Configuration**: All settings controlled via `.env` file
+- **Portable Testing**: Test suite works with any WordPress/WooCommerce site
+- **Scalable Deployment**: Use across multiple client sites without conflicts
 
 ## Features
 

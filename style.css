@@ -3,7 +3,7 @@
  * Description: Blocksy Child theme
  * Author: Creative Themes
  * Template: blocksy
- * Version: 1.16.0
+ * Version: 1.23.0
  * Text Domain: blocksy
  */
 
@@ -12,26 +12,24 @@
 }
 
 .ct-header {
-	z-index: 1000 !important;
+	z-index: 1000;
 }
 
 
 @media (max-width: 767px) {
 	.jdgm-carousel-item__product-image {
-		width: 100px !important;
-		height: 100px !important;
+		width: 100px;
+		height: 100px;
 	}
 }
 
-
 .jdgm-carousel-item__product-image {
-	width: 100px !important;
-	height: 100px !important;
+	width: 100px;
+	height: 100px;
 }
 
-
 .jdgm-carousel-item {
-	width: 33.33% !important;
+	width: 33.33%;
 }
 
 /* Responsive Visibility Classes */
@@ -175,11 +173,6 @@
 }
 
 
-/* display: block !important;
-width: 150px !important;
-aspect-ratio: 1/1 !important;
-object-fit: contain !important;
-} */
 
 .jdgm-carousel-item__product {
 	display: flex !important;
