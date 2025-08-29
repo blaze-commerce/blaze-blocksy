@@ -330,6 +330,7 @@
 /* Main container */
 .ct-offcanvas-wishlist {
     padding: var(--wishlist-panel-padding);
+    width: 100%;
 }
 
 /* Wishlist items grid */
