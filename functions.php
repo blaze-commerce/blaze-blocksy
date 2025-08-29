@@ -92,11 +92,11 @@ require_once get_stylesheet_directory() . '/includes/features/product-informatio
 require_once get_stylesheet_directory() . '/includes/customization/fibo-search-suggestions.php';
 require_once get_stylesheet_directory() . '/includes/customization/thank-you-page.php';
 require_once get_stylesheet_directory() . '/includes/customization/my-account.php';
-require_once get_stylesheet_directory() . 'includes/customization/judgeme.php';
-require_once get_stylesheet_directory() . 'includes/customization/mini-cart.php';
-require_once get_stylesheet_directory() . 'includes/customization/related-carousel.php';
-require_once get_stylesheet_directory() . 'includes/customization/product-category.php';
-require_once get_stylesheet_directory() . 'includes/customization/recently-viewed-products.php';
+require_once get_stylesheet_directory() . '/includes/customization/judgeme.php';
+require_once get_stylesheet_directory() . '/includes/customization/mini-cart.php';
+require_once get_stylesheet_directory() . '/includes/customization/related-carousel.php';
+require_once get_stylesheet_directory() . '/includes/customization/product-category.php';
+require_once get_stylesheet_directory() . '/includes/customization/recently-viewed-products.php';
 
 // Disable Blocksy WooCommerce filters on shop/archive pages
 add_action(
