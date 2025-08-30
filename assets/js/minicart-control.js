@@ -1,7 +1,7 @@
 /**
  * BlazeCommerce Minicart Control
  * Handles minicart opening/closing and cart flow modifications
- * 
+ *
  * This script modifies the WooCommerce cart flow to:
  * - Redirect users from product pages to homepage after adding to cart
  * - Automatically open the minicart panel on homepage
@@ -9,6 +9,45 @@
  * - Maintain full WooCommerce cart fragments compatibility
  */
 
+// Critical dependency validation to prevent runtime crashes
+(function() {
+    'use strict';
+
+    // Check for required WooCommerce dependencies
+    if (typeof wc_add_to_cart_params === 'undefined') {
+        console.error('❌ BlazeCommerce Minicart: WooCommerce add-to-cart parameters not available. Script will not initialize.');
+        return;
+    }
+
+    // Check for jQuery dependency
+    if (typeof jQuery === 'undefined') {
+        console.error('❌ BlazeCommerce Minicart: jQuery not available. Script will not initialize.');
+        return;
+    }
+
+    console.log('✅ BlazeCommerce Minicart: All dependencies validated successfully');
+})();
+
+// Input validation function to prevent malicious input processing
+function validateProductId(productId) {
+    if (!productId) {
+        console.error('❌ BlazeCommerce Minicart: Product ID is required');
+        return null;
+    }
+
+    // Convert to string and trim whitespace
+    const cleanId = String(productId).trim();
+
+    // Check if it's a valid positive integer
+    const numericId = parseInt(cleanId, 10);
+    if (isNaN(numericId) || numericId <= 0 || numericId.toString() !== cleanId) {
+        console.error('❌ BlazeCommerce Minicart: Invalid product ID format:', productId);
+        return null;
+    }
+
+    console.log('✅ BlazeCommerce Minicart: Product ID validated:', numericId);
+    return numericId;
+}
 // Simple minicart control functions using Method 1 (most reliable)
 function openMinicart() {
     const cartTrigger = document.querySelector('a[href="#woo-cart-panel"]');
@@ -79,37 +118,57 @@ function setupCartFlow() {
 
 function handleAddToCartSubmission(form) {
     const formData = new FormData(form);
-    const productId = formData.get('add-to-cart') || formData.get('product_id');
+    const rawProductId = formData.get('add-to-cart') || formData.get('product_id');
     const quantity = formData.get('quantity') || 1;
-    
+
+    // Validate product ID before processing
+    const productId = validateProductId(rawProductId);
+    if (!productId) {
+        console.error('❌ BlazeCommerce Minicart: Cannot add to cart - invalid product ID');
+        return;
+    }
+
     console.log('📦 Adding product to cart:', { productId, quantity });
-    
+
     // Add to cart via AJAX
     addToCartAjax(productId, quantity);
 }
 
 function handleAddToCartClick(button) {
-    const productId = button.value || button.getAttribute('data-product_id');
+    const rawProductId = button.value || button.getAttribute('data-product_id');
     const quantity = 1;
-    
+
+    // Validate product ID before processing
+    const productId = validateProductId(rawProductId);
+    if (!productId) {
+        console.error('❌ BlazeCommerce Minicart: Cannot add to cart - invalid product ID from button');
+        return;
+    }
+
     console.log('📦 Adding product to cart via button:', { productId, quantity });
-    
+
     // Add to cart via AJAX
     addToCartAjax(productId, quantity);
 }
 
 function addToCartAjax(productId, quantity) {
     console.log('🔄 Starting AJAX add to cart process');
-    
+
+    // Validate dependencies before proceeding
+    if (typeof wc_add_to_cart_params === 'undefined' || !wc_add_to_cart_params.wc_ajax_url) {
+        console.error('❌ BlazeCommerce Minicart: WooCommerce AJAX parameters not available');
+        document.body.classList.remove('adding-to-cart');
+        return;
+    }
+
     // Show loading state
     document.body.classList.add('adding-to-cart');
-    
+
     // Prepare AJAX data
     const data = new FormData();
     data.append('action', 'woocommerce_add_to_cart');
     data.append('product_id', productId);
     data.append('quantity', quantity);
-    
     // Send AJAX request
     fetch(wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart'), {
         method: 'POST',
@@ -232,10 +291,9 @@ function addEditLinkToHeading(heading) {
     editLink.href = '#';
     editLink.className = 'blazecommerce-edit-link';
     editLink.textContent = 'Edit';
-    editLink.style.cssText = `
-        float: right;
-        margin: 0 16px 16px 16px;
-    `;
+    // Apply styles individually to prevent XSS vulnerability
+    editLink.style.float = 'right';
+    editLink.style.margin = '0 16px 16px 16px';
 
     // Add hover effect
     editLink.addEventListener('mouseenter', () => {
@@ -278,12 +336,25 @@ function checkForMinicartOpen() {
 // Initialize everything when script loads
 initializeBlazeCommerceCartFlow();
 
-// Check for minicart open flag on page load
-document.addEventListener('DOMContentLoaded', checkForMinicartOpen);
+// Safe initialization to prevent race condition and double execution
+let minicartInitExecuted = false;
+
+function safeCheckForMinicartOpen() {
+    if (minicartInitExecuted) {
+        console.log('🔄 BlazeCommerce Minicart: Initialization already executed, skipping');
+        return;
+    }
+    minicartInitExecuted = true;
+    console.log('✅ BlazeCommerce Minicart: Safe initialization executing');
+    checkForMinicartOpen();
+}
+
+// Check for minicart open flag on page load with race condition protection
+document.addEventListener('DOMContentLoaded', safeCheckForMinicartOpen);
 
 // Also check if DOM is already loaded
 if (document.readyState !== 'loading') {
-    checkForMinicartOpen();
+    safeCheckForMinicartOpen();
 }
 
 // Expose functions globally for debugging

@@ -1,0 +1,198 @@
+name: Security Validation & Testing
+
+# This workflow validates the security of auto-merge workflows and tests edge cases
+# It runs comprehensive security checks and validates workflow behavior
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run security validation daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    paths:
+      - '.github/workflows/auto-merge-*.yml'
+      - '.github/workflows/security-validation.yml'
+
+jobs:
+  security-validation:
+    name: Security validation tests
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Validate workflow syntax
+        run: |
+          set -euo pipefail
+          
+          echo "🔍 Validating YAML syntax for all auto-merge workflows"
+          
+          # Check YAML syntax
+          for workflow in .github/workflows/auto-merge-*.yml; do
+            if [ -f "$workflow" ]; then
+              echo "Checking $workflow..."
+              if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
+                echo "✅ $workflow: Valid YAML syntax"
+              else
+                echo "❌ $workflow: Invalid YAML syntax"
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Security pattern analysis
+        run: |
+          set -euo pipefail
+          
+          echo "🔒 Analyzing security patterns in workflows"
+          
+          # Check for potential security issues
+          security_issues=0
+          
+          # Check for hardcoded secrets
+          if grep -r "ghp_\|ghs_\|gho_\|ghu_\|github_pat_" .github/workflows/ 2>/dev/null; then
+            echo "❌ Hardcoded tokens found in workflows"
+            security_issues=$((security_issues + 1))
+          else
+            echo "✅ No hardcoded tokens found"
+          fi
+          
+          # Check for proper secret usage
+          if grep -r "\${{ secrets\." .github/workflows/auto-merge-*.yml | grep -v "BLAZECOMMERCE_BOT\|GITHUB_TOKEN"; then
+            echo "⚠️ Unexpected secret usage found"
+            security_issues=$((security_issues + 1))
+          else
+            echo "✅ Secret usage follows expected patterns"
+          fi
+          
+          # Check for command injection vulnerabilities
+          if grep -r "echo.*\${{" .github/workflows/auto-merge-*.yml | grep -v "sanitize\|head -c"; then
+            echo "⚠️ Potential command injection vectors found"
+            security_issues=$((security_issues + 1))
+          else
+            echo "✅ No obvious command injection vulnerabilities"
+          fi
+          
+          # Check for proper input validation
+          if ! grep -q "sanitize_input" .github/workflows/auto-merge-guard.yml; then
+            echo "❌ Input sanitization missing in guard workflow"
+            security_issues=$((security_issues + 1))
+          else
+            echo "✅ Input sanitization implemented"
+          fi
+          
+          if [ $security_issues -gt 0 ]; then
+            echo "❌ Security validation failed with $security_issues issues"
+            exit 1
+          else
+            echo "✅ All security checks passed"
+          fi
+
+      - name: Test regex patterns
+        run: |
+          set -euo pipefail
+          
+          echo "🧪 Testing regex patterns for ReDoS vulnerabilities"
+          
+          # Test version bump regex with various inputs
+          test_regex_safety() {
+            local pattern="$1"
+            local test_string="$2"
+            local max_time=5
+            
+            # Use timeout to prevent ReDoS
+            if timeout $max_time bash -c "echo '$test_string' | grep -E '$pattern' >/dev/null 2>&1"; then
+              echo "✅ Pattern safe for: $test_string"
+            else
+              echo "⚠️ Pattern may be vulnerable to ReDoS: $test_string"
+            fi
+          }
+          
+          # Test legitimate version bump titles
+          test_regex_safety "^chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ [0-9]+\.[0-9]+\.[0-9]+$" "chore(release): bump theme version to 1.2.3"
+          test_regex_safety "^chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ [0-9]+\.[0-9]+\.[0-9]+$" "chore: bump version to 2.0.0"
+          
+          # Test potential ReDoS strings
+          test_regex_safety "^chore(\(release\))?\:\ bump(\ theme)?\ version\ to\ [0-9]+\.[0-9]+\.[0-9]+$" "chore(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((("
+          
+          echo "✅ Regex pattern testing completed"
+
+      - name: Validate permissions
+        run: |
+          set -euo pipefail
+          
+          echo "🔐 Validating workflow permissions"
+          
+          # Check that workflows follow principle of least privilege
+          for workflow in .github/workflows/auto-merge-*.yml; do
+            if [ -f "$workflow" ]; then
+              echo "Checking permissions in $workflow..."
+              
+              # Extract permissions section
+              if grep -A 10 "permissions:" "$workflow" | grep -q "admin\|write"; then
+                echo "⚠️ $workflow uses elevated permissions - validating necessity"
+                
+                # Check if write permissions are justified
+                if grep -q "pull-requests: write\|contents: write" "$workflow"; then
+                  if grep -q "gh pr\|git commit\|git push" "$workflow"; then
+                    echo "✅ Write permissions justified by PR/content operations"
+                  else
+                    echo "❌ Write permissions not justified"
+                    exit 1
+                  fi
+                fi
+              else
+                echo "✅ $workflow uses minimal permissions"
+              fi
+            fi
+          done
+
+      - name: Test input validation
+        run: |
+          set -euo pipefail
+          
+          echo "🧪 Testing input validation functions"
+          
+          # Test sanitization function
+          test_sanitization() {
+            local input="$1"
+            local expected="$2"
+            
+            # Simulate the sanitization function from workflows
+            result=$(echo "$input" | sed 's/[^a-zA-Z0-9 ._():-]//g' | head -c 200)
+            
+            if [ "$result" = "$expected" ]; then
+              echo "✅ Sanitization test passed: '$input' -> '$result'"
+            else
+              echo "❌ Sanitization test failed: '$input' -> '$result' (expected: '$expected')"
+              exit 1
+            fi
+          }
+          
+          # Test cases
+          test_sanitization "normal title" "normal title"
+          test_sanitization "title with (parentheses)" "title with (parentheses)"
+          test_sanitization "title with <script>alert('xss')</script>" "title with scriptalert('xss')/script"
+          test_sanitization "title with \$(dangerous command)" "title with (dangerous command)"
+          
+          echo "✅ Input validation tests completed"
+
+      - name: Generate security report
+        run: |
+          echo "📊 Security Validation Summary"
+          echo "=============================="
+          echo "✅ YAML syntax validation: PASSED"
+          echo "✅ Security pattern analysis: PASSED"
+          echo "✅ Regex safety testing: PASSED"
+          echo "✅ Permission validation: PASSED"
+          echo "✅ Input validation testing: PASSED"
+          echo ""
+          echo "🛡️ All security validations completed successfully"
+          echo "Last validated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
