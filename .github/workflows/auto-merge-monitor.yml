@@ -1,0 +1,154 @@
+name: Auto-Merge Security Monitor
+
+# This workflow monitors all auto-merge activities and provides security alerts
+# It runs when PRs are merged to ensure only authorized auto-merges occurred
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+jobs:
+  monitor-auto-merge:
+    name: Monitor auto-merge security
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    
+    permissions:
+      contents: read
+      issues: write
+      
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
+          private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Analyze merged PR
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          # Input validation and sanitization
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE_RAW="${{ github.event.pull_request.title }}"
+          PR_AUTHOR_RAW="${{ github.event.pull_request.user.login }}"
+          MERGED_BY_RAW="${{ github.event.pull_request.merged_by.login || 'unknown' }}"
+
+          # Sanitize inputs
+          sanitize_input() {
+            echo "$1" | sed 's/[^a-zA-Z0-9 ._():-]//g' | head -c 200
+          }
+
+          # Validate and sanitize inputs
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "❌ Invalid PR number: $PR_NUMBER"
+            exit 1
+          fi
+
+          PR_TITLE=$(sanitize_input "$PR_TITLE_RAW")
+          PR_AUTHOR=$(sanitize_input "$PR_AUTHOR_RAW")
+          MERGED_BY=$(sanitize_input "$MERGED_BY_RAW")
+
+          # Handle null/empty values
+          [ -z "$PR_TITLE" ] && PR_TITLE="[Title unavailable]"
+          [ -z "$PR_AUTHOR" ] && PR_AUTHOR="[Author unavailable]"
+          [ -z "$MERGED_BY" ] || [ "$MERGED_BY" = "null" ] && MERGED_BY="unknown"
+
+          echo "🔍 Analyzing merged PR #$PR_NUMBER"
+          echo "Title: $PR_TITLE"
+          echo "Author: $PR_AUTHOR"
+          echo "Merged by: $MERGED_BY"
+
+          # Safe version bump check with length validation
+          IS_VERSION_BUMP=false
+          if [ ${#PR_TITLE} -lt 200 ] && [ ${#PR_TITLE} -gt 10 ]; then
+            # Use safer pattern matching to prevent ReDoS
+            case "$PR_TITLE" in
+              "chore(release): bump theme version to "*.*.* | \
+              "chore: bump version to "*.*.*)
+                # Additional validation for semantic version format
+                version_part=$(echo "$PR_TITLE" | sed -n 's/.*version to \([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p')
+                if [ -n "$version_part" ] && [[ "$version_part" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                  IS_VERSION_BUMP=true
+                fi
+                ;;
+            esac
+          fi
+          
+          # Check if author was the automation bot
+          IS_BOT_AUTHOR=false
+          if [ "$PR_AUTHOR" = "blazecommerce-automation-bot[bot]" ]; then
+            IS_BOT_AUTHOR=true
+          fi
+          
+          echo "Is version bump: $IS_VERSION_BUMP"
+          echo "Is bot author: $IS_BOT_AUTHOR"
+          
+          # Security validation
+          if [ "$IS_VERSION_BUMP" = "true" ] && [ "$IS_BOT_AUTHOR" = "true" ]; then
+            echo "✅ Authorized version bump PR merged successfully"
+            echo "🤖 Auto-merge security validation: PASSED"
+          elif [ "$IS_VERSION_BUMP" = "false" ] && [ "$IS_BOT_AUTHOR" = "false" ]; then
+            echo "✅ Regular development PR merged through standard process"
+            echo "👥 Manual review process: FOLLOWED"
+          else
+            echo "⚠️ Unusual merge pattern detected - investigating"
+            
+            # Create security alert issue
+            ALERT_TITLE="🚨 Auto-Merge Security Alert: Unusual PR Merge Pattern"
+            ALERT_BODY="## Security Alert: Unusual Merge Pattern Detected
+
+            A PR was merged that doesn't match expected patterns for either automated version bumps or manual development PRs.
+
+            **PR Details:**
+            - **Number**: #$PR_NUMBER
+            - **Title**: $PR_TITLE
+            - **Author**: $PR_AUTHOR
+            - **Merged by**: $MERGED_BY
+            - **Is Version Bump**: $IS_VERSION_BUMP
+            - **Is Bot Author**: $IS_BOT_AUTHOR
+
+            **Expected Patterns:**
+            1. **Automated Version Bumps**: Author = \`blazecommerce-automation-bot[bot]\` + Version bump title
+            2. **Manual Development**: Author ≠ bot + Non-version bump title
+
+            **Action Required:**
+            Please review this merge to ensure it followed proper security protocols.
+
+            **Auto-generated by**: [Auto-Merge Security Monitor](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-monitor.yml)"
+            
+            gh issue create \
+              --title "$ALERT_TITLE" \
+              --body "$ALERT_BODY" \
+              --label "security,auto-merge,alert" \
+              --assignee "lanz-2024"
+            
+            echo "🚨 Security alert issue created"
+          fi
+
+      - name: Log merge statistics
+        run: |
+          echo "📊 Merge Statistics:"
+          echo "- PR #${{ github.event.pull_request.number }}"
+          echo "- Author: ${{ github.event.pull_request.user.login }}"
+          echo "- Merged by: ${{ github.event.pull_request.merged_by.login }}"
+          echo "- Merge method: ${{ github.event.pull_request.merge_commit_sha && 'merge' || 'squash' }}"
+          echo "- Target branch: ${{ github.event.pull_request.base.ref }}"
+          echo "- Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "✅ Security monitoring completed"
