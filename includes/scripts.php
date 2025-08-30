@@ -32,5 +32,14 @@ add_action(
 			$template_uri . '/assets/css/header.css',
 			array( 'parent-style' )
 		);
+
+		// Enqueue BlazeCommerce minicart control script
+		wp_enqueue_script(
+			'blazecommerce-minicart-control',
+			$template_uri . '/assets/js/minicart-control.js',
+			array( 'jquery', 'wc-add-to-cart' ),
+			'1.0.0',
+			true
+		);
 	}
 );
