@@ -48,7 +48,6 @@ function validateProductId(productId) {
     console.log('✅ BlazeCommerce Minicart: Product ID validated:', numericId);
     return numericId;
 }
-
 // Simple minicart control functions using Method 1 (most reliable)
 function openMinicart() {
     const cartTrigger = document.querySelector('a[href="#woo-cart-panel"]');
@@ -170,7 +169,6 @@ function addToCartAjax(productId, quantity) {
     data.append('action', 'woocommerce_add_to_cart');
     data.append('product_id', productId);
     data.append('quantity', quantity);
-
     // Send AJAX request
     fetch(wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart'), {
         method: 'POST',
