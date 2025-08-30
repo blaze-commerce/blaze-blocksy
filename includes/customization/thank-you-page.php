@@ -254,8 +254,17 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
 						<p class="blaze-commerce-order-number">
 							You will receive your confirmation email to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong> within 5 minutes. If you do not see the email in your inbox, please check your spam or junk folder
 						</p>
-						<p class="blaze-commerce-email-confirmation">
-							If you still do not receive the email, please contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
+						<div class="resend-email-container">
+							<p>
+								Still not working?
+							</p>
+							<button type="button" class="button wp-element-button" id="resend-email-btn" data-order-id="<?php echo esc_attr( $order_id ); ?>" data-order-key="<?php echo esc_attr( $order->get_order_key() ); ?>">
+								Resend Email
+							</button>
+						</div>
+						<div id="resend-feedback" class="resend-feedback" style="display: none;"></div>
+						<p>
+							Need help? Contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
 						</p>
 					</div>
 					<?php
@@ -825,6 +834,21 @@ function blocksy_child_enqueue_thank_you_assets() {
             true // Load in footer
         );
 
+        // Localize script for AJAX functionality - only if script was enqueued successfully
+        if ( wp_script_is( 'blocksy-child-thank-you-js', 'enqueued' ) ) {
+            wp_localize_script( 'blocksy-child-thank-you-js', 'blazeCommerceAjax', array(
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce( 'blaze_commerce_resend_email_nonce' ),
+                'messages' => array(
+                    'sending' => __( 'Sending...', 'blocksy-child' ),
+                    'success' => __( 'Email sent successfully! Please check your inbox.', 'blocksy-child' ),
+                    'error' => __( 'Failed to send email. Please try again or contact support.', 'blocksy-child' ),
+                    'rateLimit' => __( 'Please wait before requesting another email.', 'blocksy-child' ),
+                    'invalidOrder' => __( 'Invalid order. Please contact support.', 'blocksy-child' ),
+                )
+            ) );
+        }
+
         // Add inline script functionality
         blocksy_child_add_thank_you_inline_script();
     } else {
@@ -834,3 +858,157 @@ function blocksy_child_enqueue_thank_you_assets() {
 
 // Hook with priority 15 to ensure WooCommerce has initialized
 add_action( 'wp_enqueue_scripts', 'blocksy_child_enqueue_thank_you_assets', 15 );
+
+/**
+ * Handle AJAX request to resend order confirmation email
+ *
+ * Security features:
+ * - Nonce verification
+ * - Order validation
+ * - Rate limiting (1 request per 60 seconds per order)
+ * - Proper error handling and logging
+ *
+ * @since 2.0.3
+ */
+function blocksy_child_handle_resend_email_ajax() {
+    // Validate POST data exists and is array
+    if ( empty( $_POST ) || ! is_array( $_POST ) ) {
+        wp_send_json_error( array(
+            'message' => __( 'Invalid request.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+
+    // Verify nonce for security
+    if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_commerce_resend_email_nonce' ) ) {
+        wp_send_json_error( array(
+            'message' => __( 'Security check failed. Please refresh the page and try again.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+
+    // Get and validate order data
+    $order_id = intval( $_POST['order_id'] );
+    $order_key = sanitize_text_field( $_POST['order_key'] );
+
+    if ( empty( $order_id ) || empty( $order_key ) ) {
+        wp_send_json_error( array(
+            'message' => __( 'Invalid order data.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+
+    // Get the order
+    $order = wc_get_order( $order_id );
+
+    if ( ! $order || $order->get_order_key() !== $order_key ) {
+        wp_send_json_error( array(
+            'message' => __( 'Invalid order. Please contact support.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+
+    // Rate limiting check
+    $rate_limit_key = 'blaze_commerce_resend_email_' . $order_id;
+    $last_sent = get_transient( $rate_limit_key );
+
+    if ( $last_sent ) {
+        wp_send_json_error( array(
+            'message' => __( 'Please wait before requesting another email.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+
+    // Attempt to send the email using WooCommerce's native email system
+    try {
+        // Get order status for logging
+        $order_status = $order->get_status();
+
+        // Enhanced security logging
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( sprintf(
+                'Blaze Commerce: Email resend attempt - Order: %d, IP: %s, User Agent: %s',
+                $order_id,
+                $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                substr( $_SERVER['HTTP_USER_AGENT'] ?? 'unknown', 0, 100 ) // Limit length
+            ) );
+        }
+
+        // Use WooCommerce's native email system with proper integration
+        $mailer = WC()->mailer();
+        $emails = $mailer->get_emails();
+
+        // Log available email classes for debugging
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( sprintf(
+                'Blaze Commerce: Available email classes: %s',
+                implode( ', ', array_keys( $emails ) )
+            ) );
+        }
+
+        // Try to trigger the appropriate email based on WooCommerce's native system
+        $email_triggered = false;
+
+        // Use WooCommerce's action hook system (most reliable method)
+        if ( function_exists( 'wc_get_order' ) && $order ) {
+            // Trigger customer processing order email using WooCommerce hooks
+            do_action( 'woocommerce_order_status_processing_notification', $order_id, $order );
+            $email_triggered = true;
+
+            // Also try the new order notification as backup
+            do_action( 'woocommerce_new_order_notification', $order_id, $order );
+        }
+
+        // If action hooks didn't work, fall back to direct email class triggering
+        if ( ! $email_triggered ) {
+            if ( isset( $emails['WC_Email_Customer_Processing_Order'] ) ) {
+                $emails['WC_Email_Customer_Processing_Order']->trigger( $order_id );
+                $email_triggered = true;
+            } elseif ( isset( $emails['WC_Email_Customer_Invoice'] ) ) {
+                $emails['WC_Email_Customer_Invoice']->trigger( $order_id );
+                $email_triggered = true;
+            }
+        }
+
+        // WooCommerce email system doesn't return success/failure, so we assume success if we got this far
+        if ( $email_triggered ) {
+            // Set rate limiting transient (60 seconds)
+            set_transient( $rate_limit_key, time(), 60 );
+
+            // Log successful email resend
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( sprintf(
+                    'Blaze Commerce: Order confirmation email resent successfully for order #%d (status: %s)',
+                    $order_id,
+                    $order_status
+                ) );
+            }
+
+            wp_send_json_success( array(
+                'message' => __( 'Email sent successfully! Please check your inbox.', 'blocksy-child' )
+            ) );
+            wp_die();
+        } else {
+            throw new Exception( 'Unable to trigger email notification' );
+        }
+
+    } catch ( Exception $e ) {
+        // Log error
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( sprintf(
+                'Blaze Commerce: Failed to resend email for order #%d. Error: %s',
+                $order_id,
+                $e->getMessage()
+            ) );
+        }
+
+        wp_send_json_error( array(
+            'message' => __( 'Failed to send email. Please try again or contact support.', 'blocksy-child' )
+        ) );
+        wp_die();
+    }
+}
+
+// Register AJAX handlers for both logged-in and guest users
+add_action( 'wp_ajax_blaze_commerce_resend_email', 'blocksy_child_handle_resend_email_ajax' );
+add_action( 'wp_ajax_nopriv_blaze_commerce_resend_email', 'blocksy_child_handle_resend_email_ajax' );

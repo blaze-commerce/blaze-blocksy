@@ -47,6 +47,7 @@ jQuery(document).ready(function($) {
         initAccountCreation();
         initAnimations();
         initCopyOrderNumber();
+        initResendEmail();
         // initPrintOrder();
         initResponsiveBehavior();
     }
@@ -77,6 +78,101 @@ jQuery(document).ready(function($) {
                 });
             }
         });
+    }
+
+    /**
+     * Initialize resend email functionality
+     */
+    function initResendEmail() {
+        // Check if AJAX configuration is available
+        if (typeof blazeCommerceAjax === 'undefined') {
+            console.error('Blaze Commerce: AJAX configuration not loaded');
+            return;
+        }
+
+        let isProcessing = false; // Prevent rapid clicks
+
+        $('#resend-email-btn').on('click', function(e) {
+            e.preventDefault();
+
+            if (isProcessing) {
+                return; // Prevent multiple simultaneous requests
+            }
+
+            const $button = $(this);
+            const $feedback = $('#resend-feedback');
+            const originalText = $button.text();
+
+            // Get order data from button attributes
+            const orderId = $button.data('order-id');
+            const orderKey = $button.data('order-key');
+
+            if (!orderId || !orderKey) {
+                showResendEmailFeedback('error', 'Invalid order data. Please refresh the page and try again.');
+                return;
+            }
+
+            // Set processing state
+            isProcessing = true;
+            $button.prop('disabled', true).text('Sending...');
+            $feedback.hide();
+
+            // Make AJAX request with error handling
+            $.ajax({
+                url: blazeCommerceAjax.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'blaze_commerce_resend_email',
+                    order_id: orderId,
+                    order_key: orderKey,
+                    nonce: blazeCommerceAjax.nonce
+                },
+                success: function(response) {
+                    isProcessing = false; // Reset processing state
+                    if (response.success) {
+                        showResendEmailFeedback('success', response.data.message);
+                        // Keep button disabled for 60 seconds to prevent spam
+                        let countdown = 60;
+                        const timer = setInterval(function() {
+                            countdown--;
+                            if (countdown > 0) {
+                                $button.text('Please wait (' + countdown + 's)');
+                            } else {
+                                $button.prop('disabled', false).text(originalText);
+                                clearInterval(timer);
+                            }
+                        }, 1000);
+                    } else {
+                        showResendEmailFeedback('error', response.data.message);
+                        $button.prop('disabled', false).text(originalText);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    isProcessing = false; // Reset processing state
+                    console.error('Blaze Commerce: AJAX error:', status, error);
+                    const errorMessage = blazeCommerceAjax && blazeCommerceAjax.messages
+                        ? blazeCommerceAjax.messages.error
+                        : 'Failed to send email. Please try again or contact support.';
+                    showResendEmailFeedback('error', errorMessage);
+                    $button.prop('disabled', false).text(originalText);
+                }
+            });
+        });
+    }
+
+    /**
+     * Show feedback message for resend email action
+     */
+    function showResendEmailFeedback(type, message) {
+        const $feedback = $('#resend-feedback');
+        $feedback.removeClass('success error').addClass(type).text(message).show();
+
+        // Auto-hide success messages after 5 seconds
+        if (type === 'success') {
+            setTimeout(function() {
+                $feedback.fadeOut();
+            }, 5000);
+        }
     }
 
     /**
