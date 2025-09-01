@@ -1,15 +1,16 @@
-.dgwt-wcas-sf-wrapp input[type=search].dgwt-wcas-search-input {
+body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type=search].dgwt-wcas-search-input {
 	min-height: 48px;
 	background-color: transparent;
 	border-radius: 8px;
+	color: white;
 }
 
-.dgwt-wcas-sf-wrapp input[type=search].dgwt-wcas-search-input:focus {
+body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type=search].dgwt-wcas-search-input:focus {
 	background-color: transparent;
 	border-radius: 8px;
 }
 
-.dgwt-wcas-sf-wrapp button.dgwt-wcas-search-submit {
+body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp button.dgwt-wcas-search-submit {
 	height: 46px;
 	background-color: transparent;
 }

@@ -33,13 +33,30 @@ add_action(
 			array( 'parent-style' )
 		);
 
-		// Enqueue BlazeCommerce minicart control script
-		// wp_enqueue_script(
-		// 	'blazecommerce-minicart-control',
-		// 	$template_uri . '/assets/js/minicart-control.js',
-		// 	array( 'jquery', 'wc-add-to-cart' ),
-		// 	'1.0.0',
-		// 	true
-		// );
-	}
-);
+	} );
+
+/**
+ * Enqueue customizer scripts for wishlist off-canvas sync
+ */
+add_action( 'customize_preview_init', function () {
+	$template_uri = get_stylesheet_directory_uri();
+
+	// Enqueue the main sync handler
+	wp_enqueue_script(
+		'wishlist-offcanvas-sync',
+		$template_uri . '/assets/js/wishlist-offcanvas-sync.js',
+		array( 'jquery', 'customize-preview' ),
+		'1.0.0',
+		true
+	);
+
+	// Enqueue the Blocksy variables integration
+	wp_enqueue_script(
+		'wishlist-offcanvas-variables',
+		$template_uri . '/assets/js/wishlist-offcanvas-variables.js',
+		array( 'jquery', 'customize-preview', 'wishlist-offcanvas-sync' ),
+		'1.0.0',
+		true
+	);
+} );
+
