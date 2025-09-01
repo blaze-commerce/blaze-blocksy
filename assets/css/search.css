@@ -2,6 +2,7 @@
   min-height: 48px;
   background-color: transparent;
   border-radius: 8px;
+  color: #eee;
 }
 
 .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
