@@ -20,6 +20,15 @@ function display_recently_viewed_products_placeholder() {
 	global $product;
 	$current_product_id = $product->get_id();
 	?>
+	<!-- Loading indicator for recently viewed products -->
+	<div id="recently-viewed-loading" class="recently-viewed-loading"
+		style="text-align: center; padding: 20px; display: block;">
+		<div class="loading-spinner"
+			style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; animation: spin 1s linear infinite;">
+		</div>
+		<span style="margin-left: 10px; color: #666;">Loading recently viewed products...</span>
+	</div>
+
 	<section class="recently-viewed-products up-sells products is-width-constrained" id="recently-viewed-section"
 		style="display: none;">
 		<h2 class="ct-module-title">Recently Viewed Products</h2>
@@ -28,10 +37,33 @@ function display_recently_viewed_products_placeholder() {
 		</div>
 	</section>
 
+	<style>
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		.recently-viewed-loading {
+			opacity: 1;
+			transition: opacity 0.3s ease;
+		}
+
+		.recently-viewed-loading.fade-out {
+			opacity: 0;
+		}
+	</style>
+
 	<script>
 		jQuery(document).ready(function ($) {
-			// Load recently viewed products via AJAX
-			loadRecentlyViewedProducts(<?php echo $current_product_id; ?>);
+			// Load recently viewed products via AJAX (function defined in single-product.js)
+			if (typeof loadRecentlyViewedProducts === 'function') {
+				loadRecentlyViewedProducts(<?php echo $current_product_id; ?>);
+			}
 		});
 	</script>
 	<?php
@@ -141,190 +173,27 @@ function get_recently_viewed_products_from_cookie() {
 }
 
 /**
- * Track viewed product using JavaScript (client-side)
+ * Add recently viewed products data to single product localize script
  */
-add_action( 'wp_footer', 'add_recently_viewed_tracking_script' );
+add_filter( 'blaze_blocksy_single_product_localize_data', 'add_recently_viewed_localize_data' );
 
-function add_recently_viewed_tracking_script() {
+function add_recently_viewed_localize_data( $data ) {
 	if ( ! is_product() ) {
-		return;
+		return $data;
 	}
 
 	global $product;
 	if ( ! $product ) {
-		return;
+		return $data;
 	}
 
-	$product_id = $product->get_id();
-	$ajax_url = admin_url( 'admin-ajax.php' );
-	$nonce = wp_create_nonce( 'recently_viewed_nonce' );
-	?>
-	<script>
-		// Recently Viewed Products - Client-side tracking and AJAX loading
-		(function ($) {
-			'use strict';
+	// Add recently viewed specific data
+	$data['recently_viewed'] = array(
+		'nonce' => wp_create_nonce( 'recently_viewed_nonce' ),
+		'current_product_id' => $product->get_id()
+	);
 
-			// Storage key for recently viewed products
-			const STORAGE_KEY = 'recently_viewed_products';
-			const COOKIE_NAME = 'recently_viewed_products';
-
-			// Get products from localStorage with sessionStorage and cookie fallback
-			function getRecentlyViewedProducts() {
-				let products = [];
-
-				// Try localStorage first
-				try {
-					const stored = localStorage.getItem(STORAGE_KEY);
-					if (stored) {
-						products = JSON.parse(stored);
-					}
-				} catch (e) {
-					// Fallback to sessionStorage
-					try {
-						const stored = sessionStorage.getItem(STORAGE_KEY);
-						if (stored) {
-							products = JSON.parse(stored);
-						}
-					} catch (e2) {
-						// Fallback to cookie
-						const cookieValue = getCookie(COOKIE_NAME);
-						if (cookieValue) {
-							try {
-								products = JSON.parse(cookieValue);
-							} catch (e3) {
-								products = [];
-							}
-						}
-					}
-				}
-
-				return Array.isArray(products) ? products : [];
-			}
-
-			// Save products to storage
-			function saveRecentlyViewedProducts(products) {
-				const jsonProducts = JSON.stringify(products);
-
-				// Try localStorage first
-				try {
-					localStorage.setItem(STORAGE_KEY, jsonProducts);
-				} catch (e) {
-					// Fallback to sessionStorage
-					try {
-						sessionStorage.setItem(STORAGE_KEY, jsonProducts);
-					} catch (e2) {
-						// Fallback to cookie
-						setCookie(COOKIE_NAME, jsonProducts, 30);
-					}
-				}
-
-				// Always try to set cookie as backup
-				try {
-					setCookie(COOKIE_NAME, jsonProducts, 30);
-				} catch (e) {
-					// Silent fail
-				}
-			}
-
-			// Cookie helper functions
-			function getCookie(name) {
-				const value = "; " + document.cookie;
-				const parts = value.split("; " + name + "=");
-				if (parts.length === 2) return parts.pop().split(";").shift();
-				return null;
-			}
-
-			function setCookie(name, value, days) {
-				const expires = new Date();
-				expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-				document.cookie = name + "=" + value + ";expires=" + expires.toUTCString() + ";path=/";
-			}
-
-			// Track current product
-			function trackCurrentProduct(productId) {
-				let products = getRecentlyViewedProducts();
-
-				// Remove current product if it exists (avoid duplicates)
-				products = products.filter(id => parseInt(id) !== parseInt(productId));
-
-				// Add current product to the beginning
-				products.unshift(parseInt(productId));
-
-				// Limit to maximum 20 products
-				if (products.length > 20) {
-					products = products.slice(0, 20);
-				}
-
-				// Save to storage
-				saveRecentlyViewedProducts(products);
-			}
-
-			// Load recently viewed products via AJAX
-			window.loadRecentlyViewedProducts = function (currentProductId) {
-				const products = getRecentlyViewedProducts();
-
-				$.ajax({
-					url: '<?php echo $ajax_url; ?>',
-					type: 'POST',
-					data: {
-						action: 'get_recently_viewed_products',
-						current_product_id: currentProductId,
-						recently_viewed: products,
-						nonce: '<?php echo $nonce; ?>'
-					},
-					success: function (response) {
-						if (response.success && response.data.has_products) {
-							$('#recently-viewed-products-container').html(response.data.html);
-							$('#recently-viewed-section').show();
-
-							// Initialize owl carousel for recently viewed products
-							initializeRecentlyViewedCarousel();
-						}
-					},
-					error: function () {
-						console.log('Failed to load recently viewed products');
-					}
-				});
-			};
-
-			// Initialize owl carousel for recently viewed products
-			function initializeRecentlyViewedCarousel() {
-				const $carousel = $('.recently-viewed-products .products');
-
-				if ($carousel.length && !$carousel.hasClass('owl-carousel')) {
-					$carousel.addClass('owl-carousel owl-theme');
-
-					// Use the same config as related products (from related-carousel.php)
-					const carouselConfig = {
-						loop: false,
-						margin: 24,
-						nav: false,
-						dots: true,
-						responsive: {
-							0: {
-								items: 2,
-							},
-							1000: {
-								items: 4
-							}
-						}
-					};
-
-					// Small delay to ensure DOM is ready
-					setTimeout(function () {
-						$carousel.owlCarousel(carouselConfig);
-					}, 100);
-				}
-			}
-
-			// Track current product when page loads
-			$(document).ready(function () {
-				trackCurrentProduct(<?php echo $product_id; ?>);
-			});
-
-		})(jQuery);
-	</script>
-	<?php
+	return $data;
 }
 
 

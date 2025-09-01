@@ -1,17 +1,9 @@
 <?php
 
-add_action( 'wp_enqueue_scripts', function () {
-	if ( ! is_product() )
-		return;
-
-	wp_enqueue_style( 'blaze-blocksy-single-product', BLAZE_BLOCKSY_URL . '/assets/css/single-product.css' );
-
-	// load owl carousel library js and css via cdn
-	wp_enqueue_style( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css', array( 'blaze-blocksy-single-product' ) );
-	wp_enqueue_style( 'owl-theme-default', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css', array( 'owl-carousel' ) );
-	wp_enqueue_script( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js', array( 'jquery' ), null, true );
-
-} );
+/**
+ * Related carousel functionality
+ * Assets are now handled in scripts.php
+ */
 
 add_action( 'wp_footer', function () {
 	if ( ! is_product() )
