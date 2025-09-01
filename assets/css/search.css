@@ -155,9 +155,11 @@ body
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp {
     top: 68px !important;
     padding: 24px;
+    /* top: 68px !important;
+    padding: 24px;
     display: grid !important;
     grid-template-columns: repeat(1, 1fr);
-    padding-bottom: 50px;
+    padding-bottom: 50px; */
   }
 
   .dgwt-wcas-overlay-mobile-on
@@ -205,12 +207,12 @@ body
   }
 
   .js-dgwt-wcas-overlay-mobile .js-dgwt-wcas-om-bar {
-    padding-top: 10px;
+    /* padding-top: 10px;
     padding-bottom: 10px;
     padding-right: 22px;
     height: auto;
     background: var(--background-1, #fff);
-    box-shadow: 0 -1px 0 0 rgba(225, 227, 229, 0.5) inset;
+    box-shadow: 0 -1px 0 0 rgba(225, 227, 229, 0.5) inset; */
   }
 
   .js-dgwt-wcas-overlay-mobile
