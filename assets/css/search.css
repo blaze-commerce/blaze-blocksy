@@ -204,6 +204,10 @@ body
     fill: #4e594d;
   }
 
+  body .dgwt-wcas-om-bar .dgwt-wcas-om-return svg path {
+    fill: #4e594d;
+  }
+
   .js-dgwt-wcas-overlay-mobile .js-dgwt-wcas-om-bar {
     padding-top: 10px;
     padding-bottom: 10px;
