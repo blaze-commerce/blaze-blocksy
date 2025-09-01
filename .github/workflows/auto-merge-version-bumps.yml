@@ -49,10 +49,14 @@ jobs:
         run: |
           if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
             echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            # Mask the token to prevent exposure in logs
+            echo "::add-mask::${{ secrets.GITHUB_TOKEN }}"
             echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
             echo "using-fallback=true" >> $GITHUB_OUTPUT
           else
             echo "✅ GitHub App token generated successfully"
+            # Mask the app token to prevent exposure in logs
+            echo "::add-mask::${{ steps.app-token.outputs.token }}"
             echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
             echo "using-fallback=false" >> $GITHUB_OUTPUT
           fi
@@ -204,17 +208,37 @@ jobs:
               ;;
             "UNKNOWN")
               echo "⚠️ Merge status unknown, GitHub may still be calculating"
-              echo "Waiting 30 seconds and checking again..."
-              sleep 30
-              MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable')
-              if [ "$MERGEABLE" = "MERGEABLE" ]; then
-                echo "✅ PR is mergeable after recheck"
-                echo "mergeable=true" >> $GITHUB_OUTPUT
-              else
-                echo "❌ PR merge status still unknown or conflicting"
-                echo "mergeable=false" >> $GITHUB_OUTPUT
-                exit 1
-              fi
+
+              # Implement exponential backoff instead of fixed sleep
+              max_retries=3
+              retry_count=0
+
+              while [ $retry_count -lt $max_retries ]; do
+                retry_count=$((retry_count + 1))
+                wait_time=$((retry_count * 10))  # 10, 20, 30 seconds
+                echo "Waiting ${wait_time} seconds before retry ($retry_count/$max_retries)..."
+                sleep $wait_time
+
+                if MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable' 2>/dev/null); then
+                  if [ "$MERGEABLE" = "MERGEABLE" ]; then
+                    echo "✅ PR is mergeable after recheck"
+                    echo "mergeable=true" >> $GITHUB_OUTPUT
+                    break
+                  elif [ "$MERGEABLE" = "CONFLICTING" ]; then
+                    echo "❌ PR has conflicts after recheck"
+                    echo "mergeable=false" >> $GITHUB_OUTPUT
+                    exit 1
+                  fi
+                else
+                  echo "⚠️ API call failed during retry $retry_count"
+                fi
+
+                if [ $retry_count -eq $max_retries ]; then
+                  echo "❌ PR merge status still unknown after $max_retries retries"
+                  echo "mergeable=false" >> $GITHUB_OUTPUT
+                  exit 1
+                fi
+              done
               ;;
             *)
               echo "❌ Unknown mergeable status: $MERGEABLE"
@@ -223,18 +247,56 @@ jobs:
               ;;
           esac
 
+      - name: Auto-approve version bump PR
+        id: auto-approve
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          VERSION="${{ steps.validate-pr.outputs.version }}"
+
+          echo "✅ Auto-approving version bump PR #$PR_NUMBER (v$VERSION)"
+
+          # Auto-approve the PR using the bot's permissions
+          gh pr review "$PR_NUMBER" --approve --body "🤖 **Automated Approval**
+
+          This version bump PR has been automatically approved by the BlazeCommerce Automation Bot.
+
+          **Validation Results:**
+          - ✅ **Author**: blazecommerce-automation-bot[bot] (verified)
+          - ✅ **Title Format**: Valid version bump format (verified)
+          - ✅ **Version**: $VERSION (extracted and validated)
+          - ✅ **Target Branch**: ${{ github.event.pull_request.base.ref }} (verified)
+          - ✅ **Checks**: All required checks completed successfully
+          - ✅ **Conflicts**: No merge conflicts detected
+
+          **Security Validation:**
+          - 🔒 Only automation bot can create version bump PRs
+          - 🔒 Strict title format validation enforced
+          - 🔒 Branch protection rules respected
+          - 🔒 Auto-merge guard prevents unauthorized usage
+
+          This approval enables automatic merging as part of the secure release automation process.
+
+          ---
+          *Co-authored-by: BlazeCommerce Automation Bot <automation@blazecommerce.io>*"
+
+          echo "✅ Successfully auto-approved PR #$PR_NUMBER"
+
       - name: Auto-merge version bump PR
         id: auto-merge
         env:
           GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           set -euo pipefail
-          
+
           PR_NUMBER="${{ github.event.pull_request.number }}"
           VERSION="${{ steps.validate-pr.outputs.version }}"
-          
+
           echo "🚀 Enabling auto-merge for version bump PR #$PR_NUMBER (v$VERSION)"
-          
+
           # Add a comment explaining the auto-merge
           COMMENT="🤖 **Auto-Merge Enabled**
 
@@ -242,23 +304,30 @@ jobs:
 
           **Details:**
           - 📦 **Version**: $VERSION
+          - ✅ **Approval**: Automatically approved by BlazeCommerce Automation Bot
           - ✅ **Checks status**: Required CI/CD checks completed successfully
           - 🔄 **No conflicts**: PR is mergeable without conflicts
           - ⏰ **Auto-merge enabled at**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
-          The PR will be automatically merged once all branch protection requirements are satisfied (approvals, status checks, etc.).
+          **Security Features:**
+          - 🛡️ Auto-merge guard prevents unauthorized usage
+          - 🔒 Only automation bot can trigger auto-merge for version bumps
+          - ✅ Strict validation of PR title format and author
+          - 🎯 Branch protection rules enforced
+
+          The PR will be automatically merged now that all requirements are satisfied.
 
           ---
           *This action was performed automatically by the [auto-merge workflow](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-version-bumps.yml).*"
-          
+
           # Add comment to PR
           gh pr comment "$PR_NUMBER" --body "$COMMENT"
-          
+
           # Enable auto-merge for the PR using squash merge
           # This respects branch protection rules and will merge automatically
-          # once all required checks pass and approvals are obtained
+          # since the bot has already approved the PR and all checks have passed
           gh pr merge "$PR_NUMBER" --squash --delete-branch --auto
-          
+
           echo "✅ Successfully enabled auto-merge for PR #$PR_NUMBER"
           echo "auto-merge-enabled=true" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT

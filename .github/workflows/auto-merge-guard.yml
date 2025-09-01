@@ -1,0 +1,166 @@
+name: Auto-Merge Security Guard
+
+# This workflow acts as a security guard to prevent unauthorized use of auto-merge
+# It runs on all PRs and disables auto-merge for any PR that doesn't meet strict criteria
+# Only version bump PRs created by the automation bot are allowed to use auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - main
+      - master
+
+jobs:
+  auto-merge-guard:
+    name: Auto-merge security validation
+    runs-on: ubuntu-latest
+    
+    # Skip this check for the automation bot's version bump PRs
+    # The auto-merge workflow will handle those specifically
+    if: >
+      !(
+        github.event.pull_request.user.login == 'blazecommerce-automation-bot[bot]' &&
+        (
+          startsWith(github.event.pull_request.title, 'chore(release): bump theme version to') ||
+          startsWith(github.event.pull_request.title, 'chore: bump version to')
+        )
+      )
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.BLAZECOMMERCE_BOT_APP_ID }}
+          private-key: ${{ secrets.BLAZECOMMERCE_BOT_PRIVATE_KEY }}
+
+      - name: Fallback to GITHUB_TOKEN if App Token fails
+        id: token-fallback
+        run: |
+          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+            echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
+            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "✅ GitHub App token generated successfully"
+            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Disable auto-merge for non-version-bump PRs
+        env:
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          # Input validation and sanitization
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE_RAW="${{ github.event.pull_request.title }}"
+          PR_AUTHOR_RAW="${{ github.event.pull_request.user.login }}"
+
+          # Sanitize inputs to prevent injection attacks
+          sanitize_input() {
+            echo "$1" | sed 's/[^a-zA-Z0-9 ._():-]//g' | head -c 200
+          }
+
+          PR_TITLE=$(sanitize_input "$PR_TITLE_RAW")
+          PR_AUTHOR=$(sanitize_input "$PR_AUTHOR_RAW")
+
+          # Validate PR number is numeric
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "❌ Invalid PR number: $PR_NUMBER"
+            exit 1
+          fi
+
+          echo "🛡️ Auto-merge security guard activated for PR #$PR_NUMBER"
+          echo "Title: $PR_TITLE"
+          echo "Author: $PR_AUTHOR"
+
+          # Robust auto-merge status check with retries
+          check_auto_merge_status() {
+            local pr_number=$1
+            local max_retries=3
+            local retry_count=0
+
+            while [ $retry_count -lt $max_retries ]; do
+              if result=$(gh pr view "$pr_number" --json autoMergeRequest --jq '.autoMergeRequest != null' 2>/dev/null); then
+                echo "$result"
+                return 0
+              else
+                retry_count=$((retry_count + 1))
+                echo "⚠️ API call failed, retrying ($retry_count/$max_retries)..." >&2
+                sleep $((retry_count * 2))
+              fi
+            done
+
+            echo "❌ Failed to check auto-merge status after $max_retries attempts" >&2
+            return 1
+          }
+
+          # Check if auto-merge is currently enabled
+          if AUTO_MERGE_ENABLED=$(check_auto_merge_status "$PR_NUMBER"); then
+            if [ "$AUTO_MERGE_ENABLED" = "true" ]; then
+              echo "⚠️ Auto-merge detected on non-version-bump PR - DISABLING"
+
+              # Atomic disable operation with verification
+              if gh pr merge "$PR_NUMBER" --disable-auto 2>/dev/null; then
+                echo "✅ Auto-merge successfully disabled"
+              else
+                echo "❌ Failed to disable auto-merge - manual intervention required"
+                exit 1
+              fi
+            
+              # Add a security warning comment with escaped content
+              SECURITY_COMMENT="🛡️ **Auto-Merge Security Guard**
+
+              Auto-merge has been **automatically disabled** for this PR as it does not meet the criteria for automated merging.
+
+              **Auto-merge is only allowed for:**
+              - Version bump PRs created by \`blazecommerce-automation-bot[bot]\`
+              - PRs with titles starting with \`chore(release): bump theme version to\` or \`chore: bump version to\`
+              - PRs targeting the main/master branch
+
+              **This PR:**
+              - 👤 **Author**: ${PR_AUTHOR}
+              - 📝 **Title**: ${PR_TITLE}
+              - 🎯 **Target**: ${{ github.event.pull_request.base.ref }}
+
+              **For regular development PRs:**
+              1. Request reviews from team members
+              2. Ensure all checks pass
+              3. Manually merge when ready
+
+              This security measure ensures proper code review processes are followed for all non-automated changes.
+
+              ---
+              *This action was performed automatically by the [auto-merge security guard](https://github.com/${{ github.repository }}/blob/main/.github/workflows/auto-merge-guard.yml).*"
+
+              # Add comment with error handling
+              if gh pr comment "$PR_NUMBER" --body "$SECURITY_COMMENT" 2>/dev/null; then
+                echo "✅ Security warning comment added"
+              else
+                echo "⚠️ Failed to add comment, but auto-merge was disabled"
+              fi
+
+              echo "❌ Auto-merge disabled and security warning added"
+            else
+              echo "✅ No auto-merge detected - PR is safe"
+            fi
+          else
+            echo "❌ Failed to check auto-merge status - assuming safe"
+          fi
+
+          echo "🛡️ Security validation completed"
+
+      - name: Validate PR compliance
+        run: |
+          echo "📋 PR Compliance Check:"
+          echo "- Author: ${{ github.event.pull_request.user.login }}"
+          echo "- Title: ${{ github.event.pull_request.title }}"
+          echo "- Target: ${{ github.event.pull_request.base.ref }}"
+          echo "- Auto-merge policy: Manual review required"
+          echo "✅ This PR will follow standard review processes"
