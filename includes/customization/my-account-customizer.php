@@ -33,10 +33,10 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_panel(
 			'blocksy_my_account_panel',
 			array(
-				'title'       => __( 'My Account Form', 'blocksy-child' ),
+				'title' => __( 'My Account Form', 'blocksy-child' ),
 				'description' => __( 'Customize WooCommerce login and register forms with advanced typography and responsive controls.', 'blocksy-child' ),
-				'priority'    => 160,
-				'capability'  => 'edit_theme_options',
+				'priority' => 160,
+				'capability' => 'edit_theme_options',
 			)
 		);
 
@@ -56,8 +56,8 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_template',
 			array(
-				'title'    => __( 'Template Selection', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Template Selection', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 10,
 			)
 		);
@@ -66,9 +66,9 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_child_my_account_template',
 			array(
-				'default'           => 'default',
+				'default' => 'default',
 				'sanitize_callback' => 'sanitize_text_field',
-				'transport'         => 'refresh',
+				'transport' => 'refresh',
 			)
 		);
 
@@ -76,12 +76,12 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_control(
 			'blocksy_child_my_account_template',
 			array(
-				'label'       => __( 'Select Template', 'blocksy-child' ),
+				'label' => __( 'Select Template', 'blocksy-child' ),
 				'description' => __( 'Choose the template design for your login/register forms.', 'blocksy-child' ),
-				'section'     => 'blocksy_my_account_template',
-				'type'        => 'select',
-				'choices'     => array(
-					'default'   => __( 'Default WooCommerce', 'blocksy-child' ),
+				'section' => 'blocksy_my_account_template',
+				'type' => 'select',
+				'choices' => array(
+					'default' => __( 'Default WooCommerce', 'blocksy-child' ),
 					'template1' => __( 'Template 1 - Side by Side', 'blocksy-child' ),
 					'template2' => __( 'Template 2 - Centered', 'blocksy-child' ),
 				),
@@ -97,8 +97,8 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_heading_typography',
 			array(
-				'title'    => __( 'Heading Typography', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Heading Typography', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 20,
 			)
 		);
@@ -107,8 +107,8 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_body_typography',
 			array(
-				'title'    => __( 'Body Text Typography', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Body Text Typography', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 30,
 			)
 		);
@@ -117,8 +117,8 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_placeholder_typography',
 			array(
-				'title'    => __( 'Placeholder Typography', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Placeholder Typography', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 40,
 			)
 		);
@@ -127,8 +127,8 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_button_typography',
 			array(
-				'title'    => __( 'Button Typography', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Button Typography', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 50,
 			)
 		);
@@ -150,19 +150,19 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			"blocksy_child_my_account_{$element}_font",
 			array(
-				'default'           => $defaults['font'],
+				'default' => $defaults['font'],
 				'sanitize_callback' => 'sanitize_text_field',
-				'transport'         => 'postMessage',
+				'transport' => 'postMessage',
 			)
 		);
 
 		$wp_customize->add_control(
 			"blocksy_child_my_account_{$element}_font",
 			array(
-				'label'       => __( 'Font Family', 'blocksy-child' ),
+				'label' => __( 'Font Family', 'blocksy-child' ),
 				'description' => __( 'Enter a font family (e.g., Arial, sans-serif)', 'blocksy-child' ),
-				'section'     => $section,
-				'type'        => 'text',
+				'section' => $section,
+				'type' => 'text',
 			)
 		);
 
@@ -170,19 +170,19 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			"blocksy_child_my_account_{$element}_font_size",
 			array(
-				'default'           => $defaults['size'],
+				'default' => $defaults['size'],
 				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
-				'transport'         => 'postMessage',
+				'transport' => 'postMessage',
 			)
 		);
 
 		$wp_customize->add_control(
 			"blocksy_child_my_account_{$element}_font_size",
 			array(
-				'label'       => __( 'Font Size', 'blocksy-child' ),
+				'label' => __( 'Font Size', 'blocksy-child' ),
 				'description' => __( 'Enter size with CSS unit (e.g., 16px, 1rem)', 'blocksy-child' ),
-				'section'     => $section,
-				'type'        => 'text',
+				'section' => $section,
+				'type' => 'text',
 			)
 		);
 
@@ -190,9 +190,9 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			"blocksy_child_my_account_{$element}_font_color",
 			array(
-				'default'           => $defaults['color'],
+				'default' => $defaults['color'],
 				'sanitize_callback' => 'sanitize_hex_color',
-				'transport'         => 'postMessage',
+				'transport' => 'postMessage',
 			)
 		);
 
@@ -201,7 +201,7 @@ class Blocksy_Child_My_Account_Customizer {
 				$wp_customize,
 				"blocksy_child_my_account_{$element}_font_color",
 				array(
-					'label'   => __( 'Font Color', 'blocksy-child' ),
+					'label' => __( 'Font Color', 'blocksy-child' ),
 					'section' => $section,
 				)
 			)
@@ -211,18 +211,18 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			"blocksy_child_my_account_{$element}_font_weight",
 			array(
-				'default'           => $defaults['weight'],
+				'default' => $defaults['weight'],
 				'sanitize_callback' => 'sanitize_text_field',
-				'transport'         => 'postMessage',
+				'transport' => 'postMessage',
 			)
 		);
 
 		$wp_customize->add_control(
 			"blocksy_child_my_account_{$element}_font_weight",
 			array(
-				'label'   => __( 'Font Weight', 'blocksy-child' ),
+				'label' => __( 'Font Weight', 'blocksy-child' ),
 				'section' => $section,
-				'type'    => 'select',
+				'type' => 'select',
 				'choices' => array(
 					'300' => __( 'Light (300)', 'blocksy-child' ),
 					'400' => __( 'Normal (400)', 'blocksy-child' ),
@@ -237,22 +237,22 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_setting(
 			"blocksy_child_my_account_{$element}_text_transform",
 			array(
-				'default'           => $defaults['transform'],
+				'default' => $defaults['transform'],
 				'sanitize_callback' => 'sanitize_text_field',
-				'transport'         => 'postMessage',
+				'transport' => 'postMessage',
 			)
 		);
 
 		$wp_customize->add_control(
 			"blocksy_child_my_account_{$element}_text_transform",
 			array(
-				'label'   => __( 'Text Transform', 'blocksy-child' ),
+				'label' => __( 'Text Transform', 'blocksy-child' ),
 				'section' => $section,
-				'type'    => 'select',
+				'type' => 'select',
 				'choices' => array(
-					'none'       => __( 'None', 'blocksy-child' ),
-					'uppercase'  => __( 'Uppercase', 'blocksy-child' ),
-					'lowercase'  => __( 'Lowercase', 'blocksy-child' ),
+					'none' => __( 'None', 'blocksy-child' ),
+					'uppercase' => __( 'Uppercase', 'blocksy-child' ),
+					'lowercase' => __( 'Lowercase', 'blocksy-child' ),
 					'capitalize' => __( 'Capitalize', 'blocksy-child' ),
 				),
 			)
@@ -264,32 +264,32 @@ class Blocksy_Child_My_Account_Customizer {
 	 */
 	private function get_typography_defaults( $element ) {
 		$defaults = array(
-			'heading'     => array(
-				'font'      => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'      => '24px',
-				'color'     => '#333333',
-				'weight'    => '600',
+			'heading' => array(
+				'font' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+				'size' => '24px',
+				'color' => '#333333',
+				'weight' => '600',
 				'transform' => 'none',
 			),
-			'body'        => array(
-				'font'      => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'      => '16px',
-				'color'     => '#666666',
-				'weight'    => '400',
+			'body' => array(
+				'font' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+				'size' => '16px',
+				'color' => '#666666',
+				'weight' => '400',
 				'transform' => 'none',
 			),
 			'placeholder' => array(
-				'font'      => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'      => '14px',
-				'color'     => '#999999',
-				'weight'    => '400',
+				'font' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+				'size' => '14px',
+				'color' => '#999999',
+				'weight' => '400',
 				'transform' => 'none',
 			),
-			'button'      => array(
-				'font'      => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'      => '16px',
-				'color'     => '#ffffff',
-				'weight'    => '600',
+			'button' => array(
+				'font' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+				'size' => '16px',
+				'color' => '#ffffff',
+				'weight' => '600',
 				'transform' => 'none',
 			),
 		);
@@ -340,7 +340,7 @@ class Blocksy_Child_My_Account_Customizer {
 		}
 
 		return is_account_page() || is_page( 'my-account' ) ||
-				( isset( $_GET['page'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === 'my-account' );
+			( isset( $_GET['page'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === 'my-account' );
 	}
 
 	/**
@@ -351,28 +351,28 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_colors',
 			array(
-				'title'    => __( 'Colors', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Colors', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 60,
 			)
 		);
 
 		// Button Colors
 		$button_colors = array(
-			'button_color'            => array(
-				'label'   => __( 'Button Background', 'blocksy-child' ),
+			'button_color' => array(
+				'label' => __( 'Button Background', 'blocksy-child' ),
 				'default' => '#007cba',
 			),
-			'button_text_color'       => array(
-				'label'   => __( 'Button Text', 'blocksy-child' ),
+			'button_text_color' => array(
+				'label' => __( 'Button Text', 'blocksy-child' ),
 				'default' => '#ffffff',
 			),
-			'button_hover_color'      => array(
-				'label'   => __( 'Button Hover Background', 'blocksy-child' ),
+			'button_hover_color' => array(
+				'label' => __( 'Button Hover Background', 'blocksy-child' ),
 				'default' => '#005a87',
 			),
 			'button_hover_text_color' => array(
-				'label'   => __( 'Button Hover Text', 'blocksy-child' ),
+				'label' => __( 'Button Hover Text', 'blocksy-child' ),
 				'default' => '#ffffff',
 			),
 		);
@@ -381,9 +381,9 @@ class Blocksy_Child_My_Account_Customizer {
 			$wp_customize->add_setting(
 				"blocksy_child_my_account_{$key}",
 				array(
-					'default'           => $config['default'],
+					'default' => $config['default'],
 					'sanitize_callback' => 'sanitize_hex_color',
-					'transport'         => 'postMessage',
+					'transport' => 'postMessage',
 				)
 			);
 
@@ -392,7 +392,7 @@ class Blocksy_Child_My_Account_Customizer {
 					$wp_customize,
 					"blocksy_child_my_account_{$key}",
 					array(
-						'label'   => $config['label'],
+						'label' => $config['label'],
 						'section' => 'blocksy_my_account_colors',
 					)
 				)
@@ -402,15 +402,15 @@ class Blocksy_Child_My_Account_Customizer {
 		// Input Colors
 		$input_colors = array(
 			'input_background_color' => array(
-				'label'   => __( 'Input Background', 'blocksy-child' ),
+				'label' => __( 'Input Background', 'blocksy-child' ),
 				'default' => '#ffffff',
 			),
-			'input_border_color'     => array(
-				'label'   => __( 'Input Border', 'blocksy-child' ),
+			'input_border_color' => array(
+				'label' => __( 'Input Border', 'blocksy-child' ),
 				'default' => '#dddddd',
 			),
-			'input_text_color'       => array(
-				'label'   => __( 'Input Text', 'blocksy-child' ),
+			'input_text_color' => array(
+				'label' => __( 'Input Text', 'blocksy-child' ),
 				'default' => '#333333',
 			),
 		);
@@ -419,9 +419,9 @@ class Blocksy_Child_My_Account_Customizer {
 			$wp_customize->add_setting(
 				"blocksy_child_my_account_{$key}",
 				array(
-					'default'           => $config['default'],
+					'default' => $config['default'],
 					'sanitize_callback' => 'sanitize_hex_color',
-					'transport'         => 'postMessage',
+					'transport' => 'postMessage',
 				)
 			);
 
@@ -430,7 +430,7 @@ class Blocksy_Child_My_Account_Customizer {
 					$wp_customize,
 					"blocksy_child_my_account_{$key}",
 					array(
-						'label'   => $config['label'],
+						'label' => $config['label'],
 						'section' => 'blocksy_my_account_colors',
 					)
 				)
@@ -446,28 +446,28 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_spacing',
 			array(
-				'title'    => __( 'Button Padding (Desktop)', 'blocksy-child' ),
-				'panel'    => 'blocksy_my_account_panel',
+				'title' => __( 'Button Padding (Desktop)', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
 				'priority' => 70,
 			)
 		);
 
 		// Button Padding Controls
 		$padding_sides = array(
-			'top'    => array(
-				'label'   => __( 'Top Padding', 'blocksy-child' ),
+			'top' => array(
+				'label' => __( 'Top Padding', 'blocksy-child' ),
 				'default' => '12px',
 			),
-			'right'  => array(
-				'label'   => __( 'Right Padding', 'blocksy-child' ),
+			'right' => array(
+				'label' => __( 'Right Padding', 'blocksy-child' ),
 				'default' => '24px',
 			),
 			'bottom' => array(
-				'label'   => __( 'Bottom Padding', 'blocksy-child' ),
+				'label' => __( 'Bottom Padding', 'blocksy-child' ),
 				'default' => '12px',
 			),
-			'left'   => array(
-				'label'   => __( 'Left Padding', 'blocksy-child' ),
+			'left' => array(
+				'label' => __( 'Left Padding', 'blocksy-child' ),
 				'default' => '24px',
 			),
 		);
@@ -476,19 +476,19 @@ class Blocksy_Child_My_Account_Customizer {
 			$wp_customize->add_setting(
 				"blocksy_child_my_account_button_padding_{$side}",
 				array(
-					'default'           => $config['default'],
+					'default' => $config['default'],
 					'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
-					'transport'         => 'postMessage',
+					'transport' => 'postMessage',
 				)
 			);
 
 			$wp_customize->add_control(
 				"blocksy_child_my_account_button_padding_{$side}",
 				array(
-					'label'       => $config['label'],
+					'label' => $config['label'],
 					'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem)', 'blocksy-child' ),
-					'section'     => 'blocksy_my_account_spacing',
-					'type'        => 'text',
+					'section' => 'blocksy_my_account_spacing',
+					'type' => 'text',
 				)
 			);
 		}
@@ -502,10 +502,10 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_tablet',
 			array(
-				'title'       => __( 'Tablet Responsive (768px - 1023px)', 'blocksy-child' ),
+				'title' => __( 'Tablet Responsive (768px - 1023px)', 'blocksy-child' ),
 				'description' => __( 'Override desktop settings for tablet devices. Only Font Size and Font Weight can be customized.', 'blocksy-child' ),
-				'panel'       => 'blocksy_my_account_panel',
-				'priority'    => 80,
+				'panel' => 'blocksy_my_account_panel',
+				'priority' => 80,
 			)
 		);
 
@@ -513,10 +513,10 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_mobile',
 			array(
-				'title'       => __( 'Mobile Responsive (< 768px)', 'blocksy-child' ),
+				'title' => __( 'Mobile Responsive (< 768px)', 'blocksy-child' ),
 				'description' => __( 'Override desktop settings for mobile devices. Only Font Size and Font Weight can be customized.', 'blocksy-child' ),
-				'panel'       => 'blocksy_my_account_panel',
-				'priority'    => 90,
+				'panel' => 'blocksy_my_account_panel',
+				'priority' => 90,
 			)
 		);
 
@@ -536,19 +536,19 @@ class Blocksy_Child_My_Account_Customizer {
 			$wp_customize->add_setting(
 				"blocksy_child_my_account_{$device}_{$element}_font_size",
 				array(
-					'default'           => '',
+					'default' => '',
 					'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
-					'transport'         => 'postMessage',
+					'transport' => 'postMessage',
 				)
 			);
 
 			$wp_customize->add_control(
 				"blocksy_child_my_account_{$device}_{$element}_font_size",
 				array(
-					'label'       => sprintf( __( '%s Font Size', 'blocksy-child' ), ucfirst( $element ) ),
+					'label' => sprintf( __( '%s Font Size', 'blocksy-child' ), ucfirst( $element ) ),
 					'description' => sprintf( __( 'Override desktop %1$s font size for %2$s', 'blocksy-child' ), $element, $device ),
-					'section'     => $section,
-					'type'        => 'text',
+					'section' => $section,
+					'type' => 'text',
 				)
 			);
 
@@ -556,21 +556,21 @@ class Blocksy_Child_My_Account_Customizer {
 			$wp_customize->add_setting(
 				"blocksy_child_my_account_{$device}_{$element}_font_weight",
 				array(
-					'default'           => '',
+					'default' => '',
 					'sanitize_callback' => 'sanitize_text_field',
-					'transport'         => 'postMessage',
+					'transport' => 'postMessage',
 				)
 			);
 
 			$wp_customize->add_control(
 				"blocksy_child_my_account_{$device}_{$element}_font_weight",
 				array(
-					'label'       => sprintf( __( '%s Font Weight', 'blocksy-child' ), ucfirst( $element ) ),
+					'label' => sprintf( __( '%s Font Weight', 'blocksy-child' ), ucfirst( $element ) ),
 					'description' => sprintf( __( 'Override desktop %1$s font weight for %2$s', 'blocksy-child' ), $element, $device ),
-					'section'     => $section,
-					'type'        => 'select',
-					'choices'     => array(
-						''    => __( 'Use Desktop Setting', 'blocksy-child' ),
+					'section' => $section,
+					'type' => 'select',
+					'choices' => array(
+						'' => __( 'Use Desktop Setting', 'blocksy-child' ),
 						'300' => __( 'Light (300)', 'blocksy-child' ),
 						'400' => __( 'Normal (400)', 'blocksy-child' ),
 						'500' => __( 'Medium (500)', 'blocksy-child' ),
@@ -586,7 +586,7 @@ class Blocksy_Child_My_Account_Customizer {
 	 * Generate CSS from customizer settings
 	 */
 	private function generate_customizer_css( $template ) {
-		$css  = '<style type="text/css" id="blocksy-my-account-customizer-css">';
+		$css = '<style type="text/css" id="blocksy-my-account-customizer-css">';
 		$css .= '/* Blocksy Child My Account - Customizer Styles for Template ' . esc_attr( $template ) . ' */';
 
 		// Generate desktop CSS
@@ -610,10 +610,10 @@ class Blocksy_Child_My_Account_Customizer {
 		$elements = array( 'heading', 'body', 'placeholder', 'button' );
 
 		foreach ( $elements as $element ) {
-			$font_family    = get_theme_mod( "blocksy_child_my_account_{$element}_font", $this->get_typography_defaults( $element )['font'] );
-			$font_size      = get_theme_mod( "blocksy_child_my_account_{$element}_font_size", $this->get_typography_defaults( $element )['size'] );
-			$font_color     = get_theme_mod( "blocksy_child_my_account_{$element}_font_color", $this->get_typography_defaults( $element )['color'] );
-			$font_weight    = get_theme_mod( "blocksy_child_my_account_{$element}_font_weight", $this->get_typography_defaults( $element )['weight'] );
+			$font_family = get_theme_mod( "blocksy_child_my_account_{$element}_font", $this->get_typography_defaults( $element )['font'] );
+			$font_size = get_theme_mod( "blocksy_child_my_account_{$element}_font_size", $this->get_typography_defaults( $element )['size'] );
+			$font_color = get_theme_mod( "blocksy_child_my_account_{$element}_font_color", $this->get_typography_defaults( $element )['color'] );
+			$font_weight = get_theme_mod( "blocksy_child_my_account_{$element}_font_weight", $this->get_typography_defaults( $element )['weight'] );
 			$text_transform = get_theme_mod( "blocksy_child_my_account_{$element}_text_transform", $this->get_typography_defaults( $element )['transform'] );
 
 			$selector = $this->get_element_selector( $element, $template );
@@ -630,16 +630,16 @@ class Blocksy_Child_My_Account_Customizer {
 		}
 
 		// Button specific styles
-		$button_bg         = get_theme_mod( 'blocksy_child_my_account_button_color', '#007cba' );
-		$button_text       = get_theme_mod( 'blocksy_child_my_account_button_text_color', '#ffffff' );
-		$button_hover_bg   = get_theme_mod( 'blocksy_child_my_account_button_hover_color', '#005a87' );
+		$button_bg = get_theme_mod( 'blocksy_child_my_account_button_color', '#007cba' );
+		$button_text = get_theme_mod( 'blocksy_child_my_account_button_text_color', '#ffffff' );
+		$button_hover_bg = get_theme_mod( 'blocksy_child_my_account_button_hover_color', '#005a87' );
 		$button_hover_text = get_theme_mod( 'blocksy_child_my_account_button_hover_text_color', '#ffffff' );
 
 		// Button padding
-		$padding_top    = get_theme_mod( 'blocksy_child_my_account_button_padding_top', '12px' );
-		$padding_right  = get_theme_mod( 'blocksy_child_my_account_button_padding_right', '24px' );
+		$padding_top = get_theme_mod( 'blocksy_child_my_account_button_padding_top', '12px' );
+		$padding_right = get_theme_mod( 'blocksy_child_my_account_button_padding_right', '24px' );
 		$padding_bottom = get_theme_mod( 'blocksy_child_my_account_button_padding_bottom', '12px' );
-		$padding_left   = get_theme_mod( 'blocksy_child_my_account_button_padding_left', '24px' );
+		$padding_left = get_theme_mod( 'blocksy_child_my_account_button_padding_left', '24px' );
 
 		$css .= ".blaze-login-register.{$template} button, .blaze-login-register.{$template} .button {";
 		$css .= "background-color: {$button_bg} !important;";
@@ -653,9 +653,9 @@ class Blocksy_Child_My_Account_Customizer {
 		$css .= '}';
 
 		// Input styles
-		$input_bg     = get_theme_mod( 'blocksy_child_my_account_input_background_color', '#ffffff' );
+		$input_bg = get_theme_mod( 'blocksy_child_my_account_input_background_color', '#ffffff' );
 		$input_border = get_theme_mod( 'blocksy_child_my_account_input_border_color', '#dddddd' );
-		$input_text   = get_theme_mod( 'blocksy_child_my_account_input_text_color', '#333333' );
+		$input_text = get_theme_mod( 'blocksy_child_my_account_input_text_color', '#333333' );
 
 		$css .= ".blaze-login-register.{$template} input[type=\"text\"], ";
 		$css .= ".blaze-login-register.{$template} input[type=\"email\"], ";
@@ -693,11 +693,11 @@ class Blocksy_Child_My_Account_Customizer {
 	 * Generate CSS for specific device
 	 */
 	private function generate_device_css( $device, $template ) {
-		$css      = '';
+		$css = '';
 		$elements = array( 'heading', 'body', 'placeholder', 'button' );
 
 		foreach ( $elements as $element ) {
-			$font_size   = get_theme_mod( "blocksy_child_my_account_{$device}_{$element}_font_size", '' );
+			$font_size = get_theme_mod( "blocksy_child_my_account_{$device}_{$element}_font_size", '' );
 			$font_weight = get_theme_mod( "blocksy_child_my_account_{$device}_{$element}_font_weight", '' );
 
 			if ( $font_size || $font_weight ) {
@@ -724,10 +724,10 @@ class Blocksy_Child_My_Account_Customizer {
 	 */
 	private function get_element_selector( $element, $template ) {
 		$selectors = array(
-			'heading'     => ".blaze-login-register.{$template} h2",
-			'body'        => ".blaze-login-register.{$template} p, .blaze-login-register.{$template} label, .blaze-login-register.{$template} span, .blaze-login-register.{$template} a",
+			'heading' => ".blaze-login-register.{$template} h2",
+			'body' => ".blaze-login-register.{$template} p, .blaze-login-register.{$template} label, .blaze-login-register.{$template} span, .blaze-login-register.{$template} a",
 			'placeholder' => ".blaze-login-register.{$template} input::placeholder",
-			'button'      => ".blaze-login-register.{$template} button, .blaze-login-register.{$template} .button",
+			'button' => ".blaze-login-register.{$template} button, .blaze-login-register.{$template} .button",
 		);
 
 		return isset( $selectors[ $element ] ) ? $selectors[ $element ] : '';
@@ -758,7 +758,7 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->selective_refresh->add_partial(
 			'blocksy_child_my_account_template',
 			array(
-				'selector'        => '.woocommerce-account .woocommerce',
+				'selector' => '.woocommerce-account .woocommerce',
 				'render_callback' => array( $this, 'render_my_account_form' ),
 			)
 		);
