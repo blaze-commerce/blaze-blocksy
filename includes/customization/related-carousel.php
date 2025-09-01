@@ -34,10 +34,11 @@ add_action( 'wp_footer', function () {
 			}
 		}
 		jQuery(document).ready(function ($) {
-			$('.related.products .products, .up-sells.products .products').addClass('owl-carousel owl-theme');
+			// Initialize carousel for related products and up-sells (excluding recently-viewed which uses AJAX)
+			$('.related.products .products, .up-sells.products:not(.recently-viewed-products) .products').addClass('owl-carousel owl-theme');
 			$('.related.products .owl-carousel').owlCarousel(carouselConfig);
 
-			$('.up-sells.products .owl-carousel').owlCarousel(carouselConfig);
+			$('.up-sells.products:not(.recently-viewed-products) .owl-carousel').owlCarousel(carouselConfig);
 		});
 	</script>
 	<?php
