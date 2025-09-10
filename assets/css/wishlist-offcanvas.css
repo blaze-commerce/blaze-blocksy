@@ -81,6 +81,8 @@
 #wishlist-offcanvas-panel .ct-panel-actions {
     padding: 12px 20px;
     border-bottom: 1px solid var(--wishlist-border-color);
+    margin-left: 0;
+    margin-right: 0;
 }
 
 #wishlist-offcanvas-panel .ct-panel-heading {

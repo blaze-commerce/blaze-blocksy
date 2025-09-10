@@ -63,8 +63,8 @@ add_action(
 		add_post_type_support( 'shop_coupon', 'custom-fields' );
 		global $wp_post_types;
 		if ( isset( $wp_post_types['shop_coupon'] ) ) {
-			$wp_post_types['shop_coupon']->show_in_rest = true;
-			$wp_post_types['shop_coupon']->rest_base = 'shop_coupon';
+			$wp_post_types['shop_coupon']->show_in_rest          = true;
+			$wp_post_types['shop_coupon']->rest_base             = 'shop_coupon';
 			$wp_post_types['shop_coupon']->rest_controller_class = 'WP_REST_Posts_Controller';
 		}
 	},
@@ -97,10 +97,11 @@ $required_files = [
 	'/includes/customization/related-carousel.php',
 	'/includes/customization/product-category.php',
 	'/includes/customization/recently-viewed-products.php',
+	'/includes/customization/wishlist/wishlist.php',
 ];
 
 foreach ( $required_files as $file ) {
-	$file_path = get_stylesheet_directory() . $file;
+	$file_path = BLAZE_BLOCKSY_PATH . $file;
 	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
 		try {
 			require_once $file_path;

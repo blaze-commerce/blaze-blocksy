@@ -1,16 +1,25 @@
-.dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+body
+  .dgwt-wcas-search-wrapp
+  .dgwt-wcas-sf-wrapp
+  input[type="search"].dgwt-wcas-search-input {
   min-height: 48px;
   background-color: transparent;
   border-radius: 8px;
-  color: #eee;
+  color: white;
 }
 
-.dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
+body
+  .dgwt-wcas-search-wrapp
+  .dgwt-wcas-sf-wrapp
+  input[type="search"].dgwt-wcas-search-input:focus {
   background-color: transparent;
   border-radius: 8px;
 }
 
-.dgwt-wcas-sf-wrapp button.dgwt-wcas-search-submit {
+body
+  .dgwt-wcas-search-wrapp
+  .dgwt-wcas-sf-wrapp
+  button.dgwt-wcas-search-submit {
   height: 46px;
   background-color: transparent;
 }
@@ -92,6 +101,13 @@ body
   border: 1px solid #cdd1d4;
   padding-top: 0;
   border-radius: 8px;
+}
+
+body
+  .dgwt-wcas-suggestions-wrapp
+  .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product
+  .dgwt-wcas-sp {
+  display: flex;
 }
 
 body
@@ -201,10 +217,7 @@ body
     background-color: transparent !important;
   }
 
-  body .dgwt-wcas-om-bar .dgwt-wcas-om-return svg {
-    fill: #4e594d;
-  }
-
+  body .dgwt-wcas-om-bar .dgwt-wcas-om-return svg,
   body .dgwt-wcas-om-bar .dgwt-wcas-om-return svg path {
     fill: #4e594d;
   }
@@ -223,7 +236,7 @@ body
     input[type="search"].dgwt-wcas-search-input {
     border-radius: 8px;
     border: 2px solid var(--border, #cdd1d4);
-    color: black;
+    color: black !important;
   }
 
   .js-dgwt-wcas-overlay-mobile
