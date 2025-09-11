@@ -183,7 +183,8 @@ function add_recently_viewed_localize_data( $data ) {
 	}
 
 	global $product;
-	if ( ! $product ) {
+
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
 		return $data;
 	}
 

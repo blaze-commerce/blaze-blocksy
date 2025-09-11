@@ -1,3 +1,50 @@
+/* Modify if shop sidebar is active */
+
+.shop-sidebar-active [data-sidebar] {
+  --sidebar-gap: 18px;
+}
+
+.shop-sidebar-active .site-main > .hero-section {
+  padding-top: var(--theme-content-vertical-spacing, 20px) !important;
+}
+
+.shop-sidebar-active .site-main > .hero-section + .ct-container {
+  padding-top: 0 !important;
+}
+
+.shop-sidebar-active .woo-sidebar-header {
+}
+
+.shop-sidebar-active .woo-sidebar-header .woo-sidebar-title {
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--theme-border-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shop-sidebar-active .woo-listing-top:not(:empty),
+.shop-sidebar-active .woo-sidebar-header,
+.shop-sidebar-active .ct-active-filters:not([data-display-type]):not(:empty) {
+  margin-bottom: 16px !important;
+}
+
+.shop-sidebar-active .ct-toggle-filter-panel.ct-offcanvas-trigger {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .shop-sidebar-active .ct-toggle-filter-panel.ct-offcanvas-trigger {
+    display: block;
+  }
+}
+
+/** Modify end here */
+
 .archive .entry-header.ct-container,
 .post-type-archive .entry-header.ct-container {
   padding-top: 16px !important;
@@ -5,8 +52,9 @@
 
 .archive .woo-listing-top,
 .post-type-archive .woo-listing-top {
-  padding: 16px 0;
-  border-top: 1px solid var(--theme-border-color);
+  padding-bottom: 16px;
+  /* padding: 16px 0; */
+  /* border-top: 1px solid var(--theme-border-color); */
   border-bottom: 1px solid var(--theme-border-color);
 }
 
@@ -87,6 +135,7 @@
 
 .ct-load-more-helper .ct-load-more {
   border: 1px solid var(--theme-button-text-initial-color);
+  background-color: transparent;
   font-weight: 500;
 }
 

@@ -167,4 +167,3 @@ add_filter( 'woocommerce_locate_template', function ($template, $template_name) 
 	return $template;
 
 }, 999, 2 );
-
