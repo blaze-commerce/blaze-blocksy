@@ -12,7 +12,9 @@
 
 .products .product {
   height: calc(100% - 1px);
-  border: 1px solid #cdd1d4;
+  /* Border is now controlled by the dynamic border system in product-card.php */
+  /* Default fallback border for when dynamic system is disabled */
+  border: 1px solid transparent;
   border-radius: 8px;
   overflow: hidden;
   padding-bottom: 24px;
@@ -20,29 +22,6 @@
 
 .products.columns-4 {
   column-gap: 24px;
-}
-
-@media (max-width: 600px) {
-  .products .product {
-    text-align: left;
-  }
-}
-
-.products .product figure .ct-media-container {
-  border-radius: 0 !important;
-}
-
-.products .product .woocommerce-loop-product__title,
-.products .product .jdgm-widget,
-.products .product .price,
-.products .product .ct-woo-card-actions {
-  display: block;
-  width: 100%;
-  padding: 0 24px;
-}
-
-.products .product .price .wwp-wholesale-pricing-details p {
-  margin-bottom: var(--product-element-spacing, 10px);
 }
 
 .products .product .noteware-backorder-chip {
@@ -62,61 +41,12 @@
     grid-row-gap: 12px;
   }
 
-  .products .product .woocommerce-loop-product__title,
-  .products .product .jdgm-widget,
-  .products .product .price,
-  .products .product .ct-woo-card-actions {
-    padding: 0 var(--product-element-spacing, 12px);
-  }
-
   .products .product .noteware-backorder-chip {
     width: calc(100% - 24px) !important;
     margin-left: 12px;
     margin-right: 12px;
   }
 }
-
-.products .product .ct-woo-card-actions a {
-  width: 100%;
-  display: block;
-  text-align: center;
-  line-height: 300%;
-  border-radius: 0;
-  font-weight: bold;
-}
-
-.products .product .ct-woo-card-actions a.loading {
-  background-color: #eee !important;
-}
-
-.products .product .ct-woo-card-actions a.added_to_cart {
-  display: none !important;
-}
-
-@media screen and (max-width: 768px) {
-  .products .product .ct-woo-card-actions a {
-    font-size: 14px;
-    min-height: 0;
-    padding: 4px 0;
-  }
-}
-
-.products .product .price .sale-price {
-  flex-flow: row-reverse;
-}
-.products .product .add_to_cart_button {
-  background-color: var(--theme-palette-color-11);
-}
-
-.products .product .ct-woo-card-extra {
-  top: auto;
-  bottom: 15px;
-}
-
-.products .product .jdgm-prev-badge__text {
-  font-size: 14px;
-}
-
 #woo-filters-panel .ct-block-wrapper {
   margin: 0 !important;
 }

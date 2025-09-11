@@ -35,6 +35,20 @@ function blaze_blocksy_enqueue_assets() {
 		array( 'parent-style' )
 	);
 
+	wp_enqueue_style(
+		'blocksy-child-product-card-style',
+		$template_uri . '/assets/css/product-card.css',
+		array( 'parent-style' )
+	);
+
+	wp_enqueue_script(
+		'blocksy-child-general-js',
+		$template_uri . '/assets/js/general.js',
+		array( 'jquery' ),
+		'1.0.0',
+		true
+	);
+
 	// === MINI CART ASSETS ===
 	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css' );
 	wp_enqueue_script( 'blaze-blocksy-mini-cart-js', BLAZE_BLOCKSY_URL . '/assets/js/mini-cart.js', array( 'jquery' ), '1.0.0', true );

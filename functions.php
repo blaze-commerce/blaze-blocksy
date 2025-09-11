@@ -63,8 +63,8 @@ add_action(
 		add_post_type_support( 'shop_coupon', 'custom-fields' );
 		global $wp_post_types;
 		if ( isset( $wp_post_types['shop_coupon'] ) ) {
-			$wp_post_types['shop_coupon']->show_in_rest          = true;
-			$wp_post_types['shop_coupon']->rest_base             = 'shop_coupon';
+			$wp_post_types['shop_coupon']->show_in_rest = true;
+			$wp_post_types['shop_coupon']->rest_base = 'shop_coupon';
 			$wp_post_types['shop_coupon']->rest_controller_class = 'WP_REST_Posts_Controller';
 		}
 	},
@@ -96,9 +96,15 @@ $required_files = [
 	'/includes/customization/mini-cart.php',
 	'/includes/customization/related-carousel.php',
 	'/includes/customization/product-category.php',
+	'/includes/customization/product-card.php',
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
 ];
+
+// Add debug files in debug mode
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	$required_files[] = '/includes/debug/product-card-border-test.php';
+}
 
 foreach ( $required_files as $file ) {
 	$file_path = BLAZE_BLOCKSY_PATH . $file;
@@ -145,4 +151,20 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Override WooCommerce templates
+
+ */
+add_filter( 'woocommerce_locate_template', function ($template, $template_name) {
+	// override woocommerce template if file exists
+	$custom_template = BLAZE_BLOCKSY_PATH . '/woocommerce/' . $template_name;
+
+	if ( file_exists( $custom_template ) ) {
+		return $custom_template;
+	}
+
+	return $template;
+
+}, 999, 2 );
 
