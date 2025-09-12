@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.29.0] - 2025-09-04
 
 ### Added
+
 - add customizable URL field for mini cart help link
 - update mini-cart and product features with enhanced styling and functionality
 - load more fix
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add documents
 
 ### Changed
+
 - Fix search issues and add product category customization (#90)
 - remove non-english docs
 - WIP
@@ -53,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - wip
 
 ### Fixed
+
 - issue with wrong path
 - update add to cart button
 - downgrade php version to 8.1
@@ -60,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.28.0] - 2025-09-01
 
 ### Added
+
 - disable minicart control script (#86)
 - integrate resend email functionality with WooCommerce for enhanced user experience (#80)
 - enhance auto-merge security with comprehensive improvements (#83)
@@ -92,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add off-canvas wishlist functionality with customizer settings
 
 ### Changed
+
 - bump theme version to 1.27.0 (#87)
 - bump theme version to 1.26.0 (#85)
 - bump theme version to 1.25.0 (#84)
@@ -131,6 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial wishlist files
 
 ### Fixed
+
 - header having margin bottom that causes alignment issue
 - empty cart icon not in the center
 - respect branch protection rules in auto-merge workflow (#59)
@@ -145,11 +151,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.27.0] - 2025-08-31
 
 ### Added
+
 - disable minicart control script (#86)
 - integrate resend email functionality with WooCommerce for enhanced user experience (#80)
 - enhance auto-merge security with comprehensive improvements (#83)
@@ -179,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.26.0 (#85)
 - bump theme version to 1.25.0 (#84)
 - bump theme version to 1.24.0 (#79)
@@ -205,6 +214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -217,11 +227,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.26.0] - 2025-08-30
 
 ### Added
+
 - integrate resend email functionality with WooCommerce for enhanced user experience (#80)
 - enhance auto-merge security with comprehensive improvements (#83)
 - remove obsolete files and cleanup codebase for improved maintainability (#82)
@@ -250,6 +262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.25.0 (#84)
 - bump theme version to 1.24.0 (#79)
 - bump theme version to 1.23.0 (#76)
@@ -275,6 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -287,11 +301,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.25.0] - 2025-08-30
 
 ### Added
+
 - remove obsolete files and cleanup codebase for improved maintainability (#82)
 - enforce mandatory /docs directory structure for all documentation (#81)
 - integrate BlazeCommerce minicart control with WooCommerce for enhanced cart flow (#78)
@@ -318,6 +334,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.24.0 (#79)
 - bump theme version to 1.23.0 (#76)
 - bump theme version to 1.22.0 (#73)
@@ -342,6 +359,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -354,11 +372,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.24.0] - 2025-08-30
 
 ### Added
+
 - integrate BlazeCommerce minicart control with WooCommerce for enhanced cart flow (#78)
 - fix critical code quality issues in BlazeCommerce child theme (#75)
 - fix critical CSS syntax error in style.css for layout stability (#74)
@@ -383,6 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.23.0 (#76)
 - bump theme version to 1.22.0 (#73)
 - bump theme version to 1.21.0 (#71)
@@ -406,6 +427,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -418,11 +440,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.23.0] - 2025-08-29
 
 ### Added
+
 - fix critical code quality issues in BlazeCommerce child theme (#75)
 - fix critical CSS syntax error in style.css for layout stability (#74)
 - integrate code cleanup with WordPress theme for improved stability and performance (#72)
@@ -446,6 +470,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.22.0 (#73)
 - bump theme version to 1.21.0 (#71)
 - remove development automation and security tooling while preserving core functionality (#70)
@@ -468,6 +493,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -480,11 +506,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.22.0] - 2025-08-28
 
 ### Added
+
 - integrate code cleanup with WordPress theme for improved stability and performance (#72)
 - implement comprehensive site-agnostic cleanup and security hardening (#68)
 - remove checkout sidebar widget area implementation (#66)
@@ -506,6 +534,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.21.0 (#71)
 - remove development automation and security tooling while preserving core functionality (#70)
 - bump theme version to 1.20.0 (#69)
@@ -527,6 +556,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -539,11 +569,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.21.0] - 2025-08-28
 
 ### Added
+
 - implement comprehensive site-agnostic cleanup and security hardening (#68)
 - remove checkout sidebar widget area implementation (#66)
 - improve code quality and security in blocksy-child theme (#64)
@@ -564,6 +596,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - remove development automation and security tooling while preserving core functionality (#70)
 - bump theme version to 1.20.0 (#69)
 - bump theme version to 1.19.0 (#67)
@@ -584,6 +617,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -596,11 +630,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.20.0] - 2025-08-28
 
 ### Added
+
 - implement comprehensive site-agnostic cleanup and security hardening (#68)
 - remove checkout sidebar widget area implementation (#66)
 - improve code quality and security in blocksy-child theme (#64)
@@ -621,6 +657,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.19.0 (#67)
 - bump theme version to 1.18.0 (#65)
 - bump theme version to 1.17.0 (#63)
@@ -639,6 +676,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -651,11 +689,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.19.0] - 2025-08-28
 
 ### Added
+
 - remove checkout sidebar widget area implementation (#66)
 - improve code quality and security in blocksy-child theme (#64)
 - implement automated markdown file organization system with intelligent categorization (#62)
@@ -675,6 +715,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.18.0 (#65)
 - bump theme version to 1.17.0 (#63)
 - bump theme version to 1.16.0 (#61)
@@ -692,6 +733,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -704,11 +746,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.18.0] - 2025-08-28
 
 ### Added
+
 - improve code quality and security in blocksy-child theme (#64)
 - implement automated markdown file organization system with intelligent categorization (#62)
 - integrate comprehensive production release exclusions with GitHub Actions workflow (#60)
@@ -727,6 +771,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.17.0 (#63)
 - bump theme version to 1.16.0 (#61)
 - bump theme version to 1.15.0 (#57)
@@ -743,6 +788,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -755,11 +801,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.17.0] - 2025-08-28
 
 ### Added
+
 - implement automated markdown file organization system with intelligent categorization (#62)
 - integrate comprehensive production release exclusions with GitHub Actions workflow (#60)
 - implement enhanced changelog generation system and restore missing version history (#58)
@@ -777,6 +825,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve WordPress theme ZIP structure for consistent folder naming
 
 ### Changed
+
 - bump theme version to 1.16.0 (#61)
 - bump theme version to 1.15.0 (#57)
 - bump theme version to 1.14.0 (#54)
@@ -792,6 +841,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude shell scripts and executable files from release ZIP
 
 ### Fixed
+
 - respect branch protection rules in auto-merge workflow (#59)
 - respect branch protection rules in auto-merge workflow
 - add null checks to prevent jq errors in auto-merge workflow
@@ -804,26 +854,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - exclude .augmentignore and backup files from release ZIP
 
 ### Documentation
+
 - enhance auto-merge workflow with configuration and documentation
 
 ## [1.16.0] - 2025-08-28
 
 ### Added
+
 - Enhanced changelog generation system with automatic categorization from conventional commits
 - Comprehensive changelog generation script (`scripts/generate-changelog.py`) for manual use
 - Detailed documentation for changelog maintenance and best practices
 
 ### Changed
+
 - Improved release workflow to automatically generate detailed changelog sections when [Unreleased] is empty
 - Enhanced Python script in release workflow to parse conventional commits and categorize changes
 - Updated changelog generation to preserve manual entries while providing automatic fallback
 
 ### Fixed
+
 - Changelog generation issue where versions after 2.0.3 had empty sections
 - Missing categorized information (Added, Changed, Fixed, Documentation, etc.) in recent releases
 - Workflow dependency on manual changelog maintenance that was causing empty release notes
 
 ### Documentation
+
 - Added `docs/CHANGELOG-GENERATION.md` with comprehensive guide for developers
 - Updated workflow documentation to explain new automatic changelog generation
 - Provided examples and best practices for conventional commits and manual changelog entries
@@ -835,50 +890,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.13.0] - 2025-08-28
 
 ### Added
+
 - Comprehensive testing framework implementation with code review enhancements
 - Checkout sidebar widget area with security improvements
 
 ## [1.12.0] - 2025-08-28
 
 ### Added
+
 - Checkout sidebar widget area with security improvements
 
 ### Changed
+
 - Updated my-account custom CSS styling
 
 ### Fixed
+
 - Circular dependency in auto-merge workflow that caused PR #48 failure
 
 ## [1.11.0] - 2025-08-28
 
 ### Added
+
 - Auto-merge workflow integration with BlazeCommerce automation bot for version bump PRs
 
 ### Changed
+
 - Updated my-account custom CSS styling
 - Optimized admin performance by removing emoji scripts
 - Verified auto-merge workflow functionality
 
 ### Fixed
+
 - Circular dependency in auto-merge workflow that caused PR #48 failure
 
 ## [1.10.0] - 2025-08-28
 
 ### Added
+
 - Auto-merge workflow integration with BlazeCommerce automation bot for version bump PRs
 - Standardized address grid layout and updated CSS naming convention
 
 ### Changed
+
 - Optimized admin performance by removing emoji scripts
 - Verified auto-merge workflow functionality
 - Fixed header z-index for mobile menu
 
 ### Fixed
+
 - GitHub Actions workflow authentication failure
 
 ## [1.9.0] - 2025-08-27
 
 ### Added
+
 - Standardized address grid layout and updated CSS naming convention
 - Critical security fixes and performance optimizations for WooCommerce thank you page asset loading
 - Workflow fix documentation to README
@@ -888,9 +954,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WordPress theme ZIP structure improvements for consistent folder naming
 
 ### Changed
+
 - Fixed header z-index for mobile menu
 
 ### Fixed
+
 - GitHub Actions workflow authentication failure
 - GitHub Actions workflow failure with existing tags (multiple instances)
 - YAML syntax error and regex patterns in cleanup workflow
@@ -898,45 +966,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Excluded .augmentignore and backup files from release ZIP
 
 ### Security
+
 - Excluded shell scripts and executable files from release ZIP
 
 ## [1.8.0] - 2025-08-27
 
 ### Added
+
 - My-account settings migration to WordPress Customizer with live preview
 
 ### Changed
+
 - Enhanced my-account customization functionality
 
 ## [1.7.0] - 2025-08-27
 
 ### Added
+
 - Enhanced thank you page styling and layout for Blaze Commerce
 
 ## [1.6.0] - 2025-08-27
 
 ### Added
+
 - Complete Blaze Commerce thank you page implementation
 - Thank you page customization integration with WooCommerce for checkout enhancement
 
 ## [1.5.0] - 2025-08-26
 
 ### Added
+
 - Checkout customizations integration with Blaze Commerce theme
 - Reorganized Augment rules configuration structure
 
 ## [1.4.0] - 2025-08-26
 
 ### Added
+
 - Complete Blaze Commerce rebranding and critical fixes for thank you page (v2.0.3)
 
 ### Documentation
+
 - Updated CHANGELOG.md with v2.0.3 Blaze Commerce branding release
 - Added comprehensive Blaze Commerce documentation and branding updates
 
 ## [2.0.3] - 2025-08-26
 
 ### Added
+
 - Complete Blaze Commerce branding implementation for thank you page
 - Comprehensive documentation suite with implementation guides
 - Real order data analysis from staging environment (Order #1001380)
@@ -945,6 +1022,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance optimization with updated asset versioning
 
 ### Changed
+
 - Complete rebranding from Figma to Blaze Commerce naming conventions
 - CSS classes: `.figma-*` → `.blaze-commerce-*` across all selectors
 - PHP functions: `blocksy_child_figma_*` → `blocksy_child_blaze_commerce_*`
@@ -953,12 +1031,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Asset versions updated from 2.0.1 to 2.0.3 for proper cache invalidation
 
 ### Fixed
+
 - Critical typo in thank you message: "Thank for your Order!" → "Thank you for your Order!"
 - Email output security with `esc_html()` wrapper implementation
 - Order date null handling with "N/A" fallback for missing data
 - Cache management with proper asset versioning
 
 ### Documentation
+
 - Added `docs/THANK-YOU-PAGE-CUSTOMIZATION.md` - Complete customization guide (306 lines)
 - Added `docs/blaze-commerce-thank-you-implementation.md` - Implementation specifications (219 lines)
 - Added `docs/thank-you-page-analysis.md` - Technical analysis with real order data (640 lines)
@@ -968,35 +1048,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2025-08-26
 
 ### Added
+
 - Comprehensive versioning automation with Augment tooling exclusions
 - Enhanced GitHub Actions workflow with intelligent commit analysis
 - Automated changelog maintenance during releases
 
 ### Changed
+
 - Improved release workflow to prevent cascading releases from tooling changes
 - Enhanced commit filtering to exclude non-functional changes
 
 ### Fixed
+
 - Cascading versioning issue from automated version bump PRs
 - Empty releases triggered by Augment tooling file changes
 
 ## [1.2.0] - 2025-08-23
 
 ### Added
+
 - .augmentignore file for optimized codebase indexing
 - Comprehensive Augment documentation rules configuration
 - CI integration with taxonomy and validation enhancements
 
 ### Changed
+
 - Switched to structured priority objects for Augment configuration
 - Enhanced YAML configuration with proper escaping
 
 ### Fixed
+
 - YAML escaping issues in configuration files
 
 ## [1.1.0] - 2025-08-22
 
 ### Added
+
 - Automated semantic versioning with branch protection support
 - GitHub App token authentication for PR creation
 - Comprehensive theme functionality enhancements
@@ -1006,12 +1093,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search customizations and theme assets
 
 ### Changed
+
 - Enhanced functions.php with comprehensive theme functionality
 - Modified style.css for Infinity Targets theme customizations
 - Enforced branch-protected release flow
 - Tightened ZIP exclusions for release packages
 
 ### Fixed
+
 - GitHub Actions PR creation restrictions with App token
 - Existing release branches handling to prevent push conflicts
 - Critical workflow errors and security vulnerabilities
@@ -1020,6 +1109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version format validation and update verification
 
 ### Security
+
 - Added proper error handling with set -e throughout workflow
 - Implemented secure command escaping to prevent injection attacks
 - Enhanced token-based authentication for automated operations
@@ -1027,6 +1117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-08-14
 
 ### Added
+
 - Initial Blocksy child theme implementation
 - Basic theme structure and configuration
 - Core theme files and assets

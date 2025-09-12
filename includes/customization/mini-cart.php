@@ -1,17 +1,17 @@
 <?php
 
-add_action( 'wp_enqueue_scripts', function () {
-	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css' );
-	wp_enqueue_script( 'blaze-blocksy-mini-cart-js', BLAZE_BLOCKSY_URL . '/assets/js/mini-cart.js', array( 'jquery' ), '1.0.0', true );
+/**
+ * Add mini cart specific data to localize script
+ * This uses the filter hook from scripts.php
+ */
+add_filter( 'blaze_blocksy_mini_cart_localize_data', 'add_mini_cart_localize_data' );
 
-	// Localize script for AJAX
-	wp_localize_script( 'blaze-blocksy-mini-cart-js', 'blazeBlocksyMiniCart', array(
-		'ajax_url' => admin_url( 'admin-ajax.php' ),
-		'nonce' => wp_create_nonce( 'blaze_blocksy_mini_cart_nonce' ),
-		'applying_coupon' => __( 'Applying...', 'blaze-blocksy' ),
-		'apply_coupon' => __( 'APPLY COUPON', 'blaze-blocksy' )
-	) );
-} );
+function add_mini_cart_localize_data( $data ) {
+	// Add any mini cart specific localization data here
+	// The base data (ajax_url, nonce, etc.) is already handled in scripts.php
+
+	return $data;
+}
 
 /**
  * Override mini cart template
