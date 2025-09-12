@@ -6,6 +6,9 @@
 
 .shop-sidebar-active .site-main > .hero-section {
   padding-top: var(--theme-content-vertical-spacing, 20px) !important;
+
+  width: var(--theme-container-width);
+  max-width: var(--theme-normal-container-max-width);
 }
 
 .shop-sidebar-active .site-main > .hero-section + .ct-container {
@@ -37,7 +40,7 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 800px) {
   .shop-sidebar-active .ct-toggle-filter-panel.ct-offcanvas-trigger {
     display: block;
   }
