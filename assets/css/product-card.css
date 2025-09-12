@@ -68,6 +68,17 @@
   }
 }
 
+.products
+  .product
+  .ct-variation-swatches
+  .ct-swatch-container:nth-child(n + 5) {
+  display: none;
+}
+
+.products .product .ct-swatch-container .ct-swatch {
+  --swatch-size: 30px;
+}
+
 .products .product .ct-variation-swatches .view-more-variations {
   background: none;
   border: none;
