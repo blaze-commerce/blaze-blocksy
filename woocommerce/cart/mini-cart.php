@@ -38,23 +38,28 @@ $wishlist_products = array();
 if ( function_exists( 'blc_get_ext' ) ) {
 
 	try {
-		$wishlist_instance = blc_get_ext( 'woocommerce-extra' )->get_wish_list();
-		$wishlist_items = $wishlist_instance->get_current_wish_list();
+		$woocommerce_extra = blc_get_ext( 'woocommerce-extra' );
+		if ( $woocommerce_extra ) {
+			$wishlist_instance = $woocommerce_extra->get_wish_list();
+			if ( $wishlist_instance ) {
+				$wishlist_items = $wishlist_instance->get_current_wish_list();
 
-		if ( ! empty( $wishlist_items ) ) {
-			$wishlist_items = array_map( function ($item) {
-				return $item['id'];
-			}, $wishlist_items );
+				if ( ! empty( $wishlist_items ) ) {
+					$wishlist_items = array_map( function ($item) {
+						return $item['id'];
+					}, $wishlist_items );
 
-			// remove duplicates from $recently_viewed_products
-			$wishlist_items = array_diff( $wishlist_items, $recently_viewed_ids );
-			$wishlist_items = array_slice( $wishlist_items, 0, 2 ); // Limit to 4
+					// remove duplicates from $recently_viewed_products
+					$wishlist_items = array_diff( $wishlist_items, $recently_viewed_ids );
+					$wishlist_items = array_slice( $wishlist_items, 0, 2 ); // Limit to 4
 
-			foreach ( $wishlist_items as $item_id ) {
-				$product = wc_get_product( $item_id );
+					foreach ( $wishlist_items as $item_id ) {
+						$product = wc_get_product( $item_id );
 
-				if ( $product && $product->is_visible() ) {
-					$wishlist_products[] = $product;
+						if ( $product && $product->is_visible() ) {
+							$wishlist_products[] = $product;
+						}
+					}
 				}
 			}
 		}
@@ -72,7 +77,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 		do_action( 'woocommerce_before_mini_cart_contents' );
 
 		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-			$_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+			$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
 
 			if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_widget_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
@@ -81,11 +86,11 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 				 *
 				 * @since 2.1.0
 				 */
-				$product_name = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
-				$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-				$product_price = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
+				$product_name      = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
+				$thumbnail         = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+				$product_price     = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
 				$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-				$item_total = apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
+				$item_total        = apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
 				?>
 				<li
 					class="woocommerce-mini-cart-item <?php echo esc_attr( apply_filters( 'woocommerce_mini_cart_item_class', 'mini_cart_item', $cart_item, $cart_item_key ) ); ?>">
