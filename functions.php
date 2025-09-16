@@ -174,47 +174,28 @@ add_filter( 'woocommerce_locate_template', function ($template, $template_name) 
  * Custom code for infinitytargets only
  */
 
-add_filter( 'the_content', function ($content) {
-	global $post;
+add_action( 'template_redirect', function () {
 
 
-	do_action(
-
-		'qm/info',
-		[ 
-			'is_page' => is_page( 'dealer-resources' ),
-			'is_user_logged_in' => is_user_logged_in(),
-			'current_user_can' => current_user_can( 'administrator' ) || current_user_can( 'editor' ),
-		]
-	);
 	if ( ! is_page( 'dealer-resources' ) ) {
-		return $content;
+		return true;
 	}
 
 	// check if current user role is admin or editor
 	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
-		return $content;
+		return true;
 	}
 
 	if ( is_user_logged_in() ) {
 
 		$user_id = get_current_user_id();
-		if ( is_wholesaler_user( $user_id ) ) {
-			return $content;
+		if ( function_exists( 'is_wholesaler_user' ) && is_wholesaler_user( $user_id ) ) {
+			return true;
 		}
 
 	}
 
-	ob_start();
-
-	?>
-	<div class="restricted-content">
-		<p>You do not have permission to view this page.</p>
-	</div>
-	<?php
-
-	$content = ob_get_clean();
-
-
-	return $content;
+	//redirect user to home page
+	wp_redirect( home_url() );
+	exit;
 } );
