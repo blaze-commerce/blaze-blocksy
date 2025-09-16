@@ -178,21 +178,33 @@ function get_recently_viewed_products_from_cookie() {
 add_filter( 'blaze_blocksy_single_product_localize_data', 'add_recently_viewed_localize_data' );
 
 function add_recently_viewed_localize_data( $data ) {
-	if ( ! is_product() ) {
-		return $data;
-	}
-
-	global $product;
-
-	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
-		return $data;
-	}
 
 	// Add recently viewed specific data
 	$data['recently_viewed'] = array(
 		'nonce' => wp_create_nonce( 'recently_viewed_nonce' ),
-		'current_product_id' => $product->get_id()
 	);
+
+	global $product;
+
+	do_action( 'qm/info', $product );
+
+	if ( $product ) {
+		$product_id = null;
+		if ( is_a( $product, 'WC_Product' ) ) {
+			$product_id = $product->get_id();
+		} elseif ( is_string( $product ) ) {
+			// get product by slug
+			$post = get_page_by_path( $product, OBJECT, 'product' );
+			if ( $post ) {
+				$product_id = $post->ID;
+			}
+
+		}
+
+		if ( $product_id ) {
+			$data['recently_viewed']['current_product_id'] = $product_id;
+		}
+	}
 
 	return $data;
 }

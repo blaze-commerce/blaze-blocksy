@@ -14,11 +14,12 @@ add_action( 'wp_footer', function () {
 		const carouselConfig = {
 			loop: false,
 			margin: 24,
-			nav: false,
+			nav: true,
 			dots: true,
 			responsive: {
 				0: {
 					items: 2,
+					nav: false
 				},
 				1000: {
 					items: 4

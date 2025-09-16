@@ -1,0 +1,178 @@
+@media (max-width: 767px) {
+  /* Hides on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Hides on desktop */
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+.ct-sidebar .ct-widget {
+  border-bottom: 1px solid var(--theme-border-color);
+  padding-bottom: 24px;
+}
+
+.ct-sidebar .ct-widget:last-of-type {
+  border-bottom: none !important;
+}
+
+[data-products="type-1"] .ct-woo-card-actions {
+  padding-top: 4px !important;
+}
+
+.wwp_file_add_more,
+.wwp_file_delete {
+  background-color: rgb(78, 89, 77);
+  color: #ffffff;
+  padding: 8px;
+  border-radius: 3px;
+  font-family: ct_font_corse__sans;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.jdgm-preview-badge .jdgm-star,
+.jdgm-star,
+.jdgm-rev__author,
+.jdgm-rev__icon:before {
+  color: #4e594d !important;
+}
+
+.jdgm-histogram__bar-content {
+  background-color: rgb(78, 89, 77);
+  color: #4e594d !important;
+}
+
+:root {
+  --jdgm-primary-color: #4e594d;
+}
+
+.jdgm-rev-widg {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.jdgm-write-rev-link.jdgm-write-rev-link:not([disabled]):hover,
+.jdgm-write-rev-link.jdgm-write-rev-link:focus {
+  color: white;
+  background-color: rgb(78, 89, 77) !important;
+}
+
+.jdgm-rev-widg__body {
+  position: relative;
+  padding: 16px;
+}
+
+.jdgm-rev-widg__summary,
+.jdgm-histogram,
+.jdgm-widget-actions-wrapper {
+  margin: 0 0 24px 0;
+  padding: 16px;
+}
+
+.jdgm-row-actions {
+  padding: 16px !important;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ct-subscribe-form {
+  --theme-form-field-height: 60px;
+  --theme-form-field-padding: 0 25px;
+  --theme-form-field-background-initial-color: #000;
+  --theme-form-field-background-focus-color: rgba(0, 0, 0, 0.4);
+  --theme-form-field-border-width: 0;
+  --theme-text-color: #fff;
+
+  --theme-button-min-height: 60px;
+  --theme-button-background-initial-color: var(--theme-palette-color-1);
+  --theme-button-text-initial-color: #fff;
+}
+
+/* responsive map */
+@media only screen and (max-width: 1024px) {
+  .ct-map {
+    height: 400px;
+  }
+}
+
+[data-prefix="woo_categories"] .hero-section[data-type="type-2"] {
+  background-color: #111518 !important;
+  background-image: none;
+  --container-padding: 50px 0px;
+}
+
+.button product_type_simple add_to_cart_button ajax_add_to_cart {
+  width: 100%;
+}
+
+.instagram-media {
+  background: #000;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5), 0 1px 10px 0 rgba(0, 0, 0, 0.15);
+  margin: 1px auto; /* Center the block */
+  max-width: 80%; /* Set maximum width to 80% */
+  min-width: 326px;
+  padding: 0;
+  width: 80%; /* Set width to 80% */
+}
+
+.instagram-media a {
+  background: #000; /* Set background to black */
+}
+
+.instagram-media p {
+  color: #c9c8cd; /* Maintain text color */
+}
+.post-985188 .mega_menu a[data-type="product_cat"] {
+  text-decoration: none !important;
+}
+
+.mega_menu {
+  text-decoration: none !important;
+}
+
+.paypal-button {
+  z-index: 1 !important;
+}
+
+.wc-block-components-express-payment
+  wc-block-components-express-payment--checkout {
+  z-index: 1 !important;
+}
+
+#woo-cart-panel {
+  position: fixed; /* Ensure the cart is fixed on the screen */
+  z-index: 9999; /* Set a high z-index to bring it above other elements */
+  top: 0;
+  right: 0;
+  width: 100%; /* Adjust to the design's requirements */
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95); /* Ensure a visible background */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.mega_menu h3 {
+  color: red !important; /* Makes the headings red */
+  text-align: left !important; /* Left-aligns the headings */
+}
+
+/**
+ * Archive Sidebar
+ */
+
+html .ct-filter-widget .ct-filter-item-inner a > .ct-filter-count {
+  margin-inline-start: 0;
+}
+
+html .ct-filter-widget .ct-filter-item-inner a > .ct-filter-label {
+  font-family: var(--theme-font-family);
+}
