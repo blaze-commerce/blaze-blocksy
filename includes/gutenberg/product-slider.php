@@ -81,8 +81,16 @@ class Product_Carousel_Block {
 					'type' => 'number',
 					'default' => 12,
 				),
+				'orderBy' => array(
+					'type' => 'string',
+					'default' => 'date',
+				),
 			),
 			'render_callback' => array( $this, 'render_block' ),
+			'supports' => array(
+				'align' => array( 'wide', 'full' ),
+				'className' => true,
+			),
 		) );
 	}
 
@@ -90,9 +98,11 @@ class Product_Carousel_Block {
 	 * Render the block on the frontend
 	 *
 	 * @param array $attributes Block attributes
+	 * @param string $content Block content
+	 * @param WP_Block $block Block instance
 	 * @return string Block HTML output
 	 */
-	public function render_block( $attributes ) {
+	public function render_block( $attributes, $content = '', $block = null ) {
 		// Check if WooCommerce is active
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return '<div class="woocommerce-info">' . __( 'WooCommerce is required for this block.', 'blaze-blocksy' ) . '</div>';
@@ -108,11 +118,17 @@ class Product_Carousel_Block {
 		// Generate unique ID for this carousel instance
 		$carousel_id = 'product-carousel-' . wp_generate_uuid4();
 
+		// Get block wrapper attributes (includes Gutenberg classes)
+		$wrapper_attributes = get_block_wrapper_attributes( array(
+			'id' => $carousel_id,
+			'class' => 'blaze-product-carousel-wrapper',
+		) );
+
 		// Start output buffering
 		ob_start();
 
-		// Render the carousel
-		$this->render_carousel( $products, $attributes, $carousel_id );
+		// Render the carousel with wrapper attributes
+		$this->render_carousel( $products, $attributes, $carousel_id, $wrapper_attributes );
 
 		return ob_get_clean();
 	}
@@ -131,6 +147,45 @@ class Product_Carousel_Block {
 			'meta_query' => array(),
 			'tax_query' => array(),
 		);
+
+		// Handle order by
+		$order_by = isset( $attributes['orderBy'] ) ? $attributes['orderBy'] : 'date';
+		switch ( $order_by ) {
+			case 'name':
+				$args['orderby'] = 'title';
+				$args['order'] = 'ASC';
+				break;
+
+			case 'newest':
+				$args['orderby'] = 'date';
+				$args['order'] = 'DESC';
+				break;
+
+			case 'most_selling':
+				$args['orderby'] = 'meta_value_num';
+				$args['meta_key'] = 'total_sales';
+				$args['order'] = 'DESC';
+				break;
+
+			case 'most_popular':
+				// Order by average rating
+				$args['orderby'] = 'meta_value_num';
+				$args['meta_key'] = '_wc_average_rating';
+				$args['order'] = 'DESC';
+				// Only include products with ratings
+				$args['meta_query'][] = array(
+					'key' => '_wc_average_rating',
+					'value' => 0,
+					'compare' => '>',
+					'type' => 'DECIMAL',
+				);
+				break;
+
+			default:
+				$args['orderby'] = 'date';
+				$args['order'] = 'DESC';
+				break;
+		}
 
 		// Add category filter if categories are selected
 		if ( ! empty( $attributes['selectedCategories'] ) ) {
@@ -215,8 +270,9 @@ class Product_Carousel_Block {
 	 * @param array $products Array of WC_Product objects
 	 * @param array $attributes Block attributes
 	 * @param string $carousel_id Unique carousel ID
+	 * @param string $wrapper_attributes Block wrapper attributes with Gutenberg classes
 	 */
-	private function render_carousel( $products, $attributes, $carousel_id ) {
+	private function render_carousel( $products, $attributes, $carousel_id, $wrapper_attributes ) {
 		// Prepare carousel configuration
 		$carousel_config = array(
 			'loop' => $attributes['loop'],
@@ -240,7 +296,7 @@ class Product_Carousel_Block {
 		);
 
 		?>
-		<div class="blaze-product-carousel-wrapper" id="<?php echo esc_attr( $carousel_id ); ?>">
+		<div <?php echo $wrapper_attributes; ?>>
 			<div class="products columns-4 owl-carousel owl-theme blaze-product-carousel"
 				data-carousel-config='<?php echo wp_json_encode( $carousel_config ); ?>' data-products="type-1"
 				data-hover="zoom-in">

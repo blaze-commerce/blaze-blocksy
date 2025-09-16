@@ -135,6 +135,7 @@
     const { attributes, setAttributes } = props;
     const {
       saleAttribute,
+      orderBy,
       productsPerSlide,
       showNavigation,
       showDots,
@@ -214,6 +215,25 @@
               },
             ],
             onChange: (value) => setAttributes({ saleAttribute: value }),
+          }),
+
+          // Order By
+          el(SelectControl, {
+            label: __("Order By", "blaze-blocksy"),
+            value: orderBy || "date",
+            options: [
+              { value: "date", label: __("Newest Product", "blaze-blocksy") },
+              { value: "name", label: __("Name", "blaze-blocksy") },
+              {
+                value: "most_selling",
+                label: __("Most Selling", "blaze-blocksy"),
+              },
+              {
+                value: "most_popular",
+                label: __("Most Popular (by reviews)", "blaze-blocksy"),
+              },
+            ],
+            onChange: (value) => setAttributes({ orderBy: value }),
           }),
 
           // Products Limit
@@ -379,6 +399,10 @@
       saleAttribute: {
         type: "string",
         default: "all",
+      },
+      orderBy: {
+        type: "string",
+        default: "date",
       },
       productsPerSlide: {
         type: "object",
