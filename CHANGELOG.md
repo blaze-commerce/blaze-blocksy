@@ -7,6 +7,134 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.31.0] - 2025-09-16
+
+### Added
+- replace admin email with WooCommerce from email in thank-you page (#94)
+- modify layout on shop or product category page if sidebar enable
+- refactor product card and add view-more button on the swatches options
+- add customizable URL field for mini cart help link
+- update mini-cart and product features with enhanced styling and functionality
+- load more fix
+- load more button
+- modification load more button
+- update several things
+- complete mini cart style
+- product page adjustment
+- apply judgeme
+- complete product card
+- wip product information block
+- add documents
+
+### Changed
+- bump theme version to 1.30.0 (#93)
+- bump theme version to 1.29.0 (#91)
+- Fix search issues and add product category customization (#90)
+- wip
+- update mobile search
+- wip
+- enqueue js scripts
+- checkpoint
+- bump theme version to 1.29.0
+- remove non-english docs
+- WIP
+- wip
+- WIP
+- WIP
+- update doc
+- update doc
+- augment WIP
+- WIP
+- wip
+- adjust you may also like section
+- set heading offcanvas
+- set heading style for filter offcanvas
+- adjust mini cart
+- adjust
+- adjust style
+- update several styles
+- mini-cart improvement
+- wip
+- category
+- update heading style in the product page
+- disable conflic codes
+- wip
+- search customization for infinity targets
+- update
+- wip
+
+### Fixed
+- variation swatches
+- filter toggle button
+- hero banner style when sidebar active
+- load recent-products ajax-ly
+- issue with wrong path
+- update add to cart button
+- downgrade php version to 8.1
+
+## [1.30.0] - 2025-09-15
+
+### Added
+- modify layout on shop or product category page if sidebar enable
+- refactor product card and add view-more button on the swatches options
+- add customizable URL field for mini cart help link
+- update mini-cart and product features with enhanced styling and functionality
+- load more fix
+- load more button
+- modification load more button
+- update several things
+- complete mini cart style
+- product page adjustment
+- apply judgeme
+- complete product card
+- wip product information block
+- add documents
+
+### Changed
+- bump theme version to 1.29.0 (#91)
+- Fix search issues and add product category customization (#90)
+- wip
+- update mobile search
+- wip
+- enqueue js scripts
+- checkpoint
+- bump theme version to 1.29.0
+- remove non-english docs
+- WIP
+- wip
+- WIP
+- WIP
+- update doc
+- update doc
+- augment WIP
+- WIP
+- wip
+- adjust you may also like section
+- set heading offcanvas
+- set heading style for filter offcanvas
+- adjust mini cart
+- adjust
+- adjust style
+- update several styles
+- mini-cart improvement
+- wip
+- category
+- update heading style in the product page
+- disable conflic codes
+- wip
+- search customization for infinity targets
+- update
+- wip
+
+### Fixed
+- variation swatches
+- filter toggle button
+- hero banner style when sidebar active
+- load recent-products ajax-ly
+- issue with wrong path
+- update add to cart button
+- downgrade php version to 8.1
+
 ## [1.29.0] - 2025-09-04
 
 ### Added
@@ -1149,7 +1277,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.27.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.27.0
 [1.28.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.8.0...v1.28.0
 [1.29.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.29.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.29.0...HEAD
+[1.30.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.30.0
+[1.31.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.31.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.31.0...HEAD
 [1.3.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.0.0...v1.1.0

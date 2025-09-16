@@ -57,6 +57,25 @@ blocksy-child/
 - **Heading Colors**: Text color
 - **Label Colors**: Text color
 
+#### Button Styling (Desktop)
+- **Padding Controls**: Individual top, right, bottom, left padding
+- **Border Radius**: Customizable button corner rounding
+- **Column Border Radius**: Column corner rounding (all templates)
+- **Live Preview**: Real-time updates in customizer
+
+#### Form Elements
+- **Checkbox Border Color**: Customizable checkbox border appearance
+- **Required Field Color**: Control required field asterisk color
+
+#### Footer Text
+- **Desktop Font Size**: Footer text size for desktop devices
+- **Mobile Font Size**: Responsive footer text size for mobile
+
+#### Account Navigation
+- **Border Color**: Navigation border customization
+- **Text Color**: Navigation link text color
+- **Active/Hover Color**: Background color for active states
+
 #### Layout Options
 - **Template Selection**: Choose between layouts
 - **Responsive Behavior**: Automatic mobile optimization

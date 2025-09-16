@@ -264,7 +264,10 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
 						</div>
 						<div id="resend-feedback" class="resend-feedback" style="display: none;"></div>
 						<p>
-							Need help? Contact our support team at <strong><?php echo esc_html( get_option( 'admin_email' ) ); ?></strong>
+							Need help? Contact our support team at <strong><?php
+							$support_email = get_option( 'woocommerce_email_from_address' ) ?: get_option( 'admin_email' );
+							echo esc_html( $support_email );
+							?></strong>
 						</p>
 					</div>
 					<?php
