@@ -446,7 +446,7 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_section(
 			'blocksy_my_account_spacing',
 			array(
-				'title' => __( 'Button Padding (Desktop)', 'blocksy-child' ),
+				'title' => __( 'Button Styling (Desktop)', 'blocksy-child' ),
 				'panel' => 'blocksy_my_account_panel',
 				'priority' => 70,
 			)
@@ -492,6 +492,26 @@ class Blocksy_Child_My_Account_Customizer {
 				)
 			);
 		}
+
+		// Button Border Radius Control
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_button_border_radius',
+			array(
+				'default' => '3px',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_child_my_account_button_border_radius',
+			array(
+				'label' => __( 'Border Radius', 'blocksy-child' ),
+				'description' => __( 'Enter border radius with CSS unit (e.g., 3px, 0.5rem)', 'blocksy-child' ),
+				'section' => 'blocksy_my_account_spacing',
+				'type' => 'text',
+			)
+		);
 	}
 
 	/**
@@ -635,16 +655,18 @@ class Blocksy_Child_My_Account_Customizer {
 		$button_hover_bg = get_theme_mod( 'blocksy_child_my_account_button_hover_color', '#005a87' );
 		$button_hover_text = get_theme_mod( 'blocksy_child_my_account_button_hover_text_color', '#ffffff' );
 
-		// Button padding
+		// Button padding and border radius
 		$padding_top = get_theme_mod( 'blocksy_child_my_account_button_padding_top', '12px' );
 		$padding_right = get_theme_mod( 'blocksy_child_my_account_button_padding_right', '24px' );
 		$padding_bottom = get_theme_mod( 'blocksy_child_my_account_button_padding_bottom', '12px' );
 		$padding_left = get_theme_mod( 'blocksy_child_my_account_button_padding_left', '24px' );
+		$border_radius = get_theme_mod( 'blocksy_child_my_account_button_border_radius', '3px' );
 
 		$css .= ".blaze-login-register.{$template} button, .blaze-login-register.{$template} .button {";
 		$css .= "background-color: {$button_bg} !important;";
 		$css .= "color: {$button_text} !important;";
 		$css .= "padding: {$padding_top} {$padding_right} {$padding_bottom} {$padding_left} !important;";
+		$css .= "border-radius: {$border_radius} !important;";
 		$css .= '}';
 
 		$css .= ".blaze-login-register.{$template} button:hover, .blaze-login-register.{$template} .button:hover {";

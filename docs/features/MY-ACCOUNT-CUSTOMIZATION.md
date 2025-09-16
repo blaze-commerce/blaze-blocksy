@@ -57,6 +57,11 @@ blocksy-child/
 - **Heading Colors**: Text color
 - **Label Colors**: Text color
 
+#### Button Styling (Desktop)
+- **Padding Controls**: Individual top, right, bottom, left padding
+- **Border Radius**: Customizable button corner rounding
+- **Live Preview**: Real-time updates in customizer
+
 #### Layout Options
 - **Template Selection**: Choose between layouts
 - **Responsive Behavior**: Automatic mobile optimization

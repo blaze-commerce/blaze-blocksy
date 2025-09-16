@@ -128,6 +128,18 @@
 				);
 			}
 		);
+
+		// Border radius binding
+		wp.customize(
+			'blocksy_child_my_account_button_border_radius',
+			function (value) {
+				value.bind(
+					function (newValue) {
+						updateButtonBorderRadius();
+					}
+				);
+			}
+		);
 	}
 
 	/**
@@ -269,6 +281,21 @@
 		var paddingValue = top + ' ' + right + ' ' + bottom + ' ' + left;
 
 		updateCSS( selector, 'padding', paddingValue );
+	}
+
+	/**
+	 * Update button border radius
+	 */
+	function updateButtonBorderRadius() {
+		var template = wp.customize( 'blocksy_child_my_account_template' )();
+		if (template === 'default') {
+			return;
+		}
+
+		var borderRadius = wp.customize( 'blocksy_child_my_account_button_border_radius' )() || '3px';
+		var selector     = '.blaze-login-register.' + template + ' button, .blaze-login-register.' + template + ' .button';
+
+		updateCSS( selector, 'border-radius', borderRadius );
 	}
 
 	/**
