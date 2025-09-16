@@ -226,6 +226,7 @@
 
 /* Mobile Styles (< 768px) */
 @media (max-width: 767px) {
+
 	.blaze-login-register.template1,
 	.blaze-login-register.template2 {
 		padding: 20px;
@@ -246,6 +247,7 @@
 
 /* Small Mobile Styles (< 480px) */
 @media (max-width: 479px) {
+
 	.blaze-login-register.template1,
 	.blaze-login-register.template2 {
 		padding: 15px;
@@ -314,6 +316,7 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
+
 	.blaze-login-register.template1 .blaze-column,
 	.blaze-login-register.template2 {
 		border-width: 2px;
@@ -322,60 +325,19 @@
 }
 
 
-
-/* Custom CSS */
-
-.blaze-login-register input.woocommerce-form__input-checkbox{
-	border-color: #CDD1D4 !important;
-}
-.blaze-login-register .login-form-footer span,
-.blaze-login-register .login-form-footer a,
-.blaze-login-register .woocommerce-privacy-policy-text p,
-.blaze-login-register .woocommerce-privacy-policy-text p a,
-.blaze-login-register.template1 .login-form-footer span,
-.blaze-login-register.template1 .login-form-footer a,
-.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
-.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
-	font-size: 14px !important;
-}
-.idefense-my_account .ct-acount-nav{
-	border: 1px solid #CDD1D4 !important;
-}
-.idefense-my_account .woocommerce-MyAccount-navigation{
+/* Keep non-customizable styles */
+.blz-my_account .woocommerce-MyAccount-navigation {
 	--theme-box-shadow: none;
 }
 
 #post-9 {
 	--theme-boxed-content-box-shadow: none;
 }
-.idefense-my_account p,
-.idefense-my_account a{
-	color: #242424;
-}
-.idefense-my_account ul li.is-active{
-	--account-nav-background-active-color: #be252f;
-}
-.idefense-my_account ul li:hover{
-	--account-nav-background-active-color: #be252f;
-}
-
-@media (max-width: 768px) {
-	.blaze-login-register .login-form-footer span,
-	.blaze-login-register .login-form-footer a,
-	.blaze-login-register .woocommerce-privacy-policy-text p,
-	.blaze-login-register .woocommerce-privacy-policy-text p a,
-	.blaze-login-register.template1 .login-form-footer span,
-	.blaze-login-register.template1 .login-form-footer a,
-	.blaze-login-register.template1 .woocommerce-privacy-policy-text p,
-	.blaze-login-register.template1 .woocommerce-privacy-policy-text p a{
-		font-size: 12px !important;
-	}
-}
 
 .wp-block-group.is-layout-constrained.wp-container-core-group-is-layout-87fbb315.wp-block-group-is-layout-constrained {
 	display: none;
 }
-.blaze-login-register span .required,
-.blaze-login-register.template1 span.required {
-	color: red !important;
+
+.ct-acount-nav {
+	background: #fff !important;
 }
