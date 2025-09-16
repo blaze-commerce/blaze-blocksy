@@ -100,6 +100,7 @@ $required_files = [
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
 
+	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 ];
 
