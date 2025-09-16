@@ -1,10 +1,26 @@
-:root {
-  --foreground: #040711;
-}
-
 .single-product .entry-summary {
   --product-element-spacing: 12px;
 }
+
+.single-product .entry-summary .single_add_to_cart_button {
+  border-radius: 0px;
+  border: var(--Border-none, 0) solid var(--border);
+  background: var(--primary);
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.08) inset, 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+
+  color: var(--accent-foreground);
+  text-align: center;
+
+
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 36px;
+  /* 150% */
+}
+
+.single-product div.quantity .ct-increase:hover,
+.single-product div.quantity .ct-decrease:hover {}
 
 .single-product .avada-single-product-gallery-wrapper {
   width: var(--product-gallery-width, 50%);

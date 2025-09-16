@@ -1,11 +1,3 @@
-:root {
-  --primary: #BAEAA0;
-  --border: #D7D8DB;
-  --foreground: #040711;
-  --secondary: #1A1A1A;
-  --accent-foreground: #2C2C2C;
-}
-
 .archive .entry-header.ct-container,
 .post-type-archive .entry-header.ct-container {
   padding-top: 16px !important;

@@ -7,6 +7,14 @@
  * Text Domain: blocksy
  */
 
+:root {
+	--primary: #BAEAA0;
+	--border: #D7D8DB;
+	--foreground: #040711;
+	--secondary: #1A1A1A;
+	--accent-foreground: #2C2C2C;
+}
+
 .ct-sticky-container {
 	z-index: 1000;
 }

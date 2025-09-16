@@ -763,6 +763,17 @@ class BlocksyChildWishlistOffCanvas {
 				'nonce' => wp_create_nonce( 'wishlist_offcanvas_nonce' ),
 			)
 		);
+
+		// Enqueue test script in development mode (when WP_DEBUG is enabled)
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			wp_enqueue_script(
+				'wishlist-offcanvas-test',
+				get_stylesheet_directory_uri() . '/assets/js/wishlist-offcanvas-test.js',
+				array( 'jquery', 'wishlist-offcanvas' ),
+				$theme_version,
+				true
+			);
+		}
 	}
 
 	/**

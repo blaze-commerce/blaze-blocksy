@@ -108,11 +108,84 @@
                     isModal: false
                 }
             });
+
+            // CRITICAL FIX: Ensure pointer events work after Blocksy's system activates
+            // Add a small delay to check if the panel is properly activated
+            setTimeout(function () {
+                ensurePanelIsClickable(panel);
+            }, 50);
         } else {
             // Fallback: simple show/hide
             $(panel).addClass('active');
             $('body').addClass('wishlist-offcanvas-open');
+            ensurePanelIsClickable(panel);
         }
+    }
+
+    /**
+     * Ensure the panel is clickable by forcing pointer events if needed
+     */
+    function ensurePanelIsClickable(panel) {
+        if (!panel) return;
+
+        // Force the panel to be active and clickable
+        panel.classList.add('active');
+
+        // Ensure pointer events are enabled on the panel itself
+        panel.style.pointerEvents = 'auto';
+
+        // Also ensure all child elements are clickable
+        const interactiveSelectors = [
+            'a', 'button', 'input', 'select', 'textarea',
+            '.button', '.ct-wishlist-remove', '.add_to_cart_button',
+            '.wishlist-item', '.recommendation-item',
+            '.guest-signup-button', '.signup-button',
+            '.ct-toggle-close', '.wishlist-item-title a',
+            '.recommendation-item-title a', '.wishlist-item-actions',
+            '.recommendation-item-actions'
+        ];
+
+        const interactiveElements = panel.querySelectorAll(interactiveSelectors.join(', '));
+        interactiveElements.forEach(function (element) {
+            element.style.pointerEvents = 'auto';
+            element.style.position = 'relative';
+            element.style.zIndex = '10';
+
+            // CRITICAL: Force cursor pointer for links and add backup click handler
+            if (element.tagName.toLowerCase() === 'a') {
+                element.style.cursor = 'pointer';
+
+                // Add click event listener as backup to force navigation
+                element.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#' && !href.startsWith('#')) {
+                        console.log('Backup navigation triggered for:', href);
+                        // Small delay to ensure any other handlers run first
+                        setTimeout(function () {
+                            window.location.href = href;
+                        }, 50);
+                    }
+                }, true); // Use capture phase to run before other handlers
+            }
+        });
+
+        // Ensure all container elements are clickable
+        const containerSelectors = [
+            '.ct-panel-content', '.ct-panel-content-inner',
+            '.ct-offcanvas-wishlist', '.wishlist-items',
+            '.wishlist-recommendations', '.recommendations-grid'
+        ];
+
+        containerSelectors.forEach(function (selector) {
+            const elements = panel.querySelectorAll(selector);
+            elements.forEach(function (element) {
+                element.style.pointerEvents = 'auto';
+                element.style.position = 'relative';
+            });
+        });
+
+        // Debug log to help troubleshoot if needed
+        console.log('Wishlist off-canvas comprehensive clickability ensured for panel and', interactiveElements.length, 'interactive elements');
     }
 
     /**
@@ -196,6 +269,45 @@
                 }, DELAYS.BUTTON_RESET);
             });
         });
+
+        // CRITICAL FIX: Ensure all links work properly by forcing click events
+        $(document).on('click', '.ct-offcanvas-wishlist a, .wishlist-recommendations a', function (e) {
+            const $link = $(this);
+            const href = $link.attr('href');
+
+            // Debug log
+            console.log('Link clicked in wishlist off-canvas:', href);
+
+            // If it's a valid URL, ensure navigation works
+            if (href && href !== '#' && !href.startsWith('#')) {
+                // Force navigation if the default behavior is being blocked
+                setTimeout(function () {
+                    if (href.startsWith('http') || href.startsWith('/')) {
+                        window.location.href = href;
+                    }
+                }, 10);
+            }
+
+            // Don't prevent default - let normal navigation work
+            return true;
+        });
+
+        // Handle sign-up button clicks for guest users
+        $(document).on('click', '.ct-offcanvas-wishlist .guest-signup-button, .ct-offcanvas-wishlist .signup-button', function (e) {
+            const $button = $(this);
+            const href = $button.attr('href');
+
+            console.log('Sign-up button clicked in wishlist off-canvas:', href);
+
+            // Force navigation for sign-up buttons
+            if (href && href !== '#') {
+                setTimeout(function () {
+                    window.location.href = href;
+                }, 10);
+            }
+
+            return true;
+        });
     }
 
     /**
@@ -259,6 +371,9 @@
                     const count = response.data.count || 0;
                     $panel.find(SELECTORS.WISHLIST_COUNT).text('(' + count + ')');
 
+                    // CRITICAL FIX: Ensure new content is clickable
+                    ensurePanelIsClickable($panel[0]);
+
                     // Show off-canvas if requested
                     if (showAfterRefresh) {
                         setTimeout(openWishlistOffCanvas, DELAYS.CONTENT_RENDER);
@@ -275,12 +390,21 @@
 
     /**
      * Close off-canvas when clicking outside (fallback)
+     * CRITICAL FIX: Ensure this doesn't interfere with clicks inside the panel
      */
     $(document).on('click', function (e) {
         if ($('body').hasClass('wishlist-offcanvas-open')) {
             const $panel = $(SELECTORS.PANEL);
+            const $target = $(e.target);
 
-            if (!$panel.is(e.target) && $panel.has(e.target).length === 0) {
+            // IMPROVED: More precise detection of clicks inside the panel
+            // Don't close if clicking on the panel itself or any of its children
+            if (!$panel.is(e.target) &&
+                $panel.has(e.target).length === 0 &&
+                !$target.closest('#wishlist-offcanvas-panel').length &&
+                !$target.closest('.ct-offcanvas-wishlist').length &&
+                !$target.closest('.wishlist-recommendations').length) {
+
                 $panel.removeClass('active');
                 $('body').removeClass('wishlist-offcanvas-open');
             }
