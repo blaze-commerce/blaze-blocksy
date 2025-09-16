@@ -240,39 +240,41 @@ class Product_Carousel_Block {
 		);
 
 		?>
-				<div class="blaze-product-carousel-wrapper" id="<?php echo esc_attr( $carousel_id ); ?>">
-					<div class="products owl-carousel owl-theme blaze-product-carousel" data-carousel-config='<?php echo wp_json_encode( $carousel_config ); ?>'>
-						<?php
-						// Set up WooCommerce loop context
-						global $woocommerce_loop;
-						$woocommerce_loop['is_shortcode'] = true;
-						$woocommerce_loop['columns'] = $attributes['productsPerSlide']['desktop'];
-
-						foreach ( $products as $product ) {
-							// Set global product for template
-							$GLOBALS['product'] = $product;
-
-							// Use the existing product card template
-							wc_get_template_part( 'content', 'product' );
-						}
-
-						// Reset global product
-						unset( $GLOBALS['product'] );
-						?>
-					</div>
-				</div>
-
-				<script type="text/javascript">
-				jQuery(document).ready(function($) {
-					var $carousel = $('#<?php echo esc_js( $carousel_id ); ?> .blaze-product-carousel');
-					var config = $carousel.data('carousel-config');
-
-					if ($carousel.length && typeof $.fn.owlCarousel !== 'undefined') {
-						$carousel.owlCarousel(config);
-					}
-				});
-				</script>
+		<div class="blaze-product-carousel-wrapper" id="<?php echo esc_attr( $carousel_id ); ?>">
+			<div class="products columns-4 owl-carousel owl-theme blaze-product-carousel"
+				data-carousel-config='<?php echo wp_json_encode( $carousel_config ); ?>' data-products="type-1"
+				data-hover="zoom-in">
 				<?php
+				// Set up WooCommerce loop context
+				global $woocommerce_loop;
+				$woocommerce_loop['is_shortcode'] = true;
+				$woocommerce_loop['columns'] = $attributes['productsPerSlide']['desktop'];
+
+				foreach ( $products as $product ) {
+					// Set global product for template
+					$GLOBALS['product'] = $product;
+
+					// Use the existing product card template
+					wc_get_template_part( 'content', 'product' );
+				}
+
+				// Reset global product
+				unset( $GLOBALS['product'] );
+				?>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			jQuery(document).ready(function ($) {
+				var $carousel = $('#<?php echo esc_js( $carousel_id ); ?> .blaze-product-carousel');
+				var config = $carousel.data('carousel-config');
+
+				if ($carousel.length && typeof $.fn.owlCarousel !== 'undefined') {
+					$carousel.owlCarousel(config);
+				}
+			});
+		</script>
+		<?php
 	}
 
 	/**
