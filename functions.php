@@ -169,3 +169,52 @@ add_filter( 'woocommerce_locate_template', function ($template, $template_name) 
 	return $template;
 
 }, 999, 2 );
+
+/**
+ * Custom code for infinitytargets only
+ */
+
+add_filter( 'the_content', function ($content) {
+	global $post;
+
+
+	do_action(
+
+		'qm/info',
+		[ 
+			'is_page' => is_page( 'dealer-resources' ),
+			'is_user_logged_in' => is_user_logged_in(),
+			'current_user_can' => current_user_can( 'administrator' ) || current_user_can( 'editor' ),
+		]
+	);
+	if ( ! is_page( 'dealer-resources' ) ) {
+		return $content;
+	}
+
+	// check if current user role is admin or editor
+	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
+		return $content;
+	}
+
+	if ( is_user_logged_in() ) {
+
+		$user_id = get_current_user_id();
+		if ( is_wholesaler_user( $user_id ) ) {
+			return $content;
+		}
+
+	}
+
+	ob_start();
+
+	?>
+	<div class="restricted-content">
+		<p>You do not have permission to view this page.</p>
+	</div>
+	<?php
+
+	$content = ob_get_clean();
+
+
+	return $content;
+} );
