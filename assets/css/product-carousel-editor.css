@@ -1,0 +1,313 @@
+/**
+ * Product Carousel Block Editor Styles
+ * 
+ * Styles for the Gutenberg block editor interface
+ */
+
+/* Block Editor Container */
+.wp-block-blaze-blocksy-product-carousel {
+    border: 1px dashed #ccc;
+    padding: 20px;
+    margin: 20px 0;
+    background: #f9f9f9;
+}
+
+/* Block Icon and Title */
+.blaze-product-carousel-editor-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.blaze-product-carousel-editor-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    fill: #666;
+}
+
+.blaze-product-carousel-editor-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* Controls Section */
+.blaze-product-carousel-controls {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Control Groups */
+.blaze-control-group {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.blaze-control-group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Category Selection */
+.blaze-category-selection {
+    margin-bottom: 15px;
+}
+
+.blaze-category-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.blaze-category-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.blaze-category-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.blaze-category-checkbox label {
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Sale Attribute Selection */
+.blaze-sale-attribute-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Responsive Controls */
+.blaze-responsive-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.blaze-responsive-control {
+    text-align: center;
+}
+
+.blaze-responsive-control label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.blaze-responsive-control input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Toggle Controls */
+.blaze-toggle-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.blaze-toggle-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f8f8f8;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.blaze-toggle-control label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.blaze-toggle-control input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Number Controls */
+.blaze-number-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.blaze-number-control {
+    display: flex;
+    flex-direction: column;
+}
+
+.blaze-number-control label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.blaze-number-control input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Preview Section */
+.blaze-product-carousel-preview {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.blaze-preview-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.blaze-preview-content {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* Loading State */
+.blaze-preview-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.blaze-preview-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.blaze-preview-error {
+    color: #d63638;
+    background: #fcf0f1;
+    border: 1px solid #d63638;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Help Text */
+.blaze-help-text {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* Responsive Design for Editor */
+@media (max-width: 782px) {
+    .blaze-responsive-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .blaze-toggle-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .blaze-number-controls {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .blaze-category-checkboxes {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Focus States */
+.blaze-category-checkbox input[type="checkbox"]:focus,
+.blaze-sale-attribute-select:focus,
+.blaze-responsive-control input[type="number"]:focus,
+.blaze-toggle-control input[type="checkbox"]:focus,
+.blaze-number-control input[type="number"]:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 1px;
+}
+
+/* Disabled State */
+.blaze-product-carousel-controls.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Block Validation Messages */
+.blaze-validation-message {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.blaze-validation-message.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.blaze-validation-message.success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}

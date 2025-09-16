@@ -58,6 +58,7 @@
 .products .owl-carousel .owl-stage {
   display: flex;
 }
+
 /*(2) the direct div of each element in the owl carousel*/
 .products .product {
   height: calc(100% - 1px);

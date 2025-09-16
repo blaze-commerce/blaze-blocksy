@@ -79,6 +79,14 @@
   --swatch-size: 30px;
 }
 
+.products .product .ct-swatch-container .ct-swatch-content {
+  max-width: 120px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .products .product .ct-variation-swatches .view-more-variations {
   background: none;
   border: none;
@@ -156,5 +164,76 @@
   .products .product .price,
   .products .product .ct-woo-card-actions {
     padding: 0 var(--module-product-card-element-spacing, 12px);
+  }
+}
+
+.products .owl-carousel {
+  position: relative;
+}
+
+.products .owl-carousel .owl-stage {
+  display: flex;
+}
+
+.products .owl-theme .owl-nav {
+  margin-top: 0;
+}
+
+.products .owl-theme .owl-nav button {
+  margin: 0;
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--theme-button-background-initial-color);
+  line-height: 24px;
+  text-decoration: none;
+  font-weight: 400;
+  cursor: pointer;
+  font-size: 120px !important;
+}
+
+.products .owl-theme .owl-nav button.disabled {
+  display: none !important;
+}
+
+.products .owl-theme .owl-nav button:hover {
+  background: transparent !important;
+  color: #869791 !important;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.products .owl-theme .owl-nav .owl-prev {
+  left: -48px;
+}
+
+.products .owl-theme .owl-nav .owl-next {
+  right: -48px;
+}
+
+.products .owl-theme .owl-nav.disabled + .owl-dots {
+  margin-top: 24px;
+}
+
+.products .owl-theme .owl-dots .owl-dot span {
+  height: 4px;
+  width: 96px;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  .products .owl-theme .owl-dots {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .products .owl-theme .owl-dots .owl-dot span {
+    width: 10px;
+    height: 4px;
+    margin: 0;
   }
 }

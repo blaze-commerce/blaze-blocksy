@@ -1,0 +1,274 @@
+/**
+ * Product Carousel Block Styles
+ * 
+ * Styles for the custom Gutenberg product carousel block
+ * Integrates with existing product card styles and Owl Carousel
+ */
+
+/* Carousel Wrapper */
+.blaze-product-carousel-wrapper {
+  position: relative;
+  margin: 2rem 0;
+}
+
+/* Carousel Container */
+.blaze-product-carousel {
+  position: relative;
+}
+
+/* Product Cards in Carousel */
+.blaze-product-carousel .product {
+  margin-bottom: 0 !important;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure consistent product card heights */
+.blaze-product-carousel .product > * {
+  flex-shrink: 0;
+}
+
+.blaze-product-carousel .product .woocommerce-loop-product__title {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  min-height: 2.5em;
+}
+
+/* Navigation Arrows */
+.blaze-product-carousel .owl-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  pointer-events: none;
+}
+
+.blaze-product-carousel .owl-nav button {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #ddd !important;
+  border-radius: 50% !important;
+  width: 50px !important;
+  height: 50px !important;
+  font-size: 18px !important;
+  color: #333 !important;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blaze-product-carousel .owl-nav button:hover {
+  background: #fff !important;
+  border-color: #999 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.blaze-product-carousel .owl-nav .owl-prev {
+  left: -25px;
+}
+
+.blaze-product-carousel .owl-nav .owl-next {
+  right: -25px;
+}
+
+/* Hide navigation on mobile */
+@media (max-width: 767px) {
+  .blaze-product-carousel .owl-nav {
+    display: none !important;
+  }
+}
+
+/* Dots Pagination */
+.blaze-product-carousel .owl-dots {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.blaze-product-carousel .owl-dots .owl-dot {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.blaze-product-carousel .owl-dots .owl-dot span {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.3s ease;
+}
+
+.blaze-product-carousel .owl-dots .owl-dot.active span,
+.blaze-product-carousel .owl-dots .owl-dot:hover span {
+  background: var(--theme-palette-color-1, #007cba);
+}
+
+/* Loading State */
+.blaze-product-carousel.loading {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blaze-product-carousel.loading::before {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--theme-palette-color-1, #007cba);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1199px) {
+  .blaze-product-carousel .owl-nav .owl-prev {
+    left: -20px;
+  }
+
+  .blaze-product-carousel .owl-nav .owl-next {
+    right: -20px;
+  }
+}
+
+@media (max-width: 991px) {
+  .blaze-product-carousel .owl-nav .owl-prev {
+    left: -15px;
+  }
+
+  .blaze-product-carousel .owl-nav .owl-next {
+    right: -15px;
+  }
+
+  .blaze-product-carousel .owl-nav button {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* Integration with existing product card styles */
+.blaze-product-carousel .products[data-products] .product {
+  border-radius: var(--product-card-border-radius, 8px);
+  border-width: var(--product-card-border-width, 1px);
+  border-style: var(--product-card-border-style, solid);
+  border-color: var(--product-card-border-color, transparent);
+  overflow: hidden;
+}
+
+/* Ensure proper spacing in carousel context */
+.blaze-product-carousel .product > * {
+  padding-left: var(--product-card-element-spacing, 16px) !important;
+  padding-right: var(--product-card-element-spacing, 16px) !important;
+}
+
+.blaze-product-carousel .product > figure {
+  padding: 0 !important;
+  margin-bottom: var(--product-card-element-spacing, 16px) !important;
+}
+
+/* Mobile responsive spacing */
+@media screen and (max-width: 768px) {
+  .blaze-product-carousel .product > * {
+    padding-left: var(--mobile-product-card-element-spacing, 12px) !important;
+    padding-right: var(--mobile-product-card-element-spacing, 12px) !important;
+  }
+
+  .blaze-product-carousel .product > figure {
+    margin-bottom: var(--mobile-product-card-element-spacing, 12px) !important;
+  }
+}
+
+/* Block Editor Specific Styles */
+.wp-block-blaze-blocksy-product-carousel {
+  margin: 2rem 0;
+}
+
+/* Ensure carousel works in editor preview */
+.editor-styles-wrapper .blaze-product-carousel-wrapper {
+  margin: 1rem 0;
+}
+
+/* Fix for potential conflicts with theme styles */
+.blaze-product-carousel .owl-stage-outer {
+  overflow: hidden;
+}
+
+.blaze-product-carousel .owl-stage {
+  display: flex;
+  align-items: stretch;
+}
+
+.blaze-product-carousel .owl-item {
+  display: flex;
+  align-items: stretch;
+}
+
+.blaze-product-carousel .owl-item .product {
+  width: 100%;
+  height: 100%;
+}
+
+/* Accessibility improvements */
+.blaze-product-carousel .owl-nav button {
+  outline: none;
+}
+
+.blaze-product-carousel .owl-nav button:focus {
+  outline: 2px solid var(--theme-palette-color-1, #007cba);
+  outline-offset: 2px;
+}
+
+.blaze-product-carousel .owl-dots .owl-dot:focus {
+  outline: 2px solid var(--theme-palette-color-1, #007cba);
+  outline-offset: 2px;
+}
+
+/* RTL Support */
+[dir="rtl"] .blaze-product-carousel .owl-nav .owl-prev {
+  right: -25px;
+  left: auto;
+}
+
+[dir="rtl"] .blaze-product-carousel .owl-nav .owl-next {
+  left: -25px;
+  right: auto;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .blaze-product-carousel .owl-nav button {
+    background: #fff !important;
+    border: 2px solid #000 !important;
+    color: #000 !important;
+  }
+
+  .blaze-product-carousel .owl-dots .owl-dot span {
+    background: #000;
+    border: 1px solid #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .blaze-product-carousel .owl-nav button,
+  .blaze-product-carousel .owl-dots .owl-dot span {
+    transition: none;
+  }
+
+  .blaze-product-carousel.loading::before {
+    animation: none;
+  }
+}

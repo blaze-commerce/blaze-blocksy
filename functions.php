@@ -99,6 +99,8 @@ $required_files = [
 	'/includes/customization/product-card.php',
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
+
+	'/includes/gutenberg/product-slider.php',
 ];
 
 // Add debug files in debug mode
