@@ -45,6 +45,9 @@ class Blocksy_Child_My_Account_Customizer {
 		$this->register_typography_sections( $wp_customize );
 		$this->register_colors_section( $wp_customize );
 		$this->register_spacing_section( $wp_customize );
+		$this->register_form_elements_section( $wp_customize );
+		$this->register_footer_text_section( $wp_customize );
+		$this->register_account_navigation_section( $wp_customize );
 		$this->register_responsive_sections( $wp_customize );
 	}
 
@@ -506,10 +509,239 @@ class Blocksy_Child_My_Account_Customizer {
 		$wp_customize->add_control(
 			'blocksy_child_my_account_button_border_radius',
 			array(
-				'label' => __( 'Border Radius', 'blocksy-child' ),
+				'label' => __( 'Button Border Radius', 'blocksy-child' ),
 				'description' => __( 'Enter border radius with CSS unit (e.g., 3px, 0.5rem)', 'blocksy-child' ),
 				'section' => 'blocksy_my_account_spacing',
 				'type' => 'text',
+			)
+		);
+	}
+
+	/**
+	 * Register form elements section
+	 */
+	private function register_form_elements_section( $wp_customize ) {
+		// Form Elements Section
+		$wp_customize->add_section(
+			'blocksy_my_account_form_elements',
+			array(
+				'title' => __( 'Form Elements', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
+				'priority' => 75,
+			)
+		);
+
+		// Checkbox Border Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_checkbox_border_color',
+			array(
+				'default' => '#CDD1D4',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_checkbox_border_color',
+				array(
+					'label' => __( 'Checkbox Border Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_form_elements',
+				)
+			)
+		);
+
+		// Required Field Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_required_field_color',
+			array(
+				'default' => '#ff0000',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_required_field_color',
+				array(
+					'label' => __( 'Required Field Asterisk Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_form_elements',
+				)
+			)
+		);
+
+		// Column Border Radius Control (All Templates)
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_column_border_radius',
+			array(
+				'default' => '12px',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_child_my_account_column_border_radius',
+			array(
+				'label' => __( 'Column Border Radius', 'blocksy-child' ),
+				'description' => __( 'Border radius for login/register columns in all templates (e.g., 12px, 1rem)', 'blocksy-child' ),
+				'section' => 'blocksy_my_account_form_elements',
+				'type' => 'text',
+			)
+		);
+	}
+
+	/**
+	 * Register footer text section
+	 */
+	private function register_footer_text_section( $wp_customize ) {
+		// Footer Text Section
+		$wp_customize->add_section(
+			'blocksy_my_account_footer_text',
+			array(
+				'title' => __( 'Footer Text', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
+				'priority' => 76,
+			)
+		);
+
+		// Desktop Font Size
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_footer_font_size_desktop',
+			array(
+				'default' => '14px',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_child_my_account_footer_font_size_desktop',
+			array(
+				'label' => __( 'Desktop Font Size', 'blocksy-child' ),
+				'description' => __( 'Font size for footer text on desktop (e.g., 14px, 1rem)', 'blocksy-child' ),
+				'section' => 'blocksy_my_account_footer_text',
+				'type' => 'text',
+			)
+		);
+
+		// Mobile Font Size
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_footer_font_size_mobile',
+			array(
+				'default' => '12px',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_child_my_account_footer_font_size_mobile',
+			array(
+				'label' => __( 'Mobile Font Size', 'blocksy-child' ),
+				'description' => __( 'Font size for footer text on mobile devices (e.g., 12px, 0.8rem)', 'blocksy-child' ),
+				'section' => 'blocksy_my_account_footer_text',
+				'type' => 'text',
+			)
+		);
+	}
+
+	/**
+	 * Register account navigation section
+	 */
+	private function register_account_navigation_section( $wp_customize ) {
+		// Account Navigation Section
+		$wp_customize->add_section(
+			'blocksy_my_account_navigation',
+			array(
+				'title' => __( 'Account Navigation', 'blocksy-child' ),
+				'panel' => 'blocksy_my_account_panel',
+				'priority' => 77,
+			)
+		);
+
+		// Navigation Border Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_nav_border_color',
+			array(
+				'default' => '#CDD1D4',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_nav_border_color',
+				array(
+					'label' => __( 'Navigation Border Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_navigation',
+				)
+			)
+		);
+
+		// Navigation Text Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_nav_text_color',
+			array(
+				'default' => '#242424',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_nav_text_color',
+				array(
+					'label' => __( 'Navigation Text Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_navigation',
+				)
+			)
+		);// Navigation Text Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_nav_active_text_color',
+			array(
+				'default' => '#1ED760',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_nav_active_text_color',
+				array(
+					'label' => __( 'Navigation Active/Hover Text Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_navigation',
+				)
+			)
+		);
+
+		// Active/Hover Background Color
+		$wp_customize->add_setting(
+			'blocksy_child_my_account_nav_active_color',
+			array(
+				'default' => '#be252f',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport' => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_child_my_account_nav_active_color',
+				array(
+					'label' => __( 'Active/Hover Background Color', 'blocksy-child' ),
+					'section' => 'blocksy_my_account_navigation',
+				)
 			)
 		);
 	}
@@ -685,6 +917,80 @@ class Blocksy_Child_My_Account_Customizer {
 		$css .= "background-color: {$input_bg} !important;";
 		$css .= "border-color: {$input_border} !important;";
 		$css .= "color: {$input_text} !important;";
+		$css .= '}';
+
+		// Form elements styles
+		$checkbox_border_color = get_theme_mod( 'blocksy_child_my_account_checkbox_border_color', '#CDD1D4' );
+		$required_field_color = get_theme_mod( 'blocksy_child_my_account_required_field_color', '#ff0000' );
+
+		$css .= ".blaze-login-register input.woocommerce-form__input-checkbox {";
+		$css .= "border-color: {$checkbox_border_color} !important;";
+		$css .= '}';
+
+		$css .= ".blaze-login-register span .required, .blaze-login-register.template1 span.required {";
+		$css .= "color: {$required_field_color} !important;";
+		$css .= '}';
+
+		// Footer text styles
+		$footer_font_size_desktop = get_theme_mod( 'blocksy_child_my_account_footer_font_size_desktop', '14px' );
+		$footer_font_size_mobile = get_theme_mod( 'blocksy_child_my_account_footer_font_size_mobile', '12px' );
+
+		$css .= ".blaze-login-register .login-form-footer span,";
+		$css .= ".blaze-login-register .login-form-footer a,";
+		$css .= ".blaze-login-register .woocommerce-privacy-policy-text p,";
+		$css .= ".blaze-login-register .woocommerce-privacy-policy-text p a,";
+		$css .= ".blaze-login-register.template1 .login-form-footer span,";
+		$css .= ".blaze-login-register.template1 .login-form-footer a,";
+		$css .= ".blaze-login-register.template1 .woocommerce-privacy-policy-text p,";
+		$css .= ".blaze-login-register.template1 .woocommerce-privacy-policy-text p a {";
+		$css .= "font-size: {$footer_font_size_desktop} !important;";
+		$css .= '}';
+
+		// Account navigation styles
+		$nav_border_color = get_theme_mod( 'blocksy_child_my_account_nav_border_color', '#CDD1D4' );
+		$nav_text_color = get_theme_mod( 'blocksy_child_my_account_nav_text_color', '#242424' );
+		$nav_active_text_color = get_theme_mod( 'blocksy_child_my_account_nav_active_text_color', '#1ED760' );
+		$nav_active_color = get_theme_mod( 'blocksy_child_my_account_nav_active_color', '#be252f' );
+
+		$css .= ".blz-my_account .ct-acount-nav {";
+		$css .= "border: 1px solid {$nav_border_color} !important;";
+		$css .= '}';
+
+		$css .= ".blz-my_account p, .blz-my_account a {";
+		$css .= "color: {$nav_text_color};";
+		$css .= '}';
+
+		$css .= ".blz-my_account ul li.is-active a, .blz-my_account ul li:hover a {";
+		$css .= "color: {$nav_active_text_color} !important;";
+		$css .= '}';
+
+		$css .= ".blz-my_account ul li.is-active {";
+		$css .= "--account-nav-background-active-color: {$nav_active_color};";
+		$css .= '}';
+
+		$css .= ".blz-my_account ul li:hover {";
+		$css .= "--account-nav-background-active-color: {$nav_active_color};";
+		$css .= '}';
+
+		// Column border radius (All Templates)
+		$column_border_radius = get_theme_mod( 'blocksy_child_my_account_column_border_radius', '12px' );
+
+		$css .= ".blaze-column {";
+		$css .= "border-radius: {$column_border_radius};";
+		$css .= '}';
+
+		// Mobile footer text styles
+		$css .= '@media (max-width: 768px) {';
+		$css .= ".blaze-login-register .login-form-footer span,";
+		$css .= ".blaze-login-register .login-form-footer a,";
+		$css .= ".blaze-login-register .woocommerce-privacy-policy-text p,";
+		$css .= ".blaze-login-register .woocommerce-privacy-policy-text p a,";
+		$css .= ".blaze-login-register.template1 .login-form-footer span,";
+		$css .= ".blaze-login-register.template1 .login-form-footer a,";
+		$css .= ".blaze-login-register.template1 .woocommerce-privacy-policy-text p,";
+		$css .= ".blaze-login-register.template1 .woocommerce-privacy-policy-text p a {";
+		$css .= "font-size: {$footer_font_size_mobile} !important;";
+		$css .= '}';
 		$css .= '}';
 
 		return $css;

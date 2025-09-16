@@ -18,6 +18,9 @@
 			initTypographyPreview();
 			initColorPreview();
 			initSpacingPreview();
+			initFormElementsPreview();
+			initFooterTextPreview();
+			initAccountNavigationPreview();
 			initResponsivePreview();
 			initTemplatePreview();
 		}
@@ -177,6 +180,104 @@
 	}
 
 	/**
+	 * Initialize form elements preview
+	 */
+	function initFormElementsPreview() {
+		// Column border radius binding
+		wp.customize(
+			'blocksy_child_my_account_column_border_radius',
+			function (value) {
+				value.bind(
+					function (newValue) {
+						updateColumnBorderRadius();
+					}
+				);
+			}
+		);
+
+		// Form element colors
+		var formElementColors = [
+			'checkbox_border_color',
+			'required_field_color'
+		];
+
+		formElementColors.forEach(
+			function (colorType) {
+				var settingId = 'blocksy_child_my_account_' + colorType;
+
+				wp.customize(
+					settingId,
+					function (value) {
+						value.bind(
+							function (newValue) {
+								updateFormElementColor( colorType, newValue );
+							}
+						);
+					}
+				);
+			}
+		);
+	}
+
+	/**
+	 * Initialize footer text preview
+	 */
+	function initFooterTextPreview() {
+		// Desktop footer font size
+		wp.customize(
+			'blocksy_child_my_account_footer_font_size_desktop',
+			function (value) {
+				value.bind(
+					function (newValue) {
+						updateFooterTextStyle( 'desktop', newValue );
+					}
+				);
+			}
+		);
+
+		// Mobile footer font size
+		wp.customize(
+			'blocksy_child_my_account_footer_font_size_mobile',
+			function (value) {
+				value.bind(
+					function (newValue) {
+						updateFooterTextStyle( 'mobile', newValue );
+					}
+				);
+			}
+		);
+	}
+
+	/**
+	 * Initialize account navigation preview
+	 */
+	function initAccountNavigationPreview() {
+		var navColors = [
+			'nav_border_color',
+			'nav_text_color',
+			'nav_active_text_color',
+			'nav_active_color'
+		];
+
+		navColors.forEach(
+			function (colorType) {
+				var settingId = 'blocksy_child_my_account_' + colorType;
+
+				wp.customize(
+					settingId,
+					function (value) {
+						value.bind(
+							function (newValue) {
+								updateAccountNavColor( colorType, newValue );
+							}
+						);
+					}
+				);
+			}
+		);
+	}
+
+	/**
 	 * Initialize template preview
 	 */
 	function initTemplatePreview() {
@@ -296,6 +397,86 @@
 		var selector     = '.blaze-login-register.' + template + ' button, .blaze-login-register.' + template + ' .button';
 
 		updateCSS( selector, 'border-radius', borderRadius );
+	}
+
+	/**
+	 * Update column border radius
+	 */
+	function updateColumnBorderRadius() {
+		var template = wp.customize( 'blocksy_child_my_account_template' )();
+		if (template === 'default') {
+			return;
+		}
+
+		var borderRadius = wp.customize( 'blocksy_child_my_account_column_border_radius' )() || '12px';
+		var selector     = '.blaze-column';
+
+		updateCSS( selector, 'border-radius', borderRadius );
+	}
+
+	/**
+	 * Update form element colors
+	 */
+	function updateFormElementColor(colorType, value) {
+		var template = wp.customize( 'blocksy_child_my_account_template' )();
+		if (template === 'default') {
+			return;
+		}
+
+		switch (colorType) {
+			case 'checkbox_border_color':
+				updateCSS( '.blaze-login-register input.woocommerce-form__input-checkbox', 'border-color', value );
+				break;
+			case 'required_field_color':
+				updateCSS( '.blaze-login-register span .required, .blaze-login-register.template1 span.required', 'color', value );
+				break;
+		}
+	}
+
+	/**
+	 * Update footer text styles
+	 */
+	function updateFooterTextStyle(device, value) {
+		var template = wp.customize( 'blocksy_child_my_account_template' )();
+		if (template === 'default') {
+			return;
+		}
+
+		var selector = '.blaze-login-register .login-form-footer span, ' +
+					   '.blaze-login-register .login-form-footer a, ' +
+					   '.blaze-login-register .woocommerce-privacy-policy-text p, ' +
+					   '.blaze-login-register .woocommerce-privacy-policy-text p a, ' +
+					   '.blaze-login-register.template1 .login-form-footer span, ' +
+					   '.blaze-login-register.template1 .login-form-footer a, ' +
+					   '.blaze-login-register.template1 .woocommerce-privacy-policy-text p, ' +
+					   '.blaze-login-register.template1 .woocommerce-privacy-policy-text p a';
+
+		if (device === 'mobile') {
+			updateResponsiveCSS( '@media (max-width: 768px)', selector, 'font-size', value );
+		} else {
+			updateCSS( selector, 'font-size', value );
+		}
+	}
+
+	/**
+	 * Update account navigation colors
+	 */
+	function updateAccountNavColor(colorType, value) {
+		switch (colorType) {
+			case 'nav_border_color':
+				updateCSS( '.blz-my_account .ct-acount-nav', 'border', '1px solid ' + value );
+				break;
+			case 'nav_text_color':
+				updateCSS( '.blz-my_account p, .blz-my_account a', 'color', value );
+				break;
+			case 'nav_active_text_color':
+				updateCSS( '.blz-my_account ul li.is-active a, .blz-my_account ul li:hover a', 'color', value );
+				break;
+			case 'nav_active_color':
+				updateCSS( '.blz-my_account ul li.is-active', '--account-nav-background-active-color', value );
+				updateCSS( '.blz-my_account ul li:hover', '--account-nav-background-active-color', value );
+				break;
+		}
 	}
 
 	/**
