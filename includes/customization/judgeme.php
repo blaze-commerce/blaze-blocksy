@@ -4,6 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Check if Judge.me plugin is active before proceeding
+// Include the plugin.php file to use is_plugin_active function
+if ( ! function_exists( 'is_plugin_active' ) ) {
+	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+}
+
+if ( ! is_plugin_active( 'judgeme-product-reviews-woocommerce/judgeme.php' ) &&
+	! function_exists( 'judgeme_init' ) ) {
+	return;
+}
+
 
 add_filter( 'woocommerce_product_tabs', function (array $tabs) {
 	$tabs['judgeme_tab'] = array(

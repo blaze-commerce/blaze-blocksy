@@ -194,3 +194,18 @@
 		height: 100px !important;
 	}
 }
+
+
+.rpi-content .rpi-url {
+	border-radius: var(--Radius-rounded-zero, 0);
+	border: var(--Border-border, 1px) solid var(--Secondary-1000, #1A1A1A) !important;
+	color: var(--Secondary-1000, #1A1A1A) !important;
+	text-align: center;
+	font-family: var(--Font-Style-Primary, "Open Sans");
+	font-size: var(--Size-Paragraph, 18px);
+	font-style: normal;
+	font-weight: 600;
+	line-height: var(--Line-Height-Paragraph, 24px);
+	margin-top: 20px !important;
+	text-transform: uppercase;
+}

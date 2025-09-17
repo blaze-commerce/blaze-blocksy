@@ -228,7 +228,7 @@ class Product_Custom_Fields {
 										fill="#0F172A" />
 								</svg>
 							</span>
-							<?php echo esc_html( $product->get_name() ); ?>
+							<?php echo esc_html( 'View Brochure' ); ?>
 						</a>
 					</div>
 				<?php endif; ?>
@@ -248,7 +248,7 @@ class Product_Custom_Fields {
 										fill="#0F172A" />
 								</svg>
 							</span>
-							<?php echo esc_html( $product->get_name() ); ?>
+							<?php echo esc_html( 'View Installation Guide' ); ?>
 						</a>
 					</div>
 				<?php endif; ?>
@@ -383,6 +383,11 @@ class Product_Custom_Fields {
 
 		?>
 		<style type="text/css">
+			.woocommerce-product-details__short-description .fusion-button.button-small,
+			.woocommerce-product-details__short-description iframe {
+				display: none;
+			}
+
 			.product-resources-section {
 				margin: 30px 0;
 				padding: 20px 0;
@@ -396,10 +401,7 @@ class Product_Custom_Fields {
 				margin-bottom: 30px;
 			}
 
-			.resource-item {
-				background: #f9f9f9;
-
-			}
+			.resource-item {}
 
 			.resource-title {
 				margin: 0 0 10px 0;

@@ -1,3 +1,9 @@
+.single-product .entry-summary-items .ct-product-additional-info,
+.single-product .entry-summary-items>.product_meta,
+.single-product .entry-summary-items .ct-product-information {
+  display: none;
+}
+
 .single-product .entry-summary {
   --product-element-spacing: 12px;
 }
@@ -102,6 +108,12 @@
   .single-product .avada-single-product-gallery-wrapper {
     width: 100%;
   }
+
+  .single-product .entry-summary-items>.woocommerce-product-details__short-description,
+  .single-product .entry-summary-items>.woocommerce-product-details__short-description p {
+    font-size: 14px;
+    padding-bottom: 10px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -164,6 +176,10 @@
 
 .entry-summary .ct-product-divider+.ct-product-divider {
   display: none;
+}
+
+.entry-summary .woocommerce-product-details__short-description h2 {
+  font-size: 20px;
 }
 
 .entry-summary .woocommerce-product-details__short-description p:last-child {
