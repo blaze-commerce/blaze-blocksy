@@ -50,6 +50,9 @@ class Product_Custom_Fields {
 
 		// Add frontend styles
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
+
+		// Add contact page footer script
+		add_action( 'wp_footer', array( $this, 'enqueue_contact_page_script' ) );
 	}
 
 	/**
@@ -537,6 +540,31 @@ class Product_Custom_Fields {
 			'book_installer_url' => self::get_custom_field( $product_id, '_book_installer_url' ),
 			'installation_video_url' => self::get_custom_field( $product_id, '_installation_video_url' ),
 		);
+	}
+
+	/**
+	 * Enqueue contact page script for installer booking
+	 */
+	public function enqueue_contact_page_script() {
+		// Only load on the contact page
+		if ( ! is_page( 'contact-us' ) ) {
+			return;
+		}
+
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function ($) {
+				// Get the query string parameter "service"
+				const urlParams = new URLSearchParams(window.location.search);
+				const service = urlParams.get('service');
+
+				// If service = installer_booking, check the radio
+				if (service === 'installer_booking') {
+					$('#wpforms-10338-field_8_2').prop('checked', true);
+				}
+			});
+		</script>
+		<?php
 	}
 }
 
