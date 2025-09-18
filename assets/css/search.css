@@ -15,6 +15,10 @@ body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp button.dgwt-wcas-search-submit 
 	background-color: transparent;
 }
 
+body .dgwt-wcas-has-submit .dgwt-wcas-search-submit svg path {
+	fill: var(--foreground);
+}
+
 body .dgwt-wcas-suggestions-wrapp {
 	max-width: 1664px;
 	width: 100% !important;

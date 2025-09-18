@@ -2,7 +2,6 @@
   --quantity-initial-color: #cdd1d4;
   --mini-cart-items-spacing: 0px;
   --mini-cart-divider-color: #cdd1d4;
-  --primary-1000: #be252f;
   --checkout-button-background: var(--theme-button-background-initial-color);
 }
 
@@ -104,10 +103,8 @@
   color: var(--theme-link-initial-color);
   border: 1px solid var(--theme-link-initial-color);
   padding: 4px 8px;
-  border-radius: var(
-    --has-classic-forms,
-    var(--theme-form-field-border-radius, 3px)
-  );
+  border-radius: var(--has-classic-forms,
+      var(--theme-form-field-border-radius, 3px));
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
@@ -422,7 +419,7 @@
   justify-content: center;
   width: 100%;
   gap: 8px;
-  background: var(--primary-1000, #be252f);
+  background: var(--primary);
   color: white;
   padding: 12px 24px;
   text-decoration: none;
