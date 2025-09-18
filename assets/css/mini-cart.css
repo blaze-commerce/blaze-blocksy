@@ -219,8 +219,8 @@
 }
 
 .secure-checkout-btn:hover {
-  background: #a01729 !important;
-  color: white !important;
+  background: var(--primary) !important;
+  color: var(--foreground) !important;
 }
 
 .checkout-arrow {
@@ -431,7 +431,7 @@
 }
 
 .continue-shopping-btn:hover {
-  background: #a01e26;
+  background: var(--primary);
   color: white;
   text-decoration: none;
   transform: translateY(-1px);
