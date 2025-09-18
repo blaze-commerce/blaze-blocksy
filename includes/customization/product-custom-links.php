@@ -45,14 +45,16 @@ class Product_Custom_Fields {
 		// Add basic styling
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 
-		// Add frontend display
-		add_action( 'woocommerce_share', array( $this, 'display_product_resources' ), 5 );
-
-		// Add frontend styles
+		// Add frontend styles (keep for backward compatibility)
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 
 		// Add contact page footer script
 		add_action( 'wp_footer', array( $this, 'enqueue_contact_page_script' ) );
+
+		// Register element in Blocksy's layout system
+		add_filter( 'blocksy_woo_single_options_layers:defaults', array( $this, 'add_to_defaults' ) );
+		add_filter( 'blocksy_woo_single_options_layers:extra', array( $this, 'add_options' ) );
+		add_action( 'blocksy:woocommerce:product:custom:layer', array( $this, 'render_element' ) );
 	}
 
 	/**
@@ -185,7 +187,191 @@ class Product_Custom_Fields {
 	}
 
 	/**
-	 * Display product resources on frontend
+	 * Add Product Resource element to default layout (Blocksy integration)
+	 *
+	 * @param array $layers Existing layers
+	 * @return array Modified layers
+	 */
+	public function add_to_defaults( $layers ) {
+		$layers[] = array(
+			'id' => 'product_resource',
+			'enabled' => false,
+		);
+		return $layers;
+	}
+
+	/**
+	 * Add customizer options for Product Resource element (Blocksy integration)
+	 *
+	 * @param array $options Existing options
+	 * @return array Modified options
+	 */
+	public function add_options( $options ) {
+		$options['product_resource'] = array(
+			'label' => __( 'Product Resource', 'blocksy-child' ),
+			'options' => array(
+				'product_resource_visibility' => array(
+					'label' => __( 'Visibility', 'blocksy-child' ),
+					'type' => 'ct-visibility',
+					'design' => 'block',
+					'setting' => array( 'transport' => 'postMessage' ),
+					'value' => array(
+						'desktop' => true,
+						'tablet' => true,
+						'mobile' => true,
+					),
+					'choices' => blocksy_ordered_keys( array(
+						'desktop' => __( 'Desktop', 'blocksy-child' ),
+						'tablet' => __( 'Tablet', 'blocksy-child' ),
+						'mobile' => __( 'Mobile', 'blocksy-child' ),
+					) ),
+				),
+			),
+		);
+		return $options;
+	}
+
+	/**
+	 * Render the Product Resource element (Blocksy integration)
+	 *
+	 * @param array $layer Layer configuration
+	 */
+	public function render_element( $layer ) {
+		if ( $layer['id'] !== 'product_resource' ) {
+			return;
+		}
+
+		global $product;
+
+		if ( ! $product ) {
+			return;
+		}
+
+		$product_id = $product->get_id();
+		$fields     = self::get_all_custom_fields( $product_id );
+
+		// Check if any fields have values
+		$has_content = false;
+		foreach ( $fields as $field_value ) {
+			if ( ! empty( $field_value ) ) {
+				$has_content = true;
+				break;
+			}
+		}
+
+		if ( ! $has_content ) {
+			return;
+		}
+
+		// Get visibility settings
+		$visibility = blocksy_akg( 'product_resource_visibility', $layer, array(
+			'desktop' => true,
+			'tablet' => true,
+			'mobile' => true,
+		) );
+
+		$visibility_classes = array();
+		if ( ! $visibility['desktop'] ) {
+			$visibility_classes[] = 'ct-hidden-desktop';
+		}
+		if ( ! $visibility['tablet'] ) {
+			$visibility_classes[] = 'ct-hidden-tablet';
+		}
+		if ( ! $visibility['mobile'] ) {
+			$visibility_classes[] = 'ct-hidden-mobile';
+		}
+
+		$class_attr = 'ct-product-resource-element';
+		if ( ! empty( $visibility_classes ) ) {
+			$class_attr .= ' ' . implode( ' ', $visibility_classes );
+		}
+
+		echo blocksy_html_tag(
+			'div',
+			array(
+				'class' => $class_attr,
+				'data-id' => blocksy_akg( '__id', $layer, 'default' ),
+			),
+			$this->get_product_resources_content( $fields )
+		);
+	}
+
+	/**
+	 * Get product resources content for Blocksy element
+	 *
+	 * @param array $fields Product resource fields
+	 * @return string HTML content
+	 */
+	private function get_product_resources_content( $fields ) {
+		ob_start();
+		?>
+		<div class="product-resources-section">
+			<div class="product-resources-grid">
+				<?php if ( ! empty( $fields['product_sheet_url'] ) ) : ?>
+					<div class="resource-item">
+						<h4 class="resource-title"><?php esc_html_e( 'Product Sheet', 'blocksy-child' ); ?></h4>
+						<a href="<?php echo esc_url( $fields['product_sheet_url'] ); ?>" target="_blank"
+							class="resource-link download-link">
+							<span class="download-icon">
+								<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path
+										d="M6.75 0.75C6.75 0.335787 6.41421 0 6 0C5.58579 0 5.25 0.335786 5.25 0.75L5.25 6.43934L3.03033 4.21967C2.73744 3.92678 2.26256 3.92678 1.96967 4.21967C1.67678 4.51256 1.67678 4.98744 1.96967 5.28033L5.46967 8.78033C5.76256 9.07322 6.23744 9.07322 6.53033 8.78033L10.0303 5.28033C10.3232 4.98744 10.3232 4.51256 10.0303 4.21967C9.73744 3.92678 9.26256 3.92678 8.96967 4.21967L6.75 6.43934L6.75 0.75Z"
+										fill="#0F172A" />
+									<path
+										d="M1.5 7.75C1.5 7.33579 1.16421 7 0.75 7C0.335786 7 0 7.33579 0 7.75V9.25C0 10.7688 1.23122 12 2.75 12H9.25C10.7688 12 12 10.7688 12 9.25V7.75C12 7.33579 11.6642 7 11.25 7C10.8358 7 10.5 7.33579 10.5 7.75V9.25C10.5 9.94036 9.94036 10.5 9.25 10.5H2.75C2.05964 10.5 1.5 9.94036 1.5 9.25V7.75Z"
+										fill="#0F172A" />
+								</svg>
+							</span>
+							<?php echo esc_html( 'View Brochure' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $fields['installation_sheet_url'] ) ) : ?>
+					<div class="resource-item">
+						<h4 class="resource-title"><?php esc_html_e( 'Installation Sheet', 'blocksy-child' ); ?></h4>
+						<a href="<?php echo esc_url( $fields['installation_sheet_url'] ); ?>" target="_blank"
+							class="resource-link download-link">
+							<span class="download-icon">
+								<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path
+										d="M6.75 0.75C6.75 0.335787 6.41421 0 6 0C5.58579 0 5.25 0.335786 5.25 0.75L5.25 6.43934L3.03033 4.21967C2.73744 3.92678 2.26256 3.92678 1.96967 4.21967C1.67678 4.51256 1.67678 4.98744 1.96967 5.28033L5.46967 8.78033C5.76256 9.07322 6.23744 9.07322 6.53033 8.78033L10.0303 5.28033C10.3232 4.98744 10.3232 4.51256 10.0303 4.21967C9.73744 3.92678 9.26256 3.92678 8.96967 4.21967L6.75 6.43934L6.75 0.75Z"
+										fill="#0F172A" />
+									<path
+										d="M1.5 7.75C1.5 7.33579 1.16421 7 0.75 7C0.335786 7 0 7.33579 0 7.75V9.25C0 10.7688 1.23122 12 2.75 12H9.25C10.7688 12 12 10.7688 12 9.25V7.75C12 7.33579 11.6642 7 11.25 7C10.8358 7 10.5 7.33579 10.5 7.75V9.25C10.5 9.94036 9.94036 10.5 9.25 10.5H2.75C2.05964 10.5 1.5 9.94036 1.5 9.25V7.75Z"
+										fill="#0F172A" />
+								</svg>
+							</span>
+							<?php echo esc_html( 'View Installation Guide' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $fields['book_installer_url'] ) ) : ?>
+					<div class="resource-item">
+						<h4 class="resource-title"><?php esc_html_e( 'Book an Installer', 'blocksy-child' ); ?></h4>
+						<a href="<?php echo esc_url( $fields['book_installer_url'] ); ?>" target="_blank" class="resource-link">
+							<?php esc_html_e( 'Book an Installer Now', 'blocksy-child' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( ! empty( $fields['installation_video_url'] ) ) : ?>
+				<div class="video-section">
+					<h4 class="resource-title video-title"><?php esc_html_e( 'Rail Installation Video', 'blocksy-child' ); ?></h4>
+					<div class="video-container">
+						<?php echo self::get_video_embed( $fields['installation_video_url'] ); ?>
+					</div>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Display product resources on frontend (legacy method - kept for backward compatibility)
 	 */
 	public function display_product_resources() {
 		global $product;
@@ -281,14 +467,14 @@ class Product_Custom_Fields {
 	 * @param string $url Video URL
 	 * @return string Embed HTML
 	 */
-	private function get_video_embed( $url ) {
+	public static function get_video_embed( $url ) {
 		if ( empty( $url ) ) {
 			return '';
 		}
 
 		// YouTube embed
 		if ( strpos( $url, 'youtube.com' ) !== false || strpos( $url, 'youtu.be' ) !== false ) {
-			$video_id = $this->extract_youtube_id( $url );
+			$video_id = self::extract_youtube_id( $url );
 			if ( $video_id ) {
 				return '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' . esc_attr( $video_id ) . '" frameborder="0" allowfullscreen></iframe>';
 			}
@@ -296,7 +482,7 @@ class Product_Custom_Fields {
 
 		// Vimeo embed
 		if ( strpos( $url, 'vimeo.com' ) !== false ) {
-			$video_id = $this->extract_vimeo_id( $url );
+			$video_id = self::extract_vimeo_id( $url );
 			if ( $video_id ) {
 				return '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' . esc_attr( $video_id ) . '" frameborder="0" allowfullscreen></iframe>';
 			}
@@ -312,7 +498,7 @@ class Product_Custom_Fields {
 	 * @param string $url YouTube URL
 	 * @return string|false Video ID or false
 	 */
-	private function extract_youtube_id( $url ) {
+	private static function extract_youtube_id( $url ) {
 		$pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/';
 		preg_match( $pattern, $url, $matches );
 		return isset( $matches[1] ) ? $matches[1] : false;
@@ -324,7 +510,7 @@ class Product_Custom_Fields {
 	 * @param string $url Vimeo URL
 	 * @return string|false Video ID or false
 	 */
-	private function extract_vimeo_id( $url ) {
+	private static function extract_vimeo_id( $url ) {
 		$pattern = '/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/';
 		preg_match( $pattern, $url, $matches );
 		return isset( $matches[3] ) ? $matches[3] : false;
@@ -569,6 +755,8 @@ class Product_Custom_Fields {
 		<?php
 	}
 }
+
+
 
 // Initialize the class
 new Product_Custom_Fields();
