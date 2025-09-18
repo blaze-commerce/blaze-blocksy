@@ -23,11 +23,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Product_Custom_Fields
+ * Class Product_Resources
  *
- * Handles the addition of custom fields to WooCommerce products
+ * Handles the addition of custom fields to WooCommerce products and integrates with Blocksy customizer
  */
-class Product_Custom_Fields {
+class Product_Resources {
 
 	/**
 	 * Constructor
