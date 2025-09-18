@@ -759,4 +759,4 @@ class Product_Resources {
 
 
 // Initialize the class
-new Product_Custom_Fields();
+new Product_Resources();
