@@ -7,6 +7,7 @@
  * - Installation Sheet (URL)
  * - Book an Installer (URL)
  * - Installation Video (URL)
+ * - Product Warranty URL
  *
  * Features:
  * - Custom "Product Resources" tab in product data
@@ -143,6 +144,26 @@ class Product_Resources {
 				) );
 				?>
 			</div>
+
+			<div class="options_group">
+				<h3><?php esc_html_e( 'Product Support', 'blocksy-child' ); ?></h3>
+				<p class="form-field-description">
+					<?php esc_html_e( 'Add links to product support and warranty information.', 'blocksy-child' ); ?>
+				</p>
+
+				<?php
+				// Product Warranty URL
+				woocommerce_wp_text_input( array(
+					'id' => '_product_warranty_url',
+					'label' => __( 'Product Warranty URL', 'blocksy-child' ),
+					'placeholder' => 'https://example.com/warranty-info',
+					'desc_tip' => true,
+					'description' => __( 'Enter a URL to the product warranty information or registration page.', 'blocksy-child' ),
+					'type' => 'url',
+					'value' => get_post_meta( $post->ID, '_product_warranty_url', true ),
+				) );
+				?>
+			</div>
 		</div>
 		<?php
 	}
@@ -168,7 +189,8 @@ class Product_Resources {
 			'_product_sheet_url',
 			'_installation_sheet_url',
 			'_book_installer_url',
-			'_installation_video_url'
+			'_installation_video_url',
+			'_product_warranty_url'
 		);
 
 		// Save each URL field
@@ -355,11 +377,20 @@ class Product_Resources {
 						</a>
 					</div>
 				<?php endif; ?>
+
+				<?php if ( ! empty( $fields['product_warranty_url'] ) ) : ?>
+					<div class="resource-item">
+						<h4 class="resource-title"><?php esc_html_e( 'Product Warranty', 'blocksy-child' ); ?></h4>
+						<a href="<?php echo esc_url( $fields['product_warranty_url'] ); ?>" target="_blank" class="resource-link">
+							<?php esc_html_e( 'View Warranty Information', 'blocksy-child' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( ! empty( $fields['installation_video_url'] ) ) : ?>
 				<div class="video-section">
-					<h4 class="resource-title video-title"><?php esc_html_e( 'Rail Installation Video', 'blocksy-child' ); ?></h4>
+					<h4 class="resource-title video-title"><?php esc_html_e( 'Installation Video', 'blocksy-child' ); ?></h4>
 					<div class="video-container">
 						<?php echo self::get_video_embed( $fields['installation_video_url'] ); ?>
 					</div>
@@ -444,6 +475,15 @@ class Product_Resources {
 						<h4 class="resource-title"><?php esc_html_e( 'Book an Installer', 'blocksy-child' ); ?></h4>
 						<a href="<?php echo esc_url( $fields['book_installer_url'] ); ?>" target="_blank" class="resource-link">
 							<?php esc_html_e( 'Book an Installer Now', 'blocksy-child' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $fields['product_warranty_url'] ) ) : ?>
+					<div class="resource-item">
+						<h4 class="resource-title"><?php esc_html_e( 'Product Warranty', 'blocksy-child' ); ?></h4>
+						<a href="<?php echo esc_url( $fields['product_warranty_url'] ); ?>" target="_blank" class="resource-link">
+							<?php esc_html_e( 'View Warranty Information', 'blocksy-child' ); ?>
 						</a>
 					</div>
 				<?php endif; ?>
@@ -727,6 +767,7 @@ class Product_Resources {
 			'installation_sheet_url' => self::get_custom_field( $product_id, '_installation_sheet_url' ),
 			'book_installer_url' => self::get_custom_field( $product_id, '_book_installer_url' ),
 			'installation_video_url' => self::get_custom_field( $product_id, '_installation_video_url' ),
+			'product_warranty_url' => self::get_custom_field( $product_id, '_product_warranty_url' ),
 		);
 	}
 
