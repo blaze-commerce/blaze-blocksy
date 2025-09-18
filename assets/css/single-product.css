@@ -179,6 +179,10 @@
 }
 
 .entry-summary .woocommerce-product-details__short-description h2 {
+  font-size: 24px;
+}
+
+.entry-summary .woocommerce-product-details__short-description h3 {
   font-size: 20px;
 }
 
