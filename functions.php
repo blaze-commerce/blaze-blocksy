@@ -96,7 +96,7 @@ $required_files = [
 	'/includes/customization/mini-cart.php',
 	'/includes/customization/related-carousel.php',
 	'/includes/customization/product-category.php',
-	'/includes/customization/product-custom-links.php',
+	'/includes/customization/product-resources.php',
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
 ];
