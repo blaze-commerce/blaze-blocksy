@@ -1,0 +1,179 @@
+.mnm_child_products.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.mnm_child_products.products .product {
+  padding: 1rem;
+}
+
+.mnm_child_products.products.columns-1 li.product {
+  width: 100% !important;
+}
+
+.mnm_child_products.products.columns-2 li.product {
+  width: 48% !important;
+}
+
+.mnm_child_products.products.columns-3 li.product {
+  width: 30.33% !important;
+}
+
+.mnm_child_products.products.columns-4 li.product {
+  width: 23.5% !important;
+}
+
+.mnm_child_products.products.columns-5 li.product {
+  width: 18.5% !important;
+}
+
+.mnm_child_products.products.columns-6 li.product {
+  width: 15.5% !important;
+}
+
+/* hide products n+1 if columns is set to n - using class-based approach */
+.mnm_child_products.products.columns-1
+  li.product:nth-child(n + 2):not(.mnm-show),
+.mnm_child_products.products.columns-2
+  li.product:nth-child(n + 3):not(.mnm-show),
+.mnm_child_products.products.columns-3
+  li.product:nth-child(n + 4):not(.mnm-show),
+.mnm_child_products.products.columns-4
+  li.product:nth-child(n + 5):not(.mnm-show),
+.mnm_child_products.products.columns-5
+  li.product:nth-child(n + 6):not(.mnm-show),
+.mnm_child_products.products.columns-6
+  li.product:nth-child(n + 7):not(.mnm-show) {
+  display: none !important;
+}
+
+/* Force show products with mnm-show class */
+.mnm_child_products.products li.product.mnm-show {
+  display: block !important;
+}
+
+/* Search field styling */
+.mnm-search-container {
+  margin-bottom: 24px;
+}
+
+.mnm-search-field {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+}
+
+.mnm-search-field:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.mnm-search-field::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+/* No results message */
+.mnm-search-no-results {
+  margin-top: 24px;
+  padding: 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.mnm-search-no-results p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* Search mode - hide load more button */
+.mnm-search-mode .ct-mnm-load-more {
+  display: none !important;
+}
+
+/* Hide products during search */
+.mnm-search-hidden {
+  display: none !important;
+}
+
+/* Load more button styling */
+.ct-mnm-load-more {
+  background: #007cba;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 20px 0;
+  transition: background-color 0.3s ease;
+}
+
+.ct-mnm-load-more:hover {
+  background: #005a87;
+}
+
+.ct-mnm-load-more:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.mnm_child_products.products li.product {
+}
+
+.mnm_form.layout_grid .mnm_child_products.products li.product .product-details {
+  padding: 1rem;
+  margin: 0 0 8px 0;
+}
+
+.mnm_child_products.products li.product .woocommerce-loop-product__title {
+  font-size: 18px;
+  line-height: 28px;
+  margin: 0;
+}
+
+.mnm_child_products.products li.product dl.variation {
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.mnm_child_products.products li.product dl.variation dt {
+  font-weight: 400;
+}
+
+.mnm_child_products.products li.product dl.variation dd {
+  font-weight: 600;
+}
+
+.mnm_child_products.products li.product .price {
+  margin: 0 0 8px 0;
+  --theme-font-family: ct_font_electrolize, Sans-Serif;
+}
+
+.mnm_child_products.products li.product .price * {
+  font-family: var(--theme-font-family);
+  font-size: 18px !important;
+  line-height: 28px !important;
+}
+
+.mnm_child_products.products li.product .product-quantity {
+}
+
+.mnm_child_products.products li.product .product-quantity .mnm-quantity {
+  width: 120px;
+  border-radius: 120px !important;
+}

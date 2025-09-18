@@ -273,6 +273,8 @@ class Product_Carousel_Block {
 	 * @param string $wrapper_attributes Block wrapper attributes with Gutenberg classes
 	 */
 	private function render_carousel( $products, $attributes, $carousel_id, $wrapper_attributes ) {
+		global $post;
+
 		// Prepare carousel configuration
 		$carousel_config = array(
 			'loop' => $attributes['loop'],

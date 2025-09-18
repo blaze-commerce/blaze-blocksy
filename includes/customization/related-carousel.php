@@ -66,9 +66,6 @@ add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/product/recommend-product-card.php';
 	}
 
-	if ( ! is_product() || is_archive() )
-		return $template;
-
 	if ( 'content' === $slug && 'product' === $name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/content/product.php';
 	}

@@ -186,8 +186,6 @@ function add_recently_viewed_localize_data( $data ) {
 
 	global $product;
 
-	do_action( 'qm/info', $product );
-
 	if ( $product ) {
 		$product_id = null;
 		if ( is_a( $product, 'WC_Product' ) ) {
