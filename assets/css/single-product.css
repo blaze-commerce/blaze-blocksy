@@ -3,6 +3,15 @@
   --product-element-spacing: 12px;
 }
 
+.single-product .entry-summary .woocommerce-product-rating .cr-qna-separator {
+  margin: 0;
+}
+
+.single-product .entry-summary .woocommerce-product-rating * {
+  font-size: 14px;
+  line-height: 24px;
+}
+
 .single-product
   .entry-summary
   .ct-price-installment
@@ -226,4 +235,17 @@
   .ct-wishlist-button-single[data-button-state="active"]
   svg {
   fill: #fff;
+}
+
+@media screen and (max-width: 768px) {
+  .ct-product-add-to-cart .ct-cart-actions .quantity {
+    height: 55px;
+  }
+}
+
+/** Accordion */
+.woocommerce-tabs.wc-tabs-wrapper .ct-accordion-tab article {
+  margin-inline: auto;
+  width: var(--theme-container-width);
+  max-width: var(--theme-block-max-width);
 }

@@ -5,7 +5,7 @@ add_action( 'woocommerce_after_add_to_cart_button', function () {
 		return;
 	}
 	?>
-	<button class="ct-wishlist-button-single" aria-label="Add to wishlist">
+	<button class="ct-wishlist-button-single" aria-label="Add to wishlist" data-button-state>
 		<span class="ct-icon-container"><svg viewBox="0 0 15 15">
 				<path class="ct-heart-fill"
 					d="M12.9,3.8c-0.6-0.5-1.6-0.7-2.5-0.5C9.4,3.5,8.7,4,8.2,4.8L7.5,6.1L6.8,4.8C6.3,4,5.6,3.5,4.6,3.3C4.4,3.2,4.2,3.2,4,3.2c-0.7,0-1.4,0.2-1.9,0.6C1.5,4.3,1.1,5.1,1,5.9c-0.1,1,0.3,1.9,1,2.8c1,1.1,4.2,3.7,5.5,4.6c1.3-1,4.5-3.5,5.5-4.6c0.7-0.8,1.1-1.8,1-2.8C13.9,5.1,13.5,4.3,12.9,3.8z">

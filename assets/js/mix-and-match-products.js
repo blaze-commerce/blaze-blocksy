@@ -6,7 +6,7 @@
     var searchTimeout;
     var isSearchMode = false;
     var container = $(".mnm_child_products.products");
-    var searchField, noResultsMessage;
+    var searchField, noResultsMessage, itemsCounter;
     var loadMoreButton = $(".ct-mnm-load-more");
 
     // Create and insert search elements
@@ -21,7 +21,12 @@
 
       // Create search field
       searchField = $(
-        '<input type="text" class="mnm-search-field" placeholder="Search products..." aria-label="Search products" autocomplete="off">'
+        '<input type="text" class="mnm-search-field" placeholder="Search products for product" aria-label="Search products" autocomplete="off">'
+      );
+
+      // Create items counter
+      itemsCounter = $(
+        '<div class="mnm-items-counter"><span class="mnm-items-count">0 items available</span></div>'
       );
 
       // Create no results message
@@ -31,6 +36,7 @@
 
       // Append elements to container
       searchContainer.append(searchField);
+      searchContainer.append(itemsCounter);
       searchContainer.append(noResultsMessage);
 
       // Insert search container before products container
@@ -40,10 +46,36 @@
       return true;
     }
 
+    // Function to update items counter
+    function updateItemsCounter() {
+      var allProducts = container.find("li.product");
+      var visibleProducts = allProducts.filter(":visible");
+      var totalProducts = allProducts.length;
+
+      var counterText;
+      if (isSearchMode) {
+        // In search mode, show matching results
+        counterText =
+          visibleProducts.length + " of " + totalProducts + " items found";
+      } else {
+        // Normal mode, show total available
+        counterText = totalProducts + " items available";
+      }
+
+      itemsCounter.find(".mnm-items-count").text(counterText);
+      console.log("Items counter updated:", counterText);
+    }
+
     // Initialize search elements
     if (!createSearchElements()) {
       // Retry after a short delay if container not found
-      setTimeout(createSearchElements, 500);
+      setTimeout(function () {
+        createSearchElements();
+        updateItemsCounter(); // Update counter after retry
+      }, 500);
+    } else {
+      // Update counter after successful initialization
+      setTimeout(updateItemsCounter, 100);
     }
 
     // Handle search input with debouncing (using event delegation)
@@ -79,10 +111,18 @@
         container.addClass("mnm-search-mode");
         loadMoreButton.hide();
 
-        // BETTER APPROACH: Hide all products first, then show only matching ones
+        // CRITICAL FIX: Remove mnm-show class from load more, then hide all products
         var allProducts = container.find("li.product");
-        allProducts.addClass("mnm-search-hidden").hide();
+        var productsWithShow = allProducts.filter(".mnm-show").length;
 
+        allProducts.removeClass("mnm-show"); // Remove load more visibility
+        allProducts.addClass("mnm-search-hidden").hide(); // Hide all for search
+
+        console.log(
+          "Search mode: Removed mnm-show from",
+          productsWithShow,
+          "products"
+        );
         console.log("Search mode: All products hidden, ready for filtering");
       }
     }
@@ -97,6 +137,9 @@
         // Reset all products to original state
         resetProductsToOriginalState();
         noResultsMessage.hide();
+
+        // Update items counter
+        updateItemsCounter();
       }
     }
 
@@ -172,6 +215,9 @@
       } else {
         noResultsMessage.hide();
       }
+
+      // Update items counter
+      updateItemsCounter();
     }
 
     function resetProductsToOriginalState() {
@@ -240,6 +286,17 @@
 
       console.log("Showing", productsToShow.length, "products");
 
+      // Auto-scroll to bottom of products container
+      setTimeout(function () {
+        container.animate(
+          {
+            scrollTop: container[0].scrollHeight,
+          },
+          500
+        ); // 500ms smooth scroll
+        console.log("Auto-scrolled to bottom of products container");
+      }, 100); // Small delay to ensure products are rendered
+
       // Check if there are more products to load
       var remainingHidden = allProducts.filter(":hidden");
 
@@ -256,6 +313,7 @@
       var allProducts = debugContainer.find("li.product");
       var hiddenProducts = allProducts.filter(":hidden");
       var visibleProducts = allProducts.filter(":visible");
+      loadMoreButton.insertAfter($(".mnm_child_products.products"));
 
       console.log("Debug - Total products:", allProducts.length);
       console.log("Debug - Hidden products:", hiddenProducts.length);
