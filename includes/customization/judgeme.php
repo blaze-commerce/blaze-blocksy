@@ -6,6 +6,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 add_filter( 'woocommerce_product_tabs', function (array $tabs) {
+
+	if ( ! class_exists( 'Judgeme_WooCommerce' ) ) {
+		return $tabs;
+	}
+
 	$tabs['judgeme_tab'] = array(
 		'title' => __( 'Reviews', 'textdomain' ),
 		'priority' => 50,

@@ -40,6 +40,15 @@
   width: 14.5% !important;
 }
 
+@media screen and (max-width: 768px) {
+  .mnm_child_products.products.columns-3 li.product,
+  .mnm_child_products.products.columns-4 li.product,
+  .mnm_child_products.products.columns-5 li.product,
+  .mnm_child_products.products.columns-6 li.product {
+    width: 47% !important;
+  }
+}
+
 /* hide products n+1 if columns is set to n - using class-based approach */
 .mnm_child_products.products.columns-1
   li.product:nth-child(n + 2):not(.mnm-show),
@@ -174,6 +183,9 @@ html .ct-product-add-to-cart .mnm_reset.button {
 }
 
 .mnm_child_products.products li.product {
+  padding: 1rem !important;
+  height: 100%;
+  margin-bottom: 0 !important;
 }
 
 .mnm_form.layout_grid .mnm_child_products.products li.product .product-details {
@@ -185,6 +197,7 @@ html .ct-product-add-to-cart .mnm_reset.button {
   font-size: 18px;
   line-height: 28px;
   margin: 0;
+  padding: 0;
 }
 
 .mnm_child_products.products li.product dl.variation {
