@@ -275,6 +275,8 @@ class Product_Carousel_Block {
 	private function render_carousel( $products, $attributes, $carousel_id, $wrapper_attributes ) {
 		global $post;
 
+		$old_post = $post;
+
 		// Prepare carousel configuration
 		$carousel_config = array(
 			'loop' => $attributes['loop'],
@@ -311,11 +313,11 @@ class Product_Carousel_Block {
 				foreach ( $products as $product ) {
 					// Set global product for template
 					$GLOBALS['product'] = $product;
+					$post = get_post( $product->get_id() );
 
 					// Use the existing product card template
 					wc_get_template_part( 'content', 'product' );
 				}
-
 				// Reset global product
 				unset( $GLOBALS['product'] );
 				?>
@@ -333,6 +335,8 @@ class Product_Carousel_Block {
 			});
 		</script>
 		<?php
+
+		$post = $old_post;
 	}
 
 	/**

@@ -100,6 +100,10 @@ add_action( 'wp_ajax_get_recently_viewed_products', 'ajax_get_recently_viewed_pr
 add_action( 'wp_ajax_nopriv_get_recently_viewed_products', 'ajax_get_recently_viewed_products' );
 
 function ajax_get_recently_viewed_products() {
+	global $post;
+
+	$old_post = $post;
+
 	// Verify nonce for security
 	if ( ! wp_verify_nonce( $_POST['nonce'], 'recently_viewed_nonce' ) ) {
 		wp_die( 'Security check failed' );
@@ -139,12 +143,15 @@ function ajax_get_recently_viewed_products() {
 
 		// Set global product untuk template
 		$GLOBALS['product'] = $product_obj;
+		$post = get_post( $product_obj->get_id() );
 
 		// Render menggunakan WooCommerce content template
 		wc_get_template_part( 'content', 'product' );
 	}
 
 	$html = ob_get_clean();
+
+	$post = $old_post;
 
 	wp_send_json_success( array(
 		'html' => $html,

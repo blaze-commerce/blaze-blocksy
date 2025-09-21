@@ -175,16 +175,6 @@
   outline: none;
 }
 
-.blaze-product-carousel .owl-nav button:focus {
-  outline: 2px solid var(--theme-palette-color-1, #007cba);
-  outline-offset: 2px;
-}
-
-.blaze-product-carousel .owl-dots .owl-dot:focus {
-  outline: 2px solid var(--theme-palette-color-1, #007cba);
-  outline-offset: 2px;
-}
-
 /* RTL Support */
 [dir="rtl"] .blaze-product-carousel .owl-nav .owl-prev {
   right: -25px;
