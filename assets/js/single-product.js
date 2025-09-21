@@ -190,5 +190,18 @@
         blazeBlocksySingleProduct.recently_viewed.current_product_id
       );
     }
+
+    $(
+      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading"
+    ).on("click", function () {
+      $(this).hide();
+      $(this).next(".cwginstock-panel-body").slideToggle();
+    });
+
+    $(
+      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading h4"
+    ).prepend(
+      '<svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.834 2.33301H5.16732C3.16732 2.33301 1.83398 3.33301 1.83398 5.66634V10.333C1.83398 12.6663 3.16732 13.6663 5.16732 13.6663H11.834C13.834 13.6663 15.1673 12.6663 15.1673 10.333V5.66634C15.1673 3.33301 13.834 2.33301 11.834 2.33301ZM12.1473 6.39301L10.0607 8.05967C9.62065 8.41301 9.06065 8.58634 8.50065 8.58634C7.94065 8.58634 7.37398 8.41301 6.94065 8.05967L4.85398 6.39301C4.64065 6.21967 4.60732 5.89967 4.77398 5.68634C4.94732 5.47301 5.26065 5.43301 5.47398 5.60634L7.56065 7.27301C8.06732 7.67967 8.92732 7.67967 9.43398 7.27301L11.5207 5.60634C11.734 5.43301 12.054 5.46634 12.2207 5.68634C12.394 5.89967 12.3607 6.21967 12.1473 6.39301Z" fill="#121212"/></svg>'
+    );
   });
 })(jQuery);

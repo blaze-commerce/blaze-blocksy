@@ -22,7 +22,7 @@ class Product_Carousel_Block {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_block' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ), 999999 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 	}
 
@@ -301,7 +301,7 @@ class Product_Carousel_Block {
 		<div <?php echo $wrapper_attributes; ?>>
 			<div class="products columns-4 owl-carousel owl-theme blaze-product-carousel"
 				data-carousel-config='<?php echo wp_json_encode( $carousel_config ); ?>' data-products="type-1"
-				data-hover="zoom-in">
+				data-hover="swap">
 				<?php
 				// Set up WooCommerce loop context
 				global $woocommerce_loop;
@@ -366,6 +366,10 @@ class Product_Carousel_Block {
 				true
 			);
 		}
+
+		wp_enqueue_style(
+			'blocksy-ext-woocommerce-extra-variation-swatches-styles'
+		);
 
 		// Enqueue block-specific styles
 		wp_enqueue_style(

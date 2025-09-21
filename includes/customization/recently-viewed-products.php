@@ -32,7 +32,7 @@ function display_recently_viewed_products_placeholder() {
 	<section class="recently-viewed-products up-sells products is-width-constrained" id="recently-viewed-section"
 		style="display: none;">
 		<h2 class="ct-module-title">Recently Viewed Products</h2>
-		<div class="products columns-4" data-products="type-1" data-hover="zoom-in" id="recently-viewed-products-container">
+		<div class="products columns-4" data-products="type-1" data-hover="swap" id="recently-viewed-products-container">
 			<!-- Products will be loaded via AJAX -->
 		</div>
 	</section>

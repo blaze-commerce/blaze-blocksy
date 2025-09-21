@@ -36,6 +36,10 @@
   margin-top: 24px;
 }
 
+.products .owl-theme .owl-dots .owl-dot {
+  margin-top: 2rem;
+}
+
 .products .owl-theme .owl-dots .owl-dot span {
   height: 4px;
   width: 96px;
