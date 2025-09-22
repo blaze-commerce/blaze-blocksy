@@ -89,9 +89,7 @@ span.ct-panel-heading {
   .entry-header .ct-breadcrumbs[data-source="default"] > span {
     display: none !important;
   }
-}
 
-@media screen and (max-width: 768px) {
   .entry-header .ct-breadcrumbs[data-source="default"] > span:first-child,
   .entry-header .ct-breadcrumbs[data-source="default"] > span:last-child,
   .entry-header
