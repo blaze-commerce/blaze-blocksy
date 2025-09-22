@@ -2,7 +2,6 @@ body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-
 	min-height: 48px;
 	background-color: transparent;
 	border-radius: 8px;
-	color: white;
 }
 
 body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
