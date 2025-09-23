@@ -6,8 +6,17 @@
   --checkout-button-background: var(--theme-button-background-initial-color);
 }
 
+/* Ordering */
+
+#woo-cart-panel .ct-panel-content-inner > * {
+  order: 1;
+}
+
+/* Panel Customization */
+
 .ct-drawer-canvas .ct-panel {
   --panel-padding: 24px;
+  --theme-heading-font-family: Electrolize, sans-serif;
 }
 
 .ct-drawer-canvas .ct-panel .ct-panel-actions {
@@ -24,6 +33,8 @@
   font-size: 24px;
   line-height: 36px;
   color: var(--theme-palette-color-11, #4e594d);
+  font-family: var(--theme-heading-font-family);
+  font-weight: 400;
 }
 
 /* Existing suggested products styles */
@@ -40,6 +51,18 @@
 
 .ct-suggested-products--mini-cart .flexy-view .flexy-item .add_to_cart_button {
   display: none;
+}
+
+/* Free Shipping */
+#woo-cart-panel .ct-panel-content-inner .ct-shipping-progress-mini-cart {
+  --product-progress-bar-height: 6px;
+
+  order: 0 !important;
+  padding-bottom: 24px;
+  font-size: 16px;
+  line-height: 24px;
+  margin-bottom: 8px;
+  font-family: var(--theme-heading-font-family);
 }
 
 /* Mini Cart Coupon Section */
