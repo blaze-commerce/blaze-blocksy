@@ -1,0 +1,189 @@
+/**
+ * Product Variation Swatches Block - Editor Styles
+ * 
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* Editor block container */
+.wp-block-custom-product-variation-swatches-editor {
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    padding: 16px;
+    margin: 16px 0;
+    background-color: #f9f9f9;
+    min-height: 80px;
+}
+
+/* Preview header */
+.wp-block-custom-product-variation-swatches-editor .preview-header h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.wp-block-custom-product-variation-swatches-editor .preview-description {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: #757575;
+    font-style: italic;
+}
+
+/* Mock swatches preview */
+.wp-block-custom-product-variation-swatches-editor .mock-swatches {
+    margin-bottom: 12px;
+}
+
+.wp-block-custom-product-variation-swatches-editor .mock-label {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #1e1e1e;
+}
+
+.wp-block-custom-product-variation-swatches-editor .mock-swatch-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.wp-block-custom-product-variation-swatches-editor .mock-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    display: inline-block;
+    cursor: default;
+    position: relative;
+}
+
+.wp-block-custom-product-variation-swatches-editor .mock-swatch::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: inherit;
+}
+
+.wp-block-custom-product-variation-swatches-editor .mock-view-more {
+    background: none;
+    border: none;
+    color: #0073aa;
+    font-size: 14px;
+    cursor: default;
+    padding: 0;
+    text-decoration: none;
+    opacity: 0.7;
+}
+
+/* Settings summary */
+.wp-block-custom-product-variation-swatches-editor .settings-summary {
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.wp-block-custom-product-variation-swatches-editor .settings-summary small {
+    color: #757575;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Inspector controls styling */
+.components-panel__body .components-base-control__help {
+    font-size: 12px;
+    color: #757575;
+    margin-top: 4px;
+}
+
+/* Block inserter preview */
+.block-editor-block-types-list__item-title {
+    font-weight: 500;
+}
+
+.block-editor-block-types-list__item-description {
+    font-size: 12px;
+    color: #757575;
+}
+
+/* Responsive editor styles */
+@media screen and (max-width: 768px) {
+    .wp-block-custom-product-variation-swatches-editor {
+        padding: 12px;
+    }
+    
+    .wp-block-custom-product-variation-swatches-editor .mock-swatch {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .wp-block-custom-product-variation-swatches-editor .mock-swatch::after {
+        width: 15px;
+        height: 15px;
+    }
+    
+    .wp-block-custom-product-variation-swatches-editor .mock-swatch-container {
+        gap: 6px;
+    }
+}
+
+/* Block validation and error states */
+.wp-block-custom-product-variation-swatches-editor.has-error {
+    border-color: #d63638;
+    background-color: #fef7f7;
+}
+
+.wp-block-custom-product-variation-swatches-editor .error-message {
+    color: #d63638;
+    font-size: 13px;
+    margin-top: 8px;
+    padding: 8px;
+    background-color: rgba(214, 54, 56, 0.1);
+    border-radius: 3px;
+}
+
+/* Block toolbar styles */
+.block-editor-block-toolbar .components-toolbar-group {
+    border-right: 1px solid #e0e0e0;
+}
+
+/* Focus and selection states */
+.wp-block-custom-product-variation-swatches-editor:focus-within {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.is-selected .wp-block-custom-product-variation-swatches-editor {
+    border-color: #0073aa;
+}
+
+/* Loading state */
+.wp-block-custom-product-variation-swatches-editor.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.wp-block-custom-product-variation-swatches-editor.is-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-top-color: #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
