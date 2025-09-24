@@ -85,7 +85,7 @@ add_filter(
 );
 
 // Enqueue theme styles and scripts with enhanced error handling
-$required_files = [ 
+$required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
@@ -99,6 +99,7 @@ $required_files = [
 	'/includes/customization/product-card.php',
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
+	'/includes/blocks/variation-swatches/index.php',
 ];
 
 // Add debug files in debug mode
