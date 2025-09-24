@@ -14,7 +14,7 @@
   );
   --product-card-add-to-cart-border-radius: 999px;
 
-  border: 1px solid;
+  border: 1px solid var(--theme-border-color);
 }
 
 .products .product {
@@ -68,12 +68,14 @@
   }
 }
 
+/**
 .products
   .product
   .ct-variation-swatches
   .ct-swatch-container:nth-child(n + 5) {
   display: none;
 }
+  */
 
 .products .product .ct-swatch-container .ct-swatch {
   --swatch-size: 30px;

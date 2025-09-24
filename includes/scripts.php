@@ -41,13 +41,13 @@ function blaze_blocksy_enqueue_assets() {
 		array( 'parent-style' )
 	);
 
-	wp_enqueue_script(
-		'blocksy-child-general-js',
-		$template_uri . '/assets/js/general.js',
-		array( 'jquery' ),
-		'1.0.0',
-		true
-	);
+	// wp_enqueue_script(
+	// 	'blocksy-child-general-js',
+	// 	$template_uri . '/assets/js/general.js',
+	// 	array( 'jquery' ),
+	// 	'1.0.0',
+	// 	true
+	// );
 
 	// === MINI CART ASSETS ===
 	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css' );
