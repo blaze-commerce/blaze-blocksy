@@ -104,11 +104,13 @@ $required_files = [
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
+	'/includes/blocks/variation-swatches/index.php',
 ];
 
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	$required_files[] = '/includes/debug/product-card-border-test.php';
+	$required_files[] = '/includes/debug/judgeme-tab-test.php';
 }
 
 foreach ( $required_files as $file ) {
@@ -156,6 +158,34 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Safely check if a plugin is active without including admin files.
+ *
+ * @param string $plugin Plugin path.
+ * @return bool Whether plugin is active.
+ * @since 1.0.0
+ */
+function blaze_blocksy_is_plugin_active( $plugin ) {
+	// First try the WordPress function if available
+	if ( function_exists( 'is_plugin_active' ) ) {
+		return is_plugin_active( $plugin );
+	}
+
+	// Fallback: Check if plugin is in active plugins option
+	$active_plugins = get_option( 'active_plugins', array() );
+	if ( in_array( $plugin, $active_plugins, true ) ) {
+		return true;
+	}
+
+	// Check network activation if multisite
+	if ( is_multisite() ) {
+		$network_plugins = get_site_option( 'active_sitewide_plugins', array() );
+		return array_key_exists( $plugin, $network_plugins );
+	}
+
+	return false;
+}
 
 /**
  * Override WooCommerce templates

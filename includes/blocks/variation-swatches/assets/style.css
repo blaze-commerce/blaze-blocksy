@@ -1,0 +1,239 @@
+/**
+ * Product Variation Swatches Block - Frontend Styles
+ * 
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* Block container */
+.wp-block-custom-product-variation-swatches {
+    margin: 10px 0;
+    clear: both;
+}
+
+/* Maintain existing variation swatches styling from product-card.css */
+.wp-block-custom-product-variation-swatches .wvs-archive-variations-wrapper {
+    width: 100%;
+}
+
+.wp-block-custom-product-variation-swatches .variations {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.wp-block-custom-product-variation-swatches .woo-variation-items-wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+/* Inherit existing swatch styles */
+.wp-block-custom-product-variation-swatches .ct-variation-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.wp-block-custom-product-variation-swatches .ct-swatch-container {
+    display: inline-flex;
+    margin: 0;
+}
+
+.wp-block-custom-product-variation-swatches .ct-swatch {
+    --swatch-size: 30px;
+    width: var(--swatch-size);
+    height: var(--swatch-size);
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.wp-block-custom-product-variation-swatches .ct-swatch:hover {
+    border-color: #999;
+    transform: scale(1.1);
+}
+
+.wp-block-custom-product-variation-swatches .ct-swatch input[type="radio"] {
+    display: none;
+}
+
+/* Enhanced selected state without checkmarks */
+.wp-block-custom-product-variation-swatches .ct-swatch input[type="radio"]:checked+.ct-swatch,
+.wp-block-custom-product-variation-swatches .ct-swatch.selected,
+.wp-block-custom-product-variation-swatches .ct-swatch.active {
+    border-color: var(--theme-palette-color-1, #333);
+    border-width: 3px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+}
+
+/* Remove checkmarks from selected swatches */
+.wp-block-custom-product-variation-swatches .ct-swatch::after,
+.wp-block-custom-product-variation-swatches .ct-swatch::before,
+.wp-block-custom-product-variation-swatches .ct-swatch .checkmark,
+.wp-block-custom-product-variation-swatches .ct-swatch .tick,
+.wp-block-custom-product-variation-swatches .ct-swatch .check {
+    display: none !important;
+}
+
+/* Hide any checkmark icons or pseudo-elements */
+.wp-block-custom-product-variation-swatches .ct-swatch[data-selected="true"]::after,
+.wp-block-custom-product-variation-swatches .ct-swatch.selected::after,
+.wp-block-custom-product-variation-swatches .ct-swatch.active::after {
+    display: none !important;
+}
+
+/* Additional checkmark removal for various plugin implementations */
+.wp-block-custom-product-variation-swatches .ct-swatch .wvs-checkmark,
+.wp-block-custom-product-variation-swatches .ct-swatch .wvs-tick,
+.wp-block-custom-product-variation-swatches .ct-swatch .fa-check,
+.wp-block-custom-product-variation-swatches .ct-swatch .dashicons-yes {
+    display: none !important;
+}
+
+/* Hide swatches beyond the maximum visible (consistent with existing behavior) */
+.wp-block-custom-product-variation-swatches .ct-swatch-container:nth-child(n + 5) {
+    display: none;
+}
+
+/* View more button styling (consistent with existing) */
+.wp-block-custom-product-variation-swatches .view-more-variations {
+    background: none;
+    border: none;
+    color: var(--theme-palette-color-1, #333);
+    font-size: 14px;
+    line-height: 24px;
+    text-decoration: none;
+    font-weight: 400;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+}
+
+.wp-block-custom-product-variation-swatches .view-more-variations:hover {
+    text-decoration: underline;
+}
+
+/* Attribute labels */
+.wp-block-custom-product-variation-swatches .woo-variation-item-label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--theme-text-color, #333);
+}
+
+.wp-block-custom-product-variation-swatches .woo-variation-item-label label {
+    margin: 0;
+    font-weight: inherit;
+}
+
+/* Basic structure fallback (when plugin is not available) */
+.wp-block-custom-product-variation-swatches .basic-variations-wrapper {
+    width: 100%;
+}
+
+.wp-block-custom-product-variation-swatches .variation-label {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: var(--theme-text-color, #333);
+}
+
+.wp-block-custom-product-variation-swatches .variation-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.wp-block-custom-product-variation-swatches .variation-option {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wp-block-custom-product-variation-swatches .variation-option:hover {
+    border-color: var(--theme-palette-color-1, #333);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .wp-block-custom-product-variation-swatches .ct-swatch {
+        --swatch-size: 25px;
+    }
+
+    .wp-block-custom-product-variation-swatches .ct-variation-swatches {
+        gap: 6px;
+    }
+
+    .wp-block-custom-product-variation-swatches .view-more-variations {
+        font-size: 12px;
+        margin-left: 6px;
+    }
+}
+
+/* Integration with Product Collection blocks */
+.wp-block-woocommerce-product-template .wp-block-custom-product-variation-swatches {
+    margin: 8px 0;
+}
+
+/* Ensure proper spacing within product cards */
+.products .product .wp-block-custom-product-variation-swatches {
+    margin: 10px 0;
+}
+
+/* Archive information area */
+.wp-block-custom-product-variation-swatches .wvs-archive-information {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--theme-text-color-alt, #666);
+}
+
+/* Dynamic variation labels - only show variation names */
+.wp-block-custom-product-variation-swatches .dynamic-variation-label {
+    margin-bottom: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.wp-block-custom-product-variation-swatches .dynamic-variation-label .variation-name-text {
+    font-weight: 600;
+    color: var(--theme-palette-color-1, #333);
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+/* Hide static attribute labels completely */
+.wp-block-custom-product-variation-swatches .woo-variation-item-label {
+    display: none !important;
+}
+
+.wp-block-custom-product-variation-swatches .variation-label {
+    display: none !important;
+}
+
+/* Show only dynamic variation labels when they have content */
+.wp-block-custom-product-variation-swatches .woo-variation-item-label.hidden-by-default,
+.wp-block-custom-product-variation-swatches .variation-label.hidden-by-default {
+    display: none;
+}
+
+.wp-block-custom-product-variation-swatches .dynamic-variation-label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Enhanced styling for selected variation options */
+.wp-block-custom-product-variation-swatches .variation-option.selected,
+.wp-block-custom-product-variation-swatches .variation-option.active {
+    border-color: var(--theme-palette-color-1, #333);
+    background: var(--theme-palette-color-1, #333);
+    color: #fff;
+    font-weight: 500;
+}
