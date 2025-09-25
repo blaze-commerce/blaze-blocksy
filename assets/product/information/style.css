@@ -88,6 +88,7 @@
   z-index: 999998;
   transition: right 0.3s ease;
   padding: 1.5rem;
+  overflow-y: auto;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
