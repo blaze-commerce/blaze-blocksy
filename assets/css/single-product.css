@@ -7,7 +7,7 @@
   margin: 0;
 }
 
-.single-product .entry-summary .woocommerce-product-rating * {
+.single-product .entry-summary .woocommerce-product-rating > * {
   font-size: 14px;
   line-height: 24px;
 }
