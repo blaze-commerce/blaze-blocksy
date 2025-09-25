@@ -12,18 +12,14 @@
   line-height: 24px;
 }
 
-:is(
-    .star-rating,
-    .wc-block-components-product-rating-stars__stars,
-    .wp-block-woocommerce-product-filter-rating
-      .wc-block-components-product-rating__stars,
-    .wc-block-grid__product-rating .wc-block-grid__product-rating__stars,
-    .has-rating
-      .wc-block-components-review-list-item__rating
-      > .wc-block-components-review-list-item__rating__stars
-  )
-  span:before {
+.single-product .entry-summary .woocommerce-product-rating .star-rating:before,
+.single-product
+  .entry-summary
+  .woocommerce-product-rating
+  .star-rating
+  > span:before {
   font-size: 0.9em !important;
+  line-height: 1em !important;
 }
 
 .single-product
