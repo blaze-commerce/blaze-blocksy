@@ -406,7 +406,8 @@
 }
 
 #woo-cart-panel .mini_cart_item .product-info .product-price-quantity,
-#woo-cart-panel .mini_cart_item .ct-product-actions {
+#woo-cart-panel .mini_cart_item .ct-product-actions,
+#woo-cart-panel .mini_cart_item .product-info .product-subtotal {
   margin-top: 0.25em;
 }
 
