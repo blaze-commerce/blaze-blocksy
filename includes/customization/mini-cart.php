@@ -113,6 +113,23 @@ add_action( 'woocommerce_widget_shopping_cart_buttons', function () {
 /**
  * Add "You May Also Like" section after mini cart buttons
  */
+/* *
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	?>
+	<ul class="product_recommendation_list_widget product_list_widget">
+		<li class="mini-cart-recommendations">
+			<div class="recommendations-header">
+				<h4><?php esc_html_e( 'You May Also Like', 'blaze-blocksy' ); ?></h4>
+			</div>
+			<div class="recommendations-products">
+				<?php blaze_blocksy_get_recommended_products_for_mini_cart(); ?>
+			</div>
+		</li>
+	</ul>
+	<?php
+}, -1 );
+*/
+
 add_action( 'woocommerce_mini_cart_contents', function () {
 	?>
 	<li class="mini-cart-recommendations">

@@ -85,7 +85,7 @@ add_filter(
 );
 
 // Enqueue theme styles and scripts with enhanced error handling
-$required_files = [
+$required_files = [ 
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
@@ -99,6 +99,11 @@ $required_files = [
 	'/includes/customization/product-card.php',
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
+	'/includes/customization/single-product.php',
+	'/includes/customization/mix-and-match-products.php',
+
+	// Gutenberg Blocks
+	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
 ];
 
@@ -197,3 +202,33 @@ add_filter( 'woocommerce_locate_template', function ($template, $template_name) 
 	return $template;
 
 }, 999, 2 );
+
+/**
+ * Custom code for infinitytargets only
+ */
+
+add_action( 'template_redirect', function () {
+
+
+	if ( ! is_page( 'dealer-resources' ) ) {
+		return true;
+	}
+
+	// check if current user role is admin or editor
+	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
+		return true;
+	}
+
+	if ( is_user_logged_in() ) {
+
+		$user_id = get_current_user_id();
+		if ( function_exists( 'is_wholesaler_user' ) && is_wholesaler_user( $user_id ) ) {
+			return true;
+		}
+
+	}
+
+	//redirect user to home page
+	wp_redirect( home_url() );
+	exit;
+} );

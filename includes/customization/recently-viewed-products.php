@@ -32,7 +32,7 @@ function display_recently_viewed_products_placeholder() {
 	<section class="recently-viewed-products up-sells products is-width-constrained" id="recently-viewed-section"
 		style="display: none;">
 		<h2 class="ct-module-title">Recently Viewed Products</h2>
-		<div class="products columns-4" data-products="type-1" data-hover="zoom-in" id="recently-viewed-products-container">
+		<div class="products columns-4" data-products="type-1" data-hover="swap" id="recently-viewed-products-container">
 			<!-- Products will be loaded via AJAX -->
 		</div>
 	</section>
@@ -100,6 +100,10 @@ add_action( 'wp_ajax_get_recently_viewed_products', 'ajax_get_recently_viewed_pr
 add_action( 'wp_ajax_nopriv_get_recently_viewed_products', 'ajax_get_recently_viewed_products' );
 
 function ajax_get_recently_viewed_products() {
+	global $post;
+
+	$old_post = $post;
+
 	// Verify nonce for security
 	if ( ! wp_verify_nonce( $_POST['nonce'], 'recently_viewed_nonce' ) ) {
 		wp_die( 'Security check failed' );
@@ -139,12 +143,15 @@ function ajax_get_recently_viewed_products() {
 
 		// Set global product untuk template
 		$GLOBALS['product'] = $product_obj;
+		$post = get_post( $product_obj->get_id() );
 
 		// Render menggunakan WooCommerce content template
 		wc_get_template_part( 'content', 'product' );
 	}
 
 	$html = ob_get_clean();
+
+	$post = $old_post;
 
 	wp_send_json_success( array(
 		'html' => $html,
@@ -178,21 +185,31 @@ function get_recently_viewed_products_from_cookie() {
 add_filter( 'blaze_blocksy_single_product_localize_data', 'add_recently_viewed_localize_data' );
 
 function add_recently_viewed_localize_data( $data ) {
-	if ( ! is_product() ) {
-		return $data;
-	}
-
-	global $product;
-
-	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
-		return $data;
-	}
 
 	// Add recently viewed specific data
 	$data['recently_viewed'] = array(
 		'nonce' => wp_create_nonce( 'recently_viewed_nonce' ),
-		'current_product_id' => $product->get_id()
 	);
+
+	global $product;
+
+	if ( $product ) {
+		$product_id = null;
+		if ( is_a( $product, 'WC_Product' ) ) {
+			$product_id = $product->get_id();
+		} elseif ( is_string( $product ) ) {
+			// get product by slug
+			$post = get_page_by_path( $product, OBJECT, 'product' );
+			if ( $post ) {
+				$product_id = $post->ID;
+			}
+
+		}
+
+		if ( $product_id ) {
+			$data['recently_viewed']['current_product_id'] = $product_id;
+		}
+	}
 
 	return $data;
 }

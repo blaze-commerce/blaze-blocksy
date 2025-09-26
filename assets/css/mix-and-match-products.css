@@ -1,0 +1,239 @@
+.mnm_form {
+  color: var(--theme-palette-color-1);
+}
+
+.mnm_child_products.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  max-height: 480px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.mnm_child_products.products .product {
+  padding: 1rem;
+}
+
+.mnm_child_products.products.columns-1 li.product {
+  width: 100% !important;
+}
+
+.mnm_child_products.products.columns-2 li.product {
+  width: 47% !important;
+}
+
+.mnm_child_products.products.columns-3 li.product {
+  width: 29.33% !important;
+}
+
+.mnm_child_products.products.columns-4 li.product {
+  width: 22.5% !important;
+}
+
+.mnm_child_products.products.columns-5 li.product {
+  width: 17.5% !important;
+}
+
+.mnm_child_products.products.columns-6 li.product {
+  width: 14.5% !important;
+}
+
+@media screen and (max-width: 768px) {
+  .mnm_child_products.products.columns-3 li.product,
+  .mnm_child_products.products.columns-4 li.product,
+  .mnm_child_products.products.columns-5 li.product,
+  .mnm_child_products.products.columns-6 li.product {
+    width: 47% !important;
+  }
+}
+
+/* hide products n+1 if columns is set to n - using class-based approach */
+.mnm_child_products.products.columns-1
+  li.product:nth-child(n + 2):not(.mnm-show),
+.mnm_child_products.products.columns-2
+  li.product:nth-child(n + 3):not(.mnm-show),
+.mnm_child_products.products.columns-3
+  li.product:nth-child(n + 4):not(.mnm-show),
+.mnm_child_products.products.columns-4
+  li.product:nth-child(n + 5):not(.mnm-show),
+.mnm_child_products.products.columns-5
+  li.product:nth-child(n + 6):not(.mnm-show),
+.mnm_child_products.products.columns-6
+  li.product:nth-child(n + 7):not(.mnm-show) {
+  display: none !important;
+}
+
+/* Force show products with mnm-show class */
+.mnm_child_products.products li.product.mnm-show {
+  display: block !important;
+}
+
+/* Search field styling */
+.mnm-search-container {
+  margin-bottom: 16px;
+}
+
+.mnm-search-field {
+  --theme-form-line-height: 1.5;
+  --theme-form-font-size: 16px;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 40px 12px 12px !important;
+  border: 1px solid #cdd1d4 !important;
+  border-radius: 8px !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: var(--theme-palette-color-1);
+  background: #fff;
+  margin-bottom: 8px;
+  background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.58268 17.5001C13.9549 17.5001 17.4993 13.9557 17.4993 9.58341C17.4993 5.21116 13.9549 1.66675 9.58268 1.66675C5.21043 1.66675 1.66602 5.21116 1.66602 9.58341C1.66602 13.9557 5.21043 17.5001 9.58268 17.5001Z" stroke="%239CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.3327 18.3334L16.666 16.6667" stroke="%239CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.mnm-search-field:focus {
+  outline: none;
+  border-color: #007cba;
+  box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.mnm-search-field::placeholder {
+  color: #999;
+}
+
+/* Items counter styling */
+
+.mnm-items-count {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--theme-palette-color-1);
+  font-weight: 500;
+}
+
+/* No results message */
+.mnm-search-no-results {
+  margin-top: 24px;
+  padding: 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.mnm-search-no-results p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* Search mode - hide load more button */
+.mnm-search-mode .ct-mnm-load-more {
+  display: none !important;
+}
+
+/* Hide products during search */
+.mnm-search-hidden {
+  display: none !important;
+}
+
+html .ct-product-add-to-cart .mnm_reset.button {
+  margint-top: 0rem !important;
+  background-color: var(--theme-palette-color-1);
+  border-color: var(--theme-palette-color-1);
+  color: var(--theme-palette-color-3);
+  margin-bottom: var(--product-element-spacing, 12px) !important;
+}
+
+/* Load more button styling */
+.ct-mnm-load-more {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 28px;
+  text-decoration: underline;
+  text-transform: uppercase;
+  margin: var(--product-element-spacing, 12px) auto;
+  display: block;
+  font-family: var(--theme-font-family);
+}
+.ct-mnm-load-more:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.mnm_cart .mnm_price {
+  font-size: 24px;
+  line-height: 28px;
+  margin-bottom: 8px;
+}
+
+.mnm_message.woocommerce-message {
+  display: flex !important;
+  background-color: #1ed76005 !important;
+  color: var(--theme-palette-color-1) !important;
+  margin-bottom: var(--product-element-spacing, 12px);
+}
+
+.woocommerce-mix-and-match-add-to-cart.mnm_button_wrap {
+  border-top: 1px solid var(--theme-border-color);
+  padding-top: var(--product-element-spacing, 12px);
+}
+
+.mnm_child_products.products li.product {
+  padding: 1rem !important;
+  height: 100%;
+  margin-bottom: 0 !important;
+}
+
+.mnm_form.layout_grid .mnm_child_products.products li.product .product-details {
+  padding: 1rem;
+  margin: 0 0 8px 0;
+}
+
+.mnm_child_products.products li.product .woocommerce-loop-product__title {
+  font-size: 18px;
+  line-height: 28px;
+  margin: 0;
+  padding: 0;
+}
+
+.mnm_child_products.products li.product dl.variation {
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.mnm_child_products.products li.product dl.variation dt {
+  font-weight: 400;
+}
+
+.mnm_child_products.products li.product dl.variation dd {
+  font-weight: 600;
+}
+
+.mnm_child_products.products li.product .price {
+  margin: 0 0 8px 0;
+  --theme-font-family: ct_font_electrolize, Sans-Serif;
+}
+
+.mnm_child_products.products li.product .price * {
+  font-family: var(--theme-font-family);
+  font-size: 18px !important;
+  line-height: 28px !important;
+}
+
+.mnm_child_products.products li.product .product-quantity {
+}
+
+.mnm_child_products.products li.product .product-quantity .mnm-quantity {
+  width: 120px;
+  border-radius: 120px !important;
+}
+
+/* Hide load more button during search */
+.mnm-search-mode .ct-mnm-load-more {
+  display: none;
+}

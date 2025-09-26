@@ -1,5 +1,25 @@
-.single-product .entry-summary {
+.single-product .entry-summary,
+.entry-summary-items > .ct-product-add-to-cart {
   --product-element-spacing: 12px;
+}
+
+.single-product .entry-summary .woocommerce-product-rating .cr-qna-separator {
+  margin: 0;
+}
+
+.single-product .entry-summary .woocommerce-product-rating > * {
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.single-product .entry-summary .woocommerce-product-rating .star-rating:before,
+.single-product
+  .entry-summary
+  .woocommerce-product-rating
+  .star-rating
+  > span:before {
+  font-size: 0.9em !important;
+  line-height: 1em !important;
 }
 
 .single-product
@@ -24,6 +44,10 @@
 
 .products .owl-theme .owl-nav.disabled + .owl-dots {
   margin-top: 24px;
+}
+
+.products .owl-theme .owl-dots .owl-dot {
+  margin-top: 2rem;
 }
 
 .products .owl-theme .owl-dots .owl-dot span {
@@ -58,6 +82,7 @@
 .products .owl-carousel .owl-stage {
   display: flex;
 }
+
 /*(2) the direct div of each element in the owl carousel*/
 .products .product {
   height: calc(100% - 1px);
@@ -193,4 +218,48 @@
   p {
   font-size: 12px;
   margin: 0;
+}
+
+.ct-product-add-to-cart .ct-cart-actions {
+  flex-wrap: nowrap !important;
+}
+
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single {
+  width: 55px;
+  aspect-ratio: 1/1;
+  border-radius: 55px;
+  border: 1px solid var(--theme-border-color);
+  padding: 12px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ct-product-add-to-cart
+  .ct-cart-actions
+  .ct-wishlist-button-single[data-button-state="active"] {
+  background: var(--theme-button-background-initial-color);
+  border-color: var(--theme-button-background-initial-color);
+}
+
+.ct-product-add-to-cart
+  .ct-cart-actions
+  .ct-wishlist-button-single[data-button-state="active"]
+  svg {
+  fill: #fff;
+}
+
+@media screen and (max-width: 768px) {
+  .ct-product-add-to-cart .ct-cart-actions .quantity {
+    height: 55px;
+  }
+}
+
+/** Accordion */
+.woocommerce-tabs.wc-tabs-wrapper .ct-accordion-tab article {
+  margin-inline: auto;
+  width: var(--theme-container-width);
+  max-width: var(--theme-block-max-width);
 }

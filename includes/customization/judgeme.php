@@ -4,11 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Add Judge.me reviews tab only if the Judge.me plugin is active.
- * This prevents duplicate reviews tabs when Judge.me is not installed.
- */
-add_filter( 'woocommerce_product_tabs', 'blaze_blocksy_filter_product_tabs' );
 
 /**
  * Filter WooCommerce product tabs to conditionally add Judge.me reviews tab.
@@ -17,11 +12,12 @@ add_filter( 'woocommerce_product_tabs', 'blaze_blocksy_filter_product_tabs' );
  * @return array Modified tabs array.
  * @since 1.0.0
  */
-function blaze_blocksy_filter_product_tabs( $tabs ) {
-	// Only add the Judge.me reviews tab if the plugin is active
+
+add_filter( 'woocommerce_product_tabs', function (array $tabs) {
+
 	if ( ! blaze_blocksy_is_plugin_active( 'judgeme-product-reviews/judgeme.php' ) &&
-		 ! function_exists( 'judgeme_widget' ) &&
-		 ! shortcode_exists( 'jgm-review-widget' ) ) {
+		! function_exists( 'judgeme_widget' ) &&
+		! shortcode_exists( 'jgm-review-widget' ) ) {
 		return $tabs;
 	}
 
@@ -31,7 +27,8 @@ function blaze_blocksy_filter_product_tabs( $tabs ) {
 		'callback' => 'blaze_blocksy_render_judgeme_tab',
 	);
 	return $tabs;
-}
+} );
+
 
 /**
  * Render Judge.me reviews tab content with enhanced fallback handling.

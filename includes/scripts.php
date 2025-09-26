@@ -41,27 +41,42 @@ function blaze_blocksy_enqueue_assets() {
 		array( 'parent-style' )
 	);
 
-	wp_enqueue_script(
-		'blocksy-child-general-js',
-		$template_uri . '/assets/js/general.js',
-		array( 'jquery' ),
-		'1.0.0',
-		true
-	);
+	// wp_enqueue_script(
+	// 	'blocksy-child-general-js',
+	// 	$template_uri . '/assets/js/general.js',
+	// 	array( 'jquery' ),
+	// 	'1.0.0',
+	// 	true
+	// );
 
 	// === MINI CART ASSETS ===
 	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css' );
 	wp_enqueue_script( 'blaze-blocksy-mini-cart-js', BLAZE_BLOCKSY_URL . '/assets/js/mini-cart.js', array( 'jquery' ), '1.0.0', true );
 
+	// === BLOCKUI LIBRARY ===
+	// Enqueue blockUI if WooCommerce doesn't provide it
+	if ( ! wp_script_is( 'jquery-blockui', 'enqueued' ) && ! wp_script_is( 'wc-checkout', 'enqueued' ) ) {
+		wp_enqueue_script(
+			'jquery-blockui',
+			'https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js',
+			array( 'jquery' ),
+			'2.70',
+			true
+		);
+	}
+
+	// === OWL CAROUSEL ASSETS ===
+	// Load Owl Carousel on product pages or pages with product carousel block
+	if ( is_product() || has_block( 'blaze-blocksy/product-carousel' ) ) {
+		wp_enqueue_style( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css' );
+		wp_enqueue_style( 'owl-theme-default', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css', array( 'owl-carousel' ) );
+		wp_enqueue_script( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js', array( 'jquery' ), null, true );
+	}
+
 	// === SINGLE PRODUCT PAGE ASSETS ===
 	if ( is_product() ) {
 		// Single product styles
 		wp_enqueue_style( 'blaze-blocksy-single-product', BLAZE_BLOCKSY_URL . '/assets/css/single-product.css' );
-
-		// Owl Carousel library (CDN)
-		wp_enqueue_style( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css', array( 'blaze-blocksy-single-product' ) );
-		wp_enqueue_style( 'owl-theme-default', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css', array( 'owl-carousel' ) );
-		wp_enqueue_script( 'owl-carousel', 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js', array( 'jquery' ), null, true );
 
 		// Single product JavaScript
 		wp_enqueue_script(

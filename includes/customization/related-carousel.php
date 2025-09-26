@@ -14,11 +14,12 @@ add_action( 'wp_footer', function () {
 		const carouselConfig = {
 			loop: false,
 			margin: 24,
-			nav: false,
+			nav: true,
 			dots: true,
 			responsive: {
 				0: {
 					items: 2,
+					nav: false
 				},
 				1000: {
 					items: 4
@@ -65,9 +66,6 @@ add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/product/recommend-product-card.php';
 	}
 
-	if ( ! is_product() || is_archive() )
-		return $template;
-
 	if ( 'content' === $slug && 'product' === $name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/content/product.php';
 	}
@@ -75,5 +73,26 @@ add_filter( 'wc_get_template_part', function ($template, $slug, $name) {
 
 	return $template;
 }, 10, 3 );
+
+add_filter( 'blocksy:woocommerce:product-card:title:link', function ($attrs) {
+	global $product;
+
+	$attrs['href'] = $product->get_permalink();
+
+	return $attrs;
+}, 999 );
+
+add_action( 'blocksy:woocommerce:product-card:title:before', function () {
+	global $product;
+	$GLOBALS['product'] = $product;
+
+	add_filter( 'the_title', function ($title) {
+		global $product;
+		if ( ! is_a( $product, 'WC_Product' ) ) {
+			return $title;
+		}
+		return $product->get_name();
+	} );
+}, -1 );
 
 

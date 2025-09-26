@@ -14,7 +14,7 @@
   );
   --product-card-add-to-cart-border-radius: 999px;
 
-  border: 1px solid;
+  border: 1px solid var(--theme-border-color);
 }
 
 .products .product {
@@ -68,15 +68,25 @@
   }
 }
 
+/**
 .products
   .product
   .ct-variation-swatches
   .ct-swatch-container:nth-child(n + 5) {
   display: none;
 }
+  */
 
 .products .product .ct-swatch-container .ct-swatch {
   --swatch-size: 30px;
+}
+
+.products .product .ct-swatch-container .ct-swatch-content {
+  max-width: 120px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .products .product .ct-variation-swatches .view-more-variations {
@@ -157,4 +167,156 @@
   .products .product .ct-woo-card-actions {
     padding: 0 var(--module-product-card-element-spacing, 12px);
   }
+}
+
+.products .owl-carousel {
+  position: relative;
+}
+
+.products .owl-carousel .owl-stage {
+  display: flex;
+}
+
+.products.owl-theme .owl-nav {
+  margin-top: 0;
+}
+
+.products.owl-theme .owl-nav button {
+  margin: 0;
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--theme-button-background-initial-color);
+  line-height: 24px;
+  text-decoration: none;
+  font-weight: 400;
+  cursor: pointer;
+  font-size: 120px !important;
+}
+
+.products.owl-theme .owl-nav button.disabled {
+  display: none !important;
+}
+
+.products.owl-theme .owl-nav button:hover {
+  background: transparent !important;
+  color: #869791 !important;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.products.owl-theme .owl-nav .owl-prev {
+  left: -48px;
+}
+
+.products.owl-theme .owl-nav .owl-next {
+  right: -48px;
+}
+
+.products.owl-theme .owl-nav.disabled + .owl-dots {
+  margin-top: 24px;
+}
+
+.products.owl-theme .owl-dots .owl-dot span {
+  height: 4px;
+  width: 96px;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  .products.owl-theme .owl-dots {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .products.owl-theme .owl-dots .owl-dot span {
+    width: 10px;
+    height: 4px;
+    margin: 0;
+  }
+}
+
+/**
+* Email when stock available
+*/
+
+.cwginstock-subscribe-form.cwginstock-0outofstock {
+  --theme-button-font-size: 18px;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-primary {
+  border: none;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .panel-primary
+  > .panel-heading {
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading h4 {
+  color: var(--theme-button-text-initial-color);
+  background: var(--theme-button-background-initial-color);
+  font-family: var(--theme-button-font-family, var(--theme-font-family));
+  font-size: var(--theme-button-font-size);
+  font-weight: var(--theme-button-font-weight);
+  font-style: var(--theme-button-font-style);
+  line-height: var(--theme-button-line-height, 40px);
+  letter-spacing: var(--theme-button-letter-spacing);
+  text-transform: var(--theme-button-text-transform);
+  min-height: var(--theme-button-min-height);
+  padding: var(--theme-button-padding);
+  border-radius: var(--theme-button-border-radius, 3px);
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-body {
+  padding: 1rem 0;
+  display: none;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .cwginstock-panel-body
+  > .row
+  > .col-md-12
+  > .col-md-12 {
+  padding: 0;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .cwginstock-panel-body
+  .form-group {
+  margin-bottom: 0;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .cwginstock-panel-body
+  .form-group
+  input[type="text"],
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .cwginstock-panel-body
+  .form-group
+  input[type="email"] {
+  text-align: left !important;
+}
+
+.cwginstock-subscribe-form.cwginstock-0outofstock
+  .cwginstock-panel-body
+  .form-group
+  input[type="submit"] {
+  color: var(--theme-button-text-initial-color);
+  background: var(--theme-button-background-initial-color);
+  font-family: var(--theme-button-font-family, var(--theme-font-family));
+  font-size: var(--theme-button-font-size);
+  font-weight: var(--theme-button-font-weight);
+  font-style: var(--theme-button-font-style);
+  line-height: var(--theme-button-line-height);
+  letter-spacing: var(--theme-button-letter-spacing);
+  text-transform: var(--theme-button-text-transform);
 }

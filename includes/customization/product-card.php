@@ -24,7 +24,6 @@ class WooCommerce_Product_Card {
 	 * Constructor
 	 */
 	public function __construct() {
-		do_action( 'qm/info', 'test' );
 		// Add dynamic CSS
 		add_action( 'wp_head', array( $this, 'inject_border_styles' ), 100 );
 
