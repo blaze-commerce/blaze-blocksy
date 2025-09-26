@@ -2,11 +2,6 @@
 
 $tab_data = [];
 $product_information = get_field( 'tab_data', 'option' );
-
-
-foreach ( (array) $product_information as $info ) :
-
-endforeach;
 ?>
 
 <div class="info-list">
