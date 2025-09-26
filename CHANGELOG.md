@@ -146,10 +146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-# <<<<<<< HEAD
-
 - Eliminate duplicate reviews tabs by adding conditional Judge.me plugin detection (#99)
-  > > > > > > > fb9a649b7eeaf9eae14d23ee78792388e5f09abb
 - variation swatches
 - filter toggle button
 - hero banner style when sidebar active
@@ -1437,15 +1434,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.30.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.30.0
 [1.31.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.31.0
 [1.32.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.32.0
-
-<<<<<<< HEAD
 [unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.32.0...HEAD
-=======
-[1.33.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.33.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.33.0...HEAD
-
-> > > > > > > fb9a649b7eeaf9eae14d23ee78792388e5f09abb
-> > > > > > > [1.3.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.2.0...v1.3.0
-> > > > > > > [1.2.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.1.0...v1.2.0
-> > > > > > > [1.1.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.0.0...v1.1.0
-> > > > > > > [1.0.0]: https://github.com/blaze-commerce/blaze-blocksy/releases/tag/v1.0.0
