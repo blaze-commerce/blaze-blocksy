@@ -263,9 +263,13 @@
       }
 
       var button = $(this);
-      var columns = parseInt(button.data("columns")) || 3; // fallback to 3 columns
+      var loadMoreCount = parseInt(button.data("load-more")) || 4; // fallback to 4 products
+      var initialCount = parseInt(button.data("initial")) || 4; // fallback to 4 products
+      var gridColumns = parseInt(button.data("grid-columns")) || 4; // fallback to 4 columns
 
-      console.log("Load more clicked, columns:", columns);
+      console.log("Load more clicked, load more count:", loadMoreCount);
+      console.log("Initial count:", initialCount);
+      console.log("Grid columns:", gridColumns);
       console.log("Container found:", container.length);
 
       // Find hidden products using CSS visibility (not .mnm-show class)
@@ -280,8 +284,8 @@
         return;
       }
 
-      // Show next row of products based on columns by adding mnm-show class
-      var productsToShow = hiddenProducts.slice(0, columns);
+      // Show next batch of products based on loadMoreCount by adding mnm-show class
+      var productsToShow = hiddenProducts.slice(0, loadMoreCount);
       productsToShow.addClass("mnm-show");
 
       console.log("Showing", productsToShow.length, "products");

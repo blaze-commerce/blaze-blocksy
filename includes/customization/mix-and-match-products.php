@@ -45,15 +45,31 @@ add_action( 'init', function () {
 		wp_enqueue_script( 'blaze-blocksy-mnm', BLAZE_BLOCKSY_URL . '/assets/js/mix-and-match-products.js', array( 'jquery' ), $theme_version, true );
 	} );
 
-	add_action( 'wc_mnm_before_container_status', function ($product) {
-		$child_items = $product->get_child_items();
-		$default_columns = get_option( 'wc_mnm_number_columns', 3 );
+	/**
+	 * Configuration variables for Mix and Match products display
+	 */
+	function get_mnm_config() {
+		return array(
+			'initial_products_count' => 4,  // Number of products to show initially
+			'load_more_count' => 4,         // Number of products to load per "Load More" click
+			'grid_columns' => 4             // Number of grid columns for layout
+		);
+	}
 
-		// create load more button if there are more products than columns
-		if ( count( $child_items ) > $default_columns ) {
+	add_action( 'wc_mnm_before_container_status', function ( $product ) {
+		$child_items = $product->get_child_items();
+		$mnm_config = get_mnm_config();
+		$initial_count = $mnm_config['initial_products_count'];
+		$load_more_count = $mnm_config['load_more_count'];
+		$grid_columns = $mnm_config['grid_columns'];
+
+		// create load more button if there are more products than initial count
+		if ( count( $child_items ) > $initial_count ) {
 			?>
 			<button class="ct-mnm-load-more" aria-label="Load more products"
-				data-columns="<?php echo esc_attr( $default_columns ); ?>">
+				data-initial="<?php echo esc_attr( $initial_count ); ?>"
+				data-load-more="<?php echo esc_attr( $load_more_count ); ?>"
+				data-grid-columns="<?php echo esc_attr( $grid_columns ); ?>">
 				Load More
 			</button>
 			<?php
