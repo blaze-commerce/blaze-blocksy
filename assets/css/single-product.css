@@ -377,3 +377,15 @@
   font-size: 12px;
   margin: 0;
 }
+
+.gs-accordion .gs-accordion-item .gs-accordion-item__title span.icontitle {
+  margin-right: 10px;
+}
+
+.gs-accordion .gs-accordion-item .gs-accordion-item__title[aria-expanded="true"] span.icontitle {
+  transform: rotate(180deg);
+}
+
+#gspb_accordion-id-gsbp-325f51f .gs-accordion-item>.gs-accordion-item__title span.iconfortoggle {
+  display: none !important;
+}
