@@ -19,14 +19,13 @@ add_action( 'woocommerce_after_shop_loop', function () {
 	if ( ! is_product_category() ) {
 		return;
 	}
-	$term = get_queried_object();
-	$term_title = $term->name;
+	$term        = get_queried_object();
+	$term_title  = $term->name;
 	$description = $term->description;
 
 
 	?>
 	<div class="ct-product-category-description-wrapper">
-		<h4 class="ct-module-title"><?php echo $term_title; ?></h4>
 		<div class="ct-product-category-description">
 			<?php echo $description; ?>
 		</div>
