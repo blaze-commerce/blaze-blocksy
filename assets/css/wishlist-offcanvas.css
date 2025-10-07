@@ -1,0 +1,640 @@
+/**
+ * Wishlist Off-Canvas Styles
+ *
+ * Organized styles for the off-canvas wishlist functionality in Blocksy child theme.
+ *
+ * Table of Contents:
+ * 1. Design Tokens
+ * 2. Off-Canvas Panel Structure
+ * 3. Unified Product Cards (Wishlist & Recommendations)
+ * 4. Layout & Grid Systems
+ * 5. Component-Specific Styles
+ * 6. State Styles (Empty, Loading, Hover)
+ * 7. Responsive Design
+ * 8. Theme Integration & Overrides
+ */
+
+/* ========================================
+   1. DESIGN TOKENS
+   ======================================== */
+:root {
+    /* Colors */
+    --wishlist-border-color: #cdd1d4;
+    --wishlist-foreground: #4E594D;
+
+    /* Layout */
+    --wishlist-card-border-radius: 12px;
+    --wishlist-card-padding: 0px;
+    --wishlist-card-spacing: 16px;
+    --wishlist-image-height: 192px;
+
+    /* Typography */
+    --wishlist-title-size: 18px;
+    --wishlist-title-line-height: 28px;
+    --wishlist-price-size: 16px;
+    --wishlist-button-size: 13px;
+
+    /* Spacing */
+    --wishlist-panel-padding: 24px;
+    --wishlist-card-details-padding: 16px;
+    --wishlist-card-gap: 8px;
+}
+
+/* ========================================
+   2. OFF-CANVAS PANEL STRUCTURE
+   ======================================== */
+
+/* Panel positioning and z-index */
+#wishlist-offcanvas-panel {
+    z-index: 999999 !important;
+    width: 100vw;
+}
+
+#wishlist-offcanvas-panel[data-behaviour="right-side"] {
+    right: 0 !important;
+    left: auto !important;
+}
+
+#wishlist-offcanvas-panel[data-behaviour="left-side"] {
+    left: 0 !important;
+    right: auto !important;
+}
+
+/* Panel slide animations */
+.ct-panel[data-behaviour="right-side"] {
+    transform: translateX(100%) !important;
+}
+
+.ct-panel[data-behaviour="right-side"].active {
+    transform: translateX(0) !important;
+}
+
+.ct-panel[data-behaviour="left-side"] {
+    transform: translateX(-100%) !important;
+}
+
+.ct-panel[data-behaviour="left-side"].active {
+    transform: translateX(0) !important;
+}
+
+/* Panel header */
+#wishlist-offcanvas-panel .ct-panel-actions {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--wishlist-border-color);
+}
+
+#wishlist-offcanvas-panel .ct-panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--wishlist-foreground);
+}
+
+#wishlist-offcanvas-panel .wishlist-count {
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--wishlist-foreground);
+}
+
+/* Close button */
+#wishlist-offcanvas-panel .ct-toggle-close {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--wishlist-border-color);
+    border-radius: 50%;
+    padding: 0 !important;
+}
+
+#wishlist-offcanvas-panel .ct-toggle-close svg {
+    fill: black;
+}
+
+/* Panel heading icon */
+#wishlist-offcanvas-panel .ct-panel-heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+#wishlist-offcanvas-panel .ct-panel-heading-icon svg,
+#wishlist-offcanvas-panel .ct-panel-heading-icon .ct-icon {
+    width: 100%;
+    height: 100%;
+}
+
+#wishlist-offcanvas-panel .ct-panel-heading-icon svg {
+    fill: none;
+}
+
+/* Panel content background */
+#wishlist-offcanvas-panel .ct-panel-content-inner {
+    background: white;
+    padding: 0;
+}
+
+#wishlist-offcanvas-panel .ct-panel-inner {
+    background-color: white;
+}
+
+/* ========================================
+   3. UNIFIED PRODUCT CARDS (WISHLIST & RECOMMENDATIONS)
+   ======================================== */
+
+/* Base card styling - applies to both wishlist items and recommendations */
+.ct-offcanvas-wishlist .wishlist-item,
+.wishlist-recommendations .recommendation-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--wishlist-card-padding);
+    border: 1px solid var(--wishlist-border-color);
+    border-radius: var(--wishlist-card-border-radius);
+    background: #fff;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* Card hover effects */
+.ct-offcanvas-wishlist .wishlist-item:hover,
+.wishlist-recommendations .recommendation-item:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Product images */
+.ct-offcanvas-wishlist .wishlist-item-image,
+.wishlist-recommendations .recommendation-item-image {
+    width: 100%;
+    height: var(--wishlist-image-height);
+    overflow: hidden;
+    background: #f8f8f8;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-image img,
+.wishlist-recommendations .recommendation-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-image:hover img,
+.wishlist-recommendations .recommendation-item-image:hover img {
+    transform: scale(1.05);
+}
+
+/* Product details container */
+.ct-offcanvas-wishlist .wishlist-item-details,
+.wishlist-recommendations .recommendation-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wishlist-card-gap);
+    flex: 1;
+    padding: var(--wishlist-card-details-padding);
+}
+
+/* Product titles */
+.ct-offcanvas-wishlist .wishlist-item-title,
+.wishlist-recommendations .recommendation-item-title {
+    margin: 0;
+    font-size: var(--wishlist-title-size);
+    font-weight: 400;
+    line-height: var(--wishlist-title-line-height);
+    color: #242424;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-title a,
+.wishlist-recommendations .recommendation-item-title a {
+    color: inherit;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-title a:hover,
+.wishlist-recommendations .recommendation-item-title a:hover {
+    color: var(--theme-link-hover-color, #0073aa);
+}
+
+/* Product prices */
+.ct-offcanvas-wishlist .wishlist-item-price,
+.wishlist-recommendations .recommendation-item-price {
+    font-size: var(--wishlist-price-size);
+    font-weight: 700;
+    color: var(--theme-text-color, #333);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-price .price,
+.wishlist-recommendations .recommendation-item-price .price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Sale price styling */
+.ct-offcanvas-wishlist .wishlist-item-price del,
+.wishlist-recommendations .recommendation-item-price del {
+    margin-right: 8px;
+    color: var(--wishlist-foreground);
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration-line: line-through;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-price ins,
+.wishlist-recommendations .recommendation-item-price ins {
+    text-decoration: none;
+    color: var(--wishlist-foreground);
+    font-weight: 700;
+    font-size: var(--wishlist-title-size);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-price .woocommerce-Price-amount,
+.wishlist-recommendations .recommendation-item-price .woocommerce-Price-amount {
+    color: inherit;
+}
+
+/* Product action buttons */
+.ct-offcanvas-wishlist .wishlist-item-actions,
+.wishlist-recommendations .recommendation-item-actions {
+    display: flex;
+    gap: var(--wishlist-card-gap);
+    margin-top: auto;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button,
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove,
+.wishlist-recommendations .recommendation-item-actions .button {
+    padding: 10px 16px;
+    font-size: var(--wishlist-button-size);
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: center;
+}
+
+/* Add to cart buttons */
+.ct-offcanvas-wishlist .wishlist-item-actions .button,
+.wishlist-recommendations .recommendation-item-actions .button {
+    background: var(--theme-button-background, #333);
+    color: var(--theme-button-text, #fff);
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .button:hover,
+.wishlist-recommendations .recommendation-item-actions .button:hover {
+    background: var(--theme-button-hover-background, #555);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Remove buttons (wishlist only) */
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove {
+    background: transparent;
+    color: #999;
+    border: 1px solid var(--wishlist-border-color);
+    font-weight: 500;
+}
+
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove:hover {
+    background: #f44336;
+    color: #fff;
+    border-color: #f44336;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Loading state for buttons */
+.ct-offcanvas-wishlist .wishlist-item-actions .button.loading,
+.ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ========================================
+   4. LAYOUT & GRID SYSTEMS
+   ======================================== */
+
+/* Main container */
+.ct-offcanvas-wishlist {
+    padding: var(--wishlist-panel-padding);
+    width: 100%;
+}
+
+/* Wishlist items grid */
+.ct-offcanvas-wishlist .wishlist-items {
+    display: grid;
+    gap: var(--wishlist-card-spacing);
+    grid-template-columns: 1fr;
+}
+
+.ct-offcanvas-wishlist[data-columns="2"] .wishlist-items {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Ensure consistent card heights in grid */
+.ct-offcanvas-wishlist[data-columns="2"] .wishlist-item {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Recommendations section */
+.wishlist-recommendations {
+    margin-top: 30px;
+    padding-top: 20px;
+}
+
+.wishlist-recommendations .recommendations-title {
+    margin: 0 0 16px 0;
+    font-size: var(--wishlist-title-size);
+    font-weight: 600;
+    color: var(--theme-text-color, #242424);
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
+}
+
+.wishlist-recommendations .recommendations-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* ========================================
+   5. COMPONENT-SPECIFIC STYLES
+   ======================================== */
+
+/* Guest notice */
+.wishlist-guest-notice {
+    margin: 16px 0 0 0;
+}
+
+.wishlist-guest-notice .notice-text {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.wishlist-guest-notice .notice-actions a:before {
+    content: '';
+    display: none;
+}
+
+.wishlist-guest-notice .notice-actions .button.notice-signup {
+    width: 100%;
+    text-align: center;
+    font-weight: 700;
+    background: #fff;
+    color: var(--wishlist-foreground);
+    border: 1px solid var(--wishlist-border-color);
+}
+
+/* ========================================
+   6. STATE STYLES (EMPTY, LOADING, HOVER)
+   ======================================== */
+
+/* Empty wishlist state */
+.ct-offcanvas-wishlist .wishlist-empty {
+    text-align: center;
+    padding: 40px 0 0;
+    color: var(--theme-text-color, #666);
+}
+
+.ct-offcanvas-wishlist .wishlist-empty p {
+    margin: 0 0 1rem 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.ct-offcanvas-wishlist .wishlist-empty .button {
+    background-color: var(--theme-button-background);
+    color: var(--theme-button-text);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.ct-offcanvas-wishlist .wishlist-empty .button:hover {
+    background-color: var(--theme-button-background-hover);
+    color: var(--theme-button-text-hover);
+}
+
+/* Empty state image styling */
+.ct-offcanvas-wishlist .wishlist-empty-image {
+    margin-bottom: 1.5rem;
+}
+
+.ct-offcanvas-wishlist .wishlist-empty-image img {
+    max-width: 120px;
+    max-height: 120px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Default empty state icon styling */
+.ct-offcanvas-wishlist .wishlist-empty-icon {
+    margin-bottom: 1.5rem;
+    opacity: 0.6;
+}
+
+.ct-offcanvas-wishlist .wishlist-empty-icon svg {
+    display: block;
+    margin: 0 auto;
+    color: var(--theme-text-color);
+}
+
+/* Legacy support for old class name */
+.ct-offcanvas-wishlist .ct-wishlist-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--theme-text-color, #666);
+}
+
+.ct-offcanvas-wishlist .ct-wishlist-empty p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Loading state */
+.ct-offcanvas-wishlist .loading {
+    position: relative;
+    opacity: 0.6;
+}
+
+.ct-offcanvas-wishlist .loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--theme-button-background, #0073aa);
+    border-radius: 50%;
+    animation: wishlist-spin 1s linear infinite;
+}
+
+@keyframes wishlist-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   7. RESPONSIVE DESIGN
+   ======================================== */
+
+/* Mobile adjustments for main layout */
+@media (max-width: 768px) {
+    .ct-offcanvas-wishlist {
+        padding: 15px;
+    }
+}
+
+/* Mobile adjustments for grid columns */
+@media (max-width: 600px) {
+    .ct-offcanvas-wishlist[data-columns="2"] .wishlist-items {
+        gap: 16px;
+    }
+
+    .wishlist-guest-notice {
+        margin: 12px 0;
+        padding: 12px 0;
+    }
+
+    .wishlist-recommendations .recommendations-grid {
+        gap: 12px;
+    }
+}
+
+/* Mobile adjustments for product cards */
+@media (max-width: 600px) {
+
+    /* Card images */
+    .ct-offcanvas-wishlist .wishlist-item-image,
+    .wishlist-recommendations .recommendation-item-image {
+        height: 150px;
+    }
+
+    /* Card titles */
+    .ct-offcanvas-wishlist .wishlist-item-title,
+    .wishlist-recommendations .recommendation-item-title {
+        font-size: 14px;
+    }
+
+    /* Card prices */
+    .ct-offcanvas-wishlist .wishlist-item-price,
+    .wishlist-recommendations .recommendation-item-price {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    /* Card actions */
+    .ct-offcanvas-wishlist .wishlist-item-actions,
+    .wishlist-recommendations .recommendation-item-actions {
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 6px;
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-actions .button,
+    .ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove,
+    .wishlist-recommendations .recommendation-item-actions .button {
+        padding: 10px 14px;
+        font-size: 12px;
+        text-align: center;
+    }
+}
+
+/* ========================================
+   8. THEME INTEGRATION & OVERRIDES
+   ======================================== */
+
+/* Integration with Blocksy off-canvas system */
+body[data-panel] #wishlist-offcanvas-panel.active {
+    display: flex;
+    width: 100vw;
+    background-color: rgba(18, 21, 25, 0.6);
+}
+
+/* Fallback styles for when Blocksy off-canvas is not available */
+body.wishlist-offcanvas-open {
+    overflow: hidden;
+}
+
+body.wishlist-offcanvas-open #wishlist-offcanvas-panel {
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Dark mode support (system preference) */
+@media (prefers-color-scheme: dark) {
+
+    .ct-offcanvas-wishlist .wishlist-item,
+    .wishlist-recommendations .recommendation-item {
+        background: var(--theme-background-color, #2a2a2a);
+        border-color: var(--theme-border-color, #444);
+    }
+
+    .ct-offcanvas-wishlist .wishlist-item-title a,
+    .wishlist-recommendations .recommendation-item-title a,
+    .ct-offcanvas-wishlist .wishlist-item-price,
+    .wishlist-recommendations .recommendation-item-price {
+        color: var(--theme-text-color, #fff);
+    }
+
+    .wishlist-recommendations {
+        border-bottom-color: var(--theme-border-color, #444);
+    }
+
+    .wishlist-recommendations .recommendations-title {
+        color: var(--theme-text-color, #fff);
+    }
+}
+
+/* Force light cards override (design requirement) */
+#wishlist-offcanvas-panel .ct-offcanvas-wishlist .wishlist-item,
+#wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item {
+    background: #fff;
+    border-color: var(--wishlist-border-color);
+}
+
+#wishlist-offcanvas-panel .wishlist-item-title a,
+#wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-title a {
+    color: #242424;
+}
+
+#wishlist-offcanvas-panel .wishlist-item-price,
+#wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-price {
+    color: var(--wishlist-foreground);
+}
+
+#wishlist-offcanvas-panel .wishlist-item-price .sale-price,
+#wishlist-offcanvas-panel .wishlist-recommendations .recommendation-item-price .sale-price {
+    display: inline;
+}
