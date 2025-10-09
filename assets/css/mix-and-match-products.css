@@ -4,7 +4,10 @@
 
 .mnm_child_products.products {
   display: grid !important;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(
+    2,
+    1fr
+  ); /* Default fallback, will be overridden by dynamic CSS */
   gap: 24px;
   max-height: 480px;
   overflow-x: hidden;
@@ -20,7 +23,7 @@
   width: auto !important;
 }
 
-/* Hide products after the 4th one initially (show first 4 products) */
+/* Hide products after the initial count - will be overridden by dynamic CSS */
 .mnm_child_products.products li.product:nth-child(n + 5):not(.mnm-show) {
   display: none !important;
 }
