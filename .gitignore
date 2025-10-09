@@ -402,3 +402,6 @@ cobertura.xml
 test-*.tmp
 testing-*.log
 mock-data-*.json
+
+# Ignore custom files
+custom/
