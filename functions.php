@@ -26,7 +26,7 @@ add_action(
 // Fix REST API permissions for shop_coupon
 add_filter(
 	'rest_pre_dispatch',
-	function ($result, $server, $request) {
+	function ( $result, $server, $request ) {
 		$route = $request->get_route();
 		if (
 			strpos( $route, '/wp/v2/shop_coupon' ) !== false ||
@@ -46,7 +46,7 @@ add_filter(
 // Ensure proper REST API capabilities
 add_filter(
 	'rest_shop_coupon_query',
-	function ($args, $request) {
+	function ( $args, $request ) {
 		if ( current_user_can( 'manage_woocommerce' ) ) {
 			$args['post_status'] = array( 'publish', 'draft', 'pending' );
 		}
@@ -74,7 +74,7 @@ add_action(
 // Add REST API endpoints support
 add_filter(
 	'rest_endpoints',
-	function ($endpoints) {
+	function ( $endpoints ) {
 		if ( isset( $endpoints['/wp/v2/types/shop_coupon'] ) ) {
 			$endpoints['/wp/v2/types/shop_coupon'][0]['permission_callback'] = function () {
 				return current_user_can( 'manage_woocommerce' );
@@ -85,7 +85,8 @@ add_filter(
 );
 
 // Enqueue theme styles and scripts with enhanced error handling
-$required_files = [ 
+$required_files = [
+	'/custom/custom.php',
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
@@ -191,7 +192,7 @@ function blaze_blocksy_is_plugin_active( $plugin ) {
  * Override WooCommerce templates
 
  */
-add_filter( 'woocommerce_locate_template', function ($template, $template_name) {
+add_filter( 'woocommerce_locate_template', function ( $template, $template_name ) {
 	// override woocommerce template if file exists
 	$custom_template = BLAZE_BLOCKSY_PATH . '/woocommerce/' . $template_name;
 
