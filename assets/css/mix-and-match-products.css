@@ -3,10 +3,12 @@
 }
 
 .mnm_child_products.products {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid !important;
+  grid-template-columns: repeat(
+    2,
+    1fr
+  ); /* Default fallback, will be overridden by dynamic CSS */
   gap: 24px;
-  justify-content: space-between;
   max-height: 480px;
   overflow-x: hidden;
   overflow-y: auto;
@@ -16,52 +18,13 @@
   padding: 1rem;
 }
 
-.mnm_child_products.products.columns-1 li.product {
-  width: 100% !important;
+/* Grid layout - no need for specific widths as grid handles this */
+.mnm_child_products.products li.product {
+  width: auto !important;
 }
 
-.mnm_child_products.products.columns-2 li.product {
-  width: 47% !important;
-}
-
-.mnm_child_products.products.columns-3 li.product {
-  width: 29.33% !important;
-}
-
-.mnm_child_products.products.columns-4 li.product {
-  width: 22.5% !important;
-}
-
-.mnm_child_products.products.columns-5 li.product {
-  width: 17.5% !important;
-}
-
-.mnm_child_products.products.columns-6 li.product {
-  width: 14.5% !important;
-}
-
-@media screen and (max-width: 768px) {
-  .mnm_child_products.products.columns-3 li.product,
-  .mnm_child_products.products.columns-4 li.product,
-  .mnm_child_products.products.columns-5 li.product,
-  .mnm_child_products.products.columns-6 li.product {
-    width: 47% !important;
-  }
-}
-
-/* hide products n+1 if columns is set to n - using class-based approach */
-.mnm_child_products.products.columns-1
-  li.product:nth-child(n + 2):not(.mnm-show),
-.mnm_child_products.products.columns-2
-  li.product:nth-child(n + 3):not(.mnm-show),
-.mnm_child_products.products.columns-3
-  li.product:nth-child(n + 4):not(.mnm-show),
-.mnm_child_products.products.columns-4
-  li.product:nth-child(n + 5):not(.mnm-show),
-.mnm_child_products.products.columns-5
-  li.product:nth-child(n + 6):not(.mnm-show),
-.mnm_child_products.products.columns-6
-  li.product:nth-child(n + 7):not(.mnm-show) {
+/* Hide products after the initial count - will be overridden by dynamic CSS */
+.mnm_child_products.products li.product:nth-child(n + 5):not(.mnm-show) {
   display: none !important;
 }
 
@@ -216,6 +179,7 @@ html .ct-product-add-to-cart .mnm_reset.button {
 
 .mnm_child_products.products li.product .price {
   margin: 0 0 8px 0;
+  padding: 0;
   --theme-font-family: ct_font_electrolize, Sans-Serif;
 }
 
