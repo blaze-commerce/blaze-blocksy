@@ -106,6 +106,9 @@ $required_files = [
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
+
+	// WooCommerce Block Extensions
+	'/includes/woocommerce-blocks/wc-block-extensions.php',
 ];
 
 // Add debug files in debug mode

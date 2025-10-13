@@ -1,0 +1,283 @@
+/**
+ * WooCommerce Block Extensions - Frontend Styles
+ *
+ * Styles for responsive product collection and enhanced product images
+ *
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* ============================================
+   Product Collection Responsive Styles
+   ============================================ */
+
+.wc-responsive-collection {
+    --wc-responsive-columns: 4;
+}
+
+.wc-responsive-collection .wp-block-woocommerce-product-template {
+    display: grid !important;
+    grid-template-columns: repeat(var(--wc-responsive-columns), 1fr);
+    gap: 1.5rem;
+}
+
+/* Ensure products are properly displayed */
+.wc-responsive-collection .wp-block-post {
+    display: block;
+}
+
+/* Hide products that exceed the responsive count */
+.wc-responsive-collection .wp-block-post.wc-hidden-responsive {
+    display: none !important;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1023px) {
+    .wc-responsive-collection {
+        --wc-responsive-columns: 3;
+    }
+}
+
+@media (max-width: 767px) {
+    .wc-responsive-collection {
+        --wc-responsive-columns: 2;
+    }
+
+    .wc-responsive-collection .wp-block-woocommerce-product-template {
+        gap: 1rem;
+    }
+}
+
+/* ============================================
+   Product Image Enhancement Styles
+   ============================================ */
+
+.wc-enhanced-product-image {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Image Styles */
+.wc-hover-image-enabled img {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.wc-hover-image-enabled:hover img {
+    opacity: 1;
+}
+
+.wc-hover-image-enabled img.wc-hover-active {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   Wishlist Button Styles
+   ============================================ */
+
+.wc-wishlist-button {
+    position: absolute;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.8);
+    padding: 0;
+    color: #333;
+}
+
+/* Show wishlist button on hover */
+.wc-enhanced-product-image:hover .wc-wishlist-button {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Wishlist Button Positions */
+.wc-wishlist-button--top-left {
+    top: 10px;
+    left: 10px;
+}
+
+.wc-wishlist-button--top-right {
+    top: 10px;
+    right: 10px;
+}
+
+.wc-wishlist-button--bottom-left {
+    bottom: 10px;
+    left: 10px;
+}
+
+.wc-wishlist-button--bottom-right {
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Wishlist Button States */
+.wc-wishlist-button:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1);
+}
+
+.wc-wishlist-button.wc-wishlist-added {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.wc-wishlist-button.wc-wishlist-added:hover {
+    background: #c0392b;
+    border-color: #c0392b;
+}
+
+.wc-wishlist-button.wc-wishlist-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.wc-wishlist-button.wc-wishlist-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: wc-wishlist-spin 0.6s linear infinite;
+}
+
+@keyframes wc-wishlist-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.wc-wishlist-button svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+}
+
+.wc-wishlist-button:hover svg {
+    transform: scale(1.1);
+}
+
+.wc-wishlist-button.wc-wishlist-added svg {
+    animation: wc-wishlist-pulse 0.3s ease;
+}
+
+@keyframes wc-wishlist-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* ============================================
+   Wishlist Message Notification
+   ============================================ */
+
+.wc-wishlist-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2c3e50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    z-index: 99999;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.wc-wishlist-message--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.wc-wishlist-message--error {
+    background: #e74c3c;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Make wishlist button always visible on mobile */
+    .wc-wishlist-button {
+        opacity: 1;
+        transform: scale(1);
+        width: 36px;
+        height: 36px;
+    }
+
+    .wc-wishlist-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Adjust message position on mobile */
+    .wc-wishlist-message {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        text-align: center;
+    }
+}
+
+/* ============================================
+   Accessibility Improvements
+   ============================================ */
+
+.wc-wishlist-button:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.wc-wishlist-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .wc-wishlist-button {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .wc-wishlist-button,
+    .wc-wishlist-button svg,
+    .wc-hover-image-enabled img,
+    .wc-wishlist-message {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .wc-wishlist-button,
+    .wc-wishlist-message {
+        display: none !important;
+    }
+}
+

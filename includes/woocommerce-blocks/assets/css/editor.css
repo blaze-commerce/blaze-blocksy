@@ -1,0 +1,104 @@
+/**
+ * WooCommerce Block Extensions - Editor Styles
+ *
+ * Styles for the block editor interface
+ *
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* ============================================
+   Editor Panel Styles
+   ============================================ */
+
+.components-panel__body h4 {
+    font-weight: 600;
+    color: #1e1e1e;
+    margin-bottom: 8px;
+}
+
+/* ============================================
+   Product Collection Editor Preview
+   ============================================ */
+
+.wp-block-woocommerce-product-collection.wc-responsive-collection .wp-block-woocommerce-product-template {
+    display: grid;
+    grid-template-columns: repeat(var(--wc-responsive-columns, 4), 1fr);
+    gap: 1.5rem;
+}
+
+/* ============================================
+   Product Image Editor Preview
+   ============================================ */
+
+.wc-enhanced-product-image {
+    position: relative;
+}
+
+/* Show a subtle indicator in the editor when enhancements are enabled */
+.wc-hover-image-enabled::before {
+    content: 'Hover Image Enabled';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.wc-wishlist-enabled::after {
+    content: 'Wishlist Enabled';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* ============================================
+   Inspector Controls Styling
+   ============================================ */
+
+.components-panel__body .components-toggle-control {
+    margin-bottom: 16px;
+}
+
+.components-panel__body .components-range-control {
+    margin-bottom: 16px;
+}
+
+.components-panel__body .components-select-control {
+    margin-bottom: 16px;
+}
+
+/* Help text styling */
+.components-base-control__help {
+    font-size: 12px;
+    font-style: normal;
+    color: #757575;
+    margin-top: 4px;
+}
+
+/* ============================================
+   Responsive Preview Indicators
+   ============================================ */
+
+.wc-responsive-collection .block-editor-block-list__layout {
+    position: relative;
+}
+
+/* Add a subtle border to indicate responsive mode is active */
+.wc-responsive-collection {
+    outline: 2px dashed rgba(0, 123, 255, 0.3);
+    outline-offset: 4px;
+}
+
