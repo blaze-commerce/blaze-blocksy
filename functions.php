@@ -102,6 +102,7 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
+	'/includes/customization/product-image-block.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
