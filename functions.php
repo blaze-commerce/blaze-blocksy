@@ -103,6 +103,9 @@ $required_files = [
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
 
+	// WooCommerce Block Extensions
+	'/includes/customization/wc-blocks/loader.php',
+
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',

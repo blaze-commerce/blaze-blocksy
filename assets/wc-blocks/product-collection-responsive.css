@@ -1,0 +1,141 @@
+/**
+ * Product Collection Block - Responsive Styles
+ *
+ * Styles for responsive column and product count functionality.
+ *
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* ============================================
+   Responsive Product Collection Base Styles
+   ============================================ */
+
+.wc-responsive-collection {
+	--wc-responsive-columns: 4;
+	--wc-responsive-gap: 1.5rem;
+}
+
+/* Product template grid layout */
+.wc-responsive-collection .wp-block-post-template,
+.wc-responsive-collection .wp-block-woocommerce-product-template {
+	display: grid !important;
+	grid-template-columns: repeat(var(--wc-responsive-columns), 1fr) !important;
+	gap: var(--wc-responsive-gap) !important;
+}
+
+/* Ensure products don't have conflicting display properties */
+.wc-responsive-collection .wp-block-post-template > li,
+.wc-responsive-collection .wp-block-woocommerce-product-template > li {
+	margin: 0 !important;
+	width: 100% !important;
+}
+
+/* ============================================
+   Responsive Breakpoints
+   ============================================ */
+
+/* Desktop (default) - 1024px and above */
+@media (min-width: 1024px) {
+	.wc-responsive-collection {
+		--wc-responsive-columns: 4;
+	}
+}
+
+/* Tablet - 768px to 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+	.wc-responsive-collection {
+		--wc-responsive-columns: 3;
+		--wc-responsive-gap: 1.25rem;
+	}
+}
+
+/* Mobile - below 768px */
+@media (max-width: 767px) {
+	.wc-responsive-collection {
+		--wc-responsive-columns: 2;
+		--wc-responsive-gap: 1rem;
+	}
+}
+
+/* Small mobile - below 480px */
+@media (max-width: 479px) {
+	.wc-responsive-collection {
+		--wc-responsive-columns: 1;
+		--wc-responsive-gap: 0.75rem;
+	}
+}
+
+/* ============================================
+   Column Class Overrides
+   ============================================ */
+
+/* Override default column classes when responsive is enabled */
+.wc-responsive-collection.columns-1,
+.wc-responsive-collection.columns-2,
+.wc-responsive-collection.columns-3,
+.wc-responsive-collection.columns-4,
+.wc-responsive-collection.columns-5,
+.wc-responsive-collection.columns-6 {
+	/* Use CSS custom property instead of fixed columns */
+}
+
+/* ============================================
+   Editor Specific Styles
+   ============================================ */
+
+.wp-block-woocommerce-product-collection.wc-responsive-collection .wp-block-post-template,
+.wp-block-woocommerce-product-collection.wc-responsive-collection .wp-block-woocommerce-product-template {
+	display: grid;
+	grid-template-columns: repeat(var(--wc-responsive-columns), 1fr);
+	gap: var(--wc-responsive-gap);
+}
+
+/* ============================================
+   Loading and Transition States
+   ============================================ */
+
+.wc-responsive-collection .wp-block-post-template > li,
+.wc-responsive-collection .wp-block-woocommerce-product-template > li {
+	transition: opacity 0.3s ease-in-out;
+}
+
+/* Hidden products (when count is exceeded) */
+.wc-responsive-collection .wp-block-post-template > li[style*="display: none"],
+.wc-responsive-collection .wp-block-woocommerce-product-template > li[style*="display: none"] {
+	opacity: 0;
+}
+
+/* ============================================
+   Compatibility Fixes
+   ============================================ */
+
+/* Ensure grid works with various themes */
+.wc-responsive-collection .products,
+.wc-responsive-collection .wc-block-grid {
+	display: grid !important;
+	grid-template-columns: repeat(var(--wc-responsive-columns), 1fr) !important;
+	gap: var(--wc-responsive-gap) !important;
+}
+
+/* Reset flex layouts that might interfere */
+.wc-responsive-collection .products.columns-1,
+.wc-responsive-collection .products.columns-2,
+.wc-responsive-collection .products.columns-3,
+.wc-responsive-collection .products.columns-4,
+.wc-responsive-collection .products.columns-5,
+.wc-responsive-collection .products.columns-6 {
+	display: grid !important;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+	.wc-responsive-collection {
+		--wc-responsive-columns: 2;
+		--wc-responsive-gap: 1rem;
+	}
+}
+
