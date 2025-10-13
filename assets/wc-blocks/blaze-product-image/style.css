@@ -1,0 +1,254 @@
+/**
+ * Blaze Product Image - Frontend Styles
+ */
+
+.blaze-product-image {
+	position: relative;
+	display: block;
+	overflow: hidden;
+}
+
+.blaze-product-image__inner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.blaze-product-image__link {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+.blaze-product-image__container {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	background: #f5f5f5;
+}
+
+/* Product Images */
+.blaze-product-image__img {
+	width: 100%;
+	height: auto;
+	display: block;
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.blaze-product-image__img--main {
+	position: relative;
+	z-index: 1;
+	opacity: 1;
+}
+
+.blaze-product-image__img--hover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	opacity: 0;
+}
+
+.blaze-product-image__container:hover .blaze-product-image__img--main {
+	transform: scale(1.05);
+}
+
+/* Sale Badge */
+.blaze-product-image__badge {
+	position: absolute;
+	top: 10px;
+	z-index: 10;
+	background: #e74c3c;
+	color: #fff;
+	padding: 5px 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	border-radius: 3px;
+	letter-spacing: 0.5px;
+}
+
+.blaze-product-image__badge--align-left {
+	left: 10px;
+}
+
+.blaze-product-image__badge--align-center {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.blaze-product-image__badge--align-right {
+	right: 10px;
+}
+
+/* Wishlist Button */
+.blaze-product-image__wishlist {
+	position: absolute;
+	z-index: 15;
+	width: 40px;
+	height: 40px;
+	background: rgba(255, 255, 255, 0.9);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blaze-product-image__wishlist:hover {
+	background: #fff;
+	transform: scale(1.1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.blaze-product-image__wishlist:active {
+	transform: scale(0.95);
+}
+
+/* Wishlist Button Positions */
+.blaze-product-image__wishlist--top-left {
+	top: 10px;
+	left: 10px;
+}
+
+.blaze-product-image__wishlist--top-right {
+	top: 10px;
+	right: 10px;
+}
+
+.blaze-product-image__wishlist--bottom-left {
+	bottom: 10px;
+	left: 10px;
+}
+
+.blaze-product-image__wishlist--bottom-right {
+	bottom: 10px;
+	right: 10px;
+}
+
+/* Wishlist Icons */
+.blaze-wishlist-icon {
+	width: 20px;
+	height: 20px;
+	color: #333;
+	transition: all 0.3s ease;
+}
+
+.blaze-wishlist-icon--outline {
+	display: block;
+}
+
+.blaze-wishlist-icon--filled {
+	display: none;
+	color: #e74c3c;
+}
+
+/* Wishlist Active State */
+.blaze-product-image__wishlist.is-in-wishlist .blaze-wishlist-icon--outline {
+	display: none;
+}
+
+.blaze-product-image__wishlist.is-in-wishlist .blaze-wishlist-icon--filled {
+	display: block;
+	animation: blaze-heart-beat 0.3s ease;
+}
+
+/* Wishlist Loading State */
+.blaze-product-image__wishlist.is-loading {
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.blaze-product-image__wishlist.is-loading::after {
+	content: '';
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #f3f3f3;
+	border-top: 2px solid #333;
+	border-radius: 50%;
+	animation: blaze-spin 0.6s linear infinite;
+}
+
+/* Animations */
+@keyframes blaze-heart-beat {
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.3);
+	}
+}
+
+@keyframes blaze-spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Hover Effects */
+.blaze-product-image:hover .blaze-product-image__wishlist {
+	opacity: 1;
+}
+
+/* Responsive */
+@media screen and (max-width: 767px) {
+	.blaze-product-image__wishlist {
+		width: 36px;
+		height: 36px;
+	}
+
+	.blaze-wishlist-icon {
+		width: 18px;
+		height: 18px;
+	}
+
+	.blaze-product-image__badge {
+		font-size: 11px;
+		padding: 4px 10px;
+	}
+
+	.blaze-product-image__wishlist--top-left,
+	.blaze-product-image__wishlist--top-right {
+		top: 8px;
+	}
+
+	.blaze-product-image__wishlist--bottom-left,
+	.blaze-product-image__wishlist--bottom-right {
+		bottom: 8px;
+	}
+
+	.blaze-product-image__wishlist--top-left,
+	.blaze-product-image__wishlist--bottom-left {
+		left: 8px;
+	}
+
+	.blaze-product-image__wishlist--top-right,
+	.blaze-product-image__wishlist--bottom-right {
+		right: 8px;
+	}
+}
+
+/* Placeholder Image */
+.blaze-product-image__img--placeholder {
+	background: #f0f0f0;
+	min-height: 200px;
+	object-fit: cover;
+}
+
+/* Accessibility */
+.blaze-product-image__wishlist:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.blaze-product-image__wishlist:focus:not(:focus-visible) {
+	outline: none;
+}
+

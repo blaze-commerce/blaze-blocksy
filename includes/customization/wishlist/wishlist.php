@@ -145,7 +145,7 @@ class BlocksyChildWishlistHelper {
 	 * @return bool True if wishlist is empty.
 	 */
 	public static function is_wishlist_empty() {
-		$wishlist    = self::get_current_wishlist();
+		$wishlist = self::get_current_wishlist();
 		$product_ids = self::extract_product_ids( $wishlist );
 		return empty( $product_ids );
 	}
@@ -576,7 +576,7 @@ class BlocksyChildWishlistOffCanvas {
 			return;
 		}
 
-		$this->renderer        = new BlocksyChildWishlistRenderer();
+		$this->renderer = new BlocksyChildWishlistRenderer();
 		$this->recommendations = new BlocksyChildWishlistRecommendations();
 
 		$this->init_hooks();
@@ -621,17 +621,17 @@ class BlocksyChildWishlistOffCanvas {
 			BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_width', BlocksyChildWishlistHelper::DEFAULT_CANVAS_WIDTH )
 		);
 
-		$icon_source     = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
-		$icon_size       = '';
+		$icon_source = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_icon_source', 'header' );
+		$icon_size = '';
 		$close_icon_size = '';
 
 		if ( $icon_source === 'custom' ) {
 			$icon_size_value = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_icon_size', BlocksyChildWishlistHelper::DEFAULT_ICON_SIZE );
-			$icon_size       = BlocksyChildWishlistHelper::sanitize_icon_size( $icon_size_value );
+			$icon_size = BlocksyChildWishlistHelper::sanitize_icon_size( $icon_size_value );
 		}
 
 		$close_icon_size_value = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_close_icon_size', BlocksyChildWishlistHelper::DEFAULT_CLOSE_ICON_SIZE );
-		$close_icon_size       = BlocksyChildWishlistHelper::sanitize_icon_size( $close_icon_size_value, BlocksyChildWishlistHelper::DEFAULT_CLOSE_ICON_SIZE );
+		$close_icon_size = BlocksyChildWishlistHelper::sanitize_icon_size( $close_icon_size_value, BlocksyChildWishlistHelper::DEFAULT_CLOSE_ICON_SIZE );
 
 		$this->output_canvas_css( $canvas_width, $icon_size, $close_icon_size, $icon_source );
 	}
@@ -775,7 +775,7 @@ class BlocksyChildWishlistOffCanvas {
 		}
 
 		$content = $this->renderer->get_wishlist_content();
-		$count   = BlocksyChildWishlistHelper::get_wishlist_count();
+		$count = BlocksyChildWishlistHelper::get_wishlist_count();
 
 		wp_send_json_success( array(
 			'content' => $content,
@@ -831,17 +831,17 @@ class BlocksyChildWishlistRenderer {
 			'has_container' => true,
 		) );
 
-		$content           = $this->get_wishlist_content();
+		$content = $this->get_wishlist_content();
 		$without_container = '<div class="ct-panel-content"><div class="ct-panel-content-inner">' . $content . '</div></div>';
 
 		if ( ! $args['has_container'] ) {
 			return $without_container;
 		}
 
-		$behavior      = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_position', BlocksyChildWishlistHelper::DEFAULT_POSITION );
-		$close_icon    = $this->get_close_icon_svg();
+		$behavior = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_position', BlocksyChildWishlistHelper::DEFAULT_POSITION );
+		$close_icon = $this->get_close_icon_svg();
 		$wishlist_icon = $this->get_wishlist_icon();
-		$icon_html     = $wishlist_icon ? '<span class="ct-panel-heading-icon">' . $wishlist_icon . '</span> ' : '';
+		$icon_html = $wishlist_icon ? '<span class="ct-panel-heading-icon">' . $wishlist_icon . '</span> ' : '';
 
 		return sprintf(
 			'<div id="wishlist-offcanvas-panel" class="ct-panel ct-header ct-header-wishlist" data-behaviour="%s" role="dialog" aria-label="%s" inert="">
@@ -899,7 +899,7 @@ class BlocksyChildWishlistRenderer {
 	 * @return string HTML content.
 	 */
 	private function get_empty_wishlist_content() {
-		$is_logged_in      = is_user_logged_in();
+		$is_logged_in = is_user_logged_in();
 		$empty_state_image = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_empty_state_image', array( 'attachment_id' => null ) );
 
 		$html = '<div class="ct-offcanvas-wishlist">';
@@ -946,11 +946,11 @@ class BlocksyChildWishlistRenderer {
 	 * @return string HTML content.
 	 */
 	private function render_wishlist_items( $items ) {
-		$columns          = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_columns', BlocksyChildWishlistHelper::DEFAULT_COLUMNS );
-		$show_price       = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_product_price', 'yes' ) === 'yes';
-		$show_image       = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_product_image', 'yes' ) === 'yes';
+		$columns = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_offcanvas_columns', BlocksyChildWishlistHelper::DEFAULT_COLUMNS );
+		$show_price = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_product_price', 'yes' ) === 'yes';
+		$show_image = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_product_image', 'yes' ) === 'yes';
 		$show_add_to_cart = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_add_to_cart', 'yes' ) === 'yes';
-		$show_remove      = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_remove_button', 'yes' ) === 'yes';
+		$show_remove = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_show_remove_button', 'yes' ) === 'yes';
 
 		$html = '<div class="ct-offcanvas-wishlist" data-columns="' . esc_attr( $columns ) . '">
 			<div class="wishlist-items">';
@@ -1026,7 +1026,7 @@ class BlocksyChildWishlistRenderer {
 	 */
 	private function render_single_wishlist_item( $product, $show_image, $show_price, $show_add_to_cart, $show_remove ) {
 		$product_id = $product->get_id();
-		$html       = '<div class="wishlist-item" data-product-id="' . esc_attr( $product_id ) . '">';
+		$html = '<div class="wishlist-item" data-product-id="' . esc_attr( $product_id ) . '">';
 
 		if ( $show_image ) {
 			$html .= '<div class="wishlist-item-image">
@@ -1075,7 +1075,7 @@ class BlocksyChildWishlistRenderer {
 
 		if ( empty( $price_html ) ) {
 			$regular_price = $product->get_regular_price();
-			$sale_price    = $product->get_sale_price();
+			$sale_price = $product->get_sale_price();
 
 			if ( '' !== $sale_price && '' !== $regular_price ) {
 				$price_html = wc_format_sale_price( wc_price( $regular_price ), wc_price( $sale_price ) );
@@ -1096,8 +1096,8 @@ class BlocksyChildWishlistRenderer {
 	 * @return string HTML content.
 	 */
 	public function get_guest_notice_html() {
-		$custom_signup_url  = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_url', '' );
-		$signup_url         = ! empty( $custom_signup_url ) ? $custom_signup_url : wp_registration_url();
+		$custom_signup_url = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_url', '' );
+		$signup_url = ! empty( $custom_signup_url ) ? $custom_signup_url : wp_registration_url();
 		$signup_button_text = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_text', __( 'Sign Up', 'blocksy-companion' ) );
 
 		return '<div class="wishlist-guest-notice">'
@@ -1164,7 +1164,7 @@ class BlocksyChildWishlistRenderer {
 	 * @return array Header settings.
 	 */
 	private function get_header_wishlist_settings() {
-		$header_builder    = BlocksyChildWishlistHelper::get_theme_mod( 'header_placements', array() );
+		$header_builder = BlocksyChildWishlistHelper::get_theme_mod( 'header_placements', array() );
 		$wishlist_settings = array();
 
 		if ( is_array( $header_builder ) ) {
@@ -1234,7 +1234,7 @@ class BlocksyChildWishlistRecommendations {
 		}
 
 		$wishlist_is_empty = BlocksyChildWishlistHelper::is_wishlist_empty();
-		$title             = $wishlist_is_empty
+		$title = $wishlist_is_empty
 			? esc_html__( 'Recently Viewed Items', 'blocksy-companion' )
 			: esc_html__( 'You May Also Like', 'blocksy-companion' );
 
@@ -1268,7 +1268,7 @@ class BlocksyChildWishlistRecommendations {
 	 * @return array Product objects.
 	 */
 	private function get_recommended_products() {
-		$wishlist     = BlocksyChildWishlistHelper::get_current_wishlist();
+		$wishlist = BlocksyChildWishlistHelper::get_current_wishlist();
 		$wishlist_ids = BlocksyChildWishlistHelper::extract_product_ids( $wishlist );
 
 		// If wishlist is empty, return recently viewed products
@@ -1287,7 +1287,7 @@ class BlocksyChildWishlistRecommendations {
 
 			// Get cross-sells and upsells
 			$cross_sells = $product->get_cross_sell_ids();
-			$upsells     = $product->get_upsell_ids();
+			$upsells = $product->get_upsell_ids();
 
 			$recommended_ids = array_merge( $recommended_ids, $cross_sells, $upsells );
 		}
@@ -1379,7 +1379,7 @@ class BlocksyChildWishlistRecommendations {
 			$args['post__not_in'] = $exclude_ids;
 		}
 
-		$query       = new WP_Query( $args );
+		$query = new WP_Query( $args );
 		$product_ids = array();
 
 		if ( $query->have_posts() ) {
@@ -1430,9 +1430,9 @@ class BlocksyChildWishlistRecommendations {
 	 * @return string HTML content.
 	 */
 	private function render_recommendation_item( $product ) {
-		$product_id       = $product->get_id();
-		$show_image       = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_recommendations_show_image', 'yes' ) === 'yes';
-		$show_price       = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_recommendations_show_price', 'yes' ) === 'yes';
+		$product_id = $product->get_id();
+		$show_image = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_recommendations_show_image', 'yes' ) === 'yes';
+		$show_price = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_recommendations_show_price', 'yes' ) === 'yes';
 		$show_add_to_cart = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_recommendations_show_add_to_cart', 'yes' ) === 'yes';
 
 		$html = '<div class="recommendation-item" data-product-id="' . esc_attr( $product_id ) . '">';
@@ -1478,3 +1478,122 @@ class BlocksyChildWishlistRecommendations {
 
 // Initialize the off-canvas wishlist functionality
 new BlocksyChildWishlistOffCanvas();
+
+/**
+ * Blaze Product Image - Wishlist AJAX Handlers
+ *
+ * @since 1.0.0
+ */
+class Blaze_Product_Image_Wishlist_Ajax {
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		add_action( 'wp_ajax_blaze_add_to_wishlist', array( $this, 'add_to_wishlist' ) );
+		add_action( 'wp_ajax_nopriv_blaze_add_to_wishlist', array( $this, 'add_to_wishlist' ) );
+		add_action( 'wp_ajax_blaze_remove_from_wishlist', array( $this, 'remove_from_wishlist' ) );
+		add_action( 'wp_ajax_nopriv_blaze_remove_from_wishlist', array( $this, 'remove_from_wishlist' ) );
+	}
+
+	/**
+	 * Add product to wishlist
+	 */
+	public function add_to_wishlist() {
+		check_ajax_referer( 'blaze_wishlist_nonce', 'nonce' );
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product ID.', 'blocksy-child' ) ) );
+		}
+
+		// Check if Blocksy wishlist extension exists
+		if ( class_exists( 'BlocksyChildWishlistHelper' ) ) {
+			$wishlist_ext = BlocksyChildWishlistHelper::get_wishlist_extension();
+
+			if ( $wishlist_ext ) {
+				// Use Blocksy's wishlist system
+				$wishlist_ext->add_product_to_wishlist( $product_id );
+				wp_send_json_success( array( 'message' => __( 'Product added to wishlist.', 'blocksy-child' ) ) );
+			}
+		}
+
+		// Fallback: use custom wishlist storage
+		$wishlist = $this->get_wishlist();
+		if ( ! in_array( $product_id, $wishlist, true ) ) {
+			$wishlist[] = $product_id;
+			$this->save_wishlist( $wishlist );
+			wp_send_json_success( array( 'message' => __( 'Product added to wishlist.', 'blocksy-child' ) ) );
+		}
+
+		wp_send_json_error( array( 'message' => __( 'Product already in wishlist.', 'blocksy-child' ) ) );
+	}
+
+	/**
+	 * Remove product from wishlist
+	 */
+	public function remove_from_wishlist() {
+		check_ajax_referer( 'blaze_wishlist_nonce', 'nonce' );
+
+		$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+
+		if ( ! $product_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid product ID.', 'blocksy-child' ) ) );
+		}
+
+		// Check if Blocksy wishlist extension exists
+		if ( class_exists( 'BlocksyChildWishlistHelper' ) ) {
+			$wishlist_ext = BlocksyChildWishlistHelper::get_wishlist_extension();
+
+			if ( $wishlist_ext ) {
+				// Use Blocksy's wishlist system
+				$wishlist_ext->remove_product_from_wishlist( $product_id );
+				wp_send_json_success( array( 'message' => __( 'Product removed from wishlist.', 'blocksy-child' ) ) );
+			}
+		}
+
+		// Fallback: use custom wishlist storage
+		$wishlist = $this->get_wishlist();
+		$key = array_search( $product_id, $wishlist, true );
+
+		if ( false !== $key ) {
+			unset( $wishlist[ $key ] );
+			$this->save_wishlist( array_values( $wishlist ) );
+			wp_send_json_success( array( 'message' => __( 'Product removed from wishlist.', 'blocksy-child' ) ) );
+		}
+
+		wp_send_json_error( array( 'message' => __( 'Product not in wishlist.', 'blocksy-child' ) ) );
+	}
+
+	/**
+	 * Get wishlist from session/cookie
+	 *
+	 * @return array Wishlist product IDs.
+	 */
+	private function get_wishlist() {
+		if ( isset( $_COOKIE['blaze_wishlist'] ) ) {
+			$wishlist = json_decode( stripslashes( $_COOKIE['blaze_wishlist'] ), true );
+			return is_array( $wishlist ) ? $wishlist : array();
+		}
+		return array();
+	}
+
+	/**
+	 * Save wishlist to cookie
+	 *
+	 * @param array $wishlist Wishlist product IDs.
+	 */
+	private function save_wishlist( $wishlist ) {
+		setcookie(
+			'blaze_wishlist',
+			wp_json_encode( $wishlist ),
+			time() + ( 30 * DAY_IN_SECONDS ),
+			COOKIEPATH,
+			COOKIE_DOMAIN
+		);
+	}
+}
+
+// Initialize AJAX handlers
+new Blaze_Product_Image_Wishlist_Ajax();

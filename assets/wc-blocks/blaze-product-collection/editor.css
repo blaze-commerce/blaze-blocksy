@@ -1,0 +1,98 @@
+/**
+ * Blaze Product Collection - Editor Styles
+ */
+
+.blaze-product-collection-editor {
+	border: 2px dashed #ccc;
+	padding: 20px;
+	background: #f9f9f9;
+	border-radius: 4px;
+}
+
+.blaze-product-collection-preview__header {
+	margin-bottom: 15px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #ddd;
+}
+
+.blaze-product-collection-preview__header h3 {
+	margin: 0 0 5px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #333;
+}
+
+.blaze-product-collection-preview__header p {
+	margin: 0;
+	font-size: 13px;
+	color: #666;
+}
+
+.blaze-product-collection-preview__settings {
+	background: white;
+	padding: 15px;
+	border-radius: 4px;
+	margin-bottom: 15px;
+}
+
+.blaze-product-collection-preview__settings .setting-row {
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 14px;
+}
+
+.blaze-product-collection-preview__settings .setting-row:last-child {
+	border-bottom: none;
+}
+
+.blaze-product-collection-preview__settings strong {
+	color: #2271b1;
+	min-width: 80px;
+	display: inline-block;
+}
+
+.blaze-product-collection-preview__note {
+	font-size: 12px;
+	color: #666;
+	font-style: italic;
+	margin: 0;
+	text-align: center;
+}
+
+/* Inspector Controls Styling */
+.components-panel__body h3 {
+	font-size: 13px;
+	font-weight: 600;
+	margin: 15px 0 10px 0;
+	color: #1e1e1e;
+	padding-top: 10px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.components-panel__body h3:first-of-type {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+/* Range Control Styling */
+.components-range-control {
+	margin-bottom: 20px;
+}
+
+.components-range-control__wrapper {
+	margin-top: 8px;
+}
+
+/* Toggle Control Help Text */
+.components-toggle-control .components-base-control__help {
+	margin-top: 8px;
+	font-size: 12px;
+	color: #757575;
+}
+
+/* Select Control */
+.components-select-control__input {
+	width: 100%;
+}
+

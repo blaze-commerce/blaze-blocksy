@@ -106,6 +106,10 @@ $required_files = [
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
+
+	// WooCommerce Blocks Customization
+	'/includes/customization/wc-blocks/class-blaze-product-collection.php',
+	'/includes/customization/wc-blocks/class-blaze-product-image.php',
 ];
 
 // Add debug files in debug mode

@@ -1,0 +1,134 @@
+/**
+ * Blaze Product Collection - Frontend Styles
+ */
+
+.blaze-product-collection {
+	--blaze-columns: 4;
+	--blaze-gap: 20px;
+	margin-bottom: 2rem;
+}
+
+.blaze-product-collection__inner {
+	width: 100%;
+}
+
+/* Product Grid */
+.blaze-product-collection .products {
+	display: grid;
+	grid-template-columns: repeat(var(--blaze-columns, 4), 1fr);
+	gap: var(--blaze-gap);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Column variations */
+.blaze-product-collection .products.columns-1 {
+	--blaze-columns: 1;
+}
+
+.blaze-product-collection .products.columns-2 {
+	--blaze-columns: 2;
+}
+
+.blaze-product-collection .products.columns-3 {
+	--blaze-columns: 3;
+}
+
+.blaze-product-collection .products.columns-4 {
+	--blaze-columns: 4;
+}
+
+.blaze-product-collection .products.columns-5 {
+	--blaze-columns: 5;
+}
+
+.blaze-product-collection .products.columns-6 {
+	--blaze-columns: 6;
+}
+
+/* Product Item */
+.blaze-product-collection .products > li {
+	margin: 0;
+	padding: 0;
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.blaze-product-collection .products > li:hover {
+	transform: translateY(-5px);
+}
+
+/* Responsive Breakpoints */
+@media screen and (max-width: 1023px) {
+	.blaze-product-collection[data-current-device="tablet"] .products {
+		gap: 15px;
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.blaze-product-collection[data-current-device="mobile"] .products {
+		gap: 10px;
+	}
+	
+	.blaze-product-collection {
+		--blaze-gap: 10px;
+	}
+}
+
+/* Loading State */
+.blaze-product-collection.is-loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.blaze-product-collection.is-loading::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 40px;
+	height: 40px;
+	margin: -20px 0 0 -20px;
+	border: 4px solid #f3f3f3;
+	border-top: 4px solid #3498db;
+	border-radius: 50%;
+	animation: blaze-spin 1s linear infinite;
+}
+
+@keyframes blaze-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.blaze-product-collection .woocommerce-info {
+	text-align: center;
+	padding: 2rem;
+	background: #f8f8f8;
+	border-radius: 4px;
+	margin: 0;
+}
+
+/* Alignment Support */
+.blaze-product-collection.alignwide {
+	max-width: var(--wp--style--global--wide-size, 1200px);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.blaze-product-collection.alignfull {
+	max-width: 100%;
+}
+
+/* Product Link */
+.blaze-product-collection .woocommerce-LoopProduct-link {
+	display: block;
+	text-decoration: none;
+}
+
+/* Smooth transitions for responsive changes */
+.blaze-product-collection .products,
+.blaze-product-collection .products > li {
+	transition: all 0.3s ease;
+}
+
