@@ -223,6 +223,11 @@ function blocksy_child_get_shipping_display( $order ) {
  * @param int $order_id The order ID
  */
 function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
+	// Check if custom thank you page is enabled
+	if ( ! blocksy_child_is_custom_thank_you_page_enabled() ) {
+		return; // Exit early if custom thank you page is disabled
+	}
+
 	if ( ! $order_id ) {
 		return;
 	}
@@ -600,6 +605,11 @@ add_action( 'init', 'blocksy_child_handle_account_creation_from_order' );
  * Hide default WooCommerce order details table on thank you page
  */
 function blocksy_child_hide_default_order_details() {
+	// Only hide default elements if custom thank you page is enabled
+	if ( ! blocksy_child_is_custom_thank_you_page_enabled() ) {
+		return;
+	}
+
 	if ( is_wc_endpoint_url( 'order-received' ) ) {
 		remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
 		remove_action( 'woocommerce_thankyou', 'woocommerce_order_again_button', 20 );
@@ -615,6 +625,11 @@ add_action( 'wp', 'blocksy_child_hide_default_order_details' );
  * @return string Empty message
  */
 function blocksy_child_hide_default_thank_you_message( $message, $order ) {
+	// Only hide default message if custom thank you page is enabled
+	if ( ! blocksy_child_is_custom_thank_you_page_enabled() ) {
+		return $message; // Return original message if custom page is disabled
+	}
+
 	return ''; // Return empty to hide default message
 }
 add_filter( 'woocommerce_thankyou_order_received_text', 'blocksy_child_hide_default_thank_you_message', 10, 2 );
@@ -784,8 +799,8 @@ function blocksy_child_add_thank_you_inline_script() {
  * @since 2.0.3
  */
 function blocksy_child_enqueue_thank_you_assets() {
-    // Only proceed if we're on the thank you page
-    if ( ! blocksy_child_is_thank_you_page() ) {
+    // Only proceed if we're on the thank you page AND custom thank you page is enabled
+    if ( ! blocksy_child_is_thank_you_page() || ! blocksy_child_is_custom_thank_you_page_enabled() ) {
         return;
     }
 
