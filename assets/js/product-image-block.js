@@ -45,10 +45,13 @@
      * @param {jQuery} $container - The product image container
      */
     initHoverImage($container) {
-      const hoverImageData = $container.data("hover-image");
+      // Get hover image data from separate data attributes
+      const hoverUrl = $container.attr("data-hover-url");
+      const hoverSrcset = $container.attr("data-hover-srcset") || "";
+      const hoverAlt = $container.attr("data-hover-alt") || "";
 
-      // Exit if no hover image data
-      if (!hoverImageData) {
+      // Exit if no hover image URL
+      if (!hoverUrl) {
         return;
       }
 
@@ -66,7 +69,7 @@
 
       // Preload hover image on first interaction
       $container.one("mouseenter touchstart", () => {
-        this.preloadImage(hoverImageData.url);
+        this.preloadImage(hoverUrl);
       });
 
       // Mouse enter - show hover image
@@ -78,14 +81,14 @@
 
         // Small delay for smooth transition
         setTimeout(() => {
-          $image.attr("src", hoverImageData.url);
+          $image.attr("src", hoverUrl);
 
-          if (hoverImageData.srcset) {
-            $image.attr("srcset", hoverImageData.srcset);
+          if (hoverSrcset) {
+            $image.attr("srcset", hoverSrcset);
           }
 
-          if (hoverImageData.alt) {
-            $image.attr("alt", hoverImageData.alt);
+          if (hoverAlt) {
+            $image.attr("alt", hoverAlt);
           }
 
           // Remove swapping class
@@ -133,15 +136,11 @@
      */
     setupWishlistButtons() {
       // Use event delegation for dynamic content
-      $(document).on(
-        "click",
-        ".wc-product-image-wishlist-button",
-        (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.handleWishlistClick($(e.currentTarget));
-        }
-      );
+      $(document).on("click", ".wc-product-image-wishlist-button", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleWishlistClick($(e.currentTarget));
+      });
     }
 
     /**
@@ -216,15 +215,15 @@
      * @param {boolean} isAdded - Whether product is added to wishlist
      */
     updateWishlistButtons(productId, isAdded) {
-      $(`.wc-product-image-wishlist-button[data-product-id="${productId}"]`).each(
-        function () {
-          if (isAdded) {
-            $(this).addClass("added");
-          } else {
-            $(this).removeClass("added");
-          }
+      $(
+        `.wc-product-image-wishlist-button[data-product-id="${productId}"]`
+      ).each(function () {
+        if (isAdded) {
+          $(this).addClass("added");
+        } else {
+          $(this).removeClass("added");
         }
-      );
+      });
     }
 
     /**
@@ -314,4 +313,3 @@
     }
   });
 })(jQuery);
-

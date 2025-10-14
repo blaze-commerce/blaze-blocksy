@@ -44,20 +44,17 @@ class WooCommerce_Product_Image_Block_Enhancement {
 	 * @return string Modified block content.
 	 */
 	public function enhance_product_image_block( $block_content, $block ) {
-		// Verify this is a product image block
-		if ( ! isset( $block['blockName'] ) || 'woocommerce/product-image' !== $block['blockName'] ) {
+		global $product;
+
+		// check if product is a WooCommerce product
+		if ( ! is_a( $product, 'WC_Product' ) ) {
 			return $block_content;
 		}
 
 		// Get product ID from block context
-		$post_id = $block['context']['postId'] ?? 0;
-		if ( ! $post_id ) {
-			return $block_content;
-		}
+		$post_id = $product->get_id();
 
-		// Get product object
-		$product = wc_get_product( $post_id );
-		if ( ! $product ) {
+		if ( ! $post_id ) {
 			return $block_content;
 		}
 
@@ -73,7 +70,10 @@ class WooCommerce_Product_Image_Block_Enhancement {
 			$hover_image_data = $this->get_hover_image_data( $product );
 			if ( $hover_image_data ) {
 				$processor->add_class( 'wc-hover-image-enabled' );
-				$processor->set_attribute( 'data-hover-image', wp_json_encode( $hover_image_data ) );
+				// Store as separate data attributes to avoid encoding issues
+				$processor->set_attribute( 'data-hover-url', esc_url( $hover_image_data['url'] ) );
+				$processor->set_attribute( 'data-hover-srcset', esc_attr( $hover_image_data['srcset'] ) );
+				$processor->set_attribute( 'data-hover-alt', esc_attr( $hover_image_data['alt'] ) );
 			}
 
 			// Add wishlist functionality
@@ -112,15 +112,15 @@ class WooCommerce_Product_Image_Block_Enhancement {
 		$hover_image_id = $gallery_ids[0];
 
 		// Get image data
-		$hover_image_url    = wp_get_attachment_image_url( $hover_image_id, 'woocommerce_thumbnail' );
+		$hover_image_url = wp_get_attachment_image_url( $hover_image_id, 'woocommerce_thumbnail' );
 		$hover_image_srcset = wp_get_attachment_image_srcset( $hover_image_id, 'woocommerce_thumbnail' );
-		$hover_image_alt    = get_post_meta( $hover_image_id, '_wp_attachment_image_alt', true );
+		$hover_image_alt = get_post_meta( $hover_image_id, '_wp_attachment_image_alt', true );
 
 		// Return structured data
 		return array(
-			'url'    => $hover_image_url,
+			'url' => $hover_image_url,
 			'srcset' => $hover_image_srcset ?: '',
-			'alt'    => $hover_image_alt ?: $product->get_name(),
+			'alt' => $hover_image_alt ?: $product->get_name(),
 		);
 	}
 
@@ -135,7 +135,7 @@ class WooCommerce_Product_Image_Block_Enhancement {
 
 		// Check if product is already in wishlist
 		$is_in_wishlist = $this->is_product_in_wishlist( $product_id );
-		$button_class   = 'wc-product-image-wishlist-button';
+		$button_class = 'wc-product-image-wishlist-button';
 		if ( $is_in_wishlist ) {
 			$button_class .= ' added';
 		}
@@ -243,11 +243,11 @@ class WooCommerce_Product_Image_Block_Enhancement {
 			'blazeProductImageBlock',
 			array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'blaze_product_image_block_nonce' ),
+				'nonce' => wp_create_nonce( 'blaze_product_image_block_nonce' ),
 				'messages' => array(
-					'added'   => __( 'Added to wishlist!', 'blocksy-child' ),
+					'added' => __( 'Added to wishlist!', 'blocksy-child' ),
 					'removed' => __( 'Removed from wishlist', 'blocksy-child' ),
-					'error'   => __( 'Error processing request', 'blocksy-child' ),
+					'error' => __( 'Error processing request', 'blocksy-child' ),
 				),
 			)
 		);

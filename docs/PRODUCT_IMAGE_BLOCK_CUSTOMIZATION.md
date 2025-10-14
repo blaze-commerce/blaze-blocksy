@@ -288,6 +288,13 @@ Potential improvements for future versions:
 
 ## Changelog
 
+### Version 1.0.1 (2025-01-13)
+- **Fixed**: Hover image data encoding issue
+- Changed from single JSON data attribute to separate data attributes
+- Now uses `data-hover-url`, `data-hover-srcset`, `data-hover-alt` instead of `data-hover-image`
+- Prevents HTML entity encoding issues with JSON data
+- Improved JavaScript parsing reliability
+
 ### Version 1.0.0 (2025-01-13)
 - Initial implementation
 - Hover image effect with smooth transitions
