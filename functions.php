@@ -92,6 +92,7 @@ $required_files = [
 	'/includes/features/product-information.php',
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',
+	'/includes/customization/thank-you-page-customizer.php',
 	'/includes/customization/my-account.php',
 	'/includes/customization/judgeme.php',
 	'/includes/customization/mini-cart.php',
