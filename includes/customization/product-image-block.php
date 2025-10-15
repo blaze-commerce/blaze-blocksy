@@ -141,7 +141,7 @@ class WooCommerce_Product_Image_Block_Enhancement {
 		}
 
 		// Heart icon SVG
-		$heart_icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="transparent" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		$heart_icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
 		</svg>';
 
@@ -216,14 +216,12 @@ class WooCommerce_Product_Image_Block_Enhancement {
 	 */
 	public function enqueue_assets() {
 
-		$theme_version = wp_get_theme()->get( 'Version' );
-
 		// Enqueue CSS
 		wp_enqueue_style(
 			'blaze-product-image-block',
 			BLAZE_BLOCKSY_URL . '/assets/css/product-image-block.css',
 			array(),
-			$theme_version
+			'1.0.0'
 		);
 
 		// Enqueue JavaScript
@@ -231,7 +229,7 @@ class WooCommerce_Product_Image_Block_Enhancement {
 			'blaze-product-image-block',
 			BLAZE_BLOCKSY_URL . '/assets/js/product-image-block.js',
 			array( 'jquery' ),
-			$theme_version,
+			'1.0.0',
 			true
 		);
 
@@ -248,6 +246,65 @@ class WooCommerce_Product_Image_Block_Enhancement {
 					'error' => __( 'Error processing request', 'blocksy-child' ),
 				),
 			)
+		);
+
+		// Ensure Blocksy wishlist data is available
+		$this->ensure_wishlist_data();
+	}
+
+	/**
+	 * Ensure wishlist data is available in JavaScript
+	 */
+	private function ensure_wishlist_data() {
+		// Check if Blocksy Companion Pro is active
+		if ( ! function_exists( 'blc_get_ext' ) ) {
+			return;
+		}
+
+		// Get wishlist extension
+		$wishlist_ext = BlocksyChildWishlistHelper::get_wishlist_extension();
+		if ( ! $wishlist_ext ) {
+			return;
+		}
+
+		// Get current wishlist
+		$wishlist = BlocksyChildWishlistHelper::get_current_wishlist();
+
+		// Prepare wishlist data
+		$wishlist_data = array(
+			'v' => 2,
+			'items' => array(),
+		);
+
+		// Format wishlist items
+		if ( ! empty( $wishlist ) ) {
+			foreach ( $wishlist as $item ) {
+				$wishlist_item = array( 'id' => is_array( $item ) ? $item['id'] : $item );
+
+				// Add attributes if exists (for variable products)
+				if ( is_array( $item ) && isset( $item['attributes'] ) ) {
+					$wishlist_item['attributes'] = $item['attributes'];
+				}
+
+				$wishlist_data['items'][] = $wishlist_item;
+			}
+		}
+
+		// Add inline script to ensure ct_localizations exists
+		wp_add_inline_script(
+			'blaze-product-image-block',
+			sprintf(
+				'window.ct_localizations = window.ct_localizations || {};
+				window.ct_localizations.ajax_url = window.ct_localizations.ajax_url || %s;
+				window.ct_localizations.blc_ext_wish_list = window.ct_localizations.blc_ext_wish_list || {
+					user_logged_in: %s,
+					list: %s
+				};',
+				wp_json_encode( admin_url( 'admin-ajax.php' ) ),
+				wp_json_encode( is_user_logged_in() ? 'yes' : 'no' ),
+				wp_json_encode( $wishlist_data )
+			),
+			'before'
 		);
 	}
 }

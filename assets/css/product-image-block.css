@@ -12,15 +12,13 @@
    CSS Variables
    ============================================ */
 :root {
-  --wishlist-button-size: 32px;
-  --wishlist-button-size-mobile: 32px;
-  --wishlist-button-position-top: 10px;
+  --wishlist-button-size: 40px;
+  --wishlist-button-size-mobile: 35px;
+  --wishlist-button-position-bottom: 10px;
   --wishlist-button-position-right: 10px;
   --wishlist-button-bg: rgba(255, 255, 255, 0.95);
-  --wishlist-button-bg-hover: #000000;
-  --wishlist-button-hover-svg-stroke: #ffffff;
-  --wishlist-button-active-bg: #333333;
-  --wishlist-button-active-bg-hover: #000000;
+  --wishlist-button-bg-hover: #ffffff;
+  --wishlist-button-active-bg: #e74c3c;
   --wishlist-button-border-color: #ddd;
   --wishlist-button-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   --wishlist-button-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -60,7 +58,7 @@
 .wc-product-image-wishlist-button {
   /* Positioning */
   position: absolute;
-  top: var(--wishlist-button-position-top);
+  bottom: var(--wishlist-button-position-bottom);
   right: var(--wishlist-button-position-right);
   z-index: 10;
 
@@ -84,9 +82,9 @@
   cursor: pointer;
   transition: var(--wishlist-button-transition);
 
-  /* Always visible - no longer hidden by default */
-  opacity: 1;
-  transform: translateY(0);
+  /* Initial state - hidden */
+  opacity: 0;
+  transform: translateY(10px);
 
   /* Remove default button styles */
   padding: 0;
@@ -94,16 +92,22 @@
   outline: none;
 }
 
-/* Button is always visible - no need for hover effect to show */
-/* Removed hover effect for showing button since it's always visible now */
+/* Show button on container hover (desktop) */
+.wc-enhanced-product-image:hover .wc-product-image-wishlist-button {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* ============================================
    Wishlist Button Hover State
    ============================================ */
 .wc-product-image-wishlist-button:hover {
   background: var(--wishlist-button-bg-hover);
+  box-shadow: var(--wishlist-button-shadow-hover);
+  transform: translateY(0) scale(1.1);
   border-color: var(--wishlist-button-border-color);
 }
+
 /* ============================================
    Wishlist Button Active/Added State
    ============================================ */
@@ -115,13 +119,13 @@
 }
 
 .wc-product-image-wishlist-button.added svg {
-  fill: #ffffff;
+  fill: currentColor;
   stroke: #ffffff;
 }
 
 .wc-product-image-wishlist-button.added:hover {
-  background: var(--wishlist-button-active-bg-hover);
-  border-color: var(--wishlist-button-active-bg-hover);
+  background: #c0392b;
+  border-color: #c0392b;
 }
 
 /* ============================================
@@ -129,26 +133,44 @@
    ============================================ */
 .wc-product-image-wishlist-button.loading {
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 1;
+  cursor: not-allowed;
 }
 
-.wc-product-image-wishlist-button.loading svg {
-  animation: spin 1s linear infinite;
+.wc-product-image-wishlist-button.loading .spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+.wc-product-image-wishlist-button.loading .spinner circle {
+  stroke: var(--wishlist-button-border-color);
+}
+
+.wc-product-image-wishlist-button.loading .spinner path {
+  stroke: var(--wishlist-button-active-bg);
+}
+
+/* Loading state for added button */
+.wc-product-image-wishlist-button.loading.added .spinner circle {
+  stroke: rgba(255, 255, 255, 0.3);
+}
+
+.wc-product-image-wishlist-button.loading.added .spinner path {
+  stroke: #ffffff;
 }
 
 /* ============================================
    Wishlist Button Icon Styles
    ============================================ */
 .wc-product-image-wishlist-button svg {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   stroke: var(--theme-text-color, #333);
-  fill: transparent;
+  fill: none;
   transition: all 0.2s ease;
 }
 
 .wc-product-image-wishlist-button:hover svg {
-  stroke: var(--wishlist-button-hover-svg-stroke);
+  stroke: var(--wishlist-button-active-bg);
 }
 
 .wc-product-image-wishlist-button.added svg {
@@ -192,10 +214,10 @@
    Animations
    ============================================ */
 @keyframes spin {
-  from {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  100% {
     transform: rotate(360deg);
   }
 }
@@ -235,8 +257,8 @@
   }
 
   .wc-product-image-wishlist-button svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 
   /* Adjust notification position on mobile */
@@ -293,6 +315,21 @@
 @media print {
   .wc-product-image-wishlist-button {
     display: none;
+  }
+}
+
+/* ============================================
+   Dark Mode Support (if theme supports it)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wishlist-button-bg: rgba(0, 0, 0, 0.8);
+    --wishlist-button-bg-hover: rgba(0, 0, 0, 0.95);
+    --wishlist-button-border-color: #444;
+  }
+
+  .wc-product-image-wishlist-button svg {
+    stroke: #ffffff;
   }
 }
 

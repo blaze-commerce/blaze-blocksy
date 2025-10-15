@@ -18,7 +18,7 @@
     constructor() {
       this.hoverTimeout = null;
       this.preloadedImages = new Set();
-      this.activeHoverContainers = new Set();
+      this.isProcessing = false;
       this.init();
     }
 
@@ -29,13 +29,15 @@
       this.setupHoverImages();
       this.setupWishlistButtons();
       this.setupDynamicContent();
+      this.syncWishlistOnLoad();
+      this.setupWishlistEventListeners();
     }
 
     /**
      * Setup hover image functionality
      */
     setupHoverImages() {
-      $(".wc-hover-image-enabled").each((_, element) => {
+      $(".wc-hover-image-enabled").each((index, element) => {
         this.initHoverImage($(element));
       });
     }
@@ -68,34 +70,19 @@
       const originalSrcset = $image.attr("srcset") || "";
       const originalAlt = $image.attr("alt") || "";
 
-      // Store original data in container for global access
-      $container.data("original-src", originalSrc);
-      $container.data("original-srcset", originalSrcset);
-      $container.data("original-alt", originalAlt);
-
       // Preload hover image on first interaction
       $container.one("mouseenter touchstart", () => {
         this.preloadImage(hoverUrl);
       });
 
-      // Store timeout reference for this specific container
-      let containerTimeout = null;
-
       // Mouse enter - show hover image
       $container.on("mouseenter", () => {
-        // Clear any pending timeout for this container
-        clearTimeout(containerTimeout);
-
-        // Reset all other hover images first
-        this.resetAllHoverImages($container);
-
-        // Add this container to active set
-        this.activeHoverContainers.add($container[0]);
+        clearTimeout(this.hoverTimeout);
 
         // Add swapping class for smooth transition
         $image.addClass("swapping");
 
-        // Immediate image swap for better responsiveness
+        // Small delay for smooth transition
         setTimeout(() => {
           $image.attr("src", hoverUrl);
 
@@ -110,72 +97,26 @@
           // Remove swapping class
           setTimeout(() => {
             $image.removeClass("swapping");
-          }, 20);
-        }, 20);
+          }, 50);
+        }, 50);
       });
 
       // Mouse leave - restore original image
       $container.on("mouseleave", () => {
-        // Clear any existing timeout for this container
-        clearTimeout(containerTimeout);
-
-        // Remove from active set
-        this.activeHoverContainers.delete($container[0]);
-
-        // Set immediate timeout for restoring original image
-        containerTimeout = setTimeout(() => {
-          // Add swapping class for smooth transition
+        this.hoverTimeout = setTimeout(() => {
           $image.addClass("swapping");
 
-          // Restore original image attributes immediately
           setTimeout(() => {
             $image.attr("src", originalSrc);
             $image.attr("srcset", originalSrcset);
             $image.attr("alt", originalAlt);
 
-            // Remove swapping class after transition
             setTimeout(() => {
               $image.removeClass("swapping");
-            }, 20);
-          }, 20);
-        }, 5); // Very short delay for immediate response
+            }, 50);
+          }, 50);
+        }, 100);
       });
-    }
-
-    /**
-     * Reset all hover images to their original state except the current one
-     *
-     * @param {jQuery} $currentContainer - The currently hovered container to exclude
-     */
-    resetAllHoverImages($currentContainer) {
-      $(".wc-hover-image-enabled")
-        .not($currentContainer)
-        .each((_, element) => {
-          const $container = $(element);
-          const $image = $container.find("img").first();
-
-          if (!$image.length) return;
-
-          // Get original image data from container
-          const originalSrc = $container.data("original-src");
-          const originalSrcset = $container.data("original-srcset") || "";
-          const originalAlt = $container.data("original-alt") || "";
-
-          // Only reset if we have original data stored
-          if (originalSrc && $image.attr("src") !== originalSrc) {
-            $image.addClass("swapping");
-
-            setTimeout(() => {
-              $image.attr("src", originalSrc);
-              $image.attr("srcset", originalSrcset);
-              $image.attr("alt", originalAlt);
-
-              setTimeout(() => {
-                $image.removeClass("swapping");
-              }, 20);
-            }, 20);
-          }
-        });
     }
 
     /**
@@ -210,64 +151,214 @@
      *
      * @param {jQuery} $button - The clicked wishlist button
      */
-    handleWishlistClick($button) {
-      const productId = $button.data("product-id");
+    async handleWishlistClick($button) {
+      // Prevent double-click
+      if (this.isProcessing) {
+        return;
+      }
+
+      const productId = parseInt($button.data("product-id"));
+
+      // Validate data availability
+      if (!this.validateWishlistData()) {
+        return;
+      }
+
+      // Save original icon
+      const originalIcon = $button.html();
 
       // Check if already in wishlist
-      const isAdded = $button.hasClass("added");
+      const isAdded = this.isInWishlist(productId);
 
-      // Add loading state
+      // Set processing state
+      this.isProcessing = true;
+
+      // Show spinner
+      $button.html(this.getSpinnerIcon());
       $button.addClass("loading");
+      $button.prop("disabled", true);
 
-      // Determine action
-      const action = isAdded ? "remove_from_wishlist" : "add_to_wishlist";
+      try {
+        // Add or remove from wishlist
+        const success = isAdded
+          ? await this.removeFromWishlist(productId)
+          : await this.addToWishlist(productId);
 
-      // Make AJAX request
-      $.ajax({
-        url: blazeProductImageBlock.ajax_url,
-        type: "POST",
-        data: {
-          action: action,
-          product_id: productId,
-          nonce: blazeProductImageBlock.nonce,
-        },
-        success: (response) => {
-          if (response.success) {
-            // Toggle added state
-            $button.toggleClass("added");
+        if (success) {
+          // Update button state
+          $button.toggleClass("added");
 
-            // Show success message
-            const message = isAdded
-              ? blazeProductImageBlock.messages.removed
-              : blazeProductImageBlock.messages.added;
-            this.showNotification(message, "success");
+          // Show success message
+          const message = isAdded
+            ? blazeProductImageBlock.messages.removed
+            : blazeProductImageBlock.messages.added;
 
-            // Trigger custom event for other scripts to listen
-            $(document).trigger("blazeWishlistUpdated", {
-              productId: productId,
-              action: action,
-              isAdded: !isAdded,
-            });
+          // Update all wishlist buttons for this product
+          this.updateWishlistButtons(productId, !isAdded);
 
-            // Update all wishlist buttons for this product
-            this.updateWishlistButtons(productId, !isAdded);
+          // Update wishlist counter
+          this.updateWishlistCounter();
 
-            // Sync with wishlist offcanvas if exists
-            this.syncWishlistOffcanvas();
-          } else {
-            this.showNotification(
-              response.data || blazeProductImageBlock.messages.error,
-              "error"
-            );
+          // Sync with wishlist offcanvas if exists
+          this.syncWishlistOffcanvas();
+        } else {
+        }
+      } catch (error) {
+        console.error("Wishlist error:", error);
+      } finally {
+        // Restore icon
+        $button.html(originalIcon);
+        $button.removeClass("loading");
+        $button.prop("disabled", false);
+        this.isProcessing = false;
+      }
+    }
+
+    /**
+     * Validate wishlist data availability
+     *
+     * @return {boolean} True if wishlist data is available
+     */
+    validateWishlistData() {
+      return (
+        window.ct_localizations &&
+        window.ct_localizations.blc_ext_wish_list &&
+        window.ct_localizations.blc_ext_wish_list.list &&
+        window.ct_localizations.ajax_url
+      );
+    }
+
+    /**
+     * Check if product is in wishlist
+     *
+     * @param {number} productId - The product ID
+     * @return {boolean} True if product is in wishlist
+     */
+    isInWishlist(productId) {
+      if (!this.validateWishlistData()) {
+        return false;
+      }
+
+      const items = window.ct_localizations.blc_ext_wish_list.list.items;
+      return items.some((item) => item.id === productId);
+    }
+
+    /**
+     * Add product to wishlist
+     *
+     * @param {number} productId - The product ID
+     * @return {Promise<boolean>} True if successful
+     */
+    async addToWishlist(productId) {
+      if (!this.validateWishlistData()) {
+        return false;
+      }
+
+      const currentItems = window.ct_localizations.blc_ext_wish_list.list.items;
+      const newList = [...currentItems, { id: productId }];
+
+      try {
+        const response = await fetch(
+          `${window.ct_localizations.ajax_url}?action=blc_ext_wish_list_sync_likes`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              v: 2,
+              items: newList,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
           }
-        },
-        error: () => {
-          this.showNotification(blazeProductImageBlock.messages.error, "error");
-        },
-        complete: () => {
-          $button.removeClass("loading");
-        },
-      });
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Update global state
+          window.ct_localizations.blc_ext_wish_list.list.items = newList;
+
+          // Trigger Blocksy event
+          document.dispatchEvent(
+            new CustomEvent("blocksy:woocommerce:wish-list-change", {
+              detail: { operation: "add", productId: productId },
+            })
+          );
+
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.error("Add to wishlist error:", error);
+        return false;
+      }
+    }
+
+    /**
+     * Remove product from wishlist
+     *
+     * @param {number} productId - The product ID
+     * @return {Promise<boolean>} True if successful
+     */
+    async removeFromWishlist(productId) {
+      if (!this.validateWishlistData()) {
+        return false;
+      }
+
+      const currentItems = window.ct_localizations.blc_ext_wish_list.list.items;
+      const newList = currentItems.filter((item) => item.id !== productId);
+
+      try {
+        const response = await fetch(
+          `${window.ct_localizations.ajax_url}?action=blc_ext_wish_list_sync_likes`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              v: 2,
+              items: newList,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Update global state
+          window.ct_localizations.blc_ext_wish_list.list.items = newList;
+
+          // Trigger Blocksy event
+          document.dispatchEvent(
+            new CustomEvent("blocksy:woocommerce:wish-list-change", {
+              detail: { operation: "remove", productId: productId },
+            })
+          );
+
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.error("Remove from wishlist error:", error);
+        return false;
+      }
+    }
+
+    /**
+     * Get spinner icon HTML
+     *
+     * @return {string} Spinner icon HTML
+     */
+    getSpinnerIcon() {
+      return `<svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke-width="3" stroke-opacity="0.25"/>
+        <path d="M12 2 A10 10 0 0 1 22 12" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
     }
 
     /**
@@ -335,6 +426,121 @@
     }
 
     /**
+     * Sync wishlist state on page load
+     */
+    async syncWishlistOnLoad() {
+      if (!window.ct_localizations || !window.ct_localizations.ajax_url) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${window.ct_localizations.ajax_url}?action=blc_ext_wish_list_get_all_likes`,
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          // Update global state
+          window.ct_localizations.blc_ext_wish_list = {
+            list: result.data.likes,
+            user_logged_in: result.data.user_logged_in,
+          };
+
+          // Update all button states
+          this.updateAllWishlistButtons();
+
+          // Update counter
+          this.updateWishlistCounter();
+        }
+      } catch (error) {
+        console.error("Wishlist sync error:", error);
+      }
+    }
+
+    /**
+     * Update all wishlist buttons based on current state
+     */
+    updateAllWishlistButtons() {
+      if (!this.validateWishlistData()) {
+        return;
+      }
+
+      const items = window.ct_localizations.blc_ext_wish_list.list.items;
+      const wishlistIds = items.map((item) => item.id);
+
+      $(".wc-product-image-wishlist-button").each(function () {
+        const productId = parseInt($(this).data("product-id"));
+        const isInWishlist = wishlistIds.includes(productId);
+
+        if (isInWishlist) {
+          $(this).addClass("added");
+        } else {
+          $(this).removeClass("added");
+        }
+      });
+    }
+
+    /**
+     * Update wishlist counter in header
+     */
+    updateWishlistCounter() {
+      if (!this.validateWishlistData()) {
+        return;
+      }
+
+      const wishlistItems =
+        window.ct_localizations.blc_ext_wish_list.list.items;
+      const itemCount = wishlistItems.length;
+
+      // Update all counter elements
+      document
+        .querySelectorAll(".ct-dynamic-count-wishlist")
+        .forEach((counter) => {
+          counter.textContent = itemCount;
+          counter.setAttribute("data-count", itemCount);
+        });
+
+      // Add animation class to header wishlist element
+      document.querySelectorAll(".ct-header-wishlist").forEach((el) => {
+        el.classList.remove("ct-added");
+
+        // Trigger reflow to restart animation
+        void el.offsetWidth;
+
+        if (itemCount > 0) {
+          el.classList.add("ct-added");
+        }
+      });
+    }
+
+    /**
+     * Setup wishlist event listeners
+     */
+    setupWishlistEventListeners() {
+      // Listen for Blocksy wishlist change events
+      document.addEventListener(
+        "blocksy:woocommerce:wish-list-change",
+        (event) => {
+          const { operation, productId } = event.detail;
+
+          // Update buttons for this product
+          const isAdded = operation === "add";
+          this.updateWishlistButtons(productId, isAdded);
+
+          // Update counter
+          this.updateWishlistCounter();
+        }
+      );
+    }
+
+    /**
      * Setup dynamic content handling
      * For AJAX-loaded products (infinite scroll, filters, etc.)
      */
@@ -342,11 +548,13 @@
       // Listen for WooCommerce events
       $(document.body).on("updated_wc_div", () => {
         this.setupHoverImages();
+        this.updateAllWishlistButtons();
       });
 
       // Listen for custom events from other scripts
       $(document).on("blazeProductsLoaded", () => {
         this.setupHoverImages();
+        this.updateAllWishlistButtons();
       });
     }
   }
@@ -361,7 +569,7 @@
   /**
    * Re-initialize on AJAX complete (for dynamic content)
    */
-  $(document).ajaxComplete(function (_, __, settings) {
+  $(document).ajaxComplete(function (event, xhr, settings) {
     // Check if this is a WooCommerce AJAX request
     if (
       settings.url &&
