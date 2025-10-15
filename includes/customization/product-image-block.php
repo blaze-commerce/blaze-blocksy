@@ -141,7 +141,7 @@ class WooCommerce_Product_Image_Block_Enhancement {
 		}
 
 		// Heart icon SVG
-		$heart_icon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		$heart_icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="transparent" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
 		</svg>';
 
@@ -216,12 +216,14 @@ class WooCommerce_Product_Image_Block_Enhancement {
 	 */
 	public function enqueue_assets() {
 
+		$theme_version = wp_get_theme()->get( 'Version' );
+
 		// Enqueue CSS
 		wp_enqueue_style(
 			'blaze-product-image-block',
 			BLAZE_BLOCKSY_URL . '/assets/css/product-image-block.css',
 			array(),
-			'1.0.0'
+			$theme_version
 		);
 
 		// Enqueue JavaScript
@@ -229,7 +231,7 @@ class WooCommerce_Product_Image_Block_Enhancement {
 			'blaze-product-image-block',
 			BLAZE_BLOCKSY_URL . '/assets/js/product-image-block.js',
 			array( 'jquery' ),
-			'1.0.0',
+			$theme_version,
 			true
 		);
 
