@@ -99,7 +99,10 @@
 	margin: 0 auto;
 	padding: 30px;
 	border: 1px solid #ddd;
-	text-align: center !important;
+}
+
+.blaze-login-register.template2 h2 {
+	text-align: center;
 }
 
 .blaze-login-register.template2 .login-container {
