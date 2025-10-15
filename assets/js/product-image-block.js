@@ -18,6 +18,7 @@
     constructor() {
       this.hoverTimeout = null;
       this.preloadedImages = new Set();
+      this.activeHoverContainers = new Set();
       this.init();
     }
 
@@ -34,7 +35,7 @@
      * Setup hover image functionality
      */
     setupHoverImages() {
-      $(".wc-hover-image-enabled").each((index, element) => {
+      $(".wc-hover-image-enabled").each((_, element) => {
         this.initHoverImage($(element));
       });
     }
@@ -67,19 +68,34 @@
       const originalSrcset = $image.attr("srcset") || "";
       const originalAlt = $image.attr("alt") || "";
 
+      // Store original data in container for global access
+      $container.data("original-src", originalSrc);
+      $container.data("original-srcset", originalSrcset);
+      $container.data("original-alt", originalAlt);
+
       // Preload hover image on first interaction
       $container.one("mouseenter touchstart", () => {
         this.preloadImage(hoverUrl);
       });
 
+      // Store timeout reference for this specific container
+      let containerTimeout = null;
+
       // Mouse enter - show hover image
       $container.on("mouseenter", () => {
-        clearTimeout(this.hoverTimeout);
+        // Clear any pending timeout for this container
+        clearTimeout(containerTimeout);
+
+        // Reset all other hover images first
+        this.resetAllHoverImages($container);
+
+        // Add this container to active set
+        this.activeHoverContainers.add($container[0]);
 
         // Add swapping class for smooth transition
         $image.addClass("swapping");
 
-        // Small delay for smooth transition
+        // Immediate image swap for better responsiveness
         setTimeout(() => {
           $image.attr("src", hoverUrl);
 
@@ -94,26 +110,72 @@
           // Remove swapping class
           setTimeout(() => {
             $image.removeClass("swapping");
-          }, 50);
-        }, 50);
+          }, 20);
+        }, 20);
       });
 
       // Mouse leave - restore original image
       $container.on("mouseleave", () => {
-        this.hoverTimeout = setTimeout(() => {
+        // Clear any existing timeout for this container
+        clearTimeout(containerTimeout);
+
+        // Remove from active set
+        this.activeHoverContainers.delete($container[0]);
+
+        // Set immediate timeout for restoring original image
+        containerTimeout = setTimeout(() => {
+          // Add swapping class for smooth transition
           $image.addClass("swapping");
 
+          // Restore original image attributes immediately
           setTimeout(() => {
             $image.attr("src", originalSrc);
             $image.attr("srcset", originalSrcset);
             $image.attr("alt", originalAlt);
 
+            // Remove swapping class after transition
             setTimeout(() => {
               $image.removeClass("swapping");
-            }, 50);
-          }, 50);
-        }, 100);
+            }, 20);
+          }, 20);
+        }, 5); // Very short delay for immediate response
       });
+    }
+
+    /**
+     * Reset all hover images to their original state except the current one
+     *
+     * @param {jQuery} $currentContainer - The currently hovered container to exclude
+     */
+    resetAllHoverImages($currentContainer) {
+      $(".wc-hover-image-enabled")
+        .not($currentContainer)
+        .each((_, element) => {
+          const $container = $(element);
+          const $image = $container.find("img").first();
+
+          if (!$image.length) return;
+
+          // Get original image data from container
+          const originalSrc = $container.data("original-src");
+          const originalSrcset = $container.data("original-srcset") || "";
+          const originalAlt = $container.data("original-alt") || "";
+
+          // Only reset if we have original data stored
+          if (originalSrc && $image.attr("src") !== originalSrc) {
+            $image.addClass("swapping");
+
+            setTimeout(() => {
+              $image.attr("src", originalSrc);
+              $image.attr("srcset", originalSrcset);
+              $image.attr("alt", originalAlt);
+
+              setTimeout(() => {
+                $image.removeClass("swapping");
+              }, 20);
+            }, 20);
+          }
+        });
     }
 
     /**
@@ -299,7 +361,7 @@
   /**
    * Re-initialize on AJAX complete (for dynamic content)
    */
-  $(document).ajaxComplete(function (event, xhr, settings) {
+  $(document).ajaxComplete(function (_, __, settings) {
     // Check if this is a WooCommerce AJAX request
     if (
       settings.url &&

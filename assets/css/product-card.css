@@ -9,8 +9,6 @@
     --theme-button-text-hover-color
   );
   --product-card-add-to-cart-border-radius: 999px;
-
-  border: 1px solid var(--theme-border-color);
 }
 
 .products .product {

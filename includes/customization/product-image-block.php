@@ -215,10 +215,6 @@ class WooCommerce_Product_Image_Block_Enhancement {
 	 * Enqueue frontend assets
 	 */
 	public function enqueue_assets() {
-		// Only load on relevant pages
-		if ( ! is_shop() && ! is_product_category() && ! is_product_tag() && ! is_product_taxonomy() && ! is_product() ) {
-			return;
-		}
 
 		// Enqueue CSS
 		wp_enqueue_style(
