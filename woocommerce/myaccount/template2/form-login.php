@@ -23,10 +23,12 @@ do_action( 'woocommerce_before_customer_login_form' );
 			<?php do_action( 'woocommerce_login_form_start' ); ?>
 
 			<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-				<input class="woocommerce-Input input-text" type="text" name="username" id="username" autocomplete="username" value="<?php echo ( ! empty( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Username or email address', 'blocksy' ); ?>" required />
+				<label for="username"><?php esc_html_e( 'Email', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
+				<input class="woocommerce-Input input-text" type="text" name="username" id="username" autocomplete="username" value="<?php echo ( ! empty( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Email', 'blocksy' ); ?>" required />
 			</p>
 			<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-				<input class="woocommerce-Input input-text" type="password" name="password" id="password" autocomplete="current-password" placeholder="Password" required />
+				<label for="password"><?php esc_html_e( 'Password', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
+				<input class="woocommerce-Input input-text" type="password" name="password" id="password" autocomplete="current-password" placeholder="<?php esc_attr_e( 'Password', 'blocksy' ); ?>" required />
 			</p>
 
 			<?php do_action( 'woocommerce_login_form' ); ?>
@@ -64,16 +66,19 @@ do_action( 'woocommerce_before_customer_login_form' );
 
 				<?php if ( 'no' === get_option( 'woocommerce_registration_generate_username' ) ) : ?>
 					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+						<label for="reg_username"><?php esc_html_e( 'Username', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
 						<input type="text" class="woocommerce-Input input-text" name="username" id="reg_username" autocomplete="username" value="<?php echo ( ! empty( $_POST['username'] ) ) ? esc_attr( wp_unslash( $_POST['username'] ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Username', 'blocksy' ); ?>" required />
 					</p>
 				<?php endif; ?>
 
 				<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+					<label for="reg_email"><?php esc_html_e( 'Email', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
 					<input type="email" class="woocommerce-Input input-text" name="email" id="reg_email" autocomplete="email" value="<?php echo ( ! empty( $_POST['email'] ) ) ? esc_attr( wp_unslash( $_POST['email'] ) ) : ''; ?>" placeholder="<?php esc_attr_e( 'Email address', 'blocksy' ); ?>" required />
 				</p>
 
 				<?php if ( 'no' === get_option( 'woocommerce_registration_generate_password' ) ) : ?>
 					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+						<label for="reg_password"><?php esc_html_e( 'Password', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
 						<input type="password" class="woocommerce-Input input-text" name="password" id="reg_password" autocomplete="new-password" placeholder="<?php esc_attr_e( 'Password', 'blocksy' ); ?>" required />
 					</p>
 				<?php else : ?>
