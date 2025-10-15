@@ -403,5 +403,11 @@ test-*.tmp
 testing-*.log
 mock-data-*.json
 
-# Ignore custom files
+# ===================================
+# CUSTOM FOLDER - PROJECT SPECIFIC
+# ===================================
+
+# Ignore entire custom folder and all its contents
 custom/
+custom/**
+custom/*
