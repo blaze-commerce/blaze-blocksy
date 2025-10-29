@@ -90,6 +90,7 @@ $required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
+	'/includes/features/stacked-gallery.php',
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',
 	'/includes/customization/thank-you-page-customizer.php',
