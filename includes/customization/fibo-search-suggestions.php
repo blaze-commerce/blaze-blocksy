@@ -173,3 +173,69 @@ add_action(
 	999
 );
 
+/**
+ * Override FiboSearch product image size to use WooCommerce thumbnail size.
+ *
+ * This filter forces FiboSearch to use WooCommerce's thumbnail size (400x400)
+ * instead of the default 64x64 size for better image quality in search results.
+ *
+ * Safety checks:
+ * - Verifies FiboSearch plugin is active
+ * - Verifies WooCommerce is active
+ * - Verifies WooCommerce thumbnail size exists
+ * - Gracefully degrades if any dependency is missing
+ *
+ * @since 1.0.0
+ */
+add_action(
+	'plugins_loaded',
+	function () {
+		// Safety check: Ensure FiboSearch plugin is active
+		// DGWT_WCAS is the main FiboSearch class
+		if ( ! class_exists( 'DGWT_WCAS' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'BlazeCommerce: FiboSearch image size override skipped - FiboSearch plugin not active' );
+			}
+			return;
+		}
+
+		// Safety check: Ensure WooCommerce is active
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'BlazeCommerce: FiboSearch image size override skipped - WooCommerce not active' );
+			}
+			return;
+		}
+
+		// Safety check: Verify WooCommerce thumbnail size exists
+		$thumbnail_size = wc_get_image_size( 'woocommerce_thumbnail' );
+		if ( empty( $thumbnail_size ) || ! isset( $thumbnail_size['width'] ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'BlazeCommerce: FiboSearch image size override skipped - WooCommerce thumbnail size not found' );
+			}
+			return;
+		}
+
+		/**
+		 * Override FiboSearch to use larger product images.
+		 * Forces FiboSearch to use WooCommerce thumbnail size instead of 64x64 default.
+		 *
+		 * @param string $size The image size to use.
+		 * @return string The WooCommerce thumbnail size identifier.
+		 */
+		add_filter(
+			'dgwt/wcas/setup/thumbnail_size',
+			function ( $size ) {
+				return 'woocommerce_thumbnail'; // Uses WooCommerce thumbnail size (400x400)
+			},
+			10,
+			1
+		);
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'BlazeCommerce: FiboSearch image size override applied successfully' );
+		}
+	},
+	20 // Priority 20 to ensure plugins are fully loaded
+);
+
