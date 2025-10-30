@@ -95,6 +95,7 @@ $required_files = [
 	'/includes/customization/thank-you-page-customizer.php',
 	'/includes/customization/my-account.php',
 	'/includes/customization/judgeme.php',
+	'/includes/customization/klaviyo-star-ratings.php',
 	'/includes/customization/mini-cart.php',
 	'/includes/customization/related-carousel.php',
 	'/includes/customization/product-category.php',
