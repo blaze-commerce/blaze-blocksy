@@ -182,17 +182,18 @@ class Klaviyo_Star_Ratings {
 			return;
 		}
 
-		// Verify the WooCommerce product catalog section exists
+		// Verify the WooCommerce general section exists
 		// This prevents errors if WooCommerce customizer sections are not available
+		// Note: Blocksy theme uses 'woocommerce_general' instead of 'woocommerce_product_catalog'
 		$section_exists = false;
 		if ( method_exists( $wp_customize, 'get_section' ) ) {
-			$section = $wp_customize->get_section( 'woocommerce_product_catalog' );
+			$section = $wp_customize->get_section( 'woocommerce_general' );
 			$section_exists = ( $section !== null );
 		}
 
 		if ( ! $section_exists ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Klaviyo Star Ratings: WooCommerce Product Catalog section does not exist in customizer.' );
+				error_log( 'Klaviyo Star Ratings: WooCommerce General section does not exist in customizer.' );
 			}
 			return;
 		}
@@ -215,7 +216,7 @@ class Klaviyo_Star_Ratings {
 			array(
 				'label'       => __( 'Enable Klaviyo Star Ratings', 'blocksy-child' ),
 				'description' => __( 'Display Klaviyo star ratings on product cards and product pages. When disabled, star ratings will not be shown.', 'blocksy-child' ),
-				'section'     => 'woocommerce_product_catalog', // Add to WooCommerce Product Catalog section
+				'section'     => 'woocommerce_general', // Add to WooCommerce General section (Blocksy theme)
 				'type'        => 'checkbox',
 				'priority'    => 999, // Place at the end of the section
 			)
