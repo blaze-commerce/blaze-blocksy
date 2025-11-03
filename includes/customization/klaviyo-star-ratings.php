@@ -182,21 +182,9 @@ class Klaviyo_Star_Ratings {
 			return;
 		}
 
-		// Verify the WooCommerce general section exists
-		// This prevents errors if WooCommerce customizer sections are not available
-		// Note: Blocksy theme uses 'woocommerce_general' instead of 'woocommerce_product_catalog'
-		$section_exists = false;
-		if ( method_exists( $wp_customize, 'get_section' ) ) {
-			$section = $wp_customize->get_section( 'woocommerce_general' );
-			$section_exists = ( $section !== null );
-		}
-
-		if ( ! $section_exists ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Klaviyo Star Ratings: WooCommerce General section does not exist in customizer.' );
-			}
-			return;
-		}
+		// Note: Blocksy theme uses 'woocommerce_general' section for WooCommerce settings
+		// WordPress will handle section validation automatically, so no need to check section existence
+		// This matches the pattern used in thank-you-page-customizer.php
 
 		// Add setting for star ratings toggle
 		$wp_customize->add_setting(
