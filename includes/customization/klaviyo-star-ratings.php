@@ -23,8 +23,8 @@ class Klaviyo_Star_Ratings {
 	 * Constructor
 	 */
 	public function __construct() {
-		// Register customizer hooks
-		add_action( 'customize_register', array( $this, 'register_customizer_settings' ) );
+		// Add Blocksy toggle switch to WooCommerce General section
+		add_filter( 'blocksy_customizer_options:woocommerce:general:end', array( $this, 'add_blocksy_toggle_option' ), 60 );
 
 		// Add star ratings to product cards and product pages
 		add_action( 'init', array( $this, 'init_star_ratings' ) );
@@ -77,7 +77,9 @@ class Klaviyo_Star_Ratings {
 			return false;
 		}
 
-		return get_theme_mod( 'blocksy_child_enable_klaviyo_star_ratings', true );
+		// Blocksy ct-switch uses 'yes'/'no' values
+		$value = get_theme_mod( 'blocksy_child_enable_klaviyo_star_ratings', 'yes' );
+		return ( 'yes' === $value );
 	}
 
 	/**
@@ -161,64 +163,24 @@ class Klaviyo_Star_Ratings {
 	}
 
 	/**
-	 * Register customizer settings for Klaviyo star ratings toggle
+	 * Add Blocksy-styled toggle switch to WooCommerce General section
 	 *
-	 * @param WP_Customize_Manager $wp_customize
+	 * @param array $options Existing Blocksy options array
+	 * @return array Modified options array with our custom toggle
 	 */
-	public function register_customizer_settings( $wp_customize ) {
-		// Verify WP_Customize_Manager is valid
-		if ( ! is_a( $wp_customize, 'WP_Customize_Manager' ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Klaviyo Star Ratings: Invalid WP_Customize_Manager object.' );
-			}
-			return;
-		}
-
-		// Check if WooCommerce is active before adding to WooCommerce section
-		if ( ! $this->is_woocommerce_active() ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Klaviyo Star Ratings: WooCommerce is not active. Customizer settings will not be registered.' );
-			}
-			return;
-		}
-
-		// Note: Blocksy theme uses 'woocommerce_general' section for WooCommerce settings
-		// WordPress will handle section validation automatically, so no need to check section existence
-		// This matches the pattern used in thank-you-page-customizer.php
-
-		// Add setting for star ratings toggle
-		$wp_customize->add_setting(
-			'blocksy_child_enable_klaviyo_star_ratings',
-			array(
-				'default'           => true, // Enabled by default
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
-				'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
-				'transport'         => 'refresh', // Use refresh to ensure proper functionality
-			)
+	public function add_blocksy_toggle_option( $options ) {
+		// Add our custom toggle switch using Blocksy's ct-switch control type
+		$options['blocksy_child_enable_klaviyo_star_ratings'] = array(
+			'label' => __( 'Enable Klaviyo Star Ratings', 'blocksy-child' ),
+			'type'  => 'ct-switch',
+			'value' => 'yes', // Default: enabled (Blocksy uses 'yes'/'no' instead of true/false)
+			'desc'  => __( 'Display Klaviyo star ratings on product cards and product pages. When disabled, star ratings will not be shown.', 'blocksy-child' ),
+			'setting' => array(
+				'transport' => 'refresh', // Refresh page when toggle changes
+			),
 		);
 
-		// Add control for star ratings toggle
-		$wp_customize->add_control(
-			'blocksy_child_enable_klaviyo_star_ratings',
-			array(
-				'label'       => __( 'Enable Klaviyo Star Ratings', 'blocksy-child' ),
-				'description' => __( 'Display Klaviyo star ratings on product cards and product pages. When disabled, star ratings will not be shown.', 'blocksy-child' ),
-				'section'     => 'woocommerce_general', // Add to WooCommerce General section (Blocksy theme)
-				'type'        => 'checkbox',
-				'priority'    => 999, // Place at the end of the section
-			)
-		);
-	}
-
-	/**
-	 * Sanitize checkbox input
-	 *
-	 * @param mixed $checked
-	 * @return bool
-	 */
-	public function sanitize_checkbox( $checked ) {
-		return ( ( isset( $checked ) && true === $checked ) ? true : false );
+		return $options;
 	}
 }
 

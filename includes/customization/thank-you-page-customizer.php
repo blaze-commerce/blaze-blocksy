@@ -16,48 +16,32 @@ class Blocksy_Child_Thank_You_Page_Customizer {
 	 * Constructor
 	 */
 	public function __construct() {
-		// Register customizer hooks
-		add_action( 'customize_register', array( $this, 'register_customizer_settings' ) );
+		// Add Blocksy toggle switch to WooCommerce General section
+		add_filter( 'blocksy_customizer_options:woocommerce:general:end', array( $this, 'add_blocksy_toggle_option' ), 60 );
+
+		// Keep preview scripts for live preview functionality
 		add_action( 'customize_preview_init', array( $this, 'enqueue_preview_scripts' ) );
-		
-		// Add selective refresh support
-		add_action( 'customize_register', array( $this, 'add_selective_refresh' ) );
 	}
 
 	/**
-	 * Register customizer settings for thank you page toggle
+	 * Add Blocksy-styled toggle switch to WooCommerce General section
+	 *
+	 * @param array $options Existing Blocksy options array
+	 * @return array Modified options array with our custom toggle
 	 */
-	public function register_customizer_settings( $wp_customize ) {
-		// Add setting for thank you page toggle
-		$wp_customize->add_setting(
-			'blocksy_child_enable_custom_thank_you_page',
-			array(
-				'default'           => true, // Enabled by default since it's already implemented
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
-				'sanitize_callback' => array( $this, 'sanitize_checkbox' ),
-				'transport'         => 'refresh', // Use refresh to ensure proper functionality
-			)
+	public function add_blocksy_toggle_option( $options ) {
+		// Add our custom toggle switch using Blocksy's ct-switch control type
+		$options['blocksy_child_enable_custom_thank_you_page'] = array(
+			'label' => __( 'Enable Custom Thank You Page', 'blocksy-child' ),
+			'type'  => 'ct-switch',
+			'value' => 'yes', // Default: enabled (Blocksy uses 'yes'/'no' instead of true/false)
+			'desc'  => __( 'Enable the custom Blaze Commerce thank you page design. When disabled, the default WooCommerce thank you page will be used.', 'blocksy-child' ),
+			'setting' => array(
+				'transport' => 'refresh', // Refresh page when toggle changes
+			),
 		);
 
-		// Add control for thank you page toggle
-		$wp_customize->add_control(
-			'blocksy_child_enable_custom_thank_you_page',
-			array(
-				'label'       => __( 'Enable Custom Thank You Page', 'blocksy-child' ),
-				'description' => __( 'Enable the custom Blaze Commerce thank you page design. When disabled, the default WooCommerce thank you page will be used.', 'blocksy-child' ),
-				'section'     => 'woocommerce_general', // Add to existing WooCommerce General section
-				'type'        => 'checkbox',
-				'priority'    => 999, // Place at the end of the section
-			)
-		);
-	}
-
-	/**
-	 * Sanitize checkbox input
-	 */
-	public function sanitize_checkbox( $checked ) {
-		return ( ( isset( $checked ) && true === $checked ) ? true : false );
+		return $options;
 	}
 
 	/**
@@ -74,37 +58,14 @@ class Blocksy_Child_Thank_You_Page_Customizer {
 	}
 
 	/**
-	 * Add selective refresh support
-	 */
-	public function add_selective_refresh( $wp_customize ) {
-		if ( ! isset( $wp_customize->selective_refresh ) ) {
-			return;
-		}
-
-		// Add selective refresh for thank you page changes
-		$wp_customize->selective_refresh->add_partial(
-			'blocksy_child_enable_custom_thank_you_page',
-			array(
-				'selector'        => '.woocommerce-order',
-				'render_callback' => array( $this, 'render_thank_you_page' ),
-			)
-		);
-	}
-
-	/**
-	 * Render callback for selective refresh
-	 */
-	public function render_thank_you_page() {
-		// This will be called during selective refresh
-		// Return empty string as the actual rendering is handled by the main thank you page functions
-		return '';
-	}
-
-	/**
 	 * Check if custom thank you page is enabled
+	 *
+	 * @return bool True if enabled, false otherwise
 	 */
 	public static function is_custom_thank_you_page_enabled() {
-		return get_theme_mod( 'blocksy_child_enable_custom_thank_you_page', true );
+		// Blocksy ct-switch uses 'yes'/'no' values
+		$value = get_theme_mod( 'blocksy_child_enable_custom_thank_you_page', 'yes' );
+		return ( 'yes' === $value );
 	}
 }
 
