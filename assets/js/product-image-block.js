@@ -16,7 +16,7 @@
    */
   class ProductImageBlockEnhancement {
     constructor() {
-      this.hoverTimeout = null;
+      this.currentlyHovered = null; // Track currently hovered product container
       this.preloadedImages = new Set();
       this.isProcessing = false;
       this.init();
@@ -138,7 +138,23 @@
 
       // Mouse enter - show hover image
       $container.on("mouseenter", () => {
-        clearTimeout(this.hoverTimeout);
+        // If there's a previously hovered container (and it's different), restore it immediately
+        if (
+          this.currentlyHovered &&
+          this.currentlyHovered[0] !== $container[0]
+        ) {
+          this.restoreImageImmediately(this.currentlyHovered);
+        }
+
+        // Clear this container's own pending timeout (if user re-hovers before restore)
+        const existingTimeout = $container.data("hover-timeout");
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
+          $container.removeData("hover-timeout");
+        }
+
+        // Set this container as currently hovered
+        this.currentlyHovered = $container;
 
         // Get latest original data (in case LazyLoad updated it)
         const latestOriginalData = $container.data("original-image-data");
@@ -147,9 +163,6 @@
           originalSrcset = latestOriginalData.srcset;
           originalAlt = latestOriginalData.alt;
         }
-
-        // Trigger mouseleave on all other hover-enabled containers
-        $(".wc-hover-image-enabled").not($container).trigger("mouseleave");
 
         // Add swapping class for smooth transition
         $image.addClass("swapping");
@@ -181,7 +194,16 @@
 
       // Mouse leave - restore original image
       $container.on("mouseleave", () => {
-        this.hoverTimeout = setTimeout(() => {
+        // Clear currently hovered if it's this container
+        if (
+          this.currentlyHovered &&
+          this.currentlyHovered[0] === $container[0]
+        ) {
+          this.currentlyHovered = null;
+        }
+
+        // Create timeout for restore
+        const timeoutId = setTimeout(() => {
           // Get latest original data before restoring
           const latestOriginalData = $container.data("original-image-data");
           if (latestOriginalData) {
@@ -215,9 +237,14 @@
 
             setTimeout(() => {
               $image.removeClass("swapping");
+              // Remove timeout from container data after restore completes
+              $container.removeData("hover-timeout");
             }, 50);
           }, 50);
         }, 100);
+
+        // Store timeout ID in container data
+        $container.data("hover-timeout", timeoutId);
       });
     }
 
@@ -237,6 +264,56 @@
         $image.attr("data-src") !== undefined ||
         $image.attr("loading") === "lazy"
       );
+    }
+
+    /**
+     * Restore image immediately (used when switching between products)
+     *
+     * @param {jQuery} $container - The product image container to restore
+     */
+    restoreImageImmediately($container) {
+      // Clear any pending timeout for this container
+      const existingTimeout = $container.data("hover-timeout");
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+        $container.removeData("hover-timeout");
+      }
+
+      // Get the image element
+      const $image = $container.find("img").first();
+      if (!$image.length) {
+        return;
+      }
+
+      // Get original image data
+      const originalData = $container.data("original-image-data");
+      if (!originalData) {
+        return;
+      }
+
+      // Validate that we're not restoring a base64 placeholder
+      let { src, srcset, alt } = originalData;
+
+      if (src && src.startsWith("data:image")) {
+        console.warn(
+          "Attempted to restore base64 placeholder in immediate restore. Skipping."
+        );
+        return;
+      }
+
+      // Add swapping class for smooth transition
+      $image.addClass("swapping");
+
+      // Restore original image immediately (no delay)
+      setTimeout(() => {
+        $image.attr("src", src);
+        $image.attr("srcset", srcset);
+        $image.attr("alt", alt);
+
+        setTimeout(() => {
+          $image.removeClass("swapping");
+        }, 50);
+      }, 50);
     }
 
     /**
