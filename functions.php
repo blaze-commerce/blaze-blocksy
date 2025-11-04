@@ -103,6 +103,7 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
+	'/includes/customization/product-image-block.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
@@ -234,3 +235,23 @@ add_action( 'template_redirect', function () {
 	wp_redirect( home_url() );
 	exit;
 } );
+
+add_filter( 'woocommerce_get_script_data', 'pwd_strength_meter_settings', 20, 2 );
+
+function pwd_strength_meter_settings( $params, $handle  ) {
+
+if( $handle === 'wc-password-strength-meter' ) {
+
+    $params = array_merge( $params, array(
+
+        'min_password_strength' => 2,
+        'i18n_password_error' => 'Do not you want to be protected? Make it stronger!',
+        'i18n_password_hint' => ' Please make your password <strong>at least 8 characters</strong> long , For more security use a mix of <strong>UPPER</strong> and <strong>lowercase</strong> letters, <strong>numbers</strong>, and <strong>symbols</strong>'
+    ) );
+
+
+}
+return $params;
+
+}
+
