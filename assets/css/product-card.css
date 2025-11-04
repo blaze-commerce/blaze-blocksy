@@ -1,10 +1,6 @@
 .products[data-products] .product {
   --product-card-element-spacing: 16px;
   --mobile-product-card-element-spacing: 12px;
-  --product-card-border-radius: 8px;
-  --product-card-border-width: 1px;
-  --product-card-border-color: transparent;
-  --product-card-border-style: solid;
   --product-card-badge-border-radius: 999px;
   --product-card-add-to-cart-border-color: var(
     --theme-button-text-initial-color
@@ -13,8 +9,6 @@
     --theme-button-text-hover-color
   );
   --product-card-add-to-cart-border-radius: 999px;
-
-  border: 1px solid var(--theme-border-color);
 }
 
 .products .product {

@@ -173,6 +173,8 @@ add_action(
 	999
 );
 
+
+
 /**
  * Override FiboSearch product image size to use WooCommerce thumbnail size.
  *
@@ -238,4 +240,3 @@ add_action(
 	},
 	20 // Priority 20 to ensure plugins are fully loaded
 );
-

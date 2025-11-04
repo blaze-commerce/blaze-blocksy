@@ -344,3 +344,17 @@
 .ct-acount-nav {
 	background: #fff !important;
 }
+
+/* additional css for my-account dashboard nav */
+.blz-my_account a{
+	color: #2d2d2d !important;
+}
+
+div.blaze-login-register.template2 > div > form > p > label,
+div.blaze-login-register.template2 > div > form > p > a.show-login-form,
+div.blaze-login-register.template2 > div > form > p > a.show-register-form{
+	font-weight: 500 !important;
+}
+div.blaze-login-register.template2 > div > form > p > label > span.required {
+    color: red !important;
+}

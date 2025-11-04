@@ -77,10 +77,11 @@ do_action( 'woocommerce_before_customer_login_form' );
 				</p>
 
 				<?php if ( 'no' === get_option( 'woocommerce_registration_generate_password' ) ) : ?>
-					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide" style="margin-bottom: 0px;">
 						<label for="reg_password"><?php esc_html_e( 'Password', 'blocksy' ); ?>&nbsp;<span class="required">*</span></label>
 						<input type="password" class="woocommerce-Input input-text" name="password" id="reg_password" autocomplete="new-password" placeholder="<?php esc_attr_e( 'Password', 'blocksy' ); ?>" required />
 					</p>
+					<p>The password should be at least 12 characters long. To make it stronger, use upper and lower case letters, numbers, and symbols like ! " ? $ % ^ & ).</p>
 				<?php else : ?>
 					<p><?php esc_html_e( 'A password will be sent to your email address.', 'blocksy' ); ?></p>
 				<?php endif; ?>
