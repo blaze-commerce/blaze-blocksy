@@ -37,7 +37,7 @@
      * Setup hover image functionality
      */
     setupHoverImages() {
-      $(".wc-hover-image-enabled").each((index, element) => {
+      $(".wc-block-product").each((index, element) => {
         this.initHoverImage($(element));
       });
     }
@@ -45,23 +45,37 @@
     /**
      * Initialize hover image for a single container
      *
-     * @param {jQuery} $container - The product image container
+     * @param {jQuery} $container - The product block element (.wc-block-product)
      */
     initHoverImage($container) {
-      // Get hover image data from separate data attributes
-      const hoverUrl = $container.attr("data-hover-url");
-      const hoverSrcset = $container.attr("data-hover-srcset") || "";
-      const hoverAlt = $container.attr("data-hover-alt") || "";
+      // Find image container inside product block
+      const $imageContainer = $container
+        .find(".wc-hover-image-enabled")
+        .first();
 
-      // Exit if no hover image URL
-      if (!hoverUrl) {
+      // Early return if no image container
+      if (!$imageContainer.length) {
         return;
       }
 
-      const $image = $container.find("img").first();
+      // Find image inside image container
+      const $image = $imageContainer.find("img").first();
 
-      // Exit if no image found
+      // Early return if no image
       if (!$image.length) {
+        return;
+      }
+
+      // Find add to cart button (optional - might not exist if out of stock)
+      const $addToCartButton = $container.find(".add-to-cart-button").first();
+
+      // Get hover image data from image container
+      const hoverUrl = $imageContainer.attr("data-hover-url");
+      const hoverSrcset = $imageContainer.attr("data-hover-srcset") || "";
+      const hoverAlt = $imageContainer.attr("data-hover-alt") || "";
+
+      // Exit if no hover image URL
+      if (!hoverUrl) {
         return;
       }
 
@@ -121,11 +135,18 @@
           originalSrc = getActualImageSrc();
           originalSrcset = getActualImageSrcset();
           originalAlt = $image.attr("alt") || "";
+
+          // Update stored data in image container
+          $imageContainer.data("original-image-data", {
+            src: originalSrc,
+            srcset: originalSrcset,
+            alt: originalAlt,
+          });
         });
       }
 
-      // Store original data in container for reference
-      $container.data("original-image-data", {
+      // Store original data in image container for reference
+      $imageContainer.data("original-image-data", {
         src: originalSrc,
         srcset: originalSrcset,
         alt: originalAlt,
@@ -147,17 +168,17 @@
         }
 
         // Clear this container's own pending timeout (if user re-hovers before restore)
-        const existingTimeout = $container.data("hover-timeout");
+        const existingTimeout = $imageContainer.data("hover-timeout");
         if (existingTimeout) {
           clearTimeout(existingTimeout);
-          $container.removeData("hover-timeout");
+          $imageContainer.removeData("hover-timeout");
         }
 
         // Set this container as currently hovered
         this.currentlyHovered = $container;
 
         // Get latest original data (in case LazyLoad updated it)
-        const latestOriginalData = $container.data("original-image-data");
+        const latestOriginalData = $imageContainer.data("original-image-data");
         if (latestOriginalData) {
           originalSrc = latestOriginalData.src;
           originalSrcset = latestOriginalData.srcset;
@@ -190,6 +211,11 @@
             $image.removeClass("swapping");
           }, 50);
         }, 50);
+
+        // Add hover class to button (if exists)
+        if ($addToCartButton.length) {
+          $addToCartButton.addClass("hover");
+        }
       });
 
       // Mouse leave - restore original image
@@ -205,7 +231,9 @@
         // Create timeout for restore
         const timeoutId = setTimeout(() => {
           // Get latest original data before restoring
-          const latestOriginalData = $container.data("original-image-data");
+          const latestOriginalData = $imageContainer.data(
+            "original-image-data"
+          );
           if (latestOriginalData) {
             originalSrc = latestOriginalData.src;
             originalSrcset = latestOriginalData.srcset;
@@ -221,7 +249,7 @@
             originalSrcset = getActualImageSrcset();
 
             // Update stored data
-            $container.data("original-image-data", {
+            $imageContainer.data("original-image-data", {
               src: originalSrc,
               srcset: originalSrcset,
               alt: originalAlt,
@@ -237,14 +265,19 @@
 
             setTimeout(() => {
               $image.removeClass("swapping");
-              // Remove timeout from container data after restore completes
-              $container.removeData("hover-timeout");
+              // Remove timeout from image container data after restore completes
+              $imageContainer.removeData("hover-timeout");
             }, 50);
           }, 50);
         }, 100);
 
-        // Store timeout ID in container data
-        $container.data("hover-timeout", timeoutId);
+        // Store timeout ID in image container data
+        $imageContainer.data("hover-timeout", timeoutId);
+
+        // Remove hover class from button (if exists)
+        if ($addToCartButton.length) {
+          $addToCartButton.removeClass("hover");
+        }
       });
     }
 
@@ -269,24 +302,32 @@
     /**
      * Restore image immediately (used when switching between products)
      *
-     * @param {jQuery} $container - The product image container to restore
+     * @param {jQuery} $container - The product block element (.wc-block-product) to restore
      */
     restoreImageImmediately($container) {
-      // Clear any pending timeout for this container
-      const existingTimeout = $container.data("hover-timeout");
+      // Find image container inside product block
+      const $imageContainer = $container
+        .find(".wc-hover-image-enabled")
+        .first();
+      if (!$imageContainer.length) {
+        return;
+      }
+
+      // Clear any pending timeout for this image container
+      const existingTimeout = $imageContainer.data("hover-timeout");
       if (existingTimeout) {
         clearTimeout(existingTimeout);
-        $container.removeData("hover-timeout");
+        $imageContainer.removeData("hover-timeout");
       }
 
       // Get the image element
-      const $image = $container.find("img").first();
+      const $image = $imageContainer.find("img").first();
       if (!$image.length) {
         return;
       }
 
       // Get original image data
-      const originalData = $container.data("original-image-data");
+      const originalData = $imageContainer.data("original-image-data");
       if (!originalData) {
         return;
       }
@@ -314,6 +355,12 @@
           $image.removeClass("swapping");
         }, 50);
       }, 50);
+
+      // Remove hover class from button (if exists)
+      const $addToCartButton = $container.find(".add-to-cart-button").first();
+      if ($addToCartButton.length) {
+        $addToCartButton.removeClass("hover");
+      }
     }
 
     /**
