@@ -1,5 +1,10 @@
 <?php
 
+if ( ! function_exists( 'get_field' ) ) {
+	echo 'ACF not found';
+	return;
+}
+
 $tab_data = [];
 $product_information = get_field( 'tab_data', 'option' );
 ?>
