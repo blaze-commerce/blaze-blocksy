@@ -103,6 +103,7 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
+	'/includes/customization/fluid-checkout-customizer.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
