@@ -11,6 +11,34 @@
 	'use strict';
 
 	/**
+	 * Reposition FluidCheckout progress bar as first element in fc-inside container
+	 *
+	 * This ensures the progress bar appears at the top of the checkout flow
+	 * for better user experience and visual hierarchy.
+	 */
+	function repositionProgressBar() {
+		// Find the progress bar element
+		const progressBar = document.querySelector('.fc-progress-bar');
+
+		// Find the fc-inside container
+		const fcInside = document.querySelector('.fc-inside');
+
+		// Verify both elements exist
+		if (!progressBar || !fcInside) {
+			return;
+		}
+
+		// Check if progress bar is already the first child of fc-inside
+		if (fcInside.firstElementChild === progressBar) {
+			return; // Already in correct position
+		}
+
+		// Move progress bar to be the first child of fc-inside
+		// Using prepend ensures it becomes the first element
+		fcInside.prepend(progressBar);
+	}
+
+	/**
 	 * Replace the "My contact" heading text with custom text from customizer
 	 */
 	function updateMyContactHeading() {
@@ -20,7 +48,7 @@
 		}
 
 		const customText = blocksyFluidCheckoutSettings.myContactHeadingText;
-		
+
 		// If custom text is empty or same as default, don't do anything
 		if (!customText || customText === 'My contact') {
 			return;
@@ -36,7 +64,7 @@
 		];
 
 		let contactHeading = null;
-		
+
 		for (let i = 0; i < selectors.length; i++) {
 			contactHeading = $(selectors[i]);
 			if (contactHeading.length > 0) {
@@ -54,6 +82,10 @@
 	 * Initialize on document ready
 	 */
 	$(document).ready(function () {
+		// Reposition progress bar as first element
+		repositionProgressBar();
+
+		// Update custom heading text
 		updateMyContactHeading();
 	});
 
@@ -62,16 +94,24 @@
 	 * Fluid Checkout uses AJAX to update checkout sections
 	 */
 	$(document.body).on('updated_checkout', function () {
+		// Reposition progress bar after AJAX updates
+		repositionProgressBar();
+
+		// Update custom heading text
 		updateMyContactHeading();
 	});
 
 	/**
-	 * Also listen for any DOM mutations in case the heading is added dynamically
+	 * Also listen for any DOM mutations in case elements are added dynamically
 	 */
 	if (typeof MutationObserver !== 'undefined') {
 		const observer = new MutationObserver(function (mutations) {
 			mutations.forEach(function (mutation) {
 				if (mutation.addedNodes.length > 0) {
+					// Reposition progress bar if DOM changes
+					repositionProgressBar();
+
+					// Update custom heading text
 					updateMyContactHeading();
 				}
 			});

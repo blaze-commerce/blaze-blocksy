@@ -922,6 +922,12 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				$this->output_item_count_badge_css();
 			}
 
+			// Progress Bar Full Width
+			if ( method_exists( $this, 'output_progress_bar_css' ) ) {
+				echo '/* Progress Bar Full Width Styles */';
+				$this->output_progress_bar_css();
+			}
+
 			echo '</style>';
 			echo '<!-- Fluid Checkout Customizer CSS: Output complete -->';
 		} catch ( Exception $e ) {
@@ -1382,6 +1388,32 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			echo implode( '; ', $css_properties );
 			echo '; }';
 		}
+	}
+
+	/**
+	 * Output Progress Bar Full Width CSS
+	 *
+	 * Ensures the FluidCheckout progress bar spans the full width of its parent container.
+	 * This is applied after the progress bar has been repositioned as the first child
+	 * of the .fc-inside container via JavaScript.
+	 *
+	 * @since 1.0.0
+	 */
+	private function output_progress_bar_css() {
+		// Force progress bar to full width of parent container
+		echo '.fc-inside > .fc-progress-bar { ';
+		echo 'width: 100% !important; ';
+		echo 'max-width: 100% !important; ';
+		echo 'margin-left: 0 !important; ';
+		echo 'margin-right: 0 !important; ';
+		echo 'box-sizing: border-box !important; ';
+		echo '}';
+
+		// Ensure progress bar content also spans full width
+		echo '.fc-inside > .fc-progress-bar .fc-progress-bar__inner { ';
+		echo 'width: 100% !important; ';
+		echo 'max-width: 100% !important; ';
+		echo '}';
 	}
 
 	/**
