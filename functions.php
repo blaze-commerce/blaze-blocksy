@@ -90,6 +90,7 @@ $required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
+	'/includes/features/offcanvas-module.php', // Generic offcanvas module
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',
 	'/includes/customization/thank-you-page-customizer.php',
@@ -122,6 +123,8 @@ if ( class_exists( 'FluidCheckout' ) ) {
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	$required_files[] = '/includes/debug/product-card-border-test.php';
 	$required_files[] = '/includes/debug/judgeme-tab-test.php';
+	// Uncomment to enable notification offcanvas example
+	// $required_files[] = '/includes/features/notification-offcanvas-example.php';
 }
 
 foreach ( $required_files as $file ) {
