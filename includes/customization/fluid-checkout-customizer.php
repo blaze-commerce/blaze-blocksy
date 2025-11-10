@@ -1407,31 +1407,15 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		echo '.fc-inside > .fc-progress-bar { ';
 		echo 'width: 100% !important; ';
 		echo 'max-width: 100% !important; ';
-		echo 'min-width: 0 !important; ';
 		echo 'margin-left: 0 !important; ';
 		echo 'margin-right: 0 !important; ';
-		echo 'padding-left: 0 !important; ';
-		echo 'padding-right: 0 !important; ';
 		echo 'box-sizing: border-box !important; ';
-		echo 'overflow: hidden !important; ';
-		echo 'position: relative !important; ';
-		echo 'left: 0 !important; ';
-		echo 'right: 0 !important; ';
 		echo '}';
 
 		// Ensure progress bar content also spans full width
 		echo '.fc-inside > .fc-progress-bar .fc-progress-bar__inner { ';
 		echo 'width: 100% !important; ';
 		echo 'max-width: 100% !important; ';
-		echo 'min-width: 0 !important; ';
-		echo 'box-sizing: border-box !important; ';
-		echo 'overflow: hidden !important; ';
-		echo '}';
-
-		// Ensure parent container has proper overflow handling
-		echo '.fc-inside { ';
-		echo 'overflow: hidden !important; ';
-		echo 'position: relative !important; ';
 		echo '}';
 
 		// Apply customizer color settings
