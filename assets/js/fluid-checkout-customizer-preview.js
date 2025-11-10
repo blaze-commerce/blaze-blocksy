@@ -373,6 +373,53 @@
 				console.warn('Fluid Checkout Customizer: Error updating dynamic style ' + id, error);
 			}
 		}
+
+		// Content & Text Settings
+		try {
+			// My Contact Heading Text
+			wp.customize('blocksy_fc_my_contact_heading_text', function (value) {
+				value.bind(function (newval) {
+					// Find the "My contact" heading and update it
+					const contactHeading = $('.fc-step__substep-title:contains("My contact")');
+					if (contactHeading.length > 0) {
+						contactHeading.text(newval || 'My contact');
+					}
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding content text settings', error);
+		}
+
+		// Step Indicators Settings
+		try {
+			// Checkmark Icon Color
+			wp.customize('blocksy_fc_checkmark_icon_color', function (value) {
+				value.bind(function (newval) {
+					// Create or update style tag for checkmark icon color
+					let styleTag = $('#fc-checkmark-icon-color-preview');
+					if (styleTag.length === 0) {
+						styleTag = $('<style id="fc-checkmark-icon-color-preview"></style>');
+						$('head').append(styleTag);
+					}
+					styleTag.text('[data-step-complete] .fc-step__substep-title::before { color: ' + (newval || '#ffffff') + ' !important; }');
+				});
+			});
+
+			// Checkmark Background Color
+			wp.customize('blocksy_fc_checkmark_bg_color', function (value) {
+				value.bind(function (newval) {
+					// Create or update style tag for checkmark background color
+					let styleTag = $('#fc-checkmark-bg-color-preview');
+					if (styleTag.length === 0) {
+						styleTag = $('<style id="fc-checkmark-bg-color-preview"></style>');
+						$('head').append(styleTag);
+					}
+					styleTag.text('[data-step-complete] .fc-step__substep-title::before { background-color: ' + (newval || '#7b7575') + ' !important; }');
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding step indicator settings', error);
+		}
 	});
 })(jQuery);
 
