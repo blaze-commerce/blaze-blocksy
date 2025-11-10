@@ -229,16 +229,24 @@ add_action('blocksy:header:offcanvas:mobile:bottom', function() {
 ## File Structure for Child Theme
 
 ```
-child-theme/
+blocksy-child/
 ├── functions.php
 ├── assets/
 │   ├── css/
-│   │   └── offcanvas.css
+│   │   ├── offcanvas-module.css
+│   │   └── wishlist-offcanvas.css
 │   └── js/
-│       └── offcanvas.js
-└── template-parts/
-    └── offcanvas/
-        └── custom-offcanvas.php
+│       ├── offcanvas-module.js
+│       ├── wishlist-offcanvas.js
+│       └── wishlist-offcanvas-sync.js
+├── includes/
+│   └── features/
+│       ├── offcanvas-module.php
+│       └── notification-offcanvas-example.php
+└── partials/
+    └── product/
+        ├── shipping-calculator.php
+        └── information.php
 ```
 
 ## Minimal Working Example
