@@ -1,0 +1,286 @@
+/**
+ * Fluid Checkout Customizer - Enhanced Control Styling
+ * 
+ * Improves the visual appearance and user experience of Fluid Checkout
+ * Customizer controls while maintaining WordPress Customizer API compatibility.
+ * 
+ * @package Blocksy_Child
+ * @since 1.0.0
+ */
+
+/* ============================================================================
+   SECTION HEADERS & ORGANIZATION
+   ========================================================================= */
+
+/* Fluid Checkout Panel Sections */
+#accordion-panel-blocksy_fluid_checkout_panel .accordion-section {
+	border-bottom: 1px solid #dcdcde;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .accordion-section:last-child {
+	border-bottom: none;
+}
+
+/* Section Titles */
+#accordion-panel-blocksy_fluid_checkout_panel .accordion-section-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+	padding: 12px 14px;
+	transition: background-color 0.15s ease-in-out;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .accordion-section-title:hover {
+	background-color: #f6f7f7;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .accordion-section-title:focus {
+	background-color: #f0f0f1;
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+}
+
+/* ============================================================================
+   CONTROL WRAPPERS & SPACING
+   ========================================================================= */
+
+/* All Fluid Checkout Controls */
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control {
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control:last-child {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+/* Control Inner Wrapper */
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control-content {
+	position: relative;
+}
+
+/* ============================================================================
+   LABELS & DESCRIPTIONS
+   ========================================================================= */
+
+/* Control Labels */
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+	margin-bottom: 8px;
+	line-height: 1.4;
+	display: block;
+}
+
+/* Control Descriptions */
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control-description,
+#accordion-panel-blocksy_fluid_checkout_panel .description {
+	font-size: 12px;
+	font-weight: 400;
+	color: #646970;
+	line-height: 1.5;
+	margin-top: 6px;
+	margin-bottom: 0;
+	font-style: normal;
+}
+
+/* ============================================================================
+   TEXT INPUTS & SELECT DROPDOWNS
+   ========================================================================= */
+
+/* Text Inputs */
+#accordion-panel-blocksy_fluid_checkout_panel input[type="text"],
+#accordion-panel-blocksy_fluid_checkout_panel input[type="number"] {
+	width: 100%;
+	height: 40px;
+	padding: 8px 12px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #2c3338;
+	background-color: #fff;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	box-shadow: 0 0 0 transparent;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel input[type="text"]:hover,
+#accordion-panel-blocksy_fluid_checkout_panel input[type="number"]:hover {
+	border-color: #2271b1;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel input[type="text"]:focus,
+#accordion-panel-blocksy_fluid_checkout_panel input[type="number"]:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: 2px solid transparent;
+}
+
+/* Select Dropdowns */
+#accordion-panel-blocksy_fluid_checkout_panel select {
+	width: 100%;
+	height: 40px;
+	padding: 8px 32px 8px 12px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #2c3338;
+	background-color: #fff;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E');
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 16px 16px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	box-shadow: 0 0 0 transparent;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel select:hover {
+	border-color: #2271b1;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel select:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: 2px solid transparent;
+}
+
+/* ============================================================================
+   COLOR PICKER CONTROLS
+   ========================================================================= */
+
+/* Color Picker Button */
+#accordion-panel-blocksy_fluid_checkout_panel .wp-picker-container .wp-color-result {
+	height: 40px;
+	padding: 0 0 0 50px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	box-shadow: 0 0 0 transparent;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .wp-picker-container .wp-color-result:hover {
+	border-color: #2271b1;
+}
+
+#accordion-panel-blocksy_fluid_checkout_panel .wp-picker-container .wp-color-result:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: 2px solid transparent;
+}
+
+/* Color Preview Box */
+#accordion-panel-blocksy_fluid_checkout_panel .wp-picker-container .wp-color-result-text {
+	background: #f6f7f7;
+	border-left: 1px solid #8c8f94;
+	color: #2c3338;
+	font-size: 13px;
+	line-height: 38px;
+	padding: 0 12px;
+	text-align: center;
+}
+
+/* Color Swatch */
+#accordion-panel-blocksy_fluid_checkout_panel .wp-color-result .wp-color-result-text::after {
+	border-radius: 3px;
+}
+
+/* ============================================================================
+   TYPOGRAPHY CONTROLS GROUPING
+   ========================================================================= */
+
+/* Typography Section Controls */
+#accordion-section-blocksy_fc_heading_typography .customize-control,
+#accordion-section-blocksy_fc_body_typography .customize-control,
+#accordion-section-blocksy_fc_label_typography .customize-control,
+#accordion-section-blocksy_fc_placeholder_typography .customize-control,
+#accordion-section-blocksy_fc_button_typography .customize-control {
+	position: relative;
+}
+
+/* Font Family Controls - Add Icon */
+#accordion-panel-blocksy_fluid_checkout_panel .customize-control select[id*="_font_family"] {
+	padding-left: 40px;
+	background-position: right 8px center, left 12px center;
+	background-image: 
+		url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E'),
+		url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2214%22%20font-weight%3D%22600%22%20fill%3D%22%232271b1%22%3EAa%3C%2Ftext%3E%3C%2Fsvg%3E');
+	background-size: 16px 16px, 20px 20px;
+}
+
+/* Font Size Controls - Add Visual Indicator */
+#accordion-panel-blocksy_fluid_checkout_panel input[id*="_font_size"] {
+	padding-right: 45px;
+}
+
+/* Font Weight Controls - Enhanced Styling */
+#accordion-panel-blocksy_fluid_checkout_panel select[id*="_font_weight"] {
+	font-weight: 500;
+}
+
+/* ============================================================================
+   SPACING & BORDER CONTROLS
+   ========================================================================= */
+
+/* Spacing Section Controls */
+#accordion-section-blocksy_fc_spacing .customize-control input[type="text"],
+#accordion-section-blocksy_fc_borders .customize-control input[type="text"] {
+	font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+	letter-spacing: 0.5px;
+}
+
+/* ============================================================================
+   BUTTON CONTROLS
+   ========================================================================= */
+
+/* Button Section Color Pickers */
+#accordion-section-blocksy_fc_buttons .wp-picker-container {
+	margin-bottom: 4px;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ========================================================================= */
+
+/* Tablet and Below (max-width: 782px) */
+@media screen and (max-width: 782px) {
+	#accordion-panel-blocksy_fluid_checkout_panel .customize-control {
+		margin-bottom: 16px;
+		padding-bottom: 16px;
+	}
+	
+	#accordion-panel-blocksy_fluid_checkout_panel .customize-control-title {
+		font-size: 13px;
+	}
+	
+	#accordion-panel-blocksy_fluid_checkout_panel input[type="text"],
+	#accordion-panel-blocksy_fluid_checkout_panel input[type="number"],
+	#accordion-panel-blocksy_fluid_checkout_panel select {
+		height: 36px;
+		font-size: 13px;
+	}
+	
+	#accordion-panel-blocksy_fluid_checkout_panel .wp-picker-container .wp-color-result {
+		height: 36px;
+	}
+}
+
+/* Mobile (max-width: 600px) */
+@media screen and (max-width: 600px) {
+	#accordion-panel-blocksy_fluid_checkout_panel .customize-control-title {
+		font-size: 12px;
+	}
+	
+	#accordion-panel-blocksy_fluid_checkout_panel .customize-control-description,
+	#accordion-panel-blocksy_fluid_checkout_panel .description {
+		font-size: 11px;
+	}
+}
+

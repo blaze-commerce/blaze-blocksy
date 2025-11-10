@@ -110,6 +110,14 @@ $required_files = [
 	'/includes/blocks/variation-swatches/index.php',
 ];
 
+// Conditionally load Fluid Checkout Customizer only if Fluid Checkout is active
+// This prevents fatal errors if the Fluid Checkout plugin is deactivated
+if ( class_exists( 'FluidCheckout' ) ) {
+	$required_files[] = '/includes/customization/fluid-checkout-customizer.php';
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+	error_log( 'BlazeCommerce: Fluid Checkout Customizer not loaded - FluidCheckout class not found. Please ensure Fluid Checkout Lite or Pro is installed and activated.' );
+}
+
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	$required_files[] = '/includes/debug/product-card-border-test.php';
@@ -121,12 +129,16 @@ foreach ( $required_files as $file ) {
 	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
 		try {
 			require_once $file_path;
-		} catch (Error $e) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		} catch ( Error $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
 			}
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( 'BlazeCommerce: Exception loading ' . $file . ': ' . $e->getMessage() );
+			}
 		}
-	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 		error_log( 'BlazeCommerce: File not found: ' . $file_path );
 	}
 }
