@@ -114,6 +114,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			$this->register_spacing_section( $wp_customize );
 			$this->register_borders_section( $wp_customize );
 			$this->register_content_text_section( $wp_customize );
+			$this->register_step_indicators_section( $wp_customize );
 		} catch ( Exception $e ) {
 			// Log error if WP_DEBUG is enabled
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
@@ -855,6 +856,12 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				$this->output_borders_css();
 			}
 
+			// Step Indicators
+			if ( method_exists( $this, 'output_step_indicators_css' ) ) {
+				echo '/* Step Indicators Styles */';
+				$this->output_step_indicators_css();
+			}
+
 			echo '</style>';
 			echo '<!-- Fluid Checkout Customizer CSS: Output complete -->';
 		} catch ( Exception $e ) {
@@ -1122,6 +1129,25 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	}
 
 	/**
+	 * Output step indicators CSS
+	 */
+	private function output_step_indicators_css() {
+		$checkmark_icon_color = get_theme_mod( 'blocksy_fc_checkmark_icon_color', '#ffffff' );
+		$checkmark_bg_color   = get_theme_mod( 'blocksy_fc_checkmark_bg_color', '#7b7575' );
+
+		// Target the ::before pseudo-element on completed step substep titles
+		// The checkmark appears on .fc-step__substep-title when the parent section has data-step-complete attribute
+		echo '[data-step-complete] .fc-step__substep-title::before {';
+		if ( $checkmark_icon_color ) {
+			echo 'color: ' . esc_attr( $checkmark_icon_color ) . ' !important;';
+		}
+		if ( $checkmark_bg_color ) {
+			echo 'background-color: ' . esc_attr( $checkmark_bg_color ) . ' !important;';
+		}
+		echo '}';
+	}
+
+	/**
 	 * Enqueue preview scripts for live preview
 	 */
 	public function enqueue_preview_scripts() {
@@ -1251,6 +1277,66 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				'section'     => 'blocksy_fc_content_text',
 				'type'        => 'text',
 				'priority'    => 10,
+			)
+		);
+	}
+
+	/**
+	 * Register Step Indicators Section
+	 */
+	private function register_step_indicators_section( $wp_customize ) {
+		$wp_customize->add_section(
+			'blocksy_fc_step_indicators',
+			array(
+				'title'    => __( 'Step Indicators', 'blocksy-child' ),
+				'panel'    => 'blocksy_fluid_checkout_panel',
+				'priority' => 75,
+			)
+		);
+
+		// Checkmark Icon Color
+		$wp_customize->add_setting(
+			'blocksy_fc_checkmark_icon_color',
+			array(
+				'default'           => '#ffffff',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_checkmark_icon_color',
+				array(
+					'label'       => __( 'Checkmark Icon Color', 'blocksy-child' ),
+					'description' => __( 'Color of the checkmark symbol in completed step indicators.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_step_indicators',
+					'priority'    => 10,
+				)
+			)
+		);
+
+		// Checkmark Background Color
+		$wp_customize->add_setting(
+			'blocksy_fc_checkmark_bg_color',
+			array(
+				'default'           => '#7b7575',
+				'sanitize_callback' => 'sanitize_hex_color',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_checkmark_bg_color',
+				array(
+					'label'       => __( 'Checkmark Background Color', 'blocksy-child' ),
+					'description' => __( 'Background color of the checkmark circle in completed step indicators.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_step_indicators',
+					'priority'    => 20,
+				)
 			)
 		);
 	}
