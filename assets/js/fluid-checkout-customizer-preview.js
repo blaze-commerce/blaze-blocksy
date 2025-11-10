@@ -373,6 +373,22 @@
 				console.warn('Fluid Checkout Customizer: Error updating dynamic style ' + id, error);
 			}
 		}
+
+		// Content & Text Settings
+		try {
+			// My Contact Heading Text
+			wp.customize('blocksy_fc_my_contact_heading_text', function (value) {
+				value.bind(function (newval) {
+					// Find the "My contact" heading and update it
+					const contactHeading = $('.fc-step__substep-title:contains("My contact")');
+					if (contactHeading.length > 0) {
+						contactHeading.text(newval || 'My contact');
+					}
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding content text settings', error);
+		}
 	});
 })(jQuery);
 

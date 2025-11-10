@@ -57,6 +57,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		add_action( 'customize_preview_init', array( $this, 'enqueue_preview_scripts' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_customizer_controls_styles' ) );
 		add_action( 'wp_head', array( $this, 'output_customizer_css' ), 999 );
+
+		// Register frontend scripts for checkout page
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 	}
 
 	/**
@@ -110,6 +113,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			$this->register_buttons_section( $wp_customize );
 			$this->register_spacing_section( $wp_customize );
 			$this->register_borders_section( $wp_customize );
+			$this->register_content_text_section( $wp_customize );
 		} catch ( Exception $e ) {
 			// Log error if WP_DEBUG is enabled
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
@@ -1186,6 +1190,69 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			// Log warning if CSS file is missing
 			error_log( 'Fluid Checkout Customizer: Controls CSS not found at ' . $controls_css_path );
 		}
+	}
+
+	/**
+	 * Enqueue frontend scripts for checkout page
+	 */
+	public function enqueue_frontend_scripts() {
+		// Only load on checkout page
+		if ( ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+			return;
+		}
+
+		// Enqueue the frontend script
+		wp_enqueue_script(
+			'blocksy-fluid-checkout-frontend',
+			get_stylesheet_directory_uri() . '/assets/js/fluid-checkout-frontend.js',
+			array( 'jquery' ),
+			filemtime( get_stylesheet_directory() . '/assets/js/fluid-checkout-frontend.js' ),
+			true
+		);
+
+		// Pass customizer settings to JavaScript
+		wp_localize_script(
+			'blocksy-fluid-checkout-frontend',
+			'blocksyFluidCheckoutSettings',
+			array(
+				'myContactHeadingText' => get_theme_mod( 'blocksy_fc_my_contact_heading_text', 'My contact' ),
+			)
+		);
+	}
+
+	/**
+	 * Register Content & Text Section
+	 */
+	private function register_content_text_section( $wp_customize ) {
+		$wp_customize->add_section(
+			'blocksy_fc_content_text',
+			array(
+				'title'    => __( 'Content & Text', 'blocksy-child' ),
+				'panel'    => 'blocksy_fluid_checkout_panel',
+				'priority' => 70,
+			)
+		);
+
+		// My Contact Heading Text
+		$wp_customize->add_setting(
+			'blocksy_fc_my_contact_heading_text',
+			array(
+				'default'           => 'My contact',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_my_contact_heading_text',
+			array(
+				'label'       => __( 'My Contact Heading Text', 'blocksy-child' ),
+				'description' => __( 'Customize the heading text for the contact step in the checkout process.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_content_text',
+				'type'        => 'text',
+				'priority'    => 10,
+			)
+		);
 	}
 
 }
