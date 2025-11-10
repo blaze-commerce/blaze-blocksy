@@ -115,6 +115,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			$this->register_borders_section( $wp_customize );
 			$this->register_content_text_section( $wp_customize );
 			$this->register_step_indicators_section( $wp_customize );
+			$this->register_item_count_badge_section( $wp_customize );
 		} catch ( Exception $e ) {
 			// Log error if WP_DEBUG is enabled
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
@@ -138,36 +139,44 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 		$color_settings = array(
 			'primary_color'           => array(
-				'label'   => __( 'Primary Color', 'blocksy-child' ),
-				'default' => '#0047e3',
+				'label'       => __( 'Primary Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'secondary_color'         => array(
-				'label'   => __( 'Secondary Color', 'blocksy-child' ),
-				'default' => '#fed766',
+				'label'       => __( 'Secondary Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'body_text_color'         => array(
-				'label'   => __( 'Body Text Color', 'blocksy-child' ),
-				'default' => '#394859',
+				'label'       => __( 'Body Text Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'heading_color'           => array(
-				'label'   => __( 'Heading Color', 'blocksy-child' ),
-				'default' => '#394859',
+				'label'       => __( 'Heading Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'link_color'              => array(
-				'label'   => __( 'Link Color', 'blocksy-child' ),
-				'default' => '#00277a',
+				'label'       => __( 'Link Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'link_hover_color'        => array(
-				'label'   => __( 'Link Hover Color', 'blocksy-child' ),
-				'default' => '#5c8fff',
+				'label'       => __( 'Link Hover Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'content_background'      => array(
-				'label'   => __( 'Content Background', 'blocksy-child' ),
-				'default' => '#ffffff',
+				'label'       => __( 'Content Background', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'border_color'            => array(
-				'label'   => __( 'Border Color', 'blocksy-child' ),
-				'default' => '#dfdfde',
+				'label'       => __( 'Border Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
 			),
 		);
 
@@ -176,7 +185,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				"blocksy_fc_{$key}",
 				array(
 					'default'           => $config['default'],
-					'sanitize_callback' => 'sanitize_hex_color',
+					'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
 					'transport'         => 'postMessage',
 				)
 			);
@@ -186,8 +195,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 					$wp_customize,
 					"blocksy_fc_{$key}",
 					array(
-						'label'   => $config['label'],
-						'section' => 'blocksy_fc_general_colors',
+						'label'       => $config['label'],
+						'description' => isset( $config['description'] ) ? $config['description'] : '',
+						'section'     => 'blocksy_fc_general_colors',
 					)
 				)
 			);
@@ -289,7 +299,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			"blocksy_fc_{$element}_font_color",
 			array(
 				'default'           => $defaults['color'],
-				'sanitize_callback' => 'sanitize_hex_color',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
 				'transport'         => 'postMessage',
 			)
 		);
@@ -299,8 +309,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				$wp_customize,
 				"blocksy_fc_{$element}_font_color",
 				array(
-					'label'   => __( 'Font Color', 'blocksy-child' ),
-					'section' => $section,
+					'label'       => __( 'Font Color', 'blocksy-child' ),
+					'description' => __( 'Leave empty to use theme default', 'blocksy-child' ),
+					'section'     => $section,
 				)
 			)
 		);
@@ -322,15 +333,16 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				'section' => $section,
 				'type'    => 'select',
 				'choices' => array(
-					'100' => __( 'Thin (100)', 'blocksy-child' ),
-					'200' => __( 'Extra Light (200)', 'blocksy-child' ),
-					'300' => __( 'Light (300)', 'blocksy-child' ),
-					'400' => __( 'Normal (400)', 'blocksy-child' ),
-					'500' => __( 'Medium (500)', 'blocksy-child' ),
-					'600' => __( 'Semi Bold (600)', 'blocksy-child' ),
-					'700' => __( 'Bold (700)', 'blocksy-child' ),
-					'800' => __( 'Extra Bold (800)', 'blocksy-child' ),
-					'900' => __( 'Black (900)', 'blocksy-child' ),
+					'inherit' => __( 'Theme Default (Inherit)', 'blocksy-child' ),
+					'100'     => __( 'Thin (100)', 'blocksy-child' ),
+					'200'     => __( 'Extra Light (200)', 'blocksy-child' ),
+					'300'     => __( 'Light (300)', 'blocksy-child' ),
+					'400'     => __( 'Normal (400)', 'blocksy-child' ),
+					'500'     => __( 'Medium (500)', 'blocksy-child' ),
+					'600'     => __( 'Semi Bold (600)', 'blocksy-child' ),
+					'700'     => __( 'Bold (700)', 'blocksy-child' ),
+					'800'     => __( 'Extra Bold (800)', 'blocksy-child' ),
+					'900'     => __( 'Black (900)', 'blocksy-child' ),
 				),
 			)
 		);
@@ -338,38 +350,41 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 	/**
 	 * Get typography defaults for different elements
+	 *
+	 * Returns empty strings or 'inherit' to allow theme defaults to apply.
+	 * Users can customize these values in the customizer to override theme styles.
 	 */
 	private function get_typography_defaults( $element ) {
 		$defaults = array(
 			'heading'     => array(
-				'font'   => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'   => '24px',
-				'color'  => '#394859',
-				'weight' => '600',
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
 			),
 			'body'        => array(
-				'font'   => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'   => '16px',
-				'color'  => '#394859',
-				'weight' => '400',
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
 			),
 			'label'       => array(
-				'font'   => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'   => '14px',
-				'color'  => '#394859',
-				'weight' => '500',
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
 			),
 			'placeholder' => array(
-				'font'   => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'   => '14px',
-				'color'  => '#8C949c',
-				'weight' => '400',
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
 			),
 			'button'      => array(
-				'font'   => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-				'size'   => '16px',
-				'color'  => '#ffffff',
-				'weight' => '600',
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
 			),
 		);
 
@@ -386,6 +401,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function get_font_family_choices() {
 		return array(
+			// Theme Default
+			'inherit'                                         => __( 'Theme Default (Inherit)', 'blocksy-child' ),
+
 			// System Fonts
 			'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' => __( 'System Default (Recommended)', 'blocksy-child' ),
 
@@ -425,8 +443,15 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 	/**
 	 * Sanitize CSS unit values
+	 *
+	 * Allows empty strings to enable theme defaults.
 	 */
 	public function sanitize_css_unit( $input ) {
+		// Allow empty string for theme default
+		if ( empty( $input ) || trim( $input ) === '' ) {
+			return '';
+		}
+
 		$sanitized = preg_replace( '/[^0-9a-zA-Z%.\s-]/', '', $input );
 
 		if ( ! empty( $sanitized ) && ! preg_match( '/(px|em|rem|%|vh|vw|pt|pc|in|cm|mm|ex|ch)$/', $sanitized ) ) {
@@ -434,6 +459,22 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize color values allowing empty strings
+	 *
+	 * Allows empty strings to enable theme defaults.
+	 * Otherwise uses WordPress core sanitize_hex_color function.
+	 */
+	public function sanitize_color_allow_empty( $input ) {
+		// Allow empty string for theme default
+		if ( empty( $input ) || trim( $input ) === '' ) {
+			return '';
+		}
+
+		// Use WordPress core sanitization for non-empty values
+		return sanitize_hex_color( $input );
 	}
 
 	/**
@@ -451,41 +492,45 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 		$form_settings = array(
 			'input_background'    => array(
-				'label'   => __( 'Input Background Color', 'blocksy-child' ),
-				'default' => '#ffffff',
-				'type'    => 'color',
+				'label'       => __( 'Input Background Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'input_border_color'  => array(
-				'label'   => __( 'Input Border Color', 'blocksy-child' ),
-				'default' => '#dfdfde',
-				'type'    => 'color',
+				'label'       => __( 'Input Border Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'input_text_color'    => array(
-				'label'   => __( 'Input Text Color', 'blocksy-child' ),
-				'default' => '#394859',
-				'type'    => 'color',
+				'label'       => __( 'Input Text Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'input_focus_border'  => array(
-				'label'   => __( 'Input Focus Border Color', 'blocksy-child' ),
-				'default' => '#0047e3',
-				'type'    => 'color',
+				'label'       => __( 'Input Focus Border Color', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'input_padding'       => array(
 				'label'       => __( 'Input Padding', 'blocksy-child' ),
-				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem)', 'blocksy-child' ),
-				'default'     => '12px',
+				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 			'input_border_radius' => array(
 				'label'       => __( 'Input Border Radius', 'blocksy-child' ),
-				'description' => __( 'Enter border radius with CSS unit (e.g., 4px, 0.5rem)', 'blocksy-child' ),
-				'default'     => '4px',
+				'description' => __( 'Enter border radius with CSS unit (e.g., 4px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 		);
 
 		foreach ( $form_settings as $key => $config ) {
-			$sanitize_callback = ( $config['type'] === 'color' ) ? 'sanitize_hex_color' : array( $this, 'sanitize_css_unit' );
+			$sanitize_callback = ( $config['type'] === 'color' ) ? array( $this, 'sanitize_color_allow_empty' ) : array( $this, 'sanitize_css_unit' );
 
 			$wp_customize->add_setting(
 				"blocksy_fc_{$key}",
@@ -502,8 +547,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 						$wp_customize,
 						"blocksy_fc_{$key}",
 						array(
-							'label'   => $config['label'],
-							'section' => 'blocksy_fc_form_elements',
+							'label'       => $config['label'],
+							'description' => isset( $config['description'] ) ? $config['description'] : '',
+							'section'     => 'blocksy_fc_form_elements',
 						)
 					)
 				);
@@ -536,59 +582,63 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 		$button_settings = array(
 			'button_primary_bg'         => array(
-				'label'   => __( 'Primary Button Background', 'blocksy-child' ),
-				'default' => '#0047e3',
-				'type'    => 'color',
+				'label'       => __( 'Primary Button Background', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'button_primary_text'       => array(
-				'label'   => __( 'Primary Button Text', 'blocksy-child' ),
-				'default' => '#ffffff',
-				'type'    => 'color',
+				'label'       => __( 'Primary Button Text', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'button_primary_hover_bg'   => array(
-				'label'   => __( 'Primary Button Hover Background', 'blocksy-child' ),
-				'default' => '#00277a',
-				'type'    => 'color',
+				'label'       => __( 'Primary Button Hover Background', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'button_primary_hover_text' => array(
-				'label'   => __( 'Primary Button Hover Text', 'blocksy-child' ),
-				'default' => '#ffffff',
-				'type'    => 'color',
+				'label'       => __( 'Primary Button Hover Text', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'default'     => '',
+				'type'        => 'color',
 			),
 			'button_padding_top'        => array(
 				'label'       => __( 'Button Padding Top', 'blocksy-child' ),
-				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem)', 'blocksy-child' ),
-				'default'     => '12px',
+				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 			'button_padding_right'      => array(
 				'label'       => __( 'Button Padding Right', 'blocksy-child' ),
-				'description' => __( 'Enter padding with CSS unit (e.g., 24px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '24px',
+				'description' => __( 'Enter padding with CSS unit (e.g., 24px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 			'button_padding_bottom'     => array(
 				'label'       => __( 'Button Padding Bottom', 'blocksy-child' ),
-				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem)', 'blocksy-child' ),
-				'default'     => '12px',
+				'description' => __( 'Enter padding with CSS unit (e.g., 12px, 1rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 			'button_padding_left'       => array(
 				'label'       => __( 'Button Padding Left', 'blocksy-child' ),
-				'description' => __( 'Enter padding with CSS unit (e.g., 24px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '24px',
+				'description' => __( 'Enter padding with CSS unit (e.g., 24px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 			'button_border_radius'      => array(
 				'label'       => __( 'Button Border Radius', 'blocksy-child' ),
-				'description' => __( 'Enter border radius with CSS unit (e.g., 4px, 0.5rem)', 'blocksy-child' ),
-				'default'     => '4px',
+				'description' => __( 'Enter border radius with CSS unit (e.g., 4px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 				'type'        => 'text',
 			),
 		);
 
 		foreach ( $button_settings as $key => $config ) {
-			$sanitize_callback = ( $config['type'] === 'color' ) ? 'sanitize_hex_color' : array( $this, 'sanitize_css_unit' );
+			$sanitize_callback = ( $config['type'] === 'color' ) ? array( $this, 'sanitize_color_allow_empty' ) : array( $this, 'sanitize_css_unit' );
 
 			$wp_customize->add_setting(
 				"blocksy_fc_{$key}",
@@ -605,8 +655,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 						$wp_customize,
 						"blocksy_fc_{$key}",
 						array(
-							'label'   => $config['label'],
-							'section' => 'blocksy_fc_buttons',
+							'label'       => $config['label'],
+							'description' => isset( $config['description'] ) ? $config['description'] : '',
+							'section'     => 'blocksy_fc_buttons',
 						)
 					)
 				);
@@ -640,33 +691,33 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$spacing_settings = array(
 			'section_padding_top'    => array(
 				'label'       => __( 'Section Padding Top', 'blocksy-child' ),
-				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '20px',
+				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'section_padding_right'  => array(
 				'label'       => __( 'Section Padding Right', 'blocksy-child' ),
-				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '20px',
+				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'section_padding_bottom' => array(
 				'label'       => __( 'Section Padding Bottom', 'blocksy-child' ),
-				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '20px',
+				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'section_padding_left'   => array(
 				'label'       => __( 'Section Padding Left', 'blocksy-child' ),
-				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '20px',
+				'description' => __( 'Padding for checkout sections (e.g., 20px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'section_margin_bottom'  => array(
 				'label'       => __( 'Section Margin Bottom', 'blocksy-child' ),
-				'description' => __( 'Space between checkout sections (e.g., 20px, 1.5rem)', 'blocksy-child' ),
-				'default'     => '20px',
+				'description' => __( 'Space between checkout sections (e.g., 20px, 1.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 			'field_gap'              => array(
 				'label'       => __( 'Field Gap', 'blocksy-child' ),
-				'description' => __( 'Space between form fields (e.g., 15px, 1rem)', 'blocksy-child' ),
-				'default'     => '15px',
+				'description' => __( 'Space between form fields (e.g., 15px, 1rem). Leave empty for theme default.', 'blocksy-child' ),
+				'default'     => '',
 			),
 		);
 
@@ -709,7 +760,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_section_border_width',
 			array(
-				'default'           => '1px',
+				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
 				'transport'         => 'postMessage',
 			)
@@ -719,7 +770,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			'blocksy_fc_section_border_width',
 			array(
 				'label'       => __( 'Section Border Width', 'blocksy-child' ),
-				'description' => __( 'Border width for checkout sections (e.g., 1px, 2px)', 'blocksy-child' ),
+				'description' => __( 'Border width for checkout sections (e.g., 1px, 2px). Leave empty for theme default.', 'blocksy-child' ),
 				'section'     => 'blocksy_fc_borders',
 				'type'        => 'text',
 			)
@@ -729,8 +780,8 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_section_border_color',
 			array(
-				'default'           => '#dfdfde',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
 				'transport'         => 'postMessage',
 			)
 		);
@@ -740,8 +791,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				$wp_customize,
 				'blocksy_fc_section_border_color',
 				array(
-					'label'   => __( 'Section Border Color', 'blocksy-child' ),
-					'section' => 'blocksy_fc_borders',
+					'label'       => __( 'Section Border Color', 'blocksy-child' ),
+					'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_borders',
 				)
 			)
 		);
@@ -750,7 +802,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_section_border_style',
 			array(
-				'default'           => 'solid',
+				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'transport'         => 'postMessage',
 			)
@@ -759,10 +811,12 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_control(
 			'blocksy_fc_section_border_style',
 			array(
-				'label'   => __( 'Section Border Style', 'blocksy-child' ),
-				'section' => 'blocksy_fc_borders',
-				'type'    => 'select',
-				'choices' => array(
+				'label'       => __( 'Section Border Style', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_borders',
+				'type'        => 'select',
+				'choices'     => array(
+					''       => __( 'Theme Default', 'blocksy-child' ),
 					'none'   => __( 'None', 'blocksy-child' ),
 					'solid'  => __( 'Solid', 'blocksy-child' ),
 					'dashed' => __( 'Dashed', 'blocksy-child' ),
@@ -776,7 +830,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_section_border_radius',
 			array(
-				'default'           => '8px',
+				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
 				'transport'         => 'postMessage',
 			)
@@ -786,7 +840,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			'blocksy_fc_section_border_radius',
 			array(
 				'label'       => __( 'Section Border Radius', 'blocksy-child' ),
-				'description' => __( 'Border radius for checkout sections (e.g., 8px, 0.5rem)', 'blocksy-child' ),
+				'description' => __( 'Border radius for checkout sections (e.g., 8px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
 				'section'     => 'blocksy_fc_borders',
 				'type'        => 'text',
 			)
@@ -862,6 +916,12 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				$this->output_step_indicators_css();
 			}
 
+			// Item Count Badge
+			if ( method_exists( $this, 'output_item_count_badge_css' ) ) {
+				echo '/* Item Count Badge Styles */';
+				$this->output_item_count_badge_css();
+			}
+
 			echo '</style>';
 			echo '<!-- Fluid Checkout Customizer CSS: Output complete -->';
 		} catch ( Exception $e ) {
@@ -886,6 +946,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 
 	/**
 	 * Output color CSS variables
+	 *
+	 * Only outputs CSS variables for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_color_css_variables() {
 		$colors = array(
@@ -899,18 +962,29 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			'border_color'       => '--fluidtheme--color--border',
 		);
 
-		echo ':root {';
+		// Collect non-empty color variables
+		$css_variables = array();
+
 		foreach ( $colors as $key => $css_var ) {
-			$value = get_theme_mod( "blocksy_fc_{$key}" );
-			if ( $value ) {
-				echo esc_attr( $css_var ) . ': ' . esc_attr( $value ) . ';';
+			$value = get_theme_mod( "blocksy_fc_{$key}", '' );
+			if ( ! empty( $value ) ) {
+				$css_variables[] = esc_attr( $css_var ) . ': ' . esc_attr( $value );
 			}
 		}
-		echo '}';
+
+		// Only output :root block if there are variables to set
+		if ( ! empty( $css_variables ) ) {
+			echo ':root { ';
+			echo implode( '; ', $css_variables );
+			echo '; }';
+		}
 	}
 
 	/**
 	 * Output typography CSS
+	 *
+	 * Only outputs CSS for non-empty, non-inherit values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_typography_css() {
 		// Updated selectors to match Fluid Checkout HTML structure
@@ -928,223 +1002,386 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			$font_color  = get_theme_mod( "blocksy_fc_{$element}_font_color" );
 			$font_weight = get_theme_mod( "blocksy_fc_{$element}_font_weight" );
 
-			if ( $font_family || $font_size || $font_color || $font_weight ) {
-				echo esc_attr( $selector ) . ' {';
-				if ( $font_family ) {
-					echo 'font-family: ' . esc_attr( $font_family ) . ' !important;';
-				}
-				if ( $font_size ) {
-					echo 'font-size: ' . esc_attr( $font_size ) . ' !important;';
-				}
-				if ( $font_color ) {
-					echo 'color: ' . esc_attr( $font_color ) . ' !important;';
-				}
-				if ( $font_weight ) {
-					echo 'font-weight: ' . esc_attr( $font_weight ) . ' !important;';
-				}
-				echo '}';
+			// Collect non-empty, non-inherit properties
+			$css_properties = array();
+
+			if ( ! empty( $font_family ) && $font_family !== 'inherit' ) {
+				$css_properties[] = 'font-family: ' . esc_attr( $font_family ) . ' !important';
+			}
+			if ( ! empty( $font_size ) ) {
+				$css_properties[] = 'font-size: ' . esc_attr( $font_size ) . ' !important';
+			}
+			if ( ! empty( $font_color ) ) {
+				$css_properties[] = 'color: ' . esc_attr( $font_color ) . ' !important';
+			}
+			if ( ! empty( $font_weight ) && $font_weight !== 'inherit' ) {
+				$css_properties[] = 'font-weight: ' . esc_attr( $font_weight ) . ' !important';
+			}
+
+			// Only output CSS if there are properties to apply
+			if ( ! empty( $css_properties ) ) {
+				echo esc_attr( $selector ) . ' { ' . implode( '; ', $css_properties ) . '; }';
 			}
 		}
 	}
 
 	/**
 	 * Output form elements CSS
+	 *
+	 * Only outputs CSS for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_form_elements_css() {
-		$input_bg           = get_theme_mod( 'blocksy_fc_input_background' );
-		$input_border       = get_theme_mod( 'blocksy_fc_input_border_color' );
-		$input_text         = get_theme_mod( 'blocksy_fc_input_text_color' );
-		$input_focus_border = get_theme_mod( 'blocksy_fc_input_focus_border' );
-		$input_padding      = get_theme_mod( 'blocksy_fc_input_padding' );
-		$input_radius       = get_theme_mod( 'blocksy_fc_input_border_radius' );
+		$input_bg           = get_theme_mod( 'blocksy_fc_input_background', '' );
+		$input_border       = get_theme_mod( 'blocksy_fc_input_border_color', '' );
+		$input_text         = get_theme_mod( 'blocksy_fc_input_text_color', '' );
+		$input_focus_border = get_theme_mod( 'blocksy_fc_input_focus_border', '' );
+		$input_padding      = get_theme_mod( 'blocksy_fc_input_padding', '' );
+		$input_radius       = get_theme_mod( 'blocksy_fc_input_border_radius', '' );
 
-		if ( $input_bg || $input_border || $input_text || $input_padding || $input_radius ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Collect non-empty properties for regular input state
+		$css_properties = array();
+
+		if ( ! empty( $input_bg ) ) {
+			$css_properties[] = 'background-color: ' . esc_attr( $input_bg ) . ' !important';
+		}
+		if ( ! empty( $input_border ) ) {
+			$css_properties[] = 'border-color: ' . esc_attr( $input_border ) . ' !important';
+		}
+		if ( ! empty( $input_text ) ) {
+			$css_properties[] = 'color: ' . esc_attr( $input_text ) . ' !important';
+		}
+		if ( ! empty( $input_padding ) ) {
+			$css_properties[] = 'padding: ' . esc_attr( $input_padding ) . ' !important';
+		}
+		if ( ! empty( $input_radius ) ) {
+			$css_properties[] = 'border-radius: ' . esc_attr( $input_radius ) . ' !important';
+		}
+
+		// Only output CSS if there are properties to apply
+		if ( ! empty( $css_properties ) ) {
 			echo '.fc-text-field input.input-text, ';
 			echo '.fc-email-field input.input-text, ';
 			echo '.fc-tel-field input.input-text, ';
 			echo '.fc-textarea-field textarea.input-text, ';
 			echo '.fc-select-field select, ';
-			echo '.fc-select2-field select {';
-			if ( $input_bg ) {
-				echo 'background-color: ' . esc_attr( $input_bg ) . ' !important;';
-			}
-			if ( $input_border ) {
-				echo 'border-color: ' . esc_attr( $input_border ) . ' !important;';
-			}
-			if ( $input_text ) {
-				echo 'color: ' . esc_attr( $input_text ) . ' !important;';
-			}
-			if ( $input_padding ) {
-				echo 'padding: ' . esc_attr( $input_padding ) . ' !important;';
-			}
-			if ( $input_radius ) {
-				echo 'border-radius: ' . esc_attr( $input_radius ) . ' !important;';
-			}
-			echo '}';
+			echo '.fc-select2-field select { ';
+			echo implode( '; ', $css_properties );
+			echo '; }';
 		}
 
-		if ( $input_focus_border ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Handle focus state separately
+		if ( ! empty( $input_focus_border ) ) {
 			echo '.fc-text-field input.input-text:focus, ';
 			echo '.fc-email-field input.input-text:focus, ';
 			echo '.fc-tel-field input.input-text:focus, ';
 			echo '.fc-textarea-field textarea.input-text:focus, ';
 			echo '.fc-select-field select:focus, ';
-			echo '.fc-select2-field select:focus {';
-			echo 'border-color: ' . esc_attr( $input_focus_border ) . ' !important;';
-			echo '}';
+			echo '.fc-select2-field select:focus { ';
+			echo 'border-color: ' . esc_attr( $input_focus_border ) . ' !important; }';
 		}
 	}
 
 	/**
 	 * Output buttons CSS
+	 *
+	 * Only outputs CSS for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_buttons_css() {
-		$btn_bg          = get_theme_mod( 'blocksy_fc_button_primary_bg' );
-		$btn_text        = get_theme_mod( 'blocksy_fc_button_primary_text' );
-		$btn_hover_bg    = get_theme_mod( 'blocksy_fc_button_primary_hover_bg' );
-		$btn_hover_text  = get_theme_mod( 'blocksy_fc_button_primary_hover_text' );
-		$btn_pad_top     = get_theme_mod( 'blocksy_fc_button_padding_top' );
-		$btn_pad_right   = get_theme_mod( 'blocksy_fc_button_padding_right' );
-		$btn_pad_bottom  = get_theme_mod( 'blocksy_fc_button_padding_bottom' );
-		$btn_pad_left    = get_theme_mod( 'blocksy_fc_button_padding_left' );
-		$btn_radius      = get_theme_mod( 'blocksy_fc_button_border_radius' );
+		$btn_bg          = get_theme_mod( 'blocksy_fc_button_primary_bg', '' );
+		$btn_text        = get_theme_mod( 'blocksy_fc_button_primary_text', '' );
+		$btn_hover_bg    = get_theme_mod( 'blocksy_fc_button_primary_hover_bg', '' );
+		$btn_hover_text  = get_theme_mod( 'blocksy_fc_button_primary_hover_text', '' );
+		$btn_pad_top     = get_theme_mod( 'blocksy_fc_button_padding_top', '' );
+		$btn_pad_right   = get_theme_mod( 'blocksy_fc_button_padding_right', '' );
+		$btn_pad_bottom  = get_theme_mod( 'blocksy_fc_button_padding_bottom', '' );
+		$btn_pad_left    = get_theme_mod( 'blocksy_fc_button_padding_left', '' );
+		$btn_radius      = get_theme_mod( 'blocksy_fc_button_border_radius', '' );
 
-		if ( $btn_bg || $btn_text || $btn_pad_top || $btn_radius ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Collect non-empty properties for regular button state
+		$css_properties = array();
+
+		if ( ! empty( $btn_bg ) ) {
+			$css_properties[] = 'background-color: ' . esc_attr( $btn_bg ) . ' !important';
+		}
+		if ( ! empty( $btn_text ) ) {
+			$css_properties[] = 'color: ' . esc_attr( $btn_text ) . ' !important';
+		}
+
+		// Handle padding - only output if at least one padding value is set
+		if ( ! empty( $btn_pad_top ) || ! empty( $btn_pad_right ) || ! empty( $btn_pad_bottom ) || ! empty( $btn_pad_left ) ) {
+			$padding_parts = array();
+			$padding_parts[] = ! empty( $btn_pad_top ) ? esc_attr( $btn_pad_top ) : '0';
+			$padding_parts[] = ! empty( $btn_pad_right ) ? esc_attr( $btn_pad_right ) : '0';
+			$padding_parts[] = ! empty( $btn_pad_bottom ) ? esc_attr( $btn_pad_bottom ) : '0';
+			$padding_parts[] = ! empty( $btn_pad_left ) ? esc_attr( $btn_pad_left ) : '0';
+			$css_properties[] = 'padding: ' . implode( ' ', $padding_parts ) . ' !important';
+		}
+
+		if ( ! empty( $btn_radius ) ) {
+			$css_properties[] = 'border-radius: ' . esc_attr( $btn_radius ) . ' !important';
+		}
+
+		// Only output CSS if there are properties to apply
+		if ( ! empty( $css_properties ) ) {
 			echo '.fc-step__next-step.button, ';
 			echo '.fc-place-order-button, ';
 			echo '.fc-step__substep-save.button, ';
 			echo '.fc-coupon-code__apply.button, ';
-			echo '#place_order {';
-			if ( $btn_bg ) {
-				echo 'background-color: ' . esc_attr( $btn_bg ) . ' !important;';
-			}
-			if ( $btn_text ) {
-				echo 'color: ' . esc_attr( $btn_text ) . ' !important;';
-			}
-			if ( $btn_pad_top || $btn_pad_right || $btn_pad_bottom || $btn_pad_left ) {
-				$padding = sprintf(
-					'%s %s %s %s',
-					$btn_pad_top ? esc_attr( $btn_pad_top ) : '12px',
-					$btn_pad_right ? esc_attr( $btn_pad_right ) : '24px',
-					$btn_pad_bottom ? esc_attr( $btn_pad_bottom ) : '12px',
-					$btn_pad_left ? esc_attr( $btn_pad_left ) : '24px'
-				);
-				echo 'padding: ' . $padding . ' !important;';
-			}
-			if ( $btn_radius ) {
-				echo 'border-radius: ' . esc_attr( $btn_radius ) . ' !important;';
-			}
-			echo '}';
+			echo '#place_order { ';
+			echo implode( '; ', $css_properties );
+			echo '; }';
 		}
 
-		if ( $btn_hover_bg || $btn_hover_text ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Handle hover state separately
+		$hover_properties = array();
+
+		if ( ! empty( $btn_hover_bg ) ) {
+			$hover_properties[] = 'background-color: ' . esc_attr( $btn_hover_bg ) . ' !important';
+		}
+		if ( ! empty( $btn_hover_text ) ) {
+			$hover_properties[] = 'color: ' . esc_attr( $btn_hover_text ) . ' !important';
+		}
+
+		// Only output hover CSS if there are properties to apply
+		if ( ! empty( $hover_properties ) ) {
 			echo '.fc-step__next-step.button:hover, ';
 			echo '.fc-place-order-button:hover, ';
 			echo '.fc-step__substep-save.button:hover, ';
 			echo '.fc-coupon-code__apply.button:hover, ';
-			echo '#place_order:hover {';
-			if ( $btn_hover_bg ) {
-				echo 'background-color: ' . esc_attr( $btn_hover_bg ) . ' !important;';
-			}
-			if ( $btn_hover_text ) {
-				echo 'color: ' . esc_attr( $btn_hover_text ) . ' !important;';
-			}
-			echo '}';
+			echo '#place_order:hover { ';
+			echo implode( '; ', $hover_properties );
+			echo '; }';
 		}
 	}
 
 	/**
 	 * Output spacing CSS
+	 *
+	 * Only outputs CSS for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_spacing_css() {
-		$section_pad_top    = get_theme_mod( 'blocksy_fc_section_padding_top' );
-		$section_pad_right  = get_theme_mod( 'blocksy_fc_section_padding_right' );
-		$section_pad_bottom = get_theme_mod( 'blocksy_fc_section_padding_bottom' );
-		$section_pad_left   = get_theme_mod( 'blocksy_fc_section_padding_left' );
-		$section_margin_btm = get_theme_mod( 'blocksy_fc_section_margin_bottom' );
-		$field_gap          = get_theme_mod( 'blocksy_fc_field_gap' );
+		$section_pad_top    = get_theme_mod( 'blocksy_fc_section_padding_top', '' );
+		$section_pad_right  = get_theme_mod( 'blocksy_fc_section_padding_right', '' );
+		$section_pad_bottom = get_theme_mod( 'blocksy_fc_section_padding_bottom', '' );
+		$section_pad_left   = get_theme_mod( 'blocksy_fc_section_padding_left', '' );
+		$section_margin_btm = get_theme_mod( 'blocksy_fc_section_margin_bottom', '' );
+		$field_gap          = get_theme_mod( 'blocksy_fc_field_gap', '' );
 
-		if ( $section_pad_top || $section_pad_right || $section_pad_bottom || $section_pad_left ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Handle section padding - only output if at least one padding value is set
+		if ( ! empty( $section_pad_top ) || ! empty( $section_pad_right ) || ! empty( $section_pad_bottom ) || ! empty( $section_pad_left ) ) {
+			$padding_parts = array();
+			$padding_parts[] = ! empty( $section_pad_top ) ? esc_attr( $section_pad_top ) : '0';
+			$padding_parts[] = ! empty( $section_pad_right ) ? esc_attr( $section_pad_right ) : '0';
+			$padding_parts[] = ! empty( $section_pad_bottom ) ? esc_attr( $section_pad_bottom ) : '0';
+			$padding_parts[] = ! empty( $section_pad_left ) ? esc_attr( $section_pad_left ) : '0';
+
 			echo '.fc-checkout-step, ';
 			echo '.fc-step__substep, ';
-			echo '.fc-checkout-order-review {';
-			$padding = sprintf(
-				'%s %s %s %s',
-				$section_pad_top ? esc_attr( $section_pad_top ) : '20px',
-				$section_pad_right ? esc_attr( $section_pad_right ) : '20px',
-				$section_pad_bottom ? esc_attr( $section_pad_bottom ) : '20px',
-				$section_pad_left ? esc_attr( $section_pad_left ) : '20px'
-			);
-			echo 'padding: ' . $padding . ' !important;';
-			echo '}';
+			echo '.fc-checkout-order-review { ';
+			echo 'padding: ' . implode( ' ', $padding_parts ) . ' !important; }';
 		}
 
-		if ( $section_margin_btm ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Handle section margin bottom
+		if ( ! empty( $section_margin_btm ) ) {
 			echo '.fc-checkout-step, ';
-			echo '.fc-step__substep {';
-			echo 'margin-bottom: ' . esc_attr( $section_margin_btm ) . ' !important;';
-			echo '}';
+			echo '.fc-step__substep { ';
+			echo 'margin-bottom: ' . esc_attr( $section_margin_btm ) . ' !important; }';
 		}
 
-		if ( $field_gap ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Handle field gap
+		if ( ! empty( $field_gap ) ) {
 			echo '.fc-text-field, ';
 			echo '.fc-email-field, ';
 			echo '.fc-tel-field, ';
 			echo '.fc-select-field, ';
-			echo '.fc-textarea-field {';
-			echo 'margin-bottom: ' . esc_attr( $field_gap ) . ' !important;';
-			echo '}';
+			echo '.fc-textarea-field { ';
+			echo 'margin-bottom: ' . esc_attr( $field_gap ) . ' !important; }';
 		}
 	}
 
 	/**
 	 * Output borders CSS
+	 *
+	 * Only outputs CSS for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_borders_css() {
-		$border_width  = get_theme_mod( 'blocksy_fc_section_border_width' );
-		$border_color  = get_theme_mod( 'blocksy_fc_section_border_color' );
-		$border_style  = get_theme_mod( 'blocksy_fc_section_border_style' );
-		$border_radius = get_theme_mod( 'blocksy_fc_section_border_radius' );
+		$border_width  = get_theme_mod( 'blocksy_fc_section_border_width', '' );
+		$border_color  = get_theme_mod( 'blocksy_fc_section_border_color', '' );
+		$border_style  = get_theme_mod( 'blocksy_fc_section_border_style', '' );
+		$border_radius = get_theme_mod( 'blocksy_fc_section_border_radius', '' );
 
-		if ( $border_width || $border_color || $border_style || $border_radius ) {
-			// Updated selectors to match Fluid Checkout HTML structure
+		// Collect non-empty properties
+		$css_properties = array();
+
+		// Only output border if all three values (width, style, color) are set
+		if ( ! empty( $border_width ) && ! empty( $border_color ) && ! empty( $border_style ) ) {
+			$css_properties[] = 'border: ' . esc_attr( $border_width ) . ' ' . esc_attr( $border_style ) . ' ' . esc_attr( $border_color ) . ' !important';
+		}
+
+		if ( ! empty( $border_radius ) ) {
+			$css_properties[] = 'border-radius: ' . esc_attr( $border_radius ) . ' !important';
+		}
+
+		// Only output CSS if there are properties to apply
+		if ( ! empty( $css_properties ) ) {
 			echo '.fc-checkout-step, ';
 			echo '.fc-step__substep, ';
-			echo '.fc-checkout-order-review {';
-			if ( $border_width && $border_color && $border_style ) {
-				echo 'border: ' . esc_attr( $border_width ) . ' ' . esc_attr( $border_style ) . ' ' . esc_attr( $border_color ) . ' !important;';
-			}
-			if ( $border_radius ) {
-				echo 'border-radius: ' . esc_attr( $border_radius ) . ' !important;';
-			}
-			echo '}';
+			echo '.fc-checkout-order-review { ';
+			echo implode( '; ', $css_properties );
+			echo '; }';
 		}
 	}
 
 	/**
 	 * Output step indicators CSS
+	 *
+	 * Only outputs CSS for non-empty values.
+	 * This allows theme defaults to apply when customizer values are not set.
 	 */
 	private function output_step_indicators_css() {
-		$checkmark_icon_color = get_theme_mod( 'blocksy_fc_checkmark_icon_color', '#ffffff' );
-		$checkmark_bg_color   = get_theme_mod( 'blocksy_fc_checkmark_bg_color', '#7b7575' );
+		$checkmark_icon_color = get_theme_mod( 'blocksy_fc_checkmark_icon_color', '' );
+		$checkmark_bg_color   = get_theme_mod( 'blocksy_fc_checkmark_bg_color', '' );
 
-		// Target the ::before pseudo-element on completed step substep titles
-		// The checkmark appears on .fc-step__substep-title when the parent section has data-step-complete attribute
-		echo '[data-step-complete] .fc-step__substep-title::before {';
-		if ( $checkmark_icon_color ) {
-			echo 'color: ' . esc_attr( $checkmark_icon_color ) . ' !important;';
+		// Collect non-empty properties
+		$css_properties = array();
+
+		if ( ! empty( $checkmark_icon_color ) ) {
+			$css_properties[] = 'color: ' . esc_attr( $checkmark_icon_color ) . ' !important';
 		}
-		if ( $checkmark_bg_color ) {
-			echo 'background-color: ' . esc_attr( $checkmark_bg_color ) . ' !important;';
+		if ( ! empty( $checkmark_bg_color ) ) {
+			$css_properties[] = 'background-color: ' . esc_attr( $checkmark_bg_color ) . ' !important';
 		}
-		echo '}';
+
+		// Only output CSS if there are properties to apply
+		if ( ! empty( $css_properties ) ) {
+			// Target the ::before pseudo-element on completed step substep titles
+			// The checkmark appears on .fc-step__substep-title when the parent section has data-step-complete attribute
+			echo '[data-step-complete] .fc-step__substep-title::before { ';
+			echo implode( '; ', $css_properties );
+			echo '; }';
+		}
+	}
+
+	/**
+	 * Output item count badge CSS
+	 *
+	 * Only outputs CSS for non-empty, non-inherit values.
+	 * This allows theme defaults to apply when customizer values are not set.
+	 * Uses higher specificity selector and !important flags when values are set.
+	 */
+	private function output_item_count_badge_css() {
+		// Get all customizer values with empty string defaults
+		$border_top        = get_theme_mod( 'blocksy_fc_item_count_border_top', '' );
+		$border_right      = get_theme_mod( 'blocksy_fc_item_count_border_right', '' );
+		$border_bottom     = get_theme_mod( 'blocksy_fc_item_count_border_bottom', '' );
+		$border_left       = get_theme_mod( 'blocksy_fc_item_count_border_left', '' );
+		$border_style      = get_theme_mod( 'blocksy_fc_item_count_border_style', '' );
+		$border_color      = get_theme_mod( 'blocksy_fc_item_count_border_color', '' );
+		$border_radius     = get_theme_mod( 'blocksy_fc_item_count_border_radius', '' );
+		$padding_top       = get_theme_mod( 'blocksy_fc_item_count_padding_top', '' );
+		$padding_right     = get_theme_mod( 'blocksy_fc_item_count_padding_right', '' );
+		$padding_bottom    = get_theme_mod( 'blocksy_fc_item_count_padding_bottom', '' );
+		$padding_left      = get_theme_mod( 'blocksy_fc_item_count_padding_left', '' );
+		$margin_top        = get_theme_mod( 'blocksy_fc_item_count_margin_top', '' );
+		$margin_right      = get_theme_mod( 'blocksy_fc_item_count_margin_right', '' );
+		$margin_bottom     = get_theme_mod( 'blocksy_fc_item_count_margin_bottom', '' );
+		$margin_left       = get_theme_mod( 'blocksy_fc_item_count_margin_left', '' );
+		$font_family       = get_theme_mod( 'blocksy_fc_item_count_font_family', 'inherit' );
+		$font_size         = get_theme_mod( 'blocksy_fc_item_count_font_size', '' );
+		$font_weight       = get_theme_mod( 'blocksy_fc_item_count_font_weight', 'inherit' );
+		$line_height       = get_theme_mod( 'blocksy_fc_item_count_line_height', '' );
+		$text_color        = get_theme_mod( 'blocksy_fc_item_count_text_color', '' );
+		$letter_spacing    = get_theme_mod( 'blocksy_fc_item_count_letter_spacing', '' );
+		$bg_color          = get_theme_mod( 'blocksy_fc_item_count_bg_color', '' );
+
+		// Collect non-empty, non-inherit properties
+		$css_properties = array();
+
+		// Border
+		if ( ! empty( $border_top ) ) {
+			$css_properties[] = 'border-top-width: ' . esc_attr( $border_top ) . ' !important';
+		}
+		if ( ! empty( $border_right ) ) {
+			$css_properties[] = 'border-right-width: ' . esc_attr( $border_right ) . ' !important';
+		}
+		if ( ! empty( $border_bottom ) ) {
+			$css_properties[] = 'border-bottom-width: ' . esc_attr( $border_bottom ) . ' !important';
+		}
+		if ( ! empty( $border_left ) ) {
+			$css_properties[] = 'border-left-width: ' . esc_attr( $border_left ) . ' !important';
+		}
+		if ( ! empty( $border_style ) ) {
+			$css_properties[] = 'border-style: ' . esc_attr( $border_style ) . ' !important';
+		}
+		if ( ! empty( $border_color ) ) {
+			$css_properties[] = 'border-color: ' . esc_attr( $border_color ) . ' !important';
+		}
+		if ( ! empty( $border_radius ) ) {
+			$css_properties[] = 'border-radius: ' . esc_attr( $border_radius ) . ' !important';
+		}
+
+		// Padding
+		if ( ! empty( $padding_top ) ) {
+			$css_properties[] = 'padding-top: ' . esc_attr( $padding_top ) . ' !important';
+		}
+		if ( ! empty( $padding_right ) ) {
+			$css_properties[] = 'padding-right: ' . esc_attr( $padding_right ) . ' !important';
+		}
+		if ( ! empty( $padding_bottom ) ) {
+			$css_properties[] = 'padding-bottom: ' . esc_attr( $padding_bottom ) . ' !important';
+		}
+		if ( ! empty( $padding_left ) ) {
+			$css_properties[] = 'padding-left: ' . esc_attr( $padding_left ) . ' !important';
+		}
+
+		// Margin
+		if ( ! empty( $margin_top ) ) {
+			$css_properties[] = 'margin-top: ' . esc_attr( $margin_top ) . ' !important';
+		}
+		if ( ! empty( $margin_right ) ) {
+			$css_properties[] = 'margin-right: ' . esc_attr( $margin_right ) . ' !important';
+		}
+		if ( ! empty( $margin_bottom ) ) {
+			$css_properties[] = 'margin-bottom: ' . esc_attr( $margin_bottom ) . ' !important';
+		}
+		if ( ! empty( $margin_left ) ) {
+			$css_properties[] = 'margin-left: ' . esc_attr( $margin_left ) . ' !important';
+		}
+
+		// Typography - Skip 'inherit' values to allow theme defaults
+		if ( ! empty( $font_family ) && $font_family !== 'inherit' ) {
+			$css_properties[] = 'font-family: ' . esc_attr( $font_family ) . ' !important';
+		}
+		if ( ! empty( $font_size ) ) {
+			$css_properties[] = 'font-size: ' . esc_attr( $font_size ) . ' !important';
+		}
+		if ( ! empty( $font_weight ) && $font_weight !== 'inherit' ) {
+			$css_properties[] = 'font-weight: ' . esc_attr( $font_weight ) . ' !important';
+		}
+		if ( ! empty( $line_height ) ) {
+			$css_properties[] = 'line-height: ' . esc_attr( $line_height ) . ' !important';
+		}
+		if ( ! empty( $text_color ) ) {
+			$css_properties[] = 'color: ' . esc_attr( $text_color ) . ' !important';
+		}
+		if ( ! empty( $letter_spacing ) ) {
+			$css_properties[] = 'letter-spacing: ' . esc_attr( $letter_spacing ) . ' !important';
+		}
+		if ( ! empty( $bg_color ) ) {
+			$css_properties[] = 'background-color: ' . esc_attr( $bg_color ) . ' !important';
+		}
+
+		// Only output CSS if there are properties to apply
+		if ( ! empty( $css_properties ) ) {
+			// Use higher specificity selector to override theme/plugin styles
+			echo '.fc-checkout-order-review__head .fc-cart-items-count, .fc-cart-items-count { ';
+			echo implode( '; ', $css_properties );
+			echo '; }';
+		}
 	}
 
 	/**
@@ -1298,8 +1535,8 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_checkmark_icon_color',
 			array(
-				'default'           => '#ffffff',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
 				'transport'         => 'postMessage',
 			)
 		);
@@ -1310,7 +1547,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				'blocksy_fc_checkmark_icon_color',
 				array(
 					'label'       => __( 'Checkmark Icon Color', 'blocksy-child' ),
-					'description' => __( 'Color of the checkmark symbol in completed step indicators.', 'blocksy-child' ),
+					'description' => __( 'Color of the checkmark symbol in completed step indicators. Leave empty for theme default.', 'blocksy-child' ),
 					'section'     => 'blocksy_fc_step_indicators',
 					'priority'    => 10,
 				)
@@ -1321,8 +1558,8 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		$wp_customize->add_setting(
 			'blocksy_fc_checkmark_bg_color',
 			array(
-				'default'           => '#7b7575',
-				'sanitize_callback' => 'sanitize_hex_color',
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
 				'transport'         => 'postMessage',
 			)
 		);
@@ -1333,9 +1570,517 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 				'blocksy_fc_checkmark_bg_color',
 				array(
 					'label'       => __( 'Checkmark Background Color', 'blocksy-child' ),
-					'description' => __( 'Background color of the checkmark circle in completed step indicators.', 'blocksy-child' ),
+					'description' => __( 'Background color of the checkmark circle in completed step indicators. Leave empty for theme default.', 'blocksy-child' ),
 					'section'     => 'blocksy_fc_step_indicators',
 					'priority'    => 20,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Register Item Count Badge Section
+	 */
+	private function register_item_count_badge_section( $wp_customize ) {
+		$wp_customize->add_section(
+			'blocksy_fc_item_count_badge',
+			array(
+				'title'    => __( 'Item Count Badge', 'blocksy-child' ),
+				'panel'    => 'blocksy_fluid_checkout_panel',
+				'priority' => 80,
+			)
+		);
+
+		// === BORDER CONTROLS ===
+
+		// Border Width Top
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_top',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_top',
+			array(
+				'label'       => __( 'Border Width Top', 'blocksy-child' ),
+				'description' => __( 'Top border width (e.g., 1px, 2px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 10,
+			)
+		);
+
+		// Border Width Right
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_right',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_right',
+			array(
+				'label'       => __( 'Border Width Right', 'blocksy-child' ),
+				'description' => __( 'Right border width (e.g., 1px, 2px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 20,
+			)
+		);
+
+		// Border Width Bottom
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_bottom',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_bottom',
+			array(
+				'label'       => __( 'Border Width Bottom', 'blocksy-child' ),
+				'description' => __( 'Bottom border width (e.g., 1px, 2px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 30,
+			)
+		);
+
+		// Border Width Left
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_left',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_left',
+			array(
+				'label'       => __( 'Border Width Left', 'blocksy-child' ),
+				'description' => __( 'Left border width (e.g., 1px, 2px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 40,
+			)
+		);
+
+		// Border Style
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_style',
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_style',
+			array(
+				'label'       => __( 'Border Style', 'blocksy-child' ),
+				'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'select',
+				'priority'    => 50,
+				'choices'     => array(
+					''       => __( 'Theme Default', 'blocksy-child' ),
+					'none'   => __( 'None', 'blocksy-child' ),
+					'solid'  => __( 'Solid', 'blocksy-child' ),
+					'dashed' => __( 'Dashed', 'blocksy-child' ),
+					'dotted' => __( 'Dotted', 'blocksy-child' ),
+					'double' => __( 'Double', 'blocksy-child' ),
+				),
+			)
+		);
+
+		// Border Color
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_item_count_border_color',
+				array(
+					'label'       => __( 'Border Color', 'blocksy-child' ),
+					'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_item_count_badge',
+					'priority'    => 60,
+				)
+			)
+		);
+
+		// Border Radius
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_border_radius',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_border_radius',
+			array(
+				'label'       => __( 'Border Radius', 'blocksy-child' ),
+				'description' => __( 'Rounded corners (e.g., 4px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 70,
+			)
+		);
+
+		// === SPACING CONTROLS ===
+
+		// Padding Top
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_padding_top',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_padding_top',
+			array(
+				'label'       => __( 'Padding Top', 'blocksy-child' ),
+				'description' => __( 'Top padding (e.g., 4px, 0.25rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 80,
+			)
+		);
+
+		// Padding Right
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_padding_right',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_padding_right',
+			array(
+				'label'       => __( 'Padding Right', 'blocksy-child' ),
+				'description' => __( 'Right padding (e.g., 8px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 90,
+			)
+		);
+
+		// Padding Bottom
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_padding_bottom',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_padding_bottom',
+			array(
+				'label'       => __( 'Padding Bottom', 'blocksy-child' ),
+				'description' => __( 'Bottom padding (e.g., 4px, 0.25rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 100,
+			)
+		);
+
+		// Padding Left
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_padding_left',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_padding_left',
+			array(
+				'label'       => __( 'Padding Left', 'blocksy-child' ),
+				'description' => __( 'Left padding (e.g., 8px, 0.5rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 110,
+			)
+		);
+
+		// Margin Top
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_margin_top',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_margin_top',
+			array(
+				'label'       => __( 'Margin Top', 'blocksy-child' ),
+				'description' => __( 'Top margin (e.g., 0px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 120,
+			)
+		);
+
+		// Margin Right
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_margin_right',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_margin_right',
+			array(
+				'label'       => __( 'Margin Right', 'blocksy-child' ),
+				'description' => __( 'Right margin (e.g., 0px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 130,
+			)
+		);
+
+		// Margin Bottom
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_margin_bottom',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_margin_bottom',
+			array(
+				'label'       => __( 'Margin Bottom', 'blocksy-child' ),
+				'description' => __( 'Bottom margin (e.g., 0px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 140,
+			)
+		);
+
+		// Margin Left
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_margin_left',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_margin_left',
+			array(
+				'label'       => __( 'Margin Left', 'blocksy-child' ),
+				'description' => __( 'Left margin (e.g., 0px). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 150,
+			)
+		);
+
+		// === TYPOGRAPHY CONTROLS ===
+
+		// Font Family
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_font_family',
+			array(
+				'default'           => 'inherit',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_font_family',
+			array(
+				'label'       => __( 'Font Family', 'blocksy-child' ),
+				'description' => __( 'Select a font family for the item count badge', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'select',
+				'priority'    => 160,
+				'choices'     => $this->get_font_family_choices(),
+			)
+		);
+
+		// Font Size
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_font_size',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_font_size',
+			array(
+				'label'       => __( 'Font Size', 'blocksy-child' ),
+				'description' => __( 'Enter size with CSS unit (e.g., 15px, 1rem). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 170,
+			)
+		);
+
+		// Font Weight
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_font_weight',
+			array(
+				'default'           => 'inherit',
+				'sanitize_callback' => 'sanitize_text_field',
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_font_weight',
+			array(
+				'label'    => __( 'Font Weight', 'blocksy-child' ),
+				'section'  => 'blocksy_fc_item_count_badge',
+				'type'     => 'select',
+				'priority' => 180,
+				'choices'  => array(
+					'inherit' => __( 'Theme Default (Inherit)', 'blocksy-child' ),
+					'100'     => __( 'Thin (100)', 'blocksy-child' ),
+					'200'     => __( 'Extra Light (200)', 'blocksy-child' ),
+					'300'     => __( 'Light (300)', 'blocksy-child' ),
+					'400'     => __( 'Normal (400)', 'blocksy-child' ),
+					'500'     => __( 'Medium (500)', 'blocksy-child' ),
+					'600'     => __( 'Semi Bold (600)', 'blocksy-child' ),
+					'700'     => __( 'Bold (700)', 'blocksy-child' ),
+					'800'     => __( 'Extra Bold (800)', 'blocksy-child' ),
+					'900'     => __( 'Black (900)', 'blocksy-child' ),
+				),
+			)
+		);
+
+		// Line Height
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_line_height',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_line_height',
+			array(
+				'label'       => __( 'Line Height', 'blocksy-child' ),
+				'description' => __( 'Enter line height (e.g., 18px, 1.5). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 190,
+			)
+		);
+
+		// Text Color
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_text_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_item_count_text_color',
+				array(
+					'label'       => __( 'Text Color', 'blocksy-child' ),
+					'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_item_count_badge',
+					'priority'    => 200,
+				)
+			)
+		);
+
+		// Letter Spacing
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_letter_spacing',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_css_unit' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			'blocksy_fc_item_count_letter_spacing',
+			array(
+				'label'       => __( 'Letter Spacing', 'blocksy-child' ),
+				'description' => __( 'Enter letter spacing (e.g., 0.5px, normal). Leave empty for theme default.', 'blocksy-child' ),
+				'section'     => 'blocksy_fc_item_count_badge',
+				'type'        => 'text',
+				'priority'    => 210,
+			)
+		);
+
+		// Background Color
+		$wp_customize->add_setting(
+			'blocksy_fc_item_count_bg_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_item_count_bg_color',
+				array(
+					'label'       => __( 'Background Color', 'blocksy-child' ),
+					'description' => __( 'Leave empty for theme default', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_item_count_badge',
+					'priority'    => 220,
 				)
 			)
 		);
