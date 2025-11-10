@@ -31,6 +31,11 @@ function blaze_blocksy_fluid_checkout_spacing() {
 		.woocommerce-checkout .fc-express-checkout {
 			margin-bottom: 20px !important;
 		}
+
+		/* WOOLESS-8737: Amazon Pay Button Container Max-Width */
+		.amazonpay-button-container {
+			max-width: 100% !important;
+		}
 	</style>
 	<?php
 }
