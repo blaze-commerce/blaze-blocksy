@@ -90,6 +90,7 @@ $required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
+	'/includes/features/geo-restriction.php', // Product geo-restriction feature
 	'/includes/features/offcanvas-module.php', // Generic offcanvas module
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',

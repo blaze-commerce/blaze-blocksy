@@ -1,0 +1,312 @@
+/**
+ * Product Geo-Restriction Styles
+ *
+ * Styles for geographic restriction messages and UI elements
+ *
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* ============================================
+   Loading State
+   ============================================ */
+
+.geo-restriction-loading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.geo-restriction-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e9ecef;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: geo-restriction-spin 0.8s linear infinite;
+}
+
+@keyframes geo-restriction-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.geo-restriction-loading p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* ============================================
+   Restriction Message
+   ============================================ */
+
+.geo-restriction-message {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  animation: geo-restriction-fade-in 0.3s ease-in-out;
+}
+
+@keyframes geo-restriction-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.geo-restriction-icon {
+  flex-shrink: 0;
+  color: #856404;
+}
+
+.geo-restriction-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.geo-restriction-content {
+  flex: 1;
+}
+
+.geo-restriction-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #856404;
+}
+
+.geo-restriction-details {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #856404;
+}
+
+.geo-restriction-available {
+  margin: 0;
+  font-size: 14px;
+  color: #856404;
+}
+
+.geo-restriction-details strong,
+.geo-restriction-available strong {
+  font-weight: 600;
+}
+
+.geo-restriction-note {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Non-US Location Specific Styling */
+.geo-restriction-non-us {
+  background: #f8d7da;
+  border-color: #dc3545;
+}
+
+.geo-restriction-non-us .geo-restriction-icon {
+  color: #721c24;
+}
+
+.geo-restriction-non-us .geo-restriction-title,
+.geo-restriction-non-us .geo-restriction-details,
+.geo-restriction-non-us .geo-restriction-available {
+  color: #721c24;
+}
+
+.geo-restriction-non-us .geo-restriction-note {
+  color: #856404;
+}
+
+/* ============================================
+   Error Message Styling
+   ============================================ */
+
+.geo-restriction-error {
+  background: #f8d7da;
+  border-color: #dc3545;
+}
+
+.geo-restriction-error .geo-restriction-icon {
+  color: #721c24;
+}
+
+.geo-restriction-error .geo-restriction-title,
+.geo-restriction-error .geo-restriction-details,
+.geo-restriction-error .geo-restriction-available {
+  color: #721c24;
+}
+
+/* ============================================
+   Cart Form Modifications
+   ============================================ */
+
+.cart.geo-restricted .single_add_to_cart_button,
+.cart.geo-restricted .quantity {
+  display: none !important;
+}
+
+/* ============================================
+   Body Class Modifications
+   ============================================ */
+
+body.product-geo-restricted .single_add_to_cart_button {
+  display: none !important;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+  .geo-restriction-message,
+  .geo-restriction-loading {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .geo-restriction-icon {
+    align-self: flex-start;
+  }
+
+  .geo-restriction-title {
+    font-size: 15px;
+  }
+
+  .geo-restriction-details,
+  .geo-restriction-available {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .geo-restriction-message,
+  .geo-restriction-loading {
+    padding: 15px;
+  }
+
+  .geo-restriction-title {
+    font-size: 14px;
+  }
+
+  .geo-restriction-details,
+  .geo-restriction-available {
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.geo-restriction-message:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .geo-restriction-message {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .geo-restriction-spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+
+  .geo-restriction-message {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  .geo-restriction-loading {
+    display: none;
+  }
+
+  .geo-restriction-message {
+    background: #fff;
+    border: 2px solid #000;
+  }
+}
+
+/* ============================================
+   Dark Mode Support (Optional)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .geo-restriction-loading {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .geo-restriction-loading p {
+    color: #cbd5e0;
+  }
+
+  .geo-restriction-spinner {
+    border-color: #4a5568;
+    border-top-color: #63b3ed;
+  }
+
+  .geo-restriction-message {
+    background: #744210;
+    border-color: #d69e2e;
+  }
+
+  .geo-restriction-icon,
+  .geo-restriction-title,
+  .geo-restriction-details,
+  .geo-restriction-available {
+    color: #fefcbf;
+  }
+
+  .geo-restriction-non-us {
+    background: #742a2a;
+    border-color: #fc8181;
+  }
+
+  .geo-restriction-non-us .geo-restriction-icon,
+  .geo-restriction-non-us .geo-restriction-title,
+  .geo-restriction-non-us .geo-restriction-details,
+  .geo-restriction-non-us .geo-restriction-available {
+    color: #feb2b2;
+  }
+
+  .geo-restriction-error {
+    background: #742a2a;
+    border-color: #fc8181;
+  }
+
+  .geo-restriction-error .geo-restriction-icon,
+  .geo-restriction-error .geo-restriction-title,
+  .geo-restriction-error .geo-restriction-details,
+  .geo-restriction-error .geo-restriction-available {
+    color: #feb2b2;
+  }
+}
+
