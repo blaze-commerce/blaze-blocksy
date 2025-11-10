@@ -115,6 +115,7 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			$this->register_borders_section( $wp_customize );
 			$this->register_content_text_section( $wp_customize );
 			$this->register_step_indicators_section( $wp_customize );
+			$this->register_progress_bar_section( $wp_customize );
 			$this->register_item_count_badge_section( $wp_customize );
 		} catch ( Exception $e ) {
 			// Log error if WP_DEBUG is enabled
@@ -1397,6 +1398,8 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 * This is applied after the progress bar has been repositioned as the first child
 	 * of the .fc-inside container via JavaScript.
 	 *
+	 * Also applies customizer color settings for the progress bar.
+	 *
 	 * @since 1.0.0
 	 */
 	private function output_progress_bar_css() {
@@ -1414,6 +1417,52 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 		echo 'width: 100% !important; ';
 		echo 'max-width: 100% !important; ';
 		echo '}';
+
+		// Apply customizer color settings
+		$bg_color = get_theme_mod( 'blocksy_fc_progress_bar_bg_color', '' );
+		$active_color = get_theme_mod( 'blocksy_fc_progress_bar_active_color', '' );
+		$inactive_color = get_theme_mod( 'blocksy_fc_progress_bar_inactive_color', '' );
+		$text_color = get_theme_mod( 'blocksy_fc_progress_bar_text_color', '' );
+
+		// Progress bar background color
+		if ( ! empty( $bg_color ) ) {
+			echo '.fc-progress-bar { ';
+			echo 'background-color: ' . esc_attr( $bg_color ) . ' !important; ';
+			echo '}';
+		}
+
+		// Active/completed step color
+		if ( ! empty( $active_color ) ) {
+			echo '.fc-progress-bar__step--completed, .fc-progress-bar__step--current { ';
+			echo 'background-color: ' . esc_attr( $active_color ) . ' !important; ';
+			echo '}';
+
+			// Also apply to step indicator circles/bars
+			echo '.fc-progress-bar__step--completed::before, .fc-progress-bar__step--current::before { ';
+			echo 'background-color: ' . esc_attr( $active_color ) . ' !important; ';
+			echo 'border-color: ' . esc_attr( $active_color ) . ' !important; ';
+			echo '}';
+		}
+
+		// Inactive/incomplete step color
+		if ( ! empty( $inactive_color ) ) {
+			echo '.fc-progress-bar__step { ';
+			echo 'background-color: ' . esc_attr( $inactive_color ) . ' !important; ';
+			echo '}';
+
+			// Also apply to step indicator circles/bars
+			echo '.fc-progress-bar__step::before { ';
+			echo 'background-color: ' . esc_attr( $inactive_color ) . ' !important; ';
+			echo 'border-color: ' . esc_attr( $inactive_color ) . ' !important; ';
+			echo '}';
+		}
+
+		// Progress bar text color
+		if ( ! empty( $text_color ) ) {
+			echo '.fc-progress-bar__step, .fc-progress-bar__step-label { ';
+			echo 'color: ' . esc_attr( $text_color ) . ' !important; ';
+			echo '}';
+		}
 	}
 
 	/**
@@ -1605,6 +1654,112 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 					'description' => __( 'Background color of the checkmark circle in completed step indicators. Leave empty for theme default.', 'blocksy-child' ),
 					'section'     => 'blocksy_fc_step_indicators',
 					'priority'    => 20,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Register Progress Bar Section
+	 */
+	private function register_progress_bar_section( $wp_customize ) {
+		$wp_customize->add_section(
+			'blocksy_fc_progress_bar',
+			array(
+				'title'    => __( 'Progress Bar', 'blocksy-child' ),
+				'panel'    => 'blocksy_fluid_checkout_panel',
+				'priority' => 76,
+			)
+		);
+
+		// Progress Bar Background Color
+		$wp_customize->add_setting(
+			'blocksy_fc_progress_bar_bg_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_progress_bar_bg_color',
+				array(
+					'label'       => __( 'Progress Bar Background Color', 'blocksy-child' ),
+					'description' => __( 'Background color of the progress bar container. Leave empty for theme default.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_progress_bar',
+					'priority'    => 10,
+				)
+			)
+		);
+
+		// Progress Bar Active Step Color
+		$wp_customize->add_setting(
+			'blocksy_fc_progress_bar_active_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_progress_bar_active_color',
+				array(
+					'label'       => __( 'Active Step Color', 'blocksy-child' ),
+					'description' => __( 'Color of the active/completed steps in the progress bar. Leave empty for theme default.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_progress_bar',
+					'priority'    => 20,
+				)
+			)
+		);
+
+		// Progress Bar Inactive Step Color
+		$wp_customize->add_setting(
+			'blocksy_fc_progress_bar_inactive_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_progress_bar_inactive_color',
+				array(
+					'label'       => __( 'Inactive Step Color', 'blocksy-child' ),
+					'description' => __( 'Color of the inactive/incomplete steps in the progress bar. Leave empty for theme default.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_progress_bar',
+					'priority'    => 30,
+				)
+			)
+		);
+
+		// Progress Bar Text Color
+		$wp_customize->add_setting(
+			'blocksy_fc_progress_bar_text_color',
+			array(
+				'default'           => '',
+				'sanitize_callback' => array( $this, 'sanitize_color_allow_empty' ),
+				'transport'         => 'postMessage',
+			)
+		);
+
+		$wp_customize->add_control(
+			new WP_Customize_Color_Control(
+				$wp_customize,
+				'blocksy_fc_progress_bar_text_color',
+				array(
+					'label'       => __( 'Progress Bar Text Color', 'blocksy-child' ),
+					'description' => __( 'Text color for step labels in the progress bar. Leave empty for theme default.', 'blocksy-child' ),
+					'section'     => 'blocksy_fc_progress_bar',
+					'priority'    => 40,
 				)
 			)
 		);

@@ -421,6 +421,43 @@
 			console.warn('Fluid Checkout Customizer: Error binding step indicator settings', error);
 		}
 
+		// === PROGRESS BAR PREVIEW ===
+		try {
+			// Progress Bar Background Color
+			wp.customize('blocksy_fc_progress_bar_bg_color', function (value) {
+				value.bind(function (newval) {
+					updateDynamicStyle('progress-bar-bg', '.fc-progress-bar { background-color: ' + (newval || '') + ' !important; }');
+				});
+			});
+
+			// Progress Bar Active Step Color
+			wp.customize('blocksy_fc_progress_bar_active_color', function (value) {
+				value.bind(function (newval) {
+					const css = '.fc-progress-bar__step--completed, .fc-progress-bar__step--current { background-color: ' + (newval || '') + ' !important; } ' +
+						'.fc-progress-bar__step--completed::before, .fc-progress-bar__step--current::before { background-color: ' + (newval || '') + ' !important; border-color: ' + (newval || '') + ' !important; }';
+					updateDynamicStyle('progress-bar-active', css);
+				});
+			});
+
+			// Progress Bar Inactive Step Color
+			wp.customize('blocksy_fc_progress_bar_inactive_color', function (value) {
+				value.bind(function (newval) {
+					const css = '.fc-progress-bar__step { background-color: ' + (newval || '') + ' !important; } ' +
+						'.fc-progress-bar__step::before { background-color: ' + (newval || '') + ' !important; border-color: ' + (newval || '') + ' !important; }';
+					updateDynamicStyle('progress-bar-inactive', css);
+				});
+			});
+
+			// Progress Bar Text Color
+			wp.customize('blocksy_fc_progress_bar_text_color', function (value) {
+				value.bind(function (newval) {
+					updateDynamicStyle('progress-bar-text', '.fc-progress-bar__step, .fc-progress-bar__step-label { color: ' + (newval || '') + ' !important; }');
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding progress bar settings', error);
+		}
+
 		// === ITEM COUNT BADGE PREVIEW ===
 		try {
 			// Helper function to update item count badge styles
