@@ -1,0 +1,332 @@
+/**
+ * Generic Off-Canvas Module Styles - Blocksy Compatible
+ *
+ * Follows Blocksy's standard offcanvas implementation with proper state management.
+ * Uses CSS custom properties and GPU-accelerated transforms for smooth animations.
+ *
+ * @package BlocksyChild
+ * @since 1.0.0
+ */
+
+/* ========================================
+   1. CSS VARIABLES - BLOCKSY STANDARD
+   ======================================== */
+:root {
+    /* Blocksy Standard Variables */
+    --side-panel-width: 500px;
+    --panel-padding: 24px;
+    --side-panel-offset: 0px;
+    --side-panel-border-radius: 0px;
+    --theme-panel-reveal-right: 0;
+    --theme-panel-reveal-left: 0;
+
+    /* Custom Variables for Styling */
+    --offcanvas-bg: #ffffff;
+    --offcanvas-border-color: #e5e7eb;
+    --offcanvas-text-color: #1f2937;
+    --offcanvas-heading-color: #111827;
+    --offcanvas-heading-size: 18px;
+    --offcanvas-heading-weight: 600;
+}
+
+/* ========================================
+   2. PANEL STRUCTURE - BLOCKSY STANDARD
+   ======================================== */
+
+/* Base Panel - Blocksy Standard */
+.ct-panel {
+    position: fixed;
+    z-index: 999999;
+    inset: var(--admin-bar, 0px) 0 0 0;
+    opacity: 0;
+    display: none;
+    pointer-events: none;
+    transition: opacity 0.25s ease-in-out;
+}
+
+/* Panel Active State */
+body[data-panel] .ct-panel.active {
+    display: flex;
+}
+
+body[data-panel*='in'] .ct-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Panel Inner Container - Side Panels */
+[data-behaviour*='side'] .ct-panel-inner {
+    position: relative;
+    height: 100%;
+    max-width: var(--side-panel-width);
+    background-color: var(--offcanvas-bg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.25s ease-in-out;
+    will-change: transform;
+}
+
+/* Left Side Panel */
+[data-behaviour='left-side'] .ct-panel-inner {
+    transform: translate3d(calc(-100% - var(--side-panel-offset)), 0, 0);
+}
+
+body[data-panel*='in:left'] [data-behaviour='left-side'] .ct-panel-inner {
+    transform: translate3d(var(--theme-panel-reveal-left), 0, 0);
+}
+
+/* Right Side Panel */
+[data-behaviour='right-side'] .ct-panel-inner {
+    margin-left: auto;
+    transform: translate3d(calc(100% + var(--side-panel-offset)), 0, 0);
+}
+
+body[data-panel*='in:right'] [data-behaviour='right-side'] .ct-panel-inner {
+    transform: translate3d(var(--theme-panel-reveal-right), 0, 0);
+}
+
+/* Modal Mode (Center) */
+[data-behaviour='modal'] .ct-panel-inner {
+    margin: auto;
+    max-width: 600px;
+    max-height: 90vh;
+    border-radius: var(--side-panel-border-radius);
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.25s ease-in-out, opacity 0.25s ease-in-out;
+}
+
+body[data-panel*='in'] [data-behaviour='modal'] .ct-panel-inner {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* ========================================
+   3. PANEL HEADER
+   ======================================== */
+
+/* Header actions bar */
+.ct-panel .ct-panel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--panel-padding);
+    border-bottom: 1px solid var(--offcanvas-border-color);
+    background-color: var(--offcanvas-bg);
+    min-height: 60px;
+    flex-shrink: 0;
+}
+
+/* Panel heading */
+.ct-panel .ct-panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--offcanvas-heading-size);
+    font-weight: var(--offcanvas-heading-weight);
+    color: var(--offcanvas-heading-color);
+    margin: 0;
+}
+
+/* Heading icon */
+.ct-panel .ct-panel-heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ct-panel .ct-panel-heading-icon svg,
+.ct-panel .ct-panel-heading-icon .ct-icon {
+    width: 32px;
+    height: 32px;
+}
+
+/* Count badge */
+.ct-panel .offcanvas-count {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6b7280;
+}
+
+/* Close button */
+.ct-panel .ct-toggle-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.ct-panel .ct-toggle-close:hover {
+    background-color: #f3f4f6;
+}
+
+.ct-panel .ct-toggle-close .ct-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--offcanvas-text-color);
+}
+
+/* ========================================
+   4. PANEL CONTENT
+   ======================================== */
+
+/* Content wrapper */
+.ct-panel .ct-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Content inner */
+.ct-panel .ct-panel-content-inner {
+    padding: var(--panel-padding);
+}
+
+/* Loading state */
+.ct-panel .ct-panel-content-inner.loading {
+    position: relative;
+    min-height: 200px;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.ct-panel .ct-panel-content-inner.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: offcanvas-spin 0.8s linear infinite;
+}
+
+@keyframes offcanvas-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   5. SCROLLBAR STYLING
+   ======================================== */
+
+/* Custom scrollbar for webkit browsers */
+.ct-panel .ct-panel-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ct-panel .ct-panel-content::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+
+.ct-panel .ct-panel-content::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.ct-panel .ct-panel-content::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* ========================================
+   6. RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 999px) {
+    :root {
+        --panel-padding: 20px;
+        --offcanvas-heading-size: 16px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 689px) {
+    :root {
+        --panel-padding: 16px;
+        --offcanvas-heading-size: 15px;
+    }
+
+    .ct-panel .ct-toggle-close {
+        width: 36px;
+        height: 36px;
+    }
+
+    .ct-panel .ct-toggle-close .ct-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ========================================
+   7. ACCESSIBILITY
+   ======================================== */
+
+/* Focus styles */
+.ct-panel .ct-toggle-close:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Inert attribute support */
+.ct-panel[inert] {
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ct-panel,
+    .ct-panel .ct-panel-inner {
+        transition: none !important;
+    }
+}
+
+/* ========================================
+   8. BODY SCROLL LOCK - BLOCKSY STANDARD
+   ======================================== */
+
+/* Prevent body scroll when panel is open */
+body[data-panel] {
+    overflow: hidden;
+}
+
+/* ========================================
+   9. BACKDROP OVERLAY
+   ======================================== */
+
+/* Backdrop for modal and side panels */
+.ct-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(18, 21, 25, 0.6);
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+    pointer-events: none;
+}
+
+body[data-panel*='in'] .ct-panel.active::before {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Modal mode - darker backdrop */
+[data-behaviour='modal']::before {
+    background-color: rgba(18, 21, 25, 0.8);
+}
+
