@@ -373,6 +373,227 @@
 				console.warn('Fluid Checkout Customizer: Error updating dynamic style ' + id, error);
 			}
 		}
+
+		// Content & Text Settings
+		try {
+			// My Contact Heading Text
+			wp.customize('blocksy_fc_my_contact_heading_text', function (value) {
+				value.bind(function (newval) {
+					// Find the "My contact" heading and update it
+					const contactHeading = $('.fc-step__substep-title:contains("My contact")');
+					if (contactHeading.length > 0) {
+						contactHeading.text(newval || 'My contact');
+					}
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding content text settings', error);
+		}
+
+		// Step Indicators Settings
+		try {
+			// Checkmark Icon Color
+			wp.customize('blocksy_fc_checkmark_icon_color', function (value) {
+				value.bind(function (newval) {
+					// Create or update style tag for checkmark icon color
+					let styleTag = $('#fc-checkmark-icon-color-preview');
+					if (styleTag.length === 0) {
+						styleTag = $('<style id="fc-checkmark-icon-color-preview"></style>');
+						$('head').append(styleTag);
+					}
+					styleTag.text('[data-step-complete] .fc-step__substep-title::before { color: ' + (newval || '#ffffff') + ' !important; }');
+				});
+			});
+
+			// Checkmark Background Color
+			wp.customize('blocksy_fc_checkmark_bg_color', function (value) {
+				value.bind(function (newval) {
+					// Create or update style tag for checkmark background color
+					let styleTag = $('#fc-checkmark-bg-color-preview');
+					if (styleTag.length === 0) {
+						styleTag = $('<style id="fc-checkmark-bg-color-preview"></style>');
+						$('head').append(styleTag);
+					}
+					styleTag.text('[data-step-complete] .fc-step__substep-title::before { background-color: ' + (newval || '#7b7575') + ' !important; }');
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding step indicator settings', error);
+		}
+
+		// === ITEM COUNT BADGE PREVIEW ===
+		try {
+			// Helper function to update item count badge styles
+			// Uses higher specificity selector and !important flags to override theme/plugin styles
+			function updateItemCountBadgeStyle(property, value) {
+				let styleTag = $('#fc-item-count-badge-preview');
+				if (styleTag.length === 0) {
+					styleTag = $('<style id="fc-item-count-badge-preview"></style>');
+					$('head').append(styleTag);
+				}
+
+				// Get existing styles or create new object
+				if (!window.fcItemCountBadgeStyles) {
+					window.fcItemCountBadgeStyles = {};
+				}
+
+				// Update the specific property
+				window.fcItemCountBadgeStyles[property] = value;
+
+				// Build CSS string from all properties with !important flags
+				let cssProperties = [];
+				for (let prop in window.fcItemCountBadgeStyles) {
+					if (window.fcItemCountBadgeStyles[prop]) {
+						cssProperties.push(prop + ': ' + window.fcItemCountBadgeStyles[prop] + ' !important');
+					}
+				}
+
+				// Use higher specificity selector to match PHP output
+				styleTag.text('.fc-checkout-order-review__head .fc-cart-items-count, .fc-cart-items-count { ' + cssProperties.join('; ') + '; }');
+			}
+
+			// Border controls
+			wp.customize('blocksy_fc_item_count_border_top', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-top-width', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_right', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-right-width', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_bottom', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-bottom-width', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_left', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-left-width', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_style', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-style', newval || 'solid');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_color', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-color', newval || '#dfdfde');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_border_radius', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('border-radius', newval || '0px');
+				});
+			});
+
+			// Padding controls
+			wp.customize('blocksy_fc_item_count_padding_top', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('padding-top', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_padding_right', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('padding-right', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_padding_bottom', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('padding-bottom', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_padding_left', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('padding-left', newval || '0px');
+				});
+			});
+
+			// Margin controls
+			wp.customize('blocksy_fc_item_count_margin_top', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('margin-top', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_margin_right', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('margin-right', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_margin_bottom', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('margin-bottom', newval || '0px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_margin_left', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('margin-left', newval || '0px');
+				});
+			});
+
+			// Typography controls
+			wp.customize('blocksy_fc_item_count_font_family', function (value) {
+				value.bind(function (newval) {
+					if (newval && newval !== 'inherit') {
+						updateItemCountBadgeStyle('font-family', newval);
+					} else {
+						updateItemCountBadgeStyle('font-family', '');
+					}
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_font_size', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('font-size', newval || '15px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_font_weight', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('font-weight', newval || '400');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_line_height', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('line-height', newval || '18px');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_text_color', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('color', newval || '#353638');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_letter_spacing', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('letter-spacing', newval || 'normal');
+				});
+			});
+
+			wp.customize('blocksy_fc_item_count_bg_color', function (value) {
+				value.bind(function (newval) {
+					updateItemCountBadgeStyle('background-color', newval || 'transparent');
+				});
+			});
+		} catch (error) {
+			console.warn('Fluid Checkout Customizer: Error binding item count badge settings', error);
+		}
 	});
 })(jQuery);
 
