@@ -7,6 +7,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BLAZE_BLOCKSY_URL', get_stylesheet_directory_uri() );
 define( 'BLAZE_BLOCKSY_PATH', get_stylesheet_directory() );
 
+/**
+ * WOOLESS-8737: Fluid Checkout Spacing Fix
+ *
+ * Adds 20px bottom margin to Fluid Checkout progress bar and express checkout sections.
+ * Uses WordPress best practice: wp_enqueue_style() with wp_add_inline_style()
+ *
+ * @since 1.39.0
+ */
+function blaze_blocksy_fluid_checkout_spacing() {
+	// Only load on checkout page
+	if ( ! is_checkout() ) {
+		return;
+	}
+
+	// Enqueue parent theme stylesheet as dependency (if not already enqueued)
+	$parent_style = 'blocksy-child-style';
+
+	// Add inline CSS using wp_add_inline_style()
+	// This is the WordPress-recommended method for adding custom CSS
+	$custom_css = '
+		/* WOOLESS-8737: Fluid Checkout Spacing */
+		/* Higher specificity to override plugin defaults */
+		.fc-wrapper .fc-progress-bar,
+		.woocommerce-checkout .fc-progress-bar {
+			margin-bottom: 20px !important;
+		}
+		.fc-wrapper .fc-express-checkout,
+		.woocommerce-checkout .fc-express-checkout {
+			margin-bottom: 20px !important;
+		}
+	';
+
+	wp_add_inline_style( $parent_style, $custom_css );
+}
+add_action( 'wp_enqueue_scripts', 'blaze_blocksy_fluid_checkout_spacing', 20 );
+
 
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
