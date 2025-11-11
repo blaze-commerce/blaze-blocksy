@@ -406,12 +406,13 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 * Get font family choices for dropdown
 	 *
 	 * Returns an array of font families organized by category.
-	 * Includes system fonts, web-safe fonts, and popular Google Fonts.
+	 * Includes system fonts, web-safe fonts, popular Google Fonts,
+	 * and custom fonts from Blocksy Companion Pro Custom Fonts extension.
 	 *
 	 * @return array Font family choices for select control
 	 */
 	private function get_font_family_choices() {
-		return array(
+		$fonts = array(
 			// Theme Default
 			'inherit'                                         => __( 'Theme Default (Inherit)', 'blocksy-child' ),
 
@@ -449,6 +450,90 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			'"PT Sans", sans-serif'                           => __( 'PT Sans', 'blocksy-child' ),
 			'Merriweather, serif'                             => __( 'Merriweather', 'blocksy-child' ),
 			'Playfair Display, serif'                         => __( 'Playfair Display', 'blocksy-child' ),
+		);
+
+		// Add custom fonts from Blocksy Companion Pro if available
+		$custom_fonts = $this->get_blocksy_custom_fonts();
+		if ( ! empty( $custom_fonts ) ) {
+			$fonts = array_merge( $fonts, $custom_fonts );
+		}
+
+		return $fonts;
+	}
+
+	/**
+	 * Get custom fonts from Blocksy Companion Pro Custom Fonts extension
+	 *
+	 * Retrieves all custom fonts uploaded through the Blocksy Companion Pro
+	 * Custom Fonts extension and formats them for use in font family dropdowns.
+	 *
+	 * @return array Array of custom fonts with font-family CSS values as keys and display names as values
+	 */
+	private function get_blocksy_custom_fonts() {
+		$custom_fonts = array();
+
+		// Check if Blocksy Companion Pro Custom Fonts extension is active
+		if ( ! class_exists( '\Blocksy\Extensions\CustomFonts\Storage' ) ) {
+			return $custom_fonts;
+		}
+
+		try {
+			// Get the custom fonts storage instance
+			$storage = new \Blocksy\Extensions\CustomFonts\Storage();
+			$fonts   = $storage->get_normalized_fonts_list();
+
+			// If no custom fonts are uploaded, return empty array
+			if ( empty( $fonts ) ) {
+				return $custom_fonts;
+			}
+
+			// Process each custom font
+			foreach ( $fonts as $font ) {
+				// Skip fonts without variations
+				if ( empty( $font['variations'] ) || ! is_array( $font['variations'] ) ) {
+					continue;
+				}
+
+				// Get the font family CSS value (e.g., "ct_font_proxima_nova")
+				$font_family = $this->get_blocksy_font_family_for_name( $font['name'] );
+
+				// Add to custom fonts array with display name
+				// Format: 'ct_font_proxima_nova' => 'ProximaNova (Custom Font)'
+				$custom_fonts[ $font_family ] = sprintf(
+					/* translators: %s: Custom font name */
+					__( '%s (Custom Font)', 'blocksy-child' ),
+					$font['name']
+				);
+			}
+		} catch ( Exception $e ) {
+			// Silently fail if there's an error retrieving custom fonts
+			// This ensures the Customizer still works even if there's an issue
+			error_log( 'Fluid Checkout Customizer: Error retrieving Blocksy custom fonts - ' . $e->getMessage() );
+		}
+
+		return $custom_fonts;
+	}
+
+	/**
+	 * Convert font name to Blocksy font family CSS value
+	 *
+	 * Converts a font name like "ProximaNova" to the CSS font-family value
+	 * used by Blocksy (e.g., "ct_font_proxima_nova").
+	 *
+	 * This matches the format used by Blocksy Companion Pro's Custom Fonts extension.
+	 *
+	 * @param string $name Font name (e.g., "ProximaNova")
+	 * @return string Font family CSS value (e.g., "ct_font_proxima_nova")
+	 */
+	private function get_blocksy_font_family_for_name( $name ) {
+		// Convert camelCase to snake_case and add ct_font_ prefix
+		// Example: "ProximaNova" -> "ct_font_proxima_nova"
+		return str_replace(
+			' ',
+			'_',
+			'ct_font_' . strtolower(
+				preg_replace( '/(?<!^)[A-Z]/', '_$0', $name )
+			)
 		);
 	}
 
