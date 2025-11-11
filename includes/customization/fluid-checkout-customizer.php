@@ -1091,8 +1091,9 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	private function output_typography_css() {
 		// Updated selectors to match Fluid Checkout HTML structure
 		// Note: Order Summary heading (.fc-checkout-order-review-title) is now separate
+		// Note: Substep headings only styled when section is completed (fields are collapsed)
 		$elements = array(
-			'heading'       => '.fc-step__title, .fc-step__substep-title, .fc-checkout__title',
+			'heading'       => '.fc-step__title, .fc-checkout__title, .fc-step__substep:has(.fc-step__substep-fields.is-collapsed) .fc-step__substep-title',
 			'order_summary' => '.fc-checkout-order-review-title, .woocommerce-checkout-review-order h3, #order_review h3, .wc-block-components-checkout-order-summary__title',
 			'body'          => '.fc-wrapper, .fc-wrapper p, .fc-wrapper span, .fc-step__substep-text',
 			'label'         => '.fc-text-field label, .fc-email-field label, .fc-tel-field label, .fc-select-field label, .fc-textarea-field label, .woocommerce-form__label',
