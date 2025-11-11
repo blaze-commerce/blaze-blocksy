@@ -210,27 +210,32 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function register_typography_sections( $wp_customize ) {
 		$typography_elements = array(
-			'heading'        => array(
+			'heading'            => array(
 				'title'    => __( 'Heading Typography', 'blocksy-child' ),
 				'priority' => 20,
 			),
-			'order_summary'  => array(
+			'incomplete_heading' => array(
+				'title'       => __( 'Incomplete Section Heading Typography', 'blocksy-child' ),
+				'description' => __( 'Typography for form section headings that are incomplete or being edited', 'blocksy-child' ),
+				'priority'    => 21,
+			),
+			'order_summary'      => array(
 				'title'    => __( 'Order Summary Heading Typography', 'blocksy-child' ),
 				'priority' => 25,
 			),
-			'body'           => array(
+			'body'               => array(
 				'title'    => __( 'Body Text Typography', 'blocksy-child' ),
 				'priority' => 30,
 			),
-			'label'          => array(
+			'label'              => array(
 				'title'    => __( 'Form Label Typography', 'blocksy-child' ),
 				'priority' => 40,
 			),
-			'placeholder'    => array(
+			'placeholder'        => array(
 				'title'    => __( 'Placeholder Typography', 'blocksy-child' ),
 				'priority' => 50,
 			),
-			'button'         => array(
+			'button'             => array(
 				'title'    => __( 'Button Typography', 'blocksy-child' ),
 				'priority' => 60,
 			),
@@ -361,37 +366,43 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function get_typography_defaults( $element ) {
 		$defaults = array(
-			'heading'       => array(
+			'heading'            => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'order_summary' => array(
+			'incomplete_heading' => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'body'          => array(
+			'order_summary'      => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'label'         => array(
+			'body'               => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'placeholder'   => array(
+			'label'              => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'button'        => array(
+			'placeholder'        => array(
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
+			),
+			'button'             => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
@@ -1091,14 +1102,16 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	private function output_typography_css() {
 		// Updated selectors to match Fluid Checkout HTML structure
 		// Note: Order Summary heading (.fc-checkout-order-review-title) is now separate
-		// Note: Substep headings only styled when section is completed (fields are collapsed)
+		// Note: Completed substep headings only styled when section is completed (fields are collapsed)
+		// Note: Incomplete substep headings styled when section is incomplete or being edited (fields are expanded)
 		$elements = array(
-			'heading'       => '.fc-step__title, .fc-checkout__title, .fc-step__substep:has(.fc-step__substep-fields.is-collapsed) .fc-step__substep-title',
-			'order_summary' => '.fc-checkout-order-review-title, .woocommerce-checkout-review-order h3, #order_review h3, .wc-block-components-checkout-order-summary__title',
-			'body'          => '.fc-wrapper, .fc-wrapper p, .fc-wrapper span, .fc-step__substep-text',
-			'label'         => '.fc-text-field label, .fc-email-field label, .fc-tel-field label, .fc-select-field label, .fc-textarea-field label, .woocommerce-form__label',
-			'placeholder'   => '.fc-text-field input::placeholder, .fc-email-field input::placeholder, .fc-tel-field input::placeholder, .fc-textarea-field textarea::placeholder',
-			'button'        => '.fc-step__next-step, .fc-place-order-button, .fc-step__substep-save, .fc-coupon-code__apply',
+			'heading'            => '.fc-step__title, .fc-checkout__title, .fc-step__substep:has(.fc-step__substep-fields.is-collapsed) .fc-step__substep-title',
+			'incomplete_heading' => '.fc-step__substep:not(:has(.fc-step__substep-fields.is-collapsed)) .fc-step__substep-title',
+			'order_summary'      => '.fc-checkout-order-review-title, .woocommerce-checkout-review-order h3, #order_review h3, .wc-block-components-checkout-order-summary__title',
+			'body'               => '.fc-wrapper, .fc-wrapper p, .fc-wrapper span, .fc-step__substep-text',
+			'label'              => '.fc-text-field label, .fc-email-field label, .fc-tel-field label, .fc-select-field label, .fc-textarea-field label, .woocommerce-form__label',
+			'placeholder'        => '.fc-text-field input::placeholder, .fc-email-field input::placeholder, .fc-tel-field input::placeholder, .fc-textarea-field textarea::placeholder',
+			'button'             => '.fc-step__next-step, .fc-place-order-button, .fc-step__substep-save, .fc-coupon-code__apply',
 		);
 
 		foreach ( $elements as $element => $selector ) {
