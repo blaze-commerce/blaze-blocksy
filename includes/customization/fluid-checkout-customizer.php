@@ -210,23 +210,32 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function register_typography_sections( $wp_customize ) {
 		$typography_elements = array(
-			'heading'     => array(
+			'heading'            => array(
 				'title'    => __( 'Heading Typography', 'blocksy-child' ),
 				'priority' => 20,
 			),
-			'body'        => array(
+			'incomplete_heading' => array(
+				'title'       => __( 'Incomplete Section Heading Typography', 'blocksy-child' ),
+				'description' => __( 'Typography for form section headings that are incomplete or being edited', 'blocksy-child' ),
+				'priority'    => 21,
+			),
+			'order_summary'      => array(
+				'title'    => __( 'Order Summary Heading Typography', 'blocksy-child' ),
+				'priority' => 25,
+			),
+			'body'               => array(
 				'title'    => __( 'Body Text Typography', 'blocksy-child' ),
 				'priority' => 30,
 			),
-			'label'       => array(
+			'label'              => array(
 				'title'    => __( 'Form Label Typography', 'blocksy-child' ),
 				'priority' => 40,
 			),
-			'placeholder' => array(
+			'placeholder'        => array(
 				'title'    => __( 'Placeholder Typography', 'blocksy-child' ),
 				'priority' => 50,
 			),
-			'button'      => array(
+			'button'             => array(
 				'title'    => __( 'Button Typography', 'blocksy-child' ),
 				'priority' => 60,
 			),
@@ -357,31 +366,43 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function get_typography_defaults( $element ) {
 		$defaults = array(
-			'heading'     => array(
+			'heading'            => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'body'        => array(
+			'incomplete_heading' => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'label'       => array(
+			'order_summary'      => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'placeholder' => array(
+			'body'               => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
 				'weight' => 'inherit',
 			),
-			'button'      => array(
+			'label'              => array(
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
+			),
+			'placeholder'        => array(
+				'font'   => 'inherit',
+				'size'   => '',
+				'color'  => '',
+				'weight' => 'inherit',
+			),
+			'button'             => array(
 				'font'   => 'inherit',
 				'size'   => '',
 				'color'  => '',
@@ -396,12 +417,13 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 * Get font family choices for dropdown
 	 *
 	 * Returns an array of font families organized by category.
-	 * Includes system fonts, web-safe fonts, and popular Google Fonts.
+	 * Includes system fonts, web-safe fonts, popular Google Fonts,
+	 * and custom fonts from Blocksy Companion Pro Custom Fonts extension.
 	 *
 	 * @return array Font family choices for select control
 	 */
 	private function get_font_family_choices() {
-		return array(
+		$fonts = array(
 			// Theme Default
 			'inherit'                                         => __( 'Theme Default (Inherit)', 'blocksy-child' ),
 
@@ -439,6 +461,90 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 			'"PT Sans", sans-serif'                           => __( 'PT Sans', 'blocksy-child' ),
 			'Merriweather, serif'                             => __( 'Merriweather', 'blocksy-child' ),
 			'Playfair Display, serif'                         => __( 'Playfair Display', 'blocksy-child' ),
+		);
+
+		// Add custom fonts from Blocksy Companion Pro if available
+		$custom_fonts = $this->get_blocksy_custom_fonts();
+		if ( ! empty( $custom_fonts ) ) {
+			$fonts = array_merge( $fonts, $custom_fonts );
+		}
+
+		return $fonts;
+	}
+
+	/**
+	 * Get custom fonts from Blocksy Companion Pro Custom Fonts extension
+	 *
+	 * Retrieves all custom fonts uploaded through the Blocksy Companion Pro
+	 * Custom Fonts extension and formats them for use in font family dropdowns.
+	 *
+	 * @return array Array of custom fonts with font-family CSS values as keys and display names as values
+	 */
+	private function get_blocksy_custom_fonts() {
+		$custom_fonts = array();
+
+		// Check if Blocksy Companion Pro Custom Fonts extension is active
+		if ( ! class_exists( '\Blocksy\Extensions\CustomFonts\Storage' ) ) {
+			return $custom_fonts;
+		}
+
+		try {
+			// Get the custom fonts storage instance
+			$storage = new \Blocksy\Extensions\CustomFonts\Storage();
+			$fonts   = $storage->get_normalized_fonts_list();
+
+			// If no custom fonts are uploaded, return empty array
+			if ( empty( $fonts ) ) {
+				return $custom_fonts;
+			}
+
+			// Process each custom font
+			foreach ( $fonts as $font ) {
+				// Skip fonts without variations
+				if ( empty( $font['variations'] ) || ! is_array( $font['variations'] ) ) {
+					continue;
+				}
+
+				// Get the font family CSS value (e.g., "ct_font_proxima_nova")
+				$font_family = $this->get_blocksy_font_family_for_name( $font['name'] );
+
+				// Add to custom fonts array with display name
+				// Format: 'ct_font_proxima_nova' => 'ProximaNova (Custom Font)'
+				$custom_fonts[ $font_family ] = sprintf(
+					/* translators: %s: Custom font name */
+					__( '%s (Custom Font)', 'blocksy-child' ),
+					$font['name']
+				);
+			}
+		} catch ( Exception $e ) {
+			// Silently fail if there's an error retrieving custom fonts
+			// This ensures the Customizer still works even if there's an issue
+			error_log( 'Fluid Checkout Customizer: Error retrieving Blocksy custom fonts - ' . $e->getMessage() );
+		}
+
+		return $custom_fonts;
+	}
+
+	/**
+	 * Convert font name to Blocksy font family CSS value
+	 *
+	 * Converts a font name like "ProximaNova" to the CSS font-family value
+	 * used by Blocksy (e.g., "ct_font_proxima_nova").
+	 *
+	 * This matches the format used by Blocksy Companion Pro's Custom Fonts extension.
+	 *
+	 * @param string $name Font name (e.g., "ProximaNova")
+	 * @return string Font family CSS value (e.g., "ct_font_proxima_nova")
+	 */
+	private function get_blocksy_font_family_for_name( $name ) {
+		// Convert camelCase to snake_case and add ct_font_ prefix
+		// Example: "ProximaNova" -> "ct_font_proxima_nova"
+		return str_replace(
+			' ',
+			'_',
+			'ct_font_' . strtolower(
+				preg_replace( '/(?<!^)[A-Z]/', '_$0', $name )
+			)
 		);
 	}
 
@@ -995,12 +1101,17 @@ class Blocksy_Child_Fluid_Checkout_Customizer {
 	 */
 	private function output_typography_css() {
 		// Updated selectors to match Fluid Checkout HTML structure
+		// Note: Order Summary heading (.fc-checkout-order-review-title) is now separate
+		// Note: Completed substep headings only styled when section is completed (fields are collapsed)
+		// Note: Incomplete substep headings styled when section is incomplete or being edited (fields are expanded)
 		$elements = array(
-			'heading'     => '.fc-step__title, .fc-step__substep-title, .fc-checkout__title, .fc-checkout-order-review-title',
-			'body'        => '.fc-wrapper, .fc-wrapper p, .fc-wrapper span, .fc-step__substep-text',
-			'label'       => '.fc-text-field label, .fc-email-field label, .fc-tel-field label, .fc-select-field label, .fc-textarea-field label, .woocommerce-form__label',
-			'placeholder' => '.fc-text-field input::placeholder, .fc-email-field input::placeholder, .fc-tel-field input::placeholder, .fc-textarea-field textarea::placeholder',
-			'button'      => '.fc-step__next-step, .fc-place-order-button, .fc-step__substep-save, .fc-coupon-code__apply',
+			'heading'            => '.fc-step__title, .fc-checkout__title, .fc-step__substep:has(.fc-step__substep-fields.is-collapsed) .fc-step__substep-title',
+			'incomplete_heading' => '.fc-step__substep:not(:has(.fc-step__substep-fields.is-collapsed)) .fc-step__substep-title',
+			'order_summary'      => '.fc-checkout-order-review-title, .woocommerce-checkout-review-order h3, #order_review h3, .wc-block-components-checkout-order-summary__title',
+			'body'               => '.fc-wrapper, .fc-wrapper p, .fc-wrapper span, .fc-step__substep-text',
+			'label'              => '.fc-text-field label, .fc-email-field label, .fc-tel-field label, .fc-select-field label, .fc-textarea-field label, .woocommerce-form__label',
+			'placeholder'        => '.fc-text-field input::placeholder, .fc-email-field input::placeholder, .fc-tel-field input::placeholder, .fc-textarea-field textarea::placeholder',
+			'button'             => '.fc-step__next-step, .fc-place-order-button, .fc-step__substep-save, .fc-coupon-code__apply',
 		);
 
 		foreach ( $elements as $element => $selector ) {

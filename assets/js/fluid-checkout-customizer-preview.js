@@ -105,8 +105,13 @@
 		});
 
 		// Typography Settings
+		// Note: Order Summary heading is now separate from general headings
+		// Note: Completed substep headings only styled when section is completed (fields are collapsed)
+		// Note: Incomplete substep headings styled when section is incomplete or being edited (fields are expanded)
 		const typographyElements = {
-			heading: '.woocommerce-checkout h1, .woocommerce-checkout h2, .woocommerce-checkout h3, .fc-step__title',
+			heading: '.fc-step__title, .fc-checkout__title, .fc-step__substep:has(.fc-step__substep-fields.is-collapsed) .fc-step__substep-title',
+			incomplete_heading: '.fc-step__substep:not(:has(.fc-step__substep-fields.is-collapsed)) .fc-step__substep-title',
+			order_summary: '.fc-checkout-order-review-title, .woocommerce-checkout-review-order h3, #order_review h3, .wc-block-components-checkout-order-summary__title',
 			body: '.woocommerce-checkout, .woocommerce-checkout p, .woocommerce-checkout span',
 			label: '.woocommerce-checkout label, .form-row label',
 			placeholder: '.woocommerce-checkout input::placeholder, .woocommerce-checkout textarea::placeholder',
