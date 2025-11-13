@@ -139,7 +139,9 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
-	'/includes/customization/brand-attributes-converter.php',
+
+	// Enable this if you need to convert brand attributes to product_brand taxonomy
+	// '/includes/customization/brand-attributes-converter.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
