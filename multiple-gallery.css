@@ -1,0 +1,112 @@
+/**
+ * Multiple Gallery Responsive Styles
+ *
+ * Desktop (≥992px): Stacked layout (all images visible)
+ * Tablet & Mobile (<992px): Slideshow with thumbnails
+ */
+
+/* ============================================
+   DESKTOP: Stacked Gallery (≥992px)
+   ============================================ */
+
+@media (min-width: 992px) {
+
+    /* Disable flexy slider on desktop */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .blaze-responsive-gallery {
+        /* Remove slider initialization */
+    }
+
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .blaze-responsive-gallery[data-flexy] {
+        /* Prevent slider from initializing */
+        pointer-events: auto;
+    }
+
+    /* Stack all images vertically */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-items {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-item {
+        flex: 0 0 auto !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        transform: none !important;
+        cursor: default;
+    }
+
+    /* Hide navigation arrows on desktop */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-arrow-prev,
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-arrow-next {
+        display: none !important;
+    }
+
+    /* Hide thumbnail pills on desktop */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-pills {
+        display: none !important;
+    }
+
+    /* Adjust flexy-view height */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-view {
+        height: auto !important;
+    }
+
+    /* Remove overflow hidden */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy {
+        overflow: visible !important;
+    }
+}
+
+/* ============================================
+   TABLET & MOBILE: Slideshow (<992px)
+   ============================================ */
+
+@media (max-width: 991px) {
+
+    /* Keep default flexy slider behavior */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .blaze-responsive-gallery {
+        /* Slider will initialize normally */
+    }
+
+    /* Ensure thumbnails are visible */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-pills {
+        display: block !important;
+        margin-top: 15px;
+    }
+
+    /* Ensure arrows are visible */
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-arrow-prev,
+    .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-arrow-next {
+        display: flex !important;
+    }
+
+    /* Optimize thumbnail size for mobile */
+    @media (max-width: 767px) {
+        .blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-pills li {
+            --thumbs-width: 25%;
+        }
+    }
+}
+
+/* ============================================
+   COMMON STYLES
+   ============================================ */
+
+/* Ensure images maintain aspect ratio */
+.blaze-responsive-gallery-enabled .woocommerce-product-gallery .ct-media-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Smooth transitions */
+.blaze-responsive-gallery-enabled .woocommerce-product-gallery .flexy-items {
+    transition: transform 0.3s ease;
+}
+
+/* Lightbox compatibility */
+.blaze-responsive-gallery-enabled .woocommerce-product-gallery .ct-media-container {
+    cursor: pointer;
+}

@@ -16,7 +16,7 @@ function add_mini_cart_localize_data( $data ) {
 /**
  * Override mini cart template
  */
-add_filter( 'wc_get_template', function ($template, $template_name, $args) {
+add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
 
 	if ( 'cart/mini-cart.php' === $template_name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/cart/mini-cart.php';
@@ -53,13 +53,13 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 /**
  * Customize mini cart total display with price breakdown
  */
-add_action( 'woocommerce_widget_shopping_cart_total', function ($total_html) {
+add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	if ( ! WC()->cart ) {
 		return $total_html;
 	}
 
 	$cart = WC()->cart;
-	$subtotal = $cart->get_subtotal();
+	$subtotal = $cart->get_cart_subtotal();
 	$discount_total = $cart->get_discount_total();
 	$shipping_total = $cart->get_shipping_total();
 	$tax_total = $cart->get_total_tax();
@@ -235,7 +235,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 /**
  * Add field URL to Blocksy cart customizer options
  */
-add_filter( 'blocksy:options:retrieve', function ($options, $path, $pass_inside) {
+add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
 	// Check if this is the cart options file
 	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
 		return $options;

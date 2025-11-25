@@ -90,6 +90,7 @@ $required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
+	'/includes/features/product-feed-csv.php', // Product feed CSV endpoint
 	'/includes/features/offcanvas-module.php', // Generic offcanvas module
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',
@@ -132,11 +133,11 @@ foreach ( $required_files as $file ) {
 	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
 		try {
 			require_once $file_path;
-		} catch ( Error $e ) {
+		} catch (Error $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
 			}
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Exception loading ' . $file . ': ' . $e->getMessage() );
 			}
