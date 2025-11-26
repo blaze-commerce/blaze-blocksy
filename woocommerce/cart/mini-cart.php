@@ -45,7 +45,7 @@ if ( function_exists( 'blc_get_ext' ) ) {
 				$wishlist_items = $wishlist_instance->get_current_wish_list();
 
 				if ( ! empty( $wishlist_items ) ) {
-					$wishlist_items = array_map( function ($item) {
+					$wishlist_items = array_map( function ( $item ) {
 						return $item['id'];
 					}, $wishlist_items );
 
