@@ -2,13 +2,13 @@
   margin: 0 auto;
   padding: 0;
   background: transparent;
-  border-top-width: var(--product-information-border-width);
-  border-bottom-width: var(--product-information-border-width);
+  border-top-width: var(--product-information-border-width, 1px);
+  border-bottom-width: var(--product-information-border-width, 1px);
   border-left-width: 0;
   border-right-width: 0;
-  border-color: var(--product-information-border-color);
-  border-style: solid;
-  padding: var(--product-information-padding) 0;
+  border-color: var(--product-information-border-color, #e9ecef);
+  border-style: var(--product-information-border-style, solid);
+  padding: var(--product-information-padding, 20px) 0;
 }
 
 .ct-product-information .info-list {
@@ -28,22 +28,16 @@
   justify-content: var(--product-information-justify-content, center);
 }
 
-/* .ct-product-information.has-separator .info-item {
+/* Separator between items - uses border-right on items */
+.ct-product-information .info-item {
   border-width: 0;
-  border-right-width: var(--product-information-border-width);
-  border-style: solid;
-  border-color: var(--product-information-border-color);
-  color: var(--product-information-text-color);
+  border-right-width: var(--product-information-separator-width, 1px);
+  border-style: var(--product-information-separator-style, solid);
+  border-color: var(--product-information-separator-color, #e9ecef);
 }
 
-.ct-product-information.has-separator .info-item:last-child {
+.ct-product-information .info-item:last-child {
   border-right-width: 0;
-} */
-
-.ct-product-information.has-separator .separator {
-  height: calc(var(--product-information-font-size, 14px) * 1.8);
-  width: 1px;
-  background: var(--product-information-border-color);
 }
 
 .ct-product-information .info-item svg {
@@ -124,10 +118,8 @@
 
 .ct-information-canvas .offcanvas-tab.active {
   color: #333;
-  border-bottom-color: var(
-    --quantity-initial-color,
-    var(--theme-button-background-initial-color)
-  );
+  border-bottom-color: var(--quantity-initial-color,
+      var(--theme-button-background-initial-color));
 }
 
 .ct-information-canvas .close-btn {
@@ -363,7 +355,7 @@
   border-radius: 5px;
 }
 
-.shipping-calculator-container .shipping-loading-overlay > div {
+.shipping-calculator-container .shipping-loading-overlay>div {
   background: var(--shipping-calc-bg-loading);
   color: var(--shipping-calc-text-white);
   padding: 15px 20px;
@@ -455,6 +447,7 @@
   .shipping-calculator-container .form-group select,
   .shipping-calculator-container .form-group input[type="text"] {
     padding: 10px 12px;
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
   }
 }

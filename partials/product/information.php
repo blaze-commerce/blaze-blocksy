@@ -26,16 +26,10 @@ $product_information = get_field( 'tab_data', 'option' );
 	</div>
 
 	<?php foreach ( (array) $product_information as $info ) : ?>
-
-		<?php if ( $add_separator ) { ?>
-			<div class="separator"></div>
-		<?php } ?>
-
 		<div class="info-item" onclick="openOffcanvas('<?php echo sanitize_title( $info['title'] ); ?>')">
 			<?php echo $info['svg_icon']; ?>
 			<span><?php echo $info['title']; ?></span>
 		</div>
-
 	<?php endforeach; ?>
 
 </div>
