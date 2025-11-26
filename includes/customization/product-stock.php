@@ -282,20 +282,34 @@ class BlazeBlocksy_Product_Stock_Customizer {
 		$tablet_css = $args['tablet_css'];
 		$mobile_css = $args['mobile_css'];
 
-		// Check if layer is enabled
+		// Check if layer is enabled and get layer config
 		$layout = blocksy_get_theme_mod( 'woo_single_layout', array() );
-		$layer_exists = false;
+		$layer_config = null;
 
 		foreach ( $layout as $layer ) {
 			if ( isset( $layer['id'] ) && 'product_stock_element' === $layer['id'] && ! empty( $layer['enabled'] ) ) {
-				$layer_exists = true;
+				$layer_config = $layer;
 				break;
 			}
 		}
 
-		if ( ! $layer_exists ) {
+		if ( ! $layer_config ) {
 			return;
 		}
+
+		// Output spacing CSS
+		$spacing = blocksy_akg( 'spacing', $layer_config, 20 );
+		blocksy_output_responsive(
+			array(
+				'css' => $css,
+				'tablet_css' => $tablet_css,
+				'mobile_css' => $mobile_css,
+				'selector' => '.entry-summary-items > .ct-product-stock-element',
+				'variableName' => 'product-element-spacing',
+				'value' => $spacing,
+				'unit' => 'px',
+			)
+		);
 
 		// Typography
 		blocksy_output_font_css(

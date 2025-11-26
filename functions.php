@@ -142,6 +142,7 @@ $required_files = [
 	'/includes/customization/mix-and-match-products.php',
 	'/includes/customization/product-tabs.php',
 	'/includes/customization/product-stock.php',
+	'/includes/customization/product-full-description.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',

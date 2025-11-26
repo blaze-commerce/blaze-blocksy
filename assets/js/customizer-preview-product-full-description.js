@@ -1,7 +1,7 @@
 /**
- * Product Stock - Customizer Live Preview
+ * Product Full Description - Customizer Live Preview
  *
- * Handles instant live preview updates for Product Stock element
+ * Handles instant live preview updates for Product Full Description element
  * by directly manipulating CSS variables without page refresh.
  *
  * @package BlazeBlocksy
@@ -29,10 +29,11 @@
     return null;
   }
 
-  // Typography sync
-  wp.customize("productStockFont", function (value) {
+  // Description Typography sync
+  wp.customize("productFullDescriptionFont", function (value) {
     value.bind(function (newValue) {
-      const el = ".ct-product-stock-element";
+      const el =
+        ".ct-product-full-description-element .ct-full-description-content";
 
       if (newValue.family && newValue.family !== "Default") {
         updateCSSVariable(el, "--theme-font-family", newValue.family);
@@ -88,42 +89,88 @@
     });
   });
 
-  // In Stock Color sync
-  wp.customize("productStockInStockColor", function (value) {
+  // Description Color sync
+  wp.customize("productFullDescriptionColor", function (value) {
     value.bind(function (newValue) {
       const color = getColorValue(newValue);
       if (color) {
         updateCSSVariable(
-          ".ct-product-stock-element.ct-product-stock-in-stock",
-          "--color",
+          ".ct-product-full-description-element .ct-full-description-content",
+          "--description-color",
           color
         );
       }
     });
   });
 
-  // Out of Stock Color sync
-  wp.customize("productStockOutOfStockColor", function (value) {
+  // Toggle Typography sync
+  wp.customize("productFullDescriptionToggleFont", function (value) {
     value.bind(function (newValue) {
-      const color = getColorValue(newValue);
-      if (color) {
+      const el =
+        ".ct-product-full-description-element .ct-full-description-toggle";
+
+      if (newValue.family && newValue.family !== "Default") {
+        updateCSSVariable(el, "--toggle-font-family", newValue.family);
+      }
+
+      if (newValue.size) {
+        const size =
+          typeof newValue.size === "object"
+            ? newValue.size.desktop
+            : newValue.size;
+        updateCSSVariable(el, "--toggle-font-size", size);
+      }
+
+      if (newValue.variation) {
+        // Parse variation like 'n4', 'i7', etc.
+        const weight = newValue.variation.replace(/[a-z]/g, "") + "00";
+        const style = newValue.variation.startsWith("i") ? "italic" : "normal";
         updateCSSVariable(
-          ".ct-product-stock-element.ct-product-stock-out-of-stock",
-          "--color",
-          color
+          el,
+          "--toggle-font-weight",
+          weight === "00" ? "400" : weight
+        );
+        updateCSSVariable(el, "--toggle-font-style", style);
+      }
+
+      if (newValue["line-height"]) {
+        updateCSSVariable(el, "--toggle-line-height", newValue["line-height"]);
+      }
+
+      if (newValue["letter-spacing"]) {
+        updateCSSVariable(
+          el,
+          "--toggle-letter-spacing",
+          newValue["letter-spacing"]
+        );
+      }
+
+      if (newValue["text-transform"]) {
+        updateCSSVariable(
+          el,
+          "--toggle-text-transform",
+          newValue["text-transform"]
+        );
+      }
+
+      if (newValue["text-decoration"]) {
+        updateCSSVariable(
+          el,
+          "--toggle-text-decoration",
+          newValue["text-decoration"]
         );
       }
     });
   });
 
-  // On Backorder Color sync
-  wp.customize("productStockOnBackorderColor", function (value) {
+  // Toggle Color sync
+  wp.customize("productFullDescriptionToggleColor", function (value) {
     value.bind(function (newValue) {
       const color = getColorValue(newValue);
       if (color) {
         updateCSSVariable(
-          ".ct-product-stock-element.ct-product-stock-on-backorder",
-          "--color",
+          ".ct-product-full-description-element .ct-full-description-toggle",
+          "--toggle-color",
           color
         );
       }
@@ -136,7 +183,7 @@
       if (!Array.isArray(newValue)) return;
 
       const layer = newValue.find(function (l) {
-        return l.id === "product_stock_element";
+        return l.id === "product_full_description";
       });
 
       if (layer && layer.spacing !== undefined) {
@@ -145,7 +192,7 @@
             ? layer.spacing.desktop
             : layer.spacing;
         updateCSSVariable(
-          ".entry-summary-items > .ct-product-stock-element",
+          ".entry-summary-items > .ct-product-full-description-element",
           "--product-element-spacing",
           spacing + "px"
         );

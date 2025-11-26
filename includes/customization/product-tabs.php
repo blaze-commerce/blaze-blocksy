@@ -37,6 +37,31 @@ class BlazeBlocksy_Product_Tabs_Customizer {
 
 		// Handle disabling default product tabs using remove_action
 		add_action( 'wp', array( $this, 'maybe_disable_default_tabs' ) );
+
+		// Generate dynamic CSS for spacing
+		add_action( 'blocksy:global-dynamic-css:enqueue', array( $this, 'generate_dynamic_css' ), 10, 1 );
+
+		// Enqueue customizer preview script for live preview
+		add_action( 'customize_preview_init', array( $this, 'enqueue_customizer_preview_script' ) );
+	}
+
+	/**
+	 * Enqueue customizer preview script for live preview
+	 *
+	 * @return void
+	 */
+	public function enqueue_customizer_preview_script() {
+		$js_file = get_stylesheet_directory() . '/assets/js/customizer-preview-product-tabs.js';
+
+		if ( file_exists( $js_file ) ) {
+			wp_enqueue_script(
+				'blaze-blocksy-product-tabs-customizer-preview',
+				get_stylesheet_directory_uri() . '/assets/js/customizer-preview-product-tabs.js',
+				array( 'jquery', 'customize-preview' ),
+				filemtime( $js_file ),
+				true
+			);
+		}
 	}
 
 	/**
@@ -150,6 +175,49 @@ class BlazeBlocksy_Product_Tabs_Customizer {
 		woocommerce_output_product_data_tabs();
 
 		echo '</div>';
+	}
+
+	/**
+	 * Generate dynamic CSS for Product Tabs spacing
+	 *
+	 * @param array $args CSS generation arguments from Blocksy.
+	 * @return void
+	 */
+	public function generate_dynamic_css( $args ) {
+		$css = $args['css'];
+		$tablet_css = $args['tablet_css'];
+		$mobile_css = $args['mobile_css'];
+
+		// Get layout and find our layer
+		$layout = blocksy_get_theme_mod( 'woo_single_layout', array() );
+
+		foreach ( $layout as $layer ) {
+			if ( ! isset( $layer['id'] ) || 'product_tabs_element' !== $layer['id'] ) {
+				continue;
+			}
+
+			if ( empty( $layer['enabled'] ) ) {
+				continue;
+			}
+
+			// Get spacing value from layer
+			$spacing = blocksy_akg( 'spacing', $layer, 20 );
+
+			// Output responsive spacing CSS
+			blocksy_output_responsive(
+				array(
+					'css' => $css,
+					'tablet_css' => $tablet_css,
+					'mobile_css' => $mobile_css,
+					'selector' => '.entry-summary-items > .ct-product-tabs-element',
+					'variableName' => 'product-element-spacing',
+					'value' => $spacing,
+					'unit' => 'px',
+				)
+			);
+
+			break;
+		}
 	}
 }
 
