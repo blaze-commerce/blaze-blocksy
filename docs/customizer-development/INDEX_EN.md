@@ -62,15 +62,38 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 
 ### 4. **FAQ_TROUBLESHOOTING_EN.md** 🔧 Problem Solving
    **Description**: FAQ and troubleshooting guide
-   
+
    **Contents:**
    - 10 most common FAQs
    - Common errors and solutions
    - Debugging tips
    - Performance tips
    - Best practices checklist
-   
+
    **When to use**: When facing problems or errors
+
+---
+
+### 5. **LIVE_PREVIEW_TROUBLESHOOTING.md** 🎯 Live Preview Deep Dive
+   **Description**: Complete guide for fixing live preview issues
+
+   **Contents:**
+   - Root cause analysis of live preview problems
+   - Why design changes don't reflect immediately
+   - Step-by-step fix with complete code examples
+   - JavaScript sync configuration explained
+   - Complete working example (Product Stock Element)
+   - Understanding the live preview flow
+   - Debugging techniques for preview issues
+   - Advanced patterns and best practices
+
+   **When to use**:
+   - When design changes don't appear in live preview
+   - When settings don't update after clicking "Publish"
+   - When you need to add JavaScript sync for custom elements
+   - When implementing typography or color options
+
+   **⚠️ CRITICAL**: Read this if your custom element's design options don't work in live preview!
 
 ---
 
@@ -99,7 +122,8 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 1. **Read**: `QUICK_START_GUIDE_EN.md` → Section "Checklist: Adding Design Options"
 2. **Copy**: `CODE_TEMPLATES_EN.md` → Template 3, 4, 5
 3. **Reference**: `BLOCKSY_CUSTOMIZER_TECHNICAL_GUIDE_EN.md` → Section "Adding Design Settings with Live Preview"
-4. **Troubleshoot**: `FAQ_TROUBLESHOOTING_EN.md` → Q5, Q6
+4. **⚠️ CRITICAL**: `LIVE_PREVIEW_TROUBLESHOOTING.md` → Complete JavaScript sync setup
+5. **Troubleshoot**: `FAQ_TROUBLESHOOTING_EN.md` → Q5, Q6
 
 ---
 
@@ -163,6 +187,7 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 - FAQ: Q6
 
 **Live Preview**
+- **⚠️ START HERE**: `LIVE_PREVIEW_TROUBLESHOOTING.md` (Complete guide)
 - Quick Start: Important Hooks
 - Template: Template 5
 - Technical: Section "Live Preview Sync"
@@ -297,6 +322,12 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 
 ## 📝 Version History
 
+### Version 1.1.0 (2025-11-26)
+- **NEW**: Added `LIVE_PREVIEW_TROUBLESHOOTING.md` - Complete live preview troubleshooting guide
+- Updated `FAQ_TROUBLESHOOTING_EN.md` with reference to new guide
+- Updated `INDEX_EN.md` with new document references
+- Total: 5 comprehensive documents + 1 index
+
 ### Version 1.0.0 (2025-11-26)
 - Initial documentation release
 - 4 comprehensive documents
@@ -308,9 +339,9 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 
 ## 🎯 Summary
 
-**Total Documents**: 4 files + 1 index  
-**Total Templates**: 8 ready-to-use templates  
-**Total FAQ**: 10 questions + 5 common errors  
+**Total Documents**: 5 files + 1 index
+**Total Templates**: 8 ready-to-use templates
+**Total FAQ**: 10 questions + 5 common errors
 **Coverage**: Complete Blocksy Customizer development workflow
 
 **Recommended Reading Order**:
@@ -319,6 +350,7 @@ Complete documentation for AI Agent in creating custom functions for Blocksy The
 3. CODE_TEMPLATES_EN.md
 4. BLOCKSY_CUSTOMIZER_TECHNICAL_GUIDE_EN.md
 5. FAQ_TROUBLESHOOTING_EN.md
+6. **LIVE_PREVIEW_TROUBLESHOOTING.md** ← Read when live preview doesn't work!
 
 ---
 

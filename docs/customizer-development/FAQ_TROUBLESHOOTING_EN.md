@@ -132,15 +132,28 @@ add_action('blocksy:woocommerce:product:custom:layer', function($layer) {
 
 ### Q5: Live preview doesn't work?
 
-**A:** Checklist:
+**A:** This is a **critical issue** that requires JavaScript sync configuration.
 
-1. ✅ Is `'setting' => ['transport' => 'postMessage']` added?
-2. ✅ Is dynamic CSS generated?
-3. ✅ Is JavaScript sync enqueued?
-4. ✅ Check browser console for errors
+**⚠️ IMPORTANT**: If design changes don't reflect in live preview, you're missing JavaScript sync configuration!
+
+**Quick Checklist:**
+
+1. ✅ Is JavaScript sync added to `single-product-layers.js`?
+2. ✅ Is element added to `selectorsMap`?
+3. ✅ Are design options added to `getWooSingleLayersVariablesFor()`?
+4. ✅ Did you run `npm run build` after editing JS?
 5. ✅ Hard refresh browser (Ctrl+Shift+R)
 
-**Alternative:** Use `blocksy_sync_whole_page()` for selective refresh:
+**📖 See Complete Guide**: `LIVE_PREVIEW_TROUBLESHOOTING.md`
+
+This document provides:
+- Root cause analysis
+- Step-by-step fix with code examples
+- Complete working example (Product Stock)
+- Debugging techniques
+- Advanced patterns
+
+**Quick Fix:** Use `blocksy_sync_whole_page()` for selective refresh (temporary solution):
 
 ```php
 'my_option' => [
@@ -151,6 +164,8 @@ add_action('blocksy:woocommerce:product:custom:layer', function($layer) {
     ]),
 ],
 ```
+
+**Note**: This causes partial page refresh. For instant updates, add proper JS sync configuration.
 
 ---
 
