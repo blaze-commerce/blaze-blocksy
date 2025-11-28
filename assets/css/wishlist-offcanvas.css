@@ -583,6 +583,84 @@ body[data-panel] #wishlist-offcanvas-panel.active {
     background-color: rgba(18, 21, 25, 0.6);
 }
 
+/* CRITICAL FIX: Override Blocksy's pointer-events: none on panels */
+/* Ensure wishlist off-canvas is always clickable when active */
+#wishlist-offcanvas-panel.active {
+    pointer-events: auto !important;
+}
+
+#wishlist-offcanvas-panel.active * {
+    pointer-events: auto !important;
+}
+
+/* COMPREHENSIVE CLICKABILITY FIX - Force all interactive elements to be clickable */
+#wishlist-offcanvas-panel a,
+#wishlist-offcanvas-panel button,
+#wishlist-offcanvas-panel input,
+#wishlist-offcanvas-panel select,
+#wishlist-offcanvas-panel textarea,
+#wishlist-offcanvas-panel .button,
+#wishlist-offcanvas-panel .ct-wishlist-remove,
+#wishlist-offcanvas-panel .add_to_cart_button,
+#wishlist-offcanvas-panel .ct-toggle-close,
+#wishlist-offcanvas-panel .wishlist-item,
+#wishlist-offcanvas-panel .recommendation-item,
+#wishlist-offcanvas-panel .wishlist-item-title a,
+#wishlist-offcanvas-panel .recommendation-item-title a,
+#wishlist-offcanvas-panel .wishlist-item-image a,
+#wishlist-offcanvas-panel .recommendation-item-image a,
+#wishlist-offcanvas-panel .guest-signup-button,
+#wishlist-offcanvas-panel .signup-button {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Ensure no overlay elements are blocking clicks */
+#wishlist-offcanvas-panel .ct-panel-content,
+#wishlist-offcanvas-panel .ct-panel-content-inner,
+#wishlist-offcanvas-panel .ct-offcanvas-wishlist,
+#wishlist-offcanvas-panel .wishlist-items,
+#wishlist-offcanvas-panel .wishlist-recommendations {
+    pointer-events: auto !important;
+    position: relative !important;
+}
+
+/* Fix for any pseudo-elements that might be blocking clicks */
+#wishlist-offcanvas-panel *::before,
+#wishlist-offcanvas-panel *::after {
+    pointer-events: none !important;
+}
+
+/* NUCLEAR OPTION: Force all elements in the panel to be clickable */
+#wishlist-offcanvas-panel,
+#wishlist-offcanvas-panel *,
+body[data-panel] #wishlist-offcanvas-panel,
+body[data-panel] #wishlist-offcanvas-panel * {
+    pointer-events: auto !important;
+}
+
+/* Ensure no Blocksy overlay interference */
+body[data-panel*="in"] #wishlist-offcanvas-panel.active,
+body[data-panel*="in"] #wishlist-offcanvas-panel.active * {
+    pointer-events: auto !important;
+}
+
+/* Force visibility and interaction for all links */
+#wishlist-offcanvas-panel a {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Ensure no transform or positioning issues block clicks */
+#wishlist-offcanvas-panel .wishlist-item,
+#wishlist-offcanvas-panel .recommendation-item {
+    transform: none !important;
+    will-change: auto !important;
+}
+
 /* Fallback styles for when Blocksy off-canvas is not available */
 body.wishlist-offcanvas-open {
     overflow: hidden;
