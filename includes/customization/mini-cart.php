@@ -16,7 +16,7 @@ function add_mini_cart_localize_data( $data ) {
 /**
  * Override mini cart template
  */
-add_filter( 'wc_get_template', function ($template, $template_name, $args) {
+add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
 
 	if ( 'cart/mini-cart.php' === $template_name ) {
 		return BLAZE_BLOCKSY_PATH . '/woocommerce/cart/mini-cart.php';
@@ -53,23 +53,21 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 /**
  * Customize mini cart total display with price breakdown
  */
-add_action( 'woocommerce_widget_shopping_cart_total', function ($total_html) {
+add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	if ( ! WC()->cart ) {
 		return $total_html;
 	}
 
-	$cart = WC()->cart;
-	$subtotal = $cart->get_subtotal();
+	$cart           = WC()->cart;
 	$discount_total = $cart->get_discount_total();
-	$shipping_total = $cart->get_shipping_total();
-	$tax_total = $cart->get_total_tax();
+
 
 	ob_start();
 	?>
 	<div class="mini-cart-totals-breakdown">
 		<div class="total-line subtotal-line">
 			<span class="total-label"><?php esc_html_e( 'Subtotal', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"><?php echo wc_price( $subtotal ); ?></span>
+			<span class="total-amount"><?php wc_cart_totals_subtotal_html(); ?></span>
 		</div>
 
 		<?php if ( $discount_total > 0 ) : ?>
@@ -98,7 +96,7 @@ add_action( 'wp', function () {
  */
 add_action( 'woocommerce_widget_shopping_cart_buttons', function () {
 	$checkout_url = wc_get_checkout_url();
-	$cart_url = wc_get_cart_url();
+	$cart_url     = wc_get_cart_url();
 
 	ob_start();
 	?>
@@ -148,7 +146,7 @@ add_action( 'woocommerce_mini_cart_contents', function () {
  */
 function blaze_blocksy_get_recommended_products_for_mini_cart() {
 	// Get related products based on cart items or fallback to recent products
-	$cart_items = WC()->cart->get_cart();
+	$cart_items  = WC()->cart->get_cart();
 	$product_ids = array();
 
 	// Collect product IDs from cart
@@ -161,10 +159,10 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 	if ( ! empty( $product_ids ) ) {
 		// Get related products from the first cart item
 		$first_product_id = $product_ids[0];
-		$product = wc_get_product( $first_product_id );
+		$product          = wc_get_product( $first_product_id );
 
 		if ( $product ) {
-			$related_ids = wc_get_related_products( $first_product_id, 2 );
+			$related_ids          = wc_get_related_products( $first_product_id, 2 );
 			$recommended_products = $related_ids;
 		}
 	}
@@ -224,7 +222,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 		WC_AJAX::get_refreshed_fragments();
 	} else {
 		// Get the last error message
-		$notices = wc_get_notices( 'error' );
+		$notices       = wc_get_notices( 'error' );
 		$error_message = ! empty( $notices ) ? $notices[0]['notice'] : __( 'Invalid coupon code.', 'blaze-blocksy' );
 		wc_clear_notices();
 
@@ -235,7 +233,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 /**
  * Add field URL to Blocksy cart customizer options
  */
-add_filter( 'blocksy:options:retrieve', function ($options, $path, $pass_inside) {
+add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
 	// Check if this is the cart options file
 	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
 		return $options;
@@ -272,8 +270,8 @@ add_filter( 'blocksy:options:retrieve', function ($options, $path, $pass_inside)
 add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	// Get URL from Blocksy cart options
 	if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
-		$header = new Blocksy_Header_Builder_Render();
-		$atts = $header->get_item_data_for( 'cart' );
+		$header   = new Blocksy_Header_Builder_Render();
+		$atts     = $header->get_item_data_for( 'cart' );
 		$help_url = blocksy_akg( 'mini_cart_help_url', $atts, '/contact' );
 	} else {
 		$help_url = '/contact'; // Fallback
