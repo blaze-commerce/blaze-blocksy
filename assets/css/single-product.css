@@ -1,5 +1,5 @@
 .single-product .entry-summary,
-.entry-summary-items > .ct-product-add-to-cart {
+.entry-summary-items>.ct-product-add-to-cart {
   --product-element-spacing: 12px;
 }
 
@@ -7,25 +7,11 @@
   margin: 0;
 }
 
-.single-product .entry-summary .woocommerce-product-rating > * {
-  font-size: 14px;
-  line-height: 24px;
+.single-product .woocommerce-product-rating .woocommerce-review-link:hover {
+  color: black;
 }
 
-.single-product .entry-summary .woocommerce-product-rating .star-rating:before,
-.single-product
-  .entry-summary
-  .woocommerce-product-rating
-  .star-rating
-  > span:before {
-  font-size: 0.9em !important;
-  line-height: 1em !important;
-}
-
-.single-product
-  .entry-summary
-  .ct-price-installment
-  .ct-price-installment-logo {
+.single-product .entry-summary .ct-price-installment .ct-price-installment-logo {
   display: flex;
   gap: 10px;
   justify-content: flex-start;
@@ -42,7 +28,7 @@
   padding-bottom: 40px;
 }
 
-.products .owl-theme .owl-nav.disabled + .owl-dots {
+.products .owl-theme .owl-nav.disabled+.owl-dots {
   margin-top: 24px;
 }
 
@@ -74,7 +60,7 @@
     padding-bottom: 0px;
   }
 
-  .product > .woocommerce-tabs {
+  .product>.woocommerce-tabs {
     padding-top: 24px;
   }
 }
@@ -98,7 +84,7 @@
   }
 }
 
-.entry-summary .ct-product-divider + .ct-product-divider {
+.entry-summary .ct-product-divider+.ct-product-divider {
   display: none;
 }
 
@@ -163,6 +149,7 @@
 */
 
 @media screen and (max-width: 768px) {
+
   .related.products .ct-module-title,
   .up-sells.products .ct-module-title {
     font-size: 24px !important;
@@ -202,20 +189,13 @@
   gap: 0 !important;
 }
 
-.ct-floating-bar
-  .ct-floating-bar-content
-  .product-price
-  .wwp-wholesale-pricing-details {
+.ct-floating-bar .ct-floating-bar-content .product-price .wwp-wholesale-pricing-details {
   display: flex;
   flex-flow: column;
   gap: 0;
 }
 
-.ct-floating-bar
-  .ct-floating-bar-content
-  .product-price
-  .wwp-wholesale-pricing-details
-  p {
+.ct-floating-bar .ct-floating-bar-content .product-price .wwp-wholesale-pricing-details p {
   font-size: 12px;
   margin: 0;
 }
@@ -237,17 +217,12 @@
   align-items: center;
 }
 
-.ct-product-add-to-cart
-  .ct-cart-actions
-  .ct-wishlist-button-single[data-button-state="active"] {
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single[data-button-state="active"] {
   background: var(--theme-button-background-initial-color);
   border-color: var(--theme-button-background-initial-color);
 }
 
-.ct-product-add-to-cart
-  .ct-cart-actions
-  .ct-wishlist-button-single[data-button-state="active"]
-  svg {
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single[data-button-state="active"] svg {
   fill: #fff;
 }
 

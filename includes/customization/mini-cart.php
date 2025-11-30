@@ -33,7 +33,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 	<div class="mini-cart-coupon-section">
 		<div class="coupon-toggle">
 			<span class="coupon-label"><?php esc_html_e( 'Coupon Code', 'blaze-blocksy' ); ?></span>
-			<span class="coupon-arrow">▼</span>
+			<span class="coupon-arrow">&#9660;</span>
 		</div>
 		<div class="coupon-form-wrapper" style="display: none;">
 			<form class="mini-cart-coupon-form" method="post">
@@ -59,10 +59,9 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	}
 
 	$cart = WC()->cart;
-	$subtotal = $cart->get_cart_subtotal();
+	// Use get_subtotal() which returns numeric value, not get_cart_subtotal() which returns HTML
+	$subtotal = $cart->get_subtotal();
 	$discount_total = $cart->get_discount_total();
-	$shipping_total = $cart->get_shipping_total();
-	$tax_total = $cart->get_total_tax();
 
 	ob_start();
 	?>
@@ -98,13 +97,12 @@ add_action( 'wp', function () {
  */
 add_action( 'woocommerce_widget_shopping_cart_buttons', function () {
 	$checkout_url = wc_get_checkout_url();
-	$cart_url = wc_get_cart_url();
 
 	ob_start();
 	?>
 	<a href="<?php echo esc_url( $checkout_url ); ?>" class="button checkout wc-forward secure-checkout-btn">
 		<?php esc_html_e( 'SECURE CHECKOUT', 'blaze-blocksy' ); ?>
-		<span class="checkout-arrow">→</span>
+		<span class="checkout-arrow">&rarr;</span>
 	</a>
 	<?php
 	echo ob_get_clean();
@@ -147,7 +145,11 @@ add_action( 'woocommerce_mini_cart_contents', function () {
  * Get recommended products for mini cart display
  */
 function blaze_blocksy_get_recommended_products_for_mini_cart() {
-	// Get related products based on cart items or fallback to recent products
+	// Early return if WooCommerce cart is not available
+	if ( ! WC()->cart ) {
+		return;
+	}
+
 	$cart_items = WC()->cart->get_cart();
 	$product_ids = array();
 
@@ -156,36 +158,47 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 		$product_ids[] = $cart_item['product_id'];
 	}
 
-	// Get related products
-	$recommended_products = array();
-	if ( ! empty( $product_ids ) ) {
-		// Get related products from the first cart item
-		$first_product_id = $product_ids[0];
-		$product = wc_get_product( $first_product_id );
+	// Generate cache key based on cart product IDs
+	$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
+	$recommended_products = get_transient( $cache_key );
 
-		if ( $product ) {
+	// If no cached data, fetch from database
+	if ( false === $recommended_products ) {
+		$recommended_products = array();
+
+		if ( ! empty( $product_ids ) ) {
+			// Get related products from the first cart item
+			$first_product_id = $product_ids[0];
 			$related_ids = wc_get_related_products( $first_product_id, 2 );
-			$recommended_products = $related_ids;
-		}
-	}
 
-	// Fallback to recent products if no related products found
-	if ( empty( $recommended_products ) ) {
-		$recent_products = wc_get_products( array(
-			'limit' => 2,
-			'orderby' => 'date',
-			'order' => 'DESC',
-			'status' => 'publish',
-			'exclude' => $product_ids
-		) );
-
-		foreach ( $recent_products as $product ) {
-			$recommended_products[] = $product->get_id();
+			if ( ! empty( $related_ids ) ) {
+				$recommended_products = $related_ids;
+			}
 		}
+
+		// Fallback to recent products if no related products found
+		if ( empty( $recommended_products ) ) {
+			$recent_products = wc_get_products( array(
+				'limit' => 2,
+				'orderby' => 'date',
+				'order' => 'DESC',
+				'status' => 'publish',
+				'exclude' => $product_ids,
+				'return' => 'ids', // Return only IDs for better performance
+			) );
+
+			$recommended_products = $recent_products;
+		}
+
+		// Cache for 1 hour
+		set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
 	}
 
 	// Display recommended products
 	if ( ! empty( $recommended_products ) ) {
+		// Store original product to restore later
+		$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+
 		echo '<div class="recommended-products-grid">';
 		foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
 			$product = wc_get_product( $product_id );
@@ -195,6 +208,9 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 			}
 		}
 		echo '</div>';
+
+		// Restore original product
+		$GLOBALS['product'] = $original_product;
 	}
 }
 
@@ -235,7 +251,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 /**
  * Add field URL to Blocksy cart customizer options
  */
-add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
+add_filter( 'blocksy:options:retrieve', function ( $options, $path ) {
 	// Check if this is the cart options file
 	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
 		return $options;
@@ -267,17 +283,31 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 }, 10, 3 );
 
 /**
+ * Get Blocksy cart options with caching
+ */
+function blaze_blocksy_get_cart_options() {
+	static $cart_options = null;
+
+	if ( null === $cart_options ) {
+		$cart_options = array();
+
+		if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
+			$header = new Blocksy_Header_Builder_Render();
+			$cart_options = $header->get_item_data_for( 'cart' );
+		}
+	}
+
+	return $cart_options;
+}
+
+/**
  * Add "Need Help?" link after mini cart
  */
 add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
-	// Get URL from Blocksy cart options
-	if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
-		$header = new Blocksy_Header_Builder_Render();
-		$atts = $header->get_item_data_for( 'cart' );
-		$help_url = blocksy_akg( 'mini_cart_help_url', $atts, '/contact' );
-	} else {
-		$help_url = '/contact'; // Fallback
-	}
+	$cart_options = blaze_blocksy_get_cart_options();
+	$help_url = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_help_url', $cart_options, '/contact' )
+		: '/contact';
 	?>
 	<div class="mini-cart-help">
 		<a href="<?php echo esc_url( $help_url ); ?>"
