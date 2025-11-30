@@ -385,6 +385,95 @@
   gap: 4px;
 }
 
+/* Stacked Layout for Recommended Products */
+.recommended-products-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recommended-product-item-stacked {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: var(--text-white);
+}
+
+.recommended-product-item-stacked:hover {
+  border-color: var(--border-medium);
+  box-shadow: 0 2px 8px var(--shadow-subtle);
+}
+
+.recommended-product-item-stacked .product-link-stacked {
+  display: grid;
+  grid-template-columns: 20% 1fr;
+  gap: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+  align-items: start;
+}
+
+.recommended-product-item-stacked .product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--product-image-bg);
+  margin: 0;
+}
+
+.recommended-product-item-stacked .product-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommended-product-item-stacked:hover .product-image-wrapper img {
+  transform: scale(1.05);
+}
+
+.recommended-product-item-stacked .product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recommended-product-item-stacked .product-title {
+  font-family: var(--theme-button-font-family, var(--theme-font-family));
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--text-dark);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recommended-product-item-stacked .product-price-quantity {
+  margin-top: 4px;
+}
+
+.recommended-product-item-stacked .product-price {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-dark);
+}
+
+.recommended-product-item-stacked .product-price del {
+  color: var(--text-light);
+  font-weight: 400;
+  margin-right: 6px;
+}
+
+.recommended-product-item-stacked .product-price ins {
+  text-decoration: none;
+}
+
 /* Need Help Section */
 .mini-cart-help {
   margin-bottom: 12px;

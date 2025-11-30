@@ -63,6 +63,12 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	$subtotal = $cart->get_subtotal();
 	$discount_total = $cart->get_discount_total();
 
+	// Get shipping/tax note from customizer
+	$cart_options = blaze_blocksy_get_cart_options();
+	$shipping_tax_note = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_shipping_tax_note', $cart_options, '* Shipping and tax are calculated after the shipping step is completed.' )
+		: '* Shipping and tax are calculated after the shipping step is completed.';
+
 	ob_start();
 	?>
 	<div class="mini-cart-totals-breakdown">
@@ -78,9 +84,11 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 			</div>
 		<?php endif; ?>
 
-		<div class="shipping-tax-note">
-			<small><?php esc_html_e( '* Shipping and tax are calculated after the shipping step is completed.', 'blaze-blocksy' ); ?></small>
-		</div>
+		<?php if ( ! empty( $shipping_tax_note ) ) : ?>
+			<div class="shipping-tax-note">
+				<small><?php echo esc_html( $shipping_tax_note ); ?></small>
+			</div>
+		<?php endif; ?>
 	</div>
 	<?php
 	echo ob_get_clean();
@@ -199,12 +207,22 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 		// Store original product to restore later
 		$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
 
-		echo '<div class="recommended-products-grid">';
+		// Get layout setting from customizer
+		$cart_options = blaze_blocksy_get_cart_options();
+		$layout = function_exists( 'blocksy_akg' )
+			? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
+			: 'stacked';
+
+		// Determine wrapper class and template based on layout
+		$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
+		$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+
+		echo '<div class="' . esc_attr( $wrapper_class ) . '">';
 		foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
 			$product = wc_get_product( $product_id );
 			if ( $product ) {
 				$GLOBALS['product'] = $product;
-				wc_get_template_part( 'product/recommend-product-card' );
+				wc_get_template_part( $template_name );
 			}
 		}
 		echo '</div>';
@@ -265,6 +283,60 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path ) {
 
 		'bmcu_section_title' => array(
 			'type' => 'ct-title',
+			'label' => __( 'Custom Text Settings', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_panel_title' => array(
+			'label' => __( 'Cart Panel Title', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => 'Shopping Cart',
+			'design' => 'block',
+			'desc' => __( 'Enter the title for the cart offcanvas panel header.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_empty_message' => array(
+			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => 'Your cart is empty, continue to shopping to add item',
+			'design' => 'block',
+			'desc' => __( 'Enter the message displayed when the cart is empty.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_continue_shopping_text' => array(
+			'label' => __( 'Continue Shopping Button Text', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => 'CONTINUE TO SHOPPING',
+			'design' => 'block',
+			'desc' => __( 'Enter the text for the continue shopping button.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_continue_shopping_url' => array(
+			'label' => __( 'Continue Shopping Button URL', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '',
+			'design' => 'block',
+			'desc' => __( 'Enter the URL for the continue shopping button. Leave empty to use default shop page.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_shipping_tax_note' => array(
+			'label' => __( 'Shipping & Tax Note', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '* Shipping and tax are calculated after the shipping step is completed.',
+			'design' => 'block',
+			'desc' => __( 'Enter the shipping and tax note displayed below subtotal.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'bmcu_url_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_url_section_title' => array(
+			'type' => 'ct-title',
 			'label' => __( 'Custom URL Settings', 'blaze-blocksy' ),
 		),
 
@@ -274,6 +346,29 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path ) {
 			'value' => '/contact',
 			'design' => 'block',
 			'desc' => __( 'Enter URL for the "Need Help?" link in mini cart.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'bmcu_layout_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_layout_section_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Recommendation Products Layout', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_recommendation_layout' => array(
+			'label' => __( 'Product Card Layout', 'blaze-blocksy' ),
+			'type' => 'ct-radio',
+			'value' => 'stacked',
+			'view' => 'text',
+			'design' => 'block',
+			'choices' => array(
+				'grid' => __( 'Grid (2 Columns)', 'blaze-blocksy' ),
+				'stacked' => __( 'Stacked (Like Cart Items)', 'blaze-blocksy' ),
+			),
+			'desc' => __( 'Choose how recommendation products are displayed in mini cart.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
 		),
 	);
@@ -301,6 +396,48 @@ function blaze_blocksy_get_cart_options() {
 }
 
 /**
+ * Override cart panel heading text
+ * Hooks into Blocksy Companion's cart panel rendering via output buffer
+ */
+add_action( 'wp', function () {
+	// Add output buffer to modify cart panel heading
+	add_action( 'wp_footer', 'blaze_blocksy_start_cart_panel_buffer', 0 );
+	add_action( 'wp_footer', 'blaze_blocksy_end_cart_panel_buffer', 999999 );
+} );
+
+/**
+ * Start output buffer for cart panel modification
+ */
+function blaze_blocksy_start_cart_panel_buffer() {
+	ob_start();
+}
+
+/**
+ * End output buffer and replace cart panel heading
+ */
+function blaze_blocksy_end_cart_panel_buffer() {
+	$content = ob_get_clean();
+
+	// Get custom title from cart options
+	$cart_options = blaze_blocksy_get_cart_options();
+	$custom_title = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
+		: 'Shopping Cart';
+
+	// Only replace if custom title is different from default
+	if ( ! empty( $custom_title ) && $custom_title !== 'Shopping Cart' ) {
+		// Replace the cart panel heading text
+		$content = preg_replace(
+			'/<span class="ct-panel-heading">Shopping Cart<\/span>/',
+			'<span class="ct-panel-heading">' . esc_html( $custom_title ) . '</span>',
+			$content
+		);
+	}
+
+	echo $content;
+}
+
+/**
  * Add "Need Help?" link after mini cart
  */
 add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
@@ -308,12 +445,16 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	$help_url = function_exists( 'blocksy_akg' )
 		? blocksy_akg( 'mini_cart_help_url', $cart_options, '/contact' )
 		: '/contact';
+
+	if ( empty( $help_url ) ) {
+		return;
+	}
 	?>
-	<div class="mini-cart-help">
-		<a href="<?php echo esc_url( $help_url ); ?>"
-			class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
-	</div>
-	<?php
+		<div class="mini-cart-help">
+			<a href="<?php echo esc_url( $help_url ); ?>"
+				class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
+		</div>
+		<?php
 }, 10 );
 
 
