@@ -1,3 +1,7 @@
+---
+type: "always_apply"
+---
+
 # ALWAYS: Comprehensive Code Review Standards with Git Workflow Integration
 
 **Priority:** ALWAYS (Automatically applied to every code change)
