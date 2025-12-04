@@ -1,0 +1,51 @@
+/**
+ * Slideshow on Mobile for Stacked Gallery
+ *
+ * Toggle visibility between stacked gallery (desktop) and slideshow (mobile)
+ * when "Use Slideshow on Mobile" option is enabled.
+ *
+ * @package Blaze_Blocksy
+ * @since 1.44.0
+ */
+
+/* ==========================================================================
+   Desktop: Show stacked gallery, hide slideshow
+   ========================================================================== */
+
+.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.flexy-container {
+	display: none;
+}
+
+.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.ct-stacked-gallery-container {
+	display: grid;
+}
+
+/* ==========================================================================
+   Mobile: Hide stacked gallery, show slideshow
+   Breakpoint: 767px (Blocksy mobile breakpoint)
+   ========================================================================== */
+
+@media (max-width: 767px) {
+	.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.flexy-container {
+		display: flex !important;
+	}
+
+	.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.ct-stacked-gallery-container {
+		display: none !important;
+	}
+
+	/* Ensure mobile slideshow takes full width */
+	.ct-stacked-with-mobile-slideshow .flexy-container .ct-media-container {
+		width: 100%;
+	}
+
+	/* Fix any potential spacing issues on mobile */
+	.ct-stacked-with-mobile-slideshow .flexy-container {
+		margin: 0;
+	}
+
+	/* Ensure pills/thumbnails are visible and properly styled */
+	.ct-stacked-with-mobile-slideshow .flexy-pills {
+		margin-top: 10px;
+	}
+}

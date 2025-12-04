@@ -143,6 +143,7 @@ $required_files = [
 	'/includes/customization/product-tabs.php',
 	'/includes/customization/product-stock.php',
 	'/includes/customization/product-full-description.php',
+	'/includes/customization/slideshow-on-mobile.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
