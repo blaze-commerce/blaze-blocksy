@@ -74,7 +74,7 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	<div class="mini-cart-totals-breakdown">
 		<div class="total-line subtotal-line">
 			<span class="total-label"><?php esc_html_e( 'Subtotal', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"><?php echo wc_price( $subtotal ); ?></span>
+			<span class="total-amount"><?php wc_cart_totals_subtotal_html(); ?></span>
 		</div>
 
 		<?php if ( $discount_total > 0 ) : ?>
@@ -450,11 +450,11 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 		return;
 	}
 	?>
-		<div class="mini-cart-help">
-			<a href="<?php echo esc_url( $help_url ); ?>"
-				class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
-		</div>
-		<?php
+	<div class="mini-cart-help">
+		<a href="<?php echo esc_url( $help_url ); ?>"
+			class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
+	</div>
+	<?php
 }, 10 );
 
 
