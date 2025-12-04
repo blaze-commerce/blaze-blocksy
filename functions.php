@@ -27,6 +27,7 @@ function blaze_blocksy_fluid_checkout_spacing() {
 		.woocommerce-checkout .fc-progress-bar {
 			margin-bottom: 20px !important;
 		}
+
 		.fc-wrapper .fc-express-checkout,
 		.woocommerce-checkout .fc-express-checkout {
 			margin-bottom: 20px !important;
@@ -139,6 +140,10 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
+	'/includes/customization/product-tabs.php',
+	'/includes/customization/product-stock.php',
+	'/includes/customization/product-full-description.php',
+	'/includes/customization/slideshow-on-mobile.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
@@ -167,11 +172,11 @@ foreach ( $required_files as $file ) {
 	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
 		try {
 			require_once $file_path;
-		} catch ( Error $e ) {
+		} catch (Error $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
 			}
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Exception loading ' . $file . ': ' . $e->getMessage() );
 			}

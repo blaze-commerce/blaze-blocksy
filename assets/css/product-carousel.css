@@ -25,7 +25,7 @@
 }
 
 /* Ensure consistent product card heights */
-.blaze-product-carousel .product > * {
+.blaze-product-carousel .product>* {
   flex-shrink: 0;
 }
 
@@ -75,6 +75,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -117,24 +118,24 @@
 }
 
 /* Ensure proper spacing in carousel context */
-.blaze-product-carousel .product > * {
+.blaze-product-carousel .product>* {
   padding-left: var(--product-card-element-spacing, 16px) !important;
   padding-right: var(--product-card-element-spacing, 16px) !important;
 }
 
-.blaze-product-carousel .product > figure {
+.blaze-product-carousel .product>figure {
   padding: 0 !important;
   margin-bottom: var(--product-card-element-spacing, 16px) !important;
 }
 
 /* Mobile responsive spacing */
 @media screen and (max-width: 768px) {
-  .blaze-product-carousel .product > * {
+  .blaze-product-carousel .product>* {
     padding-left: var(--mobile-product-card-element-spacing, 12px) !important;
     padding-right: var(--mobile-product-card-element-spacing, 12px) !important;
   }
 
-  .blaze-product-carousel .product > figure {
+  .blaze-product-carousel .product>figure {
     margin-bottom: var(--mobile-product-card-element-spacing, 12px) !important;
   }
 }
@@ -202,6 +203,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   .blaze-product-carousel .owl-nav button,
   .blaze-product-carousel .owl-dots .owl-dot span {
     transition: none;
@@ -209,5 +211,42 @@
 
   .blaze-product-carousel.loading::before {
     animation: none;
+  }
+}
+
+/* ============================================
+   Product Card Hover Effects
+   ============================================ */
+
+/* Add-to-cart button base state */
+.blaze-product-carousel .product .ct-woo-card-actions a {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+/* Hover effect on add-to-cart when product card is hovered */
+.blaze-product-carousel .product:hover .ct-woo-card-actions a {
+  background-color: var(--theme-palette-color-1, #007cba);
+  color: #fff;
+  border-color: var(--theme-palette-color-1, #007cba);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Active state for better feedback */
+.blaze-product-carousel .product:hover .ct-woo-card-actions a:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Reduced motion support for hover effects */
+@media (prefers-reduced-motion: reduce) {
+  .blaze-product-carousel .product .ct-woo-card-actions a {
+    transition: none;
+  }
+
+  .blaze-product-carousel .product:hover .ct-woo-card-actions a {
+    transform: none;
+    box-shadow: none;
   }
 }
