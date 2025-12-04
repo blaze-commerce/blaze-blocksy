@@ -2,9 +2,9 @@
 /**
  * Slideshow on Mobile for Stacked Gallery
  *
- * Adds class to gallery container and renders slideshow for mobile
+ * Adds class to gallery container and renders OwlCarousel slideshow for mobile
  * when stacked gallery is selected and "Use Slideshow on Mobile" option is enabled.
- * CSS is used to toggle visibility based on viewport width.
+ * Uses Fancybox for lightbox/zoom functionality.
  *
  * @package Blaze_Blocksy
  * @since 1.44.0
@@ -53,8 +53,8 @@ class Blaze_Blocksy_Slideshow_On_Mobile {
 		// Add slideshow after stacked gallery content
 		add_filter( 'blocksy:woocommerce:product-view:content', array( $this, 'append_mobile_slideshow' ), 9999, 4 );
 
-		// Enqueue styles
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		// Enqueue styles and scripts
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
 	/**
@@ -153,33 +153,56 @@ class Blaze_Blocksy_Slideshow_On_Mobile {
 	}
 
 	/**
-	 * Render slideshow gallery using blocksy_flexy.
+	 * Render slideshow gallery using OwlCarousel + Fancybox.
 	 *
 	 * @param array $gallery_images Gallery image IDs.
 	 * @param bool  $is_single      Whether on single product page.
 	 * @return string HTML content.
 	 */
 	private function render_slideshow_gallery( $gallery_images, $is_single ) {
-		$single_ratio = blocksy_get_theme_mod( 'product_gallery_ratio', '3/4' );
-		$default_ratio = apply_filters( 'blocksy:woocommerce:default_product_ratio', '3/4' );
-		$has_lazy_load = blocksy_get_theme_mod( 'has_lazy_load_single_product_image', 'yes' ) === 'yes';
+		$output = '<div class="blaze-gallery-container">';
 
-		$flexy_args = array(
-			'images' => $gallery_images,
-			'size' => 'woocommerce_single',
-			'pills_images' => $is_single ? $gallery_images : null,
-			'images_ratio' => $is_single ? $single_ratio : $default_ratio,
-			'lazyload' => $has_lazy_load,
-			'active_index' => 1,
-		);
+		// Main slider
+		$output .= '<div class="blaze-gallery-main owl-carousel owl-theme">';
+		foreach ( $gallery_images as $index => $image_id ) {
+			$full_src = wp_get_attachment_image_url( $image_id, 'full' );
+			$large_src = wp_get_attachment_image_url( $image_id, 'woocommerce_single' );
+			$alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+			$title = get_the_title( $image_id );
 
-		return blocksy_flexy( $flexy_args );
+			$output .= '<div class="blaze-slide-item">';
+			$output .= '<a href="' . esc_url( $full_src ) . '" data-fancybox="blaze-gallery" data-caption="' . esc_attr( $title ) . '">';
+			$output .= '<img src="' . esc_url( $large_src ) . '" alt="' . esc_attr( $alt ) . '" />';
+			$output .= '</a>';
+			$output .= '<button type="button" class="blaze-zoom-trigger" aria-label="' . esc_attr__( 'Zoom', 'blaze-blocksy' ) . '">';
+			$output .= '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>';
+			$output .= '</button>';
+			$output .= '</div>';
+		}
+		$output .= '</div>';
+
+		// Thumbnails
+		$output .= '<div class="blaze-gallery-thumbs owl-carousel owl-theme">';
+		foreach ( $gallery_images as $index => $image_id ) {
+			$thumb_src = wp_get_attachment_image_url( $image_id, 'woocommerce_gallery_thumbnail' );
+			$alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+			$active = ( 0 === $index ) ? ' active' : '';
+
+			$output .= '<div class="blaze-thumb-item' . $active . '" data-index="' . $index . '">';
+			$output .= '<img src="' . esc_url( $thumb_src ) . '" alt="' . esc_attr( $alt ) . '" />';
+			$output .= '</div>';
+		}
+		$output .= '</div>';
+
+		$output .= '</div>';
+
+		return $output;
 	}
 
 	/**
-	 * Enqueue styles for mobile slideshow.
+	 * Enqueue styles and scripts for mobile slideshow.
 	 */
-	public function enqueue_styles() {
+	public function enqueue_assets() {
 		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
 			return;
 		}
@@ -188,11 +211,61 @@ class Blaze_Blocksy_Slideshow_On_Mobile {
 			return;
 		}
 
+		// OwlCarousel CSS
 		wp_enqueue_style(
-			'blaze-blocksy-slideshow-on-mobile',
-			BLAZE_BLOCKSY_URL . '/assets/css/slideshow-on-mobile.css',
+			'owl-carousel',
+			BLAZE_BLOCKSY_URL . '/assets/vendor/owlcarousel/owl.carousel.min.css',
 			array(),
+			'2.3.4'
+		);
+		wp_enqueue_style(
+			'owl-carousel-theme',
+			BLAZE_BLOCKSY_URL . '/assets/vendor/owlcarousel/owl.theme.default.min.css',
+			array( 'owl-carousel' ),
+			'2.3.4'
+		);
+
+		// Fancybox CSS
+		wp_enqueue_style(
+			'fancybox',
+			BLAZE_BLOCKSY_URL . '/assets/vendor/fancybox/fancybox.css',
+			array(),
+			'5.0'
+		);
+
+		// Custom CSS
+		wp_enqueue_style(
+			'blaze-mobile-gallery',
+			BLAZE_BLOCKSY_URL . '/assets/css/slideshow-on-mobile.css',
+			array( 'owl-carousel', 'fancybox' ),
 			filemtime( BLAZE_BLOCKSY_PATH . '/assets/css/slideshow-on-mobile.css' )
+		);
+
+		// OwlCarousel JS
+		wp_enqueue_script(
+			'owl-carousel',
+			BLAZE_BLOCKSY_URL . '/assets/vendor/owlcarousel/owl.carousel.min.js',
+			array( 'jquery' ),
+			'2.3.4',
+			true
+		);
+
+		// Fancybox JS
+		wp_enqueue_script(
+			'fancybox',
+			BLAZE_BLOCKSY_URL . '/assets/vendor/fancybox/fancybox.umd.js',
+			array(),
+			'5.0',
+			true
+		);
+
+		// Custom JS
+		wp_enqueue_script(
+			'blaze-mobile-gallery',
+			BLAZE_BLOCKSY_URL . '/assets/js/mobile-gallery.js',
+			array( 'jquery', 'owl-carousel', 'fancybox' ),
+			filemtime( BLAZE_BLOCKSY_PATH . '/assets/js/mobile-gallery.js' ),
+			true
 		);
 	}
 }

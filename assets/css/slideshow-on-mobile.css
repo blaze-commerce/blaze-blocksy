@@ -3,49 +3,222 @@
  *
  * Toggle visibility between stacked gallery (desktop) and slideshow (mobile)
  * when "Use Slideshow on Mobile" option is enabled.
+ * Uses OwlCarousel for slider and Fancybox for lightbox.
  *
  * @package Blaze_Blocksy
  * @since 1.44.0
  */
 
 /* ==========================================================================
-   Desktop: Show stacked gallery, hide slideshow
+   Desktop: Show stacked gallery, hide OwlCarousel slideshow
    ========================================================================== */
-
-.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.flexy-container {
-	display: none;
-}
 
 .ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.ct-stacked-gallery-container {
 	display: grid;
 }
 
+.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.blaze-gallery-container {
+	display: none;
+}
+
 /* ==========================================================================
-   Mobile: Hide stacked gallery, show slideshow
+   Mobile: Hide stacked gallery, show OwlCarousel slideshow
    Breakpoint: 767px (Blocksy mobile breakpoint)
    ========================================================================== */
 
 @media (max-width: 767px) {
-	.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.flexy-container {
-		display: flex !important;
-	}
-
 	.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.ct-stacked-gallery-container {
 		display: none !important;
 	}
 
-	/* Ensure mobile slideshow takes full width */
-	.ct-stacked-with-mobile-slideshow .flexy-container .ct-media-container {
-		width: 100%;
+	.ct-stacked-with-mobile-slideshow .ct-product-gallery-container>.blaze-gallery-container {
+		display: block !important;
+	}
+}
+
+/* ==========================================================================
+   Blaze Gallery Container
+   ========================================================================== */
+
+.blaze-gallery-container {
+	position: relative;
+	width: 100%;
+}
+
+/* ==========================================================================
+   Main Slider
+   ========================================================================== */
+
+.blaze-gallery-main {
+	position: relative;
+	border-radius: var(--theme-border-radius, 8px);
+	overflow: hidden;
+}
+
+.blaze-gallery-main .blaze-slide-item {
+	position: relative;
+}
+
+.blaze-gallery-main .blaze-slide-item a {
+	display: block;
+	width: 100%;
+}
+
+.blaze-gallery-main .blaze-slide-item img {
+	width: 100%;
+	height: auto;
+	display: block;
+	aspect-ratio: 3/4;
+	object-fit: cover;
+}
+
+/* Zoom Button */
+.blaze-zoom-trigger {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 40px;
+	height: 40px;
+	border: none;
+	border-radius: 50%;
+	background: var(--theme-palette-color-8, #fff);
+	color: var(--theme-palette-color-1, #333);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	transition: all 0.3s ease;
+	z-index: 10;
+}
+
+.blaze-zoom-trigger:hover {
+	background: var(--theme-palette-color-1, #333);
+	color: var(--theme-palette-color-8, #fff);
+	transform: scale(1.1);
+}
+
+/* ==========================================================================
+   OwlCarousel Navigation Arrows
+   ========================================================================== */
+
+.blaze-gallery-main .owl-nav {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	transform: translateY(-50%);
+	display: flex;
+	justify-content: space-between;
+	padding: 0 10px;
+	pointer-events: none;
+}
+
+.blaze-gallery-main .owl-nav button {
+	pointer-events: auto;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--theme-palette-color-8, #fff) !important;
+	color: var(--theme-palette-color-1, #333) !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	transition: all 0.3s ease;
+	border: none !important;
+}
+
+.blaze-gallery-main .owl-nav button:hover {
+	background: var(--theme-palette-color-1, #333) !important;
+	color: var(--theme-palette-color-8, #fff) !important;
+}
+
+.blaze-gallery-main .owl-nav button.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.blaze-gallery-main .owl-nav button span {
+	display: none;
+}
+
+.blaze-gallery-main .owl-nav button svg {
+	width: 16px;
+	height: 10px;
+}
+
+
+/* ==========================================================================
+   Thumbnails Slider
+   ========================================================================== */
+
+.blaze-gallery-thumbs {
+	margin-top: 10px;
+}
+
+.blaze-gallery-thumbs .blaze-thumb-item {
+	cursor: pointer;
+	border-radius: var(--theme-border-radius, 4px);
+	overflow: hidden;
+	border: 2px solid transparent;
+	transition: all 0.3s ease;
+	opacity: 0.6;
+}
+
+.blaze-gallery-thumbs .blaze-thumb-item:hover,
+.blaze-gallery-thumbs .blaze-thumb-item.active {
+	border-color: var(--theme-palette-color-1, #333);
+	opacity: 1;
+}
+
+.blaze-gallery-thumbs .blaze-thumb-item img {
+	width: 100%;
+	height: auto;
+	display: block;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+/* ==========================================================================
+   Fancybox Customization
+   ========================================================================== */
+
+.fancybox__container {
+	--fancybox-bg: rgba(0, 0, 0, 0.9);
+}
+
+.fancybox__toolbar {
+	background: transparent;
+}
+
+.fancybox__thumbs {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 480px) {
+	.blaze-gallery-main .owl-nav button {
+		width: 32px;
+		height: 32px;
 	}
 
-	/* Fix any potential spacing issues on mobile */
-	.ct-stacked-with-mobile-slideshow .flexy-container {
-		margin: 0;
+	.blaze-zoom-trigger {
+		width: 32px;
+		height: 32px;
+		top: 8px;
+		right: 8px;
 	}
 
-	/* Ensure pills/thumbnails are visible and properly styled */
-	.ct-stacked-with-mobile-slideshow .flexy-pills {
-		margin-top: 10px;
+	.blaze-zoom-trigger svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	.blaze-gallery-thumbs .owl-item {
+		padding: 0 2px;
 	}
 }
