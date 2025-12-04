@@ -59,8 +59,7 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	}
 
 	$cart = WC()->cart;
-	// Use get_subtotal() which returns numeric value, not get_cart_subtotal() which returns HTML
-	$subtotal = $cart->get_subtotal();
+	$subtotal = $cart->get_cart_subtotal();
 	$discount_total = $cart->get_discount_total();
 
 	// Get shipping/tax note from customizer
@@ -269,7 +268,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 /**
  * Add field URL to Blocksy cart customizer options
  */
-add_filter( 'blocksy:options:retrieve', function ( $options, $path ) {
+add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
 	// Check if this is the cart options file
 	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
 		return $options;
