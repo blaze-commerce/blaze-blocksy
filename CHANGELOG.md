@@ -7,6 +7,142 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.44.0] - 2025-12-05
+
+### Added
+- add Order Summary typography control and Blocksy custom fonts integration (#132)
+- Add custom field label replacement options for Fluid Checkout (#130)
+- Add Fluid Checkout spacing fix using wp_add_inline_style (#128)
+- add Progress Bar customization section to Fluid Checkout Styling (#126)
+- reposition and style progress bar for full width display (#124)
+- add default/inherit options to Fluid Checkout customizer controls (#121)
+- add Fluid Checkout customizer controls for step indicators and content text (#119)
+- Remove Fluid Checkout reset functionality and reorganize documentation (#117)
+- add offcanvas documentation
+- add Klaviyo star ratings integration with Blocksy theme compatibility (#114)
+- complete modular offcanvas content
+- override product image size to use WooCommerce thumbnail (#112)
+- add Blocksy customizer toggle for custom thank you page (#109)
+- add gitignore for all custom files
+- site customization init
+- improve mix-and-match configuration
+- mini cart total adjusment
+- shipping calculation adjustment
+- adjustment to the feedbacks
+- mini-cart adjustment for free shipping
+- adjustment
+- complete mix-and-match feature
+- update gutenberg block
+- change from modify the content to redirect user, since later we will implement cache function and it will be a problem if we modify the content
+- check access to dealer-resources page if admin, editor or wholesale user
+- add gutenberg block
+- replace admin email with WooCommerce from email in thank-you page (#94)
+- display navigation on product slider
+- modify layout on shop or product category page if sidebar enable
+- refactor product card and add view-more button on the swatches options
+- add customizable URL field for mini cart help link
+- update mini-cart and product features with enhanced styling and functionality
+- load more fix
+- load more button
+- modification load more button
+- update several things
+- complete mini cart style
+- product page adjustment
+- apply judgeme
+- complete product card
+- wip product information block
+- add documents
+
+### Changed
+- bump theme version to 1.43.0 (#133)
+- bump theme version to 1.42.0 (#131)
+- bump theme version to 1.41.0 (#129)
+- bump theme version to 1.40.0 (#127)
+- bump theme version to 1.39.0 (#125)
+- update the reference doc
+- bump theme version to 1.38.0 (#120)
+- bump theme version to 1.37.0 (#118)
+- bump theme version to 1.36.0 (#115)
+- bump theme version to 1.35.0 (#113)
+- clean up unneeded code
+- update docs
+- bump theme version to 1.34.0 (#104)
+- refactor variables for shipping calculator
+- update star rating
+- update comment rating
+- adjust star rating
+- bump theme version to 1.33.0 (#103)
+- Security fixes: Add plugin dependency safety checks and prevent memory leaks in variation swatches block (#102)
+- adjust hover color link based on global var
+- bump theme version to 1.32.0 (#100)
+- readjust carousel
+- mix and max adjustment
+- wip
+- wip
+- bump theme version to 1.32.0
+- add fields for my-account dashboard
+- bump theme version to 1.31.0 (#95)
+- bump theme version to 1.30.0 (#93)
+- update css for dashboard
+- add border radius field
+- bump theme version to 1.29.0 (#91)
+- Fix search issues and add product category customization (#90)
+- wip
+- update mobile search
+- wip
+- enqueue js scripts
+- checkpoint
+- bump theme version to 1.29.0
+- remove non-english docs
+- WIP
+- wip
+- WIP
+- WIP
+- update doc
+- update doc
+- augment WIP
+- WIP
+- wip
+- adjust you may also like section
+- set heading offcanvas
+- set heading style for filter offcanvas
+- adjust mini cart
+- adjust
+- adjust style
+- update several styles
+- mini-cart improvement
+- wip
+- category
+- update heading style in the product page
+- disable conflic codes
+- wip
+- search customization for infinity targets
+- update
+- wip
+
+### Fixed
+- Add proper spacing in Fluid Checkout payment notification for $0 orders (#145)
+- apply FiboSearch product card layout fixes from hanglogiclive (#139)
+- wishlist changes as this is on another pr
+- incorrect minicart subtotal when coupon is added
+- wishlist items not clickable
+- restore missing form labels in template2 login form
+- remove unneeded scripts
+- adjust feedbacks
+- remove unneeded code
+- merge conflict in changelog.md
+- Eliminate duplicate reviews tabs by adding conditional Judge.me plugin detection (#99)
+- search
+- readjust header.css and translate a doc
+- switch from class component to function component
+- variation swatches
+- filter toggle button
+- hero banner style when sidebar active
+- load recent-products ajax-ly
+- issue with wrong path
+- update add to cart button
+- downgrade php version to 8.1
+
 ## [1.43.0] - 2025-11-11
 
 ### Added
@@ -2625,4 +2761,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.41.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.41.0
 [1.42.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.42.0
 [1.43.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.43.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.43.0...HEAD
+[1.44.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.44.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.44.0...HEAD
