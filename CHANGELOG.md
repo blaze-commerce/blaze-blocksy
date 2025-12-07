@@ -260,12 +260,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - apply FiboSearch product card layout fixes from hanglogiclive (#139)
-<<<<<<< HEAD
-=======
 - wishlist changes as this is on another pr
 - incorrect minicart subtotal when coupon is added
 - wishlist items not clickable
->>>>>>> ff857d02260b21716da37323abe26809536c09a7
 - restore missing form labels in template2 login form
 - remove unneeded scripts
 - adjust feedbacks
@@ -2902,9 +2899,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.42.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.42.0
 [1.43.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.43.0
 [1.44.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.44.0
-<<<<<<< HEAD
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.44.0...HEAD
-=======
 [1.45.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.45.0
 [unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...HEAD
->>>>>>> ff857d02260b21716da37323abe26809536c09a7
