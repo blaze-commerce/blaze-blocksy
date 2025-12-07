@@ -144,25 +144,27 @@ $required_files = [
 	'/includes/customization/product-stock.php',
 	'/includes/customization/product-full-description.php',
 	'/includes/customization/slideshow-on-mobile.php',
+	'/includes/customization/bundle-products.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
 ];
 
-// Conditionally load Fluid Checkout Customizer only if Fluid Checkout is active
+// Conditionally load Fluid Checkout files only if Fluid Checkout is active
 // This prevents fatal errors if the Fluid Checkout plugin is deactivated
 if ( class_exists( 'FluidCheckout' ) ) {
 	$required_files[] = '/includes/customization/fluid-checkout-customizer.php';
 	$required_files[] = '/includes/customization/fluid-checkout-field-labels.php';
+	$required_files[] = '/includes/customization/fluid-checkout-fixes.php';
 } elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 	error_log( 'BlazeCommerce: Fluid Checkout Customizer not loaded - FluidCheckout class not found. Please ensure Fluid Checkout Lite or Pro is installed and activated.' );
 }
 
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	$required_files[] = '/includes/debug/product-card-border-test.php';
-	$required_files[] = '/includes/debug/judgeme-tab-test.php';
+	// $required_files[] = '/includes/debug/product-card-border-test.php';
+	// $required_files[] = '/includes/debug/judgeme-tab-test.php';
 	// Uncomment to enable notification offcanvas example
 	// $required_files[] = '/includes/features/notification-offcanvas-example.php';
 }
