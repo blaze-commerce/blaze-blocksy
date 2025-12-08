@@ -395,45 +395,21 @@ function blaze_blocksy_get_cart_options() {
 }
 
 /**
- * Override cart panel heading text
- * Hooks into Blocksy Companion's cart panel rendering via output buffer
+ * Add custom panel title to localized script data
+ * This replaces the expensive output buffering approach with lightweight JavaScript
  */
-add_action( 'wp', function () {
-	// Add output buffer to modify cart panel heading
-	add_action( 'wp_footer', 'blaze_blocksy_start_cart_panel_buffer', 0 );
-	add_action( 'wp_footer', 'blaze_blocksy_end_cart_panel_buffer', 999999 );
-} );
+add_filter( 'blaze_blocksy_mini_cart_localize_data', 'blaze_blocksy_add_panel_title_to_localize' );
 
-/**
- * Start output buffer for cart panel modification
- */
-function blaze_blocksy_start_cart_panel_buffer() {
-	ob_start();
-}
-
-/**
- * End output buffer and replace cart panel heading
- */
-function blaze_blocksy_end_cart_panel_buffer() {
-	$content = ob_get_clean();
-
-	// Get custom title from cart options
+function blaze_blocksy_add_panel_title_to_localize( $data ) {
 	$cart_options = blaze_blocksy_get_cart_options();
 	$custom_title = function_exists( 'blocksy_akg' )
 		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
 		: 'Shopping Cart';
 
-	// Only replace if custom title is different from default
-	if ( ! empty( $custom_title ) && $custom_title !== 'Shopping Cart' ) {
-		// Replace the cart panel heading text
-		$content = preg_replace(
-			'/<span class="ct-panel-heading">Shopping Cart<\/span>/',
-			'<span class="ct-panel-heading">' . esc_html( $custom_title ) . '</span>',
-			$content
-		);
-	}
+	$data['panel_title'] = $custom_title;
+	$data['default_panel_title'] = 'Shopping Cart';
 
-	echo $content;
+	return $data;
 }
 
 /**
