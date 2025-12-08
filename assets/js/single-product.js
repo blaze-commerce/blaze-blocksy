@@ -286,20 +286,19 @@
         "header.site-header, .site-header, #header, [data-sticky]"
       );
       const headerHeight = header ? header.offsetHeight : 0;
-      const extraPadding = -60; // Extra space below header
+      
+      // Get configurable offset from localized data, fallback to default
+      const extraPadding = 
+        (typeof blazeBlocksySingleProduct !== 'undefined' && 
+         blazeBlocksySingleProduct.scrollOffsetPadding !== undefined)
+          ? parseInt(blazeBlocksySingleProduct.scrollOffsetPadding, 10)
+          : -60;
+      
       const headerOffset = headerHeight + extraPadding;
 
       const elementPosition = noticeElement.getBoundingClientRect().top;
       const offsetPosition =
         elementPosition + window.pageYOffset - headerOffset - 120;
-
-      console.log({
-        elementPosition,
-        offsetPosition,
-        headerHeight,
-        extraPadding,
-        headerOffset,
-      });
 
       window.scrollTo({
         top: offsetPosition,
