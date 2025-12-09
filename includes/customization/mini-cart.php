@@ -165,9 +165,16 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 		$product_ids[] = $cart_item['product_id'];
 	}
 
-	// Generate cache key based on cart product IDs
-	$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
-	$recommended_products = get_transient( $cache_key );
+	// Skip caching for empty carts to avoid cache key collision
+	// All empty carts would generate the same md5 hash
+	$use_cache = ! empty( $product_ids );
+	$recommended_products = false;
+
+	if ( $use_cache ) {
+		// Generate cache key based on cart product IDs
+		$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
+		$recommended_products = get_transient( $cache_key );
+	}
 
 	// If no cached data, fetch from database
 	if ( false === $recommended_products ) {
@@ -197,8 +204,10 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 			$recommended_products = $recent_products;
 		}
 
-		// Cache for 1 hour
-		set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
+		// Cache for 1 hour (only when cart has products)
+		if ( $use_cache ) {
+			set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
+		}
 	}
 
 	// Display recommended products
