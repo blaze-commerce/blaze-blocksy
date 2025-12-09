@@ -53,13 +53,16 @@ class BlazeBlocksy_Product_Stock_Customizer {
 	 * @return void
 	 */
 	public function enqueue_customizer_preview_script() {
-		wp_enqueue_script(
-			'blaze-blocksy-product-stock-customizer-preview',
-			get_stylesheet_directory_uri() . '/assets/js/customizer-preview-product-stock.js',
-			array( 'jquery', 'customize-preview' ),
-			filemtime( get_stylesheet_directory() . '/assets/js/customizer-preview-product-stock.js' ),
-			true
-		);
+		$js_file = get_stylesheet_directory() . '/assets/js/customizer-preview-product-stock.js';
+		if ( file_exists( $js_file ) ) {
+			wp_enqueue_script(
+				'blaze-blocksy-product-stock-customizer-preview',
+				get_stylesheet_directory_uri() . '/assets/js/customizer-preview-product-stock.js',
+				array( 'jquery', 'customize-preview' ),
+				filemtime( $js_file ),
+				true
+			);
+		}
 	}
 
 	/**
