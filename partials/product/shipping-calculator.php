@@ -6,6 +6,12 @@ $available_countries = $countries->get_countries();
 ?>
 
 <div id="shipping-calculator-container" class="shipping-calculator-container">
+
+	<?php
+	// Always call render - it handles customizer preview logic internally
+	blaze_blocksy_render_free_shipping_offcanvas_content();
+	?>
+
 	<div class="form-group">
 		<label for="country">Country</label>
 		<select id="country-options">
