@@ -31,6 +31,10 @@
   padding: 0 var(--product-card-element-spacing) !important;
 }
 
+.products .product script {
+  display: none !important;
+}
+
 .products .product > figure {
   padding: 0 !important;
   margin-bottom: var(--product-card-element-spacing) !important;

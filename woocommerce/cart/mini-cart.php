@@ -45,7 +45,7 @@ if ( function_exists( 'blc_get_ext' ) ) {
 				$wishlist_items = $wishlist_instance->get_current_wish_list();
 
 				if ( ! empty( $wishlist_items ) ) {
-					$wishlist_items = array_map( function ($item) {
+					$wishlist_items = array_map( function ( $item ) {
 						return $item['id'];
 					}, $wishlist_items );
 
@@ -170,33 +170,72 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 
 <?php else : ?>
 
+	<?php
+	// Get cart customizer options for empty state texts
+	$cart_options = array();
+	if ( function_exists( 'blaze_blocksy_get_cart_options' ) ) {
+		$cart_options = blaze_blocksy_get_cart_options();
+	}
+
+	// Get empty cart message
+	$empty_message = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_empty_message', $cart_options, 'Your cart is empty, continue to shopping to add item' )
+		: 'Your cart is empty, continue to shopping to add item';
+
+	// Get continue shopping button text
+	$continue_shopping_text = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_continue_shopping_text', $cart_options, 'CONTINUE TO SHOPPING' )
+		: 'CONTINUE TO SHOPPING';
+
+	// Get continue shopping button URL (fallback to shop page)
+	$continue_shopping_url = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_continue_shopping_url', $cart_options, '' )
+		: '';
+
+	// Use shop page URL if custom URL is empty
+	if ( empty( $continue_shopping_url ) ) {
+		$continue_shopping_url = wc_get_page_permalink( 'shop' );
+	}
+	?>
+
 	<div class="woocommerce-mini-cart__empty-message">
 		<div class="empty-cart-content">
 			<!-- Empty Cart Icon and Message -->
 
 			<div class="empty-cart-message">
-				<p><?php esc_html_e( 'Your cart is empty, continue to shopping to add item', 'blaze-blocksy' ); ?></p>
+				<p><?php echo esc_html( $empty_message ); ?></p>
 			</div>
 
 			<!-- Continue Shopping Button -->
 			<div class="continue-shopping-wrapper">
-				<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="continue-shopping-btn">
-					<?php esc_html_e( 'CONTINUE TO SHOPPING', 'blaze-blocksy' ); ?>
+				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="continue-shopping-btn">
+					<?php echo esc_html( $continue_shopping_text ); ?>
 					<span class="arrow">→</span>
 				</a>
 			</div>
+
+			<?php
+			// Get layout setting from customizer
+			$cart_options = function_exists( 'blaze_blocksy_get_cart_options' ) ? blaze_blocksy_get_cart_options() : array();
+			$recommendation_layout = function_exists( 'blocksy_akg' )
+				? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
+				: 'stacked';
+
+			$wrapper_class = ( 'stacked' === $recommendation_layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
+			$template_name = ( 'stacked' === $recommendation_layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+			?>
 
 			<!-- Recently Viewed Items Section -->
 			<?php if ( ! empty( $recently_viewed_products ) ) : ?>
 				<div class="recommendations-section recently-viewed-section">
 					<div class="recommendations-header">
-						<h4><?php esc_html_e( 'Recently View Items', 'blaze-blocksy' ); ?></h4>
+						<h4><?php esc_html_e( 'Recently Viewed Items', 'blaze-blocksy' ); ?></h4>
 					</div>
-					<div class="recommended-products-grid">
+					<div class="<?php echo esc_attr( $wrapper_class ); ?>">
 						<?php
 						foreach ( $recently_viewed_products as $product ) :
 							$GLOBALS['product'] = $product;
-							wc_get_template_part( 'product/recommend-product-card', );
+							wc_get_template_part( $template_name );
 						endforeach; ?>
 					</div>
 				</div>
@@ -208,10 +247,10 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 					<div class="recommendations-header">
 						<h4><?php esc_html_e( 'Favorite', 'blaze-blocksy' ); ?></h4>
 					</div>
-					<div class="recommended-products-grid">
+					<div class="<?php echo esc_attr( $wrapper_class ); ?>">
 						<?php foreach ( $wishlist_products as $product ) :
 							$GLOBALS['product'] = $product;
-							wc_get_template_part( 'product/recommend-product-card' );
+							wc_get_template_part( $template_name );
 						endforeach; ?>
 					</div>
 				</div>

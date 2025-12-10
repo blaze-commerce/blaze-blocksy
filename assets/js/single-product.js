@@ -226,5 +226,84 @@
     $(document.body).on("click", ".cr-qna-link", function (e) {
       jQuery('[data-target="#tab-cr_qna"]').trigger("click");
     });
+
+    // Watch for WooCommerce notices and scroll to them
+    initNoticesObserver();
   });
+
+  /**
+   * Initialize MutationObserver to watch for WooCommerce notices
+   * When notices (errors/alerts) are added after AJAX add to cart, scroll to them
+   */
+  function initNoticesObserver() {
+    const noticesWrapper = document.querySelector(
+      ".woocommerce-notices-wrapper"
+    );
+
+    if (!noticesWrapper) {
+      return;
+    }
+
+    // Create observer to watch for added notices
+    const observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          // Check if the added node is an error notice
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const isError =
+              node.classList.contains("woocommerce-error") ||
+              node.classList.contains("woocommerce-message") ||
+              node.classList.contains("wc-block-components-notice-banner");
+
+            if (isError) {
+              scrollToNotice(node);
+            }
+          }
+        });
+      });
+    });
+
+    // Start observing
+    observer.observe(noticesWrapper, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  /**
+   * Scroll to the notice element with smooth animation
+   * @param {HTMLElement} noticeElement - The notice element to scroll to
+   */
+  function scrollToNotice(noticeElement) {
+    if (!noticeElement) {
+      return;
+    }
+
+    // Small delay to ensure the element is fully rendered
+    setTimeout(function () {
+      // Get actual header height dynamically
+      const header = document.querySelector(
+        "header.site-header, .site-header, #header, [data-sticky]"
+      );
+      const headerHeight = header ? header.offsetHeight : 0;
+      
+      // Get configurable offset from localized data, fallback to default
+      const extraPadding = 
+        (typeof blazeBlocksySingleProduct !== 'undefined' && 
+         blazeBlocksySingleProduct.scrollOffsetPadding !== undefined)
+          ? parseInt(blazeBlocksySingleProduct.scrollOffsetPadding, 10)
+          : -60;
+      
+      const headerOffset = headerHeight + extraPadding;
+
+      const elementPosition = noticeElement.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset - 120;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }, 100);
+  }
 })(jQuery);

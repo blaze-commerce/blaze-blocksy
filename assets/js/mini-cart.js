@@ -5,6 +5,52 @@
 
 jQuery(document).ready(function ($) {
   /**
+   * Update cart panel heading text from customizer setting
+   * This replaces expensive PHP output buffering with lightweight JS
+   */
+  function updateCartPanelHeading() {
+    if (
+      typeof blazeBlocksyMiniCart === "undefined" ||
+      !blazeBlocksyMiniCart.panel_title
+    ) {
+      return;
+    }
+
+    var customTitle = blazeBlocksyMiniCart.panel_title;
+    var defaultTitle =
+      blazeBlocksyMiniCart.default_panel_title || "Shopping Cart";
+
+    // Only update if custom title is different from default
+    if (customTitle && customTitle !== defaultTitle) {
+      // Find the cart panel heading (Blocksy uses #woo-cart-panel)
+      var $heading = $("#woo-cart-panel .ct-panel-heading");
+      if ($heading.length && $heading.text().trim() === defaultTitle) {
+        $heading.text(customTitle);
+      }
+    }
+  }
+
+  // Run on page load
+  updateCartPanelHeading();
+
+  // Run when cart panel is opened (MutationObserver for dynamic content)
+  var cartPanelObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (
+        mutation.attributeName === "class" ||
+        mutation.attributeName === "inert"
+      ) {
+        updateCartPanelHeading();
+      }
+    });
+  });
+
+  var cartPanel = document.getElementById("woo-cart-panel");
+  if (cartPanel) {
+    cartPanelObserver.observe(cartPanel, { attributes: true });
+  }
+
+  /**
    * Toggle coupon form visibility
    */
   $(document).on("click", ".coupon-toggle", function (e) {

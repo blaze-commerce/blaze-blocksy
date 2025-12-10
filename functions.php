@@ -27,6 +27,7 @@ function blaze_blocksy_fluid_checkout_spacing() {
 		.woocommerce-checkout .fc-progress-bar {
 			margin-bottom: 20px !important;
 		}
+
 		.fc-wrapper .fc-express-checkout,
 		.woocommerce-checkout .fc-express-checkout {
 			margin-bottom: 20px !important;
@@ -139,6 +140,10 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
+	'/includes/customization/product-tabs.php',
+	'/includes/customization/product-stock.php',
+	'/includes/customization/product-full-description.php',
+	'/includes/customization/slideshow-on-mobile.php',
 	'/includes/customization/bundle-products.php',
 
 	// Gutenberg Blocks
@@ -158,8 +163,8 @@ if ( class_exists( 'FluidCheckout' ) ) {
 
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	$required_files[] = '/includes/debug/product-card-border-test.php';
-	$required_files[] = '/includes/debug/judgeme-tab-test.php';
+	// $required_files[] = '/includes/debug/product-card-border-test.php';
+	// $required_files[] = '/includes/debug/judgeme-tab-test.php';
 	// Uncomment to enable notification offcanvas example
 	// $required_files[] = '/includes/features/notification-offcanvas-example.php';
 }
@@ -169,11 +174,11 @@ foreach ( $required_files as $file ) {
 	if ( file_exists( $file_path ) && is_readable( $file_path ) ) {
 		try {
 			require_once $file_path;
-		} catch ( Error $e ) {
+		} catch (Error $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
 			}
-		} catch ( Exception $e ) {
+		} catch (Exception $e) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 				error_log( 'BlazeCommerce: Exception loading ' . $file . ': ' . $e->getMessage() );
 			}
@@ -257,33 +262,3 @@ add_filter( 'woocommerce_locate_template', function ( $template, $template_name 
 	return $template;
 
 }, 999, 2 );
-
-/**
- * Custom code for infinitytargets only
- */
-
-add_action( 'template_redirect', function () {
-
-
-	if ( ! is_page( 'dealer-resources' ) ) {
-		return true;
-	}
-
-	// check if current user role is admin or editor
-	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
-		return true;
-	}
-
-	if ( is_user_logged_in() ) {
-
-		$user_id = get_current_user_id();
-		if ( function_exists( 'is_wholesaler_user' ) && is_wholesaler_user( $user_id ) ) {
-			return true;
-		}
-
-	}
-
-	//redirect user to home page
-	wp_redirect( home_url() );
-	exit;
-} );
