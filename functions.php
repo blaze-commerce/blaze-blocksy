@@ -262,3 +262,58 @@ add_filter( 'woocommerce_locate_template', function ( $template, $template_name 
 	return $template;
 
 }, 999, 2 );
+
+/**
+ * Custom code for infinitytargets only
+ */
+
+add_action( 'template_redirect', function () {
+
+
+	if ( ! is_page( 'dealer-resources' ) ) {
+		return true;
+	}
+
+	// check if current user role is admin or editor
+	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
+		return true;
+	}
+
+	if ( is_user_logged_in() ) {
+
+		$user_id = get_current_user_id();
+		if ( function_exists( 'is_wholesaler_user' ) && is_wholesaler_user( $user_id ) ) {
+			return true;
+		}
+
+	}
+
+	//redirect user to home page
+	wp_redirect( home_url() );
+	exit;
+} );
+
+/**
+ * Allow Checkout page in Blocksy header conditions
+ *
+ * Blocksy filters out WooCommerce pages from the Page ID conditions dropdown.
+ * This filter overrides that behavior to include all published pages.
+ *
+ * @param array $pages Array of pages to show in conditions dropdown.
+ * @return array All published pages.
+ * @since 1.0.0
+ */
+add_filter( 'blocksy:header:conditions:pages-list', function( $pages ) {
+	// Only run in admin/customizer for performance
+	if ( ! is_admin() ) {
+		return $pages;
+	}
+
+	// Get all pages including WooCommerce pages
+	$all_pages = get_pages( array(
+		'post_status' => 'publish',
+		'sort_column' => 'post_title',
+	) );
+
+	return $all_pages;
+}, 999 );
