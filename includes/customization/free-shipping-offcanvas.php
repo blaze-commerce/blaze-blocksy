@@ -480,6 +480,151 @@ class BlazeBlocksy_Free_Shipping_Offcanvas_Customizer {
 	}
 
 	/**
+	 * Get allowed HTML tags including SVG elements
+	 *
+	 * @return array Allowed HTML tags for wp_kses.
+	 */
+	public static function get_allowed_html_tags() {
+		// Start with post allowed tags
+		$allowed_tags = wp_kses_allowed_html( 'post' );
+
+		// Add SVG elements
+		$svg_tags = array(
+			'svg' => array(
+				'class' => true,
+				'aria-hidden' => true,
+				'aria-labelledby' => true,
+				'role' => true,
+				'xmlns' => true,
+				'width' => true,
+				'height' => true,
+				'viewbox' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'stroke-linecap' => true,
+				'stroke-linejoin' => true,
+				'style' => true,
+				'id' => true,
+			),
+			'g' => array(
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'transform' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'title' => array(
+				'title' => true,
+			),
+			'path' => array(
+				'd' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'stroke-linecap' => true,
+				'stroke-linejoin' => true,
+				'transform' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'circle' => array(
+				'cx' => true,
+				'cy' => true,
+				'r' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'rect' => array(
+				'x' => true,
+				'y' => true,
+				'width' => true,
+				'height' => true,
+				'rx' => true,
+				'ry' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'line' => array(
+				'x1' => true,
+				'y1' => true,
+				'x2' => true,
+				'y2' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'polygon' => array(
+				'points' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'polyline' => array(
+				'points' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'ellipse' => array(
+				'cx' => true,
+				'cy' => true,
+				'rx' => true,
+				'ry' => true,
+				'fill' => true,
+				'stroke' => true,
+				'stroke-width' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'text' => array(
+				'x' => true,
+				'y' => true,
+				'dx' => true,
+				'dy' => true,
+				'fill' => true,
+				'font-size' => true,
+				'font-family' => true,
+				'text-anchor' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'defs' => array(
+				'id' => true,
+			),
+			'use' => array(
+				'href' => true,
+				'xlink:href' => true,
+				'x' => true,
+				'y' => true,
+				'width' => true,
+				'height' => true,
+				'id' => true,
+				'class' => true,
+			),
+			'symbol' => array(
+				'id' => true,
+				'viewbox' => true,
+				'class' => true,
+			),
+		);
+
+		return array_merge( $allowed_tags, $svg_tags );
+	}
+
+	/**
 	 * Render the free shipping offcanvas content
 	 *
 	 * @return void
@@ -505,7 +650,7 @@ class BlazeBlocksy_Free_Shipping_Offcanvas_Customizer {
 		$style = $is_enabled ? '' : ' style="display: none;"';
 
 		echo '<div class="ct-free-shipping-offcanvas-content"' . $style . '>';
-		echo wp_kses_post( $content );
+		echo wp_kses( $content, self::get_allowed_html_tags() );
 		echo '</div>';
 	}
 }
