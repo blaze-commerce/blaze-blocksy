@@ -368,12 +368,12 @@
 
 /* Form styling within shipping calculator */
 .shipping-calculator-container .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .shipping-calculator-container .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 12px;
   font-weight: 500;
   color: var(--shipping-calc-text-primary);
   font-size: 18px;
