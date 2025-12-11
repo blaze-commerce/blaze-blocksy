@@ -262,28 +262,3 @@ add_filter( 'woocommerce_locate_template', function ( $template, $template_name 
 	return $template;
 
 }, 999, 2 );
-
-/**
- * Allow Checkout page in Blocksy header conditions
- *
- * Blocksy filters out WooCommerce pages from the Page ID conditions dropdown.
- * This filter overrides that behavior to include all published pages.
- *
- * @param array $pages Array of pages to show in conditions dropdown.
- * @return array All published pages.
- * @since 1.0.0
- */
-add_filter( 'blocksy:header:conditions:pages-list', function( $pages ) {
-	// Only run in admin/customizer for performance
-	if ( ! is_admin() ) {
-		return $pages;
-	}
-
-	// Get all pages including WooCommerce pages
-	$all_pages = get_pages( array(
-		'post_status' => 'publish',
-		'sort_column' => 'post_title',
-	) );
-
-	return $all_pages;
-}, 999 );
