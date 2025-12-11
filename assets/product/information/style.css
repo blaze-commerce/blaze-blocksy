@@ -43,14 +43,14 @@
 .ct-product-information .info-item svg {
   width: 20px;
   height: 20px;
-  fill: var(--product-information-text-color);
 }
 
 .ct-product-information .info-item span {
-  color: var(--product-information-text-color);
-  font-weight: 400;
-  text-decoration: var(--product-information-text-underline, none);
-  font-size: var(--product-information-font-size, 14px);
+  color: var(--product-information-text-color, var(--theme-text-color));
+  font-weight: var(--theme-font-weight, 400);
+  text-decoration: var(--product-information-text-underline, var(--theme-text-decoration));
+  font-size: var(--product-information-font-size, var(--theme-font-size));
+  line-height: var(--theme-line-height, 1.4);
 }
 
 .ct-information-canvas.offcanvas-overlay {

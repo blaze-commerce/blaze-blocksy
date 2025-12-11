@@ -110,7 +110,7 @@
         ".ct-product-full-description-element .ct-full-description-toggle";
 
       if (newValue.family && newValue.family !== "Default") {
-        updateCSSVariable(el, "--toggle-font-family", newValue.family);
+        updateCSSVariable(el, "--theme-font-family", newValue.family);
       }
 
       if (newValue.size) {
@@ -118,7 +118,7 @@
           typeof newValue.size === "object"
             ? newValue.size.desktop
             : newValue.size;
-        updateCSSVariable(el, "--toggle-font-size", size);
+        updateCSSVariable(el, "--theme-font-size", size);
       }
 
       if (newValue.variation) {
@@ -127,20 +127,20 @@
         const style = newValue.variation.startsWith("i") ? "italic" : "normal";
         updateCSSVariable(
           el,
-          "--toggle-font-weight",
+          "--theme-font-weight",
           weight === "00" ? "400" : weight
         );
-        updateCSSVariable(el, "--toggle-font-style", style);
+        updateCSSVariable(el, "--theme-font-style", style);
       }
 
       if (newValue["line-height"]) {
-        updateCSSVariable(el, "--toggle-line-height", newValue["line-height"]);
+        updateCSSVariable(el, "--theme-line-height", newValue["line-height"]);
       }
 
       if (newValue["letter-spacing"]) {
         updateCSSVariable(
           el,
-          "--toggle-letter-spacing",
+          "--theme-letter-spacing",
           newValue["letter-spacing"]
         );
       }
@@ -148,7 +148,7 @@
       if (newValue["text-transform"]) {
         updateCSSVariable(
           el,
-          "--toggle-text-transform",
+          "--theme-text-transform",
           newValue["text-transform"]
         );
       }
@@ -156,7 +156,7 @@
       if (newValue["text-decoration"]) {
         updateCSSVariable(
           el,
-          "--toggle-text-decoration",
+          "--theme-text-decoration",
           newValue["text-decoration"]
         );
       }

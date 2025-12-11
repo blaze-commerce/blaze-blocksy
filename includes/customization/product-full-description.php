@@ -38,9 +38,6 @@ class BlazeBlocksy_Product_Full_Description_Customizer {
 		// Generate dynamic CSS
 		add_action( 'blocksy:global-dynamic-css:enqueue', array( $this, 'generate_dynamic_css' ), 10, 1 );
 
-		// Add base CSS that uses the CSS variables
-		add_action( 'wp_head', array( $this, 'add_base_css' ), 99 );
-
 		// Enqueue customizer preview script for instant live preview
 		add_action( 'customize_preview_init', array( $this, 'enqueue_customizer_preview_script' ) );
 
@@ -69,120 +66,15 @@ class BlazeBlocksy_Product_Full_Description_Customizer {
 	/**
 	 * Enqueue frontend scripts for show/less toggle functionality
 	 *
+	 * Note: The JavaScript for show/less toggle has been moved to assets/js/single-product.js
+	 * This method is kept for potential future use or can be removed.
+	 *
 	 * @return void
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
-			return;
-		}
-
-		wp_add_inline_script( 'jquery', $this->get_frontend_script() );
+		// Script is now bundled in single-product.js which is enqueued in includes/scripts.php
+		// No inline script needed
 	}
-
-	/**
-	 * Get frontend JavaScript for show/less toggle
-	 *
-	 * @return string
-	 */
-	private function get_frontend_script() {
-		return "
-		jQuery(document).ready(function($) {
-			$('.ct-product-full-description-element').each(function() {
-				var container = $(this);
-				var content = container.find('.ct-full-description-content');
-				var toggle = container.find('.ct-full-description-toggle');
-				var maxLines = parseInt(container.data('max-lines')) || 4;
-				var lineHeight = parseFloat(content.css('line-height')) || 24;
-				var maxHeight = maxLines * lineHeight;
-
-				// Check if content exceeds max lines
-				if (content[0].scrollHeight > maxHeight + 5) {
-					container.addClass('is-truncated');
-					content.css('max-height', maxHeight + 'px');
-					toggle.show();
-				} else {
-					toggle.hide();
-				}
-
-				// Toggle click handler
-				toggle.on('click', function(e) {
-					e.preventDefault();
-					if (container.hasClass('is-expanded')) {
-						container.removeClass('is-expanded').addClass('is-truncated');
-						content.css('max-height', maxHeight + 'px');
-					} else {
-						container.removeClass('is-truncated').addClass('is-expanded');
-						content.css('max-height', 'none');
-					}
-				});
-			});
-		});
-		";
-	}
-
-	/**
-	 * Add base CSS that applies CSS variables to the element
-	 *
-	 * @return void
-	 */
-	public function add_base_css() {
-		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
-			return;
-		}
-		?>
-		<style id="ct-product-full-description-base-css">
-			.ct-product-full-description-element {
-				position: relative;
-			}
-
-			.ct-full-description-content {
-				overflow: hidden;
-				transition: max-height 0.3s ease;
-				font-family: var(--theme-font-family, inherit);
-				font-size: var(--theme-font-size, 14px);
-				font-weight: var(--theme-font-weight, 400);
-				font-style: var(--theme-font-style, normal);
-				line-height: var(--theme-line-height, 1.65);
-				letter-spacing: var(--theme-letter-spacing, 0);
-				text-transform: var(--theme-text-transform, none);
-				text-decoration: var(--theme-text-decoration, none);
-				color: var(--description-color, inherit);
-			}
-
-			.ct-full-description-toggle {
-				display: none;
-				cursor: pointer;
-				margin-top: 10px;
-				font-family: var(--toggle-font-family, inherit);
-				font-size: var(--toggle-font-size, 14px);
-				font-weight: var(--toggle-font-weight, 600);
-				color: var(--toggle-color, var(--theme-palette-color-1, #3b82f6));
-				background: none;
-				border: none;
-				padding: 0;
-				text-decoration: underline;
-			}
-
-			.ct-full-description-toggle:hover {
-				opacity: 0.8;
-			}
-
-			.ct-product-full-description-element .show-more-text,
-			.ct-product-full-description-element .show-less-text {
-				display: none;
-			}
-
-			.ct-product-full-description-element.is-truncated .show-more-text {
-				display: inline;
-			}
-
-			.ct-product-full-description-element.is-expanded .show-less-text {
-				display: inline;
-			}
-		</style>
-		<?php
-	}
-
 	/**
 	 * Add layer to default layout
 	 *
