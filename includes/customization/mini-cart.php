@@ -315,7 +315,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		'mini_cart_empty_message' => array(
 			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
 			'type' => 'textarea',
-			'value' => 'Your cart is empty, continue to shopping to add item',
+			'value' => 'Your cart is empty, continue shopping to add item',
 			'design' => 'block',
 			'desc' => __( 'Enter the message displayed when the cart is empty.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
@@ -324,7 +324,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		'mini_cart_continue_shopping_text' => array(
 			'label' => __( 'Continue Shopping Button Text', 'blaze-blocksy' ),
 			'type' => 'text',
-			'value' => 'CONTINUE TO SHOPPING',
+			'value' => 'CONTINUE SHOPPING',
 			'design' => 'block',
 			'desc' => __( 'Enter the text for the continue shopping button.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
