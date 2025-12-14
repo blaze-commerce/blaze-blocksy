@@ -1,306 +1,710 @@
 <?php
+
 /**
- * Mini-cart
- *
- * Contains the markup for the mini-cart, used by the cart widget.
- *
- * This template can be overridden by copying it to yourtheme/woocommerce/cart/mini-cart.php.
- *
- * HOWEVER, on occasion WooCommerce will need to update template files and you
- * (the theme developer) will need to copy the new files to your theme to
- * maintain compatibility. We try to do this as little as possible, but it does
- * happen. When this occurs the version of the template file will be bumped and
- * the readme will list any important changes.
- *
- * @see     https://woocommerce.com/document/template-structure/
- * @package WooCommerce\Templates
- * @version 10.0.0
+ * Add mini cart specific data to localize script
+ * This uses the filter hook from scripts.php
  */
+add_filter( 'blaze_blocksy_mini_cart_localize_data', 'add_mini_cart_localize_data' );
 
-defined( 'ABSPATH' ) || exit;
+function add_mini_cart_localize_data( $data ) {
+	// Add any mini cart specific localization data here
+	// The base data (ajax_url, nonce, etc.) is already handled in scripts.php
 
-// Get recently viewed products from localStorage (we'll use cookie as fallback)
-$recently_viewed_products = array();
-if ( function_exists( 'get_recently_viewed_products_from_cookie' ) ) {
-	$recently_viewed_ids = get_recently_viewed_products_from_cookie();
-	$recently_viewed_ids = array_slice( $recently_viewed_ids, 0, 2 ); // Limit to 4
-
-	foreach ( $recently_viewed_ids as $product_id ) {
-		$product = wc_get_product( $product_id );
-		if ( $product && $product->is_visible() ) {
-			$recently_viewed_products[] = $product;
-		}
-	}
+	return $data;
 }
 
-// Get wishlist products
-$wishlist_products = array();
-if ( function_exists( 'blc_get_ext' ) ) {
+/**
+ * Enqueue customizer preview sync script
+ */
+add_action( 'customize_preview_init', 'blaze_blocksy_mini_cart_customizer_preview_scripts' );
 
-	try {
-		$woocommerce_extra = blc_get_ext( 'woocommerce-extra' );
-		if ( $woocommerce_extra ) {
-			$wishlist_instance = $woocommerce_extra->get_wish_list();
-			if ( $wishlist_instance ) {
-				$wishlist_items = $wishlist_instance->get_current_wish_list();
-
-				if ( ! empty( $wishlist_items ) ) {
-					$wishlist_items = array_map( function ( $item ) {
-						return $item['id'];
-					}, $wishlist_items );
-
-					// remove duplicates from $recently_viewed_products
-					$wishlist_items = array_diff( $wishlist_items, $recently_viewed_ids );
-					$wishlist_items = array_slice( $wishlist_items, 0, 2 ); // Limit to 4
-
-					foreach ( $wishlist_items as $item_id ) {
-						$product = wc_get_product( $item_id );
-
-						if ( $product && $product->is_visible() ) {
-							$wishlist_products[] = $product;
-						}
-					}
-				}
-			}
-		}
-	} catch (Exception $e) {
-		do_action( 'qm/info', [ 'wishlist_error' => $e->getMessage() ] );
-	}
+function blaze_blocksy_mini_cart_customizer_preview_scripts() {
+	wp_enqueue_script(
+		'blaze-blocksy-mini-cart-customizer-sync',
+		BLAZE_BLOCKSY_URL . '/assets/js/customizer-sync.js',
+		array( 'jquery', 'customize-preview' ),
+		BLAZE_BLOCKSY_VERSION,
+		true
+	);
 }
 
-do_action( 'woocommerce_before_mini_cart' ); ?>
+/**
+ * Override mini cart template
+ */
+add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
 
-<?php if ( WC()->cart && ! WC()->cart->is_empty() ) : ?>
-
-	<ul class="woocommerce-mini-cart cart_list product_list_widget <?php echo esc_attr( $args['list_class'] ); ?>">
-		<?php
-		do_action( 'woocommerce_before_mini_cart_contents' );
-
-		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-			$_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-			$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
-
-			if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_widget_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
-				/**
-				 * This filter is documented in woocommerce/templates/cart/cart.php.
-				 *
-				 * @since 2.1.0
-				 */
-				$product_name = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
-				$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-				$product_price = apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
-				$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-				$item_total = apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
-				?>
-				<li
-					class="woocommerce-mini-cart-item <?php echo esc_attr( apply_filters( 'woocommerce_mini_cart_item_class', 'mini_cart_item', $cart_item, $cart_item_key ) ); ?>">
-					<?php
-					echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						'woocommerce_cart_item_remove_link',
-						sprintf(
-							'<a role="button" href="%s" class="remove remove_from_cart_button" aria-label="%s" data-product_id="%s" data-cart_item_key="%s" data-product_sku="%s" data-success_message="%s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M21 5.98047C17.67 5.65047 14.32 5.48047 10.98 5.48047C9 5.48047 7.02 5.58047 5.04 5.78047L3 5.98047" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M18.8504 9.13965L18.2004 19.2096C18.0904 20.7796 18.0004 21.9996 15.2104 21.9996H8.79039C6.00039 21.9996 5.91039 20.7796 5.80039 19.2096L5.15039 9.13965" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10.3301 16.5H13.6601" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9.5 12.5H14.5" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</a>',
-							esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-							/* translators: %s is the product name */
-							esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),
-							esc_attr( $product_id ),
-							esc_attr( $cart_item_key ),
-							esc_attr( $_product->get_sku() ),
-							/* translators: %s is the product name */
-							esc_attr( sprintf( __( '&ldquo;%s&rdquo; has been removed from your cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) )
-						),
-						$cart_item_key
-					);
-					?>
-					<?php
-					// Read global variables set by Blocksy's view.php for Customizer integration
-					global $blocksy_mini_cart_ratio;
-					global $blocksy_mini_cart_size;
-
-					$size_to_use = 'woocommerce_thumbnail';
-					$ratio_to_use = '1/1';
-
-					if ( $blocksy_mini_cart_size ) {
-						$size_to_use = $blocksy_mini_cart_size;
-					}
-
-					if ( $blocksy_mini_cart_ratio ) {
-						$ratio_to_use = $blocksy_mini_cart_ratio;
-					}
-
-					// Use blocksy_media() function for proper Customizer integration (Image Ratio & Border Radius)
-					if ( function_exists( 'blocksy_media' ) ) {
-						echo apply_filters(
-							'woocommerce_cart_item_thumbnail',
-							blocksy_media(
-								array(
-									'no_image_type' => 'woo',
-									'attachment_id' => $_product->get_image_id(),
-									'post_id' => $_product->get_id(),
-									'size' => $size_to_use,
-									'ratio' => $ratio_to_use,
-									'tag_name' => 'a',
-									'html_atts' => array(
-										'href' => esc_url( $product_permalink ),
-									),
-								)
-							),
-							$cart_item,
-							$cart_item_key
-						);
-					} else {
-						// Fallback if blocksy_media doesn't exist
-						?>
-						<figure class="product-image-wrapper ct-media-container">
-							<?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						</figure>
-						<?php
-					}
-					?>
-					<div class="product-info">
-						<?php if ( empty( $product_permalink ) ) : ?>
-							<?php echo wp_kses_post( $product_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<?php else : ?>
-							<a href="<?php echo esc_url( $product_permalink ); ?>">
-								<?php echo wp_kses_post( $product_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</a>
-						<?php endif; ?>
-						<?php echo wc_get_formatted_cart_item_data( $cart_item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<div class="product-price-quantity">
-							<span class="product-price"><?php echo $product_price; ?></span>
-						</div>
-						<?php echo apply_filters( 'woocommerce_widget_cart_item_quantity', '<span class="quantity">' . sprintf( '%s', $cart_item['quantity'] ) . '</span>', $cart_item, $cart_item_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						<div class="product-subtotal">
-							<span class="subtotal-amount"><?php echo $item_total; ?></span>
-						</div>
-					</div>
-				</li>
-				<?php
-			}
-		}
-
-		do_action( 'woocommerce_mini_cart_contents' );
-		?>
-	</ul>
-
-	<?php do_action( 'woocommerce_widget_shopping_cart_before_total' ); ?>
-
-	<div class="woocommerce-mini-cart__total total">
-		<?php
-		/**
-		 * Hook: woocommerce_widget_shopping_cart_total.
-		 *
-		 * @hooked woocommerce_widget_shopping_cart_subtotal - 10
-		 */
-		do_action( 'woocommerce_widget_shopping_cart_total' );
-		?>
-	</div>
-
-	<?php do_action( 'woocommerce_widget_shopping_cart_before_buttons' ); ?>
-
-	<p class="woocommerce-mini-cart__buttons buttons">
-		<?php do_action( 'woocommerce_widget_shopping_cart_buttons' ); ?>
-	</p>
-
-	<?php do_action( 'woocommerce_widget_shopping_cart_after_buttons' ); ?>
-
-<?php else : ?>
-
-	<?php
-	// Get cart customizer options for empty state texts
-	$cart_options = array();
-	if ( function_exists( 'blaze_blocksy_get_cart_options' ) ) {
-		$cart_options = blaze_blocksy_get_cart_options();
+	if ( 'cart/mini-cart.php' === $template_name ) {
+		return BLAZE_BLOCKSY_PATH . '/woocommerce/cart/mini-cart.php';
 	}
 
-	// Get empty cart message
-	$empty_message = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_empty_message', $cart_options, 'Your cart is empty, continue to shopping to add item' )
-		: 'Your cart is empty, continue to shopping to add item';
+	return $template;
+}, 999, 3 );
 
-	// Get continue shopping button text
-	$continue_shopping_text = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_continue_shopping_text', $cart_options, 'CONTINUE TO SHOPPING' )
-		: 'CONTINUE TO SHOPPING';
-
-	// Get continue shopping button URL (fallback to shop page)
-	$continue_shopping_url = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_continue_shopping_url', $cart_options, '' )
-		: '';
-
-	// Use shop page URL if custom URL is empty
-	if ( empty( $continue_shopping_url ) ) {
-		$continue_shopping_url = wc_get_page_permalink( 'shop' );
-	}
+/**
+ * Add coupon form to mini cart before buttons
+ */
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 	?>
-
-	<div class="woocommerce-mini-cart__empty-message">
-		<div class="empty-cart-content">
-			<!-- Empty Cart Icon and Message -->
-
-			<div class="empty-cart-message">
-				<?php echo esc_html( $empty_message ); ?>
-			</div>
-
-			<!-- Continue Shopping Button -->
-			<div class="continue-shopping-wrapper">
-				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="continue-shopping-btn button">
-					<?php echo esc_html( $continue_shopping_text ); ?>
-					<span class="arrow">→</span>
-				</a>
-			</div>
-
-			<?php
-			// Get layout setting from customizer
-			$cart_options = function_exists( 'blaze_blocksy_get_cart_options' ) ? blaze_blocksy_get_cart_options() : array();
-			$recommendation_layout = function_exists( 'blocksy_akg' )
-				? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
-				: 'stacked';
-
-			$wrapper_class = ( 'stacked' === $recommendation_layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
-			$template_name = ( 'stacked' === $recommendation_layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
-			?>
-
-			<!-- Recently Viewed Items Section -->
-			<?php if ( ! empty( $recently_viewed_products ) ) : ?>
-				<div class="recommendations-section recently-viewed-section">
-					<div class="recommendations-header">
-						<h4><?php esc_html_e( 'Recently Viewed Items', 'blaze-blocksy' ); ?></h4>
-					</div>
-					<div class="<?php echo esc_attr( $wrapper_class ); ?>">
-						<?php
-						foreach ( $recently_viewed_products as $product ) :
-							$GLOBALS['product'] = $product;
-							wc_get_template_part( $template_name );
-						endforeach; ?>
-					</div>
+	<div class="mini-cart-coupon-section">
+		<div class="coupon-toggle">
+			<span class="coupon-label"><?php esc_html_e( 'Coupon Code', 'blaze-blocksy' ); ?></span>
+			<span class="coupon-arrow">&#9660;</span>
+		</div>
+		<div class="coupon-form-wrapper" style="display: none;">
+			<form class="mini-cart-coupon-form" method="post">
+				<div class="coupon-input-wrapper">
+					<input type="text" name="coupon_code" class="coupon-code-input"
+						placeholder="<?php esc_attr_e( 'Enter Promo Code', 'blaze-blocksy' ); ?>" />
+					<button type="submit"
+						class="apply-coupon-btn button"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
 				</div>
-			<?php endif; ?>
-
-			<!-- Favorite Items Section -->
-			<?php if ( ! empty( $wishlist_products ) ) : ?>
-				<div class="recommendations-section favorite-section">
-					<div class="recommendations-header">
-						<h4><?php esc_html_e( 'Favorite', 'blaze-blocksy' ); ?></h4>
-					</div>
-					<div class="<?php echo esc_attr( $wrapper_class ); ?>">
-						<?php foreach ( $wishlist_products as $product ) :
-							$GLOBALS['product'] = $product;
-							wc_get_template_part( $template_name );
-						endforeach; ?>
-					</div>
-				</div>
-			<?php endif; ?>
+				<?php wp_nonce_field( 'apply_coupon_mini_cart', 'mini_cart_coupon_nonce' ); ?>
+			</form>
 		</div>
 	</div>
-	<div class="widget_shopping_cart_content"> </div>
+	<?php
+} );
 
-<?php endif; ?>
+/**
+ * Customize mini cart total display with price breakdown
+ */
+add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
+	if ( ! WC()->cart ) {
+		return $total_html;
+	}
 
-<?php do_action( 'woocommerce_after_mini_cart' ); ?>
+	$cart = WC()->cart;
+	$subtotal = $cart->get_cart_subtotal();
+	$discount_total = $cart->get_discount_total();
+
+	// Get shipping/tax note from customizer
+	$cart_options = blaze_blocksy_get_cart_options();
+	$shipping_tax_note = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_shipping_tax_note', $cart_options, '* Shipping and tax are calculated after the shipping step is completed.' )
+		: '* Shipping and tax are calculated after the shipping step is completed.';
+
+	ob_start();
+	?>
+	<div class="mini-cart-totals-breakdown">
+		<div class="total-line subtotal-line">
+			<span class="total-label"><?php esc_html_e( 'Subtotal', 'blaze-blocksy' ); ?></span>
+			<span class="total-amount"><?php wc_cart_totals_subtotal_html(); ?></span>
+		</div>
+
+		<?php if ( $discount_total > 0 ) : ?>
+			<div class="total-line discount-line">
+				<span class="total-label"><?php esc_html_e( 'Discount', 'blaze-blocksy' ); ?></span>
+				<span class="total-amount">-<?php echo wc_price( $discount_total ); ?></span>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $shipping_tax_note ) ) : ?>
+			<div class="shipping-tax-note">
+				<small><?php echo esc_html( $shipping_tax_note ); ?></small>
+			</div>
+		<?php endif; ?>
+	</div>
+	<?php
+	echo ob_get_clean();
+} );
+
+add_action( 'wp', function () {
+	remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_button_view_cart', 10 );
+	remove_action( 'woocommerce_widget_shopping_cart_buttons', 'woocommerce_widget_shopping_cart_proceed_to_checkout', 20 );
+	remove_action( 'woocommerce_widget_shopping_cart_total', 'woocommerce_widget_shopping_cart_subtotal', 10 );
+}, 99999 );
+
+/**
+ * Customize mini cart buttons to show "SECURE CHECKOUT"
+ */
+add_action( 'woocommerce_widget_shopping_cart_buttons', function () {
+	$checkout_url = wc_get_checkout_url();
+
+	ob_start();
+	?>
+	<a href="<?php echo esc_url( $checkout_url ); ?>" class="button checkout wc-forward secure-checkout-btn">
+		<?php esc_html_e( 'SECURE CHECKOUT', 'blaze-blocksy' ); ?>
+		<span class="checkout-arrow">&rarr;</span>
+	</a>
+	<?php
+	echo ob_get_clean();
+}, 99999 );
+
+/**
+ * Add "You May Also Like" section after mini cart buttons
+ */
+/* *
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	?>
+	<ul class="product_recommendation_list_widget product_list_widget">
+		<li class="mini-cart-recommendations">
+			<div class="recommendations-header">
+				<h4><?php esc_html_e( 'You May Also Like', 'blaze-blocksy' ); ?></h4>
+			</div>
+			<div class="recommendations-products">
+				<?php blaze_blocksy_get_recommended_products_for_mini_cart(); ?>
+			</div>
+		</li>
+	</ul>
+	<?php
+}, -1 );
+*/
+
+add_action( 'woocommerce_mini_cart_contents', function () {
+	?>
+	<li class="mini-cart-recommendations">
+		<div class="recommendations-header">
+			<h4><?php esc_html_e( 'You May Also Like', 'blaze-blocksy' ); ?></h4>
+		</div>
+		<div class="recommendations-products">
+			<?php blaze_blocksy_get_recommended_products_for_mini_cart(); ?>
+		</div>
+	</li>
+	<?php
+}, 20 );
+
+/**
+ * Get recommended products for mini cart display
+ */
+function blaze_blocksy_get_recommended_products_for_mini_cart() {
+	// Early return if WooCommerce cart is not available
+	if ( ! WC()->cart ) {
+		return;
+	}
+
+	$cart_items = WC()->cart->get_cart();
+	$product_ids = array();
+
+	// Collect product IDs from cart
+	foreach ( $cart_items as $cart_item ) {
+		$product_ids[] = $cart_item['product_id'];
+	}
+
+	// Skip caching for empty carts to avoid cache key collision
+	// All empty carts would generate the same md5 hash
+	$use_cache = ! empty( $product_ids );
+	$recommended_products = false;
+
+	if ( $use_cache ) {
+		// Generate cache key based on cart product IDs
+		$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
+		$recommended_products = get_transient( $cache_key );
+	}
+
+	// If no cached data, fetch from database
+	if ( false === $recommended_products ) {
+		$recommended_products = array();
+
+		if ( ! empty( $product_ids ) ) {
+			// Get related products from the first cart item
+			$first_product_id = $product_ids[0];
+			$related_ids = wc_get_related_products( $first_product_id, 2 );
+
+			if ( ! empty( $related_ids ) ) {
+				$recommended_products = $related_ids;
+			}
+		}
+
+		// Fallback to recent products if no related products found
+		if ( empty( $recommended_products ) ) {
+			$recent_products = wc_get_products( array(
+				'limit' => 2,
+				'orderby' => 'date',
+				'order' => 'DESC',
+				'status' => 'publish',
+				'exclude' => $product_ids,
+				'return' => 'ids', // Return only IDs for better performance
+			) );
+
+			$recommended_products = $recent_products;
+		}
+
+		// Cache for 1 hour (only when cart has products)
+		if ( $use_cache ) {
+			set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
+		}
+	}
+
+	// Display recommended products
+	if ( ! empty( $recommended_products ) ) {
+		// Store original product to restore later
+		$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+
+		// Get layout setting from customizer
+		$cart_options = blaze_blocksy_get_cart_options();
+		$layout = function_exists( 'blocksy_akg' )
+			? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
+			: 'stacked';
+
+		// Determine wrapper class and template based on layout
+		$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
+		$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+
+		echo '<div class="' . esc_attr( $wrapper_class ) . '">';
+		foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( $product ) {
+				$GLOBALS['product'] = $product;
+				wc_get_template_part( $template_name );
+			}
+		}
+		echo '</div>';
+
+		// Restore original product
+		$GLOBALS['product'] = $original_product;
+	}
+}
+
+/**
+ * Handle AJAX coupon application in mini cart
+ */
+add_action( 'wp_ajax_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
+add_action( 'wp_ajax_nopriv_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
+
+function blaze_blocksy_handle_mini_cart_coupon() {
+	// Verify nonce
+	if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+		wp_die( 'Security check failed' );
+	}
+
+	$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
+
+	if ( empty( $coupon_code ) ) {
+		wp_send_json_error( array( 'message' => __( 'Please enter a coupon code.', 'blaze-blocksy' ) ) );
+	}
+
+	// Apply coupon
+	$result = WC()->cart->apply_coupon( $coupon_code );
+
+	if ( $result ) {
+		// Get updated cart fragments
+		WC_AJAX::get_refreshed_fragments();
+	} else {
+		// Get the last error message
+		$notices = wc_get_notices( 'error' );
+		$error_message = ! empty( $notices ) ? $notices[0]['notice'] : __( 'Invalid coupon code.', 'blaze-blocksy' );
+		wc_clear_notices();
+
+		wp_send_json_error( array( 'message' => $error_message ) );
+	}
+}
+
+/**
+ * Helper function to recursively insert options before a target key in nested arrays
+ *
+ * @param array  $options       The options array to modify.
+ * @param string $target_key    The key before which to insert new options.
+ * @param array  $new_options   The new options to insert.
+ * @return array Modified options array.
+ */
+function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
+	$result = array();
+	$found = false;
+
+	foreach ( $options as $key => $value ) {
+		// Check if this is the target key
+		if ( $key === $target_key ) {
+			// Insert new options before the target key
+			foreach ( $new_options as $new_key => $new_value ) {
+				$result[ $new_key ] = $new_value;
+			}
+			$found = true;
+		}
+
+		// If value is an array with 'options' key, recursively process it
+		if ( is_array( $value ) && isset( $value['options'] ) && is_array( $value['options'] ) ) {
+			$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
+		}
+
+		$result[ $key ] = $value;
+	}
+
+	return $result;
+}
+
+/**
+ * Add field URL to Blocksy cart customizer options
+ */
+add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
+	// Check if this is the cart options file
+	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
+		return $options;
+	}
+
+	// Design options to add before "Products Font Color" (cart_panel_font_color)
+	// Note: Using 'sync' => 'live' for Blocksy's live preview system
+	$design_options = array(
+		'mini_cart_product_title_font' => array(
+			'label' => __( 'Product Title Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n5',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_product_price_font' => array(
+			'label' => __( 'Product Price Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n4',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_product_price_color' => array(
+			'label' => __( 'Product Price Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'sync' => 'live',
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
+
+		'mini_cart_subtotal_font' => array(
+			'label' => __( 'Subtotal Amount Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n6',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_subtotal_color' => array(
+			'label' => __( 'Subtotal Amount Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'sync' => 'live',
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
+	);
+
+	// Recursively insert design options before cart_panel_font_color
+	$options = blaze_blocksy_insert_options_before_key( $options, 'cart_panel_font_color', $design_options );
+
+	// Add custom options to cart settings
+	$custom_options = array(
+		'bmcu_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_section_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Custom Text Settings', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_panel_title' => array(
+			'label' => __( 'Cart Panel Title', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => 'Shopping Cart',
+			'design' => 'block',
+			'desc' => __( 'Enter the title for the cart offcanvas panel header.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_panel_icon_svg' => array(
+			'label' => __( 'Cart Panel Icon (SVG)', 'blaze-blocksy' ),
+			'type' => 'textarea',
+			'value' => '',
+			'design' => 'block',
+			'desc' => __( 'Enter SVG code for the icon displayed next to the cart panel title.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_empty_message' => array(
+			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
+			'type' => 'textarea',
+			'value' => 'Your cart is empty, continue shopping to add item',
+			'design' => 'block',
+			'desc' => __( 'Enter the message displayed when the cart is empty.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_continue_shopping_text' => array(
+			'label' => __( 'Continue Shopping Button Text', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => 'CONTINUE SHOPPING',
+			'design' => 'block',
+			'desc' => __( 'Enter the text for the continue shopping button.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_continue_shopping_url' => array(
+			'label' => __( 'Continue Shopping Button URL', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '',
+			'design' => 'block',
+			'desc' => __( 'Enter the URL for the continue shopping button. Leave empty to use default shop page.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_shipping_tax_note' => array(
+			'label' => __( 'Shipping & Tax Note', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '* Shipping and tax are calculated after the shipping step is completed.',
+			'design' => 'block',
+			'desc' => __( 'Enter the shipping and tax note displayed below subtotal.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'bmcu_url_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_url_section_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Custom URL Settings', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_help_url' => array(
+			'label' => __( 'Help Link URL', 'blaze-blocksy' ),
+			'type' => 'text',
+			'value' => '/contact',
+			'design' => 'block',
+			'desc' => __( 'Enter URL for the "Need Help?" link in mini cart.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'bmcu_layout_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_layout_section_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Recommendation Products Layout', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_recommendation_layout' => array(
+			'label' => __( 'Product Card Layout', 'blaze-blocksy' ),
+			'type' => 'ct-radio',
+			'value' => 'stacked',
+			'view' => 'text',
+			'design' => 'block',
+			'choices' => array(
+				'grid' => __( 'Grid (2 Columns)', 'blaze-blocksy' ),
+				'stacked' => __( 'Stacked (Like Cart Items)', 'blaze-blocksy' ),
+			),
+			'desc' => __( 'Choose how recommendation products are displayed in mini cart.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+	);
+
+	// Merge our options with existing options
+	return array_merge( $options, $custom_options );
+}, 10, 3 );
+
+/**
+ * Get Blocksy cart options with caching
+ */
+function blaze_blocksy_get_cart_options() {
+	static $cart_options = null;
+
+	if ( null === $cart_options ) {
+		$cart_options = array();
+
+		if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
+			$header = new Blocksy_Header_Builder_Render();
+			$cart_options = $header->get_item_data_for( 'cart' );
+		}
+	}
+
+	return $cart_options;
+}
+
+/**
+ * Add custom panel title to localized script data
+ * This replaces the expensive output buffering approach with lightweight JavaScript
+ */
+add_filter( 'blaze_blocksy_mini_cart_localize_data', 'blaze_blocksy_add_panel_title_to_localize' );
+
+function blaze_blocksy_add_panel_title_to_localize( $data ) {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$custom_title = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
+		: 'Shopping Cart';
+
+	$panel_icon_svg = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_panel_icon_svg', $cart_options, '' )
+		: '';
+
+	$data['panel_title'] = $custom_title;
+	$data['default_panel_title'] = 'Shopping Cart';
+	$data['panel_icon_svg'] = $panel_icon_svg;
+
+	return $data;
+}
+
+/**
+ * Add "Need Help?" link after mini cart
+ */
+add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$help_url = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_help_url', $cart_options, '/contact' )
+		: '/contact';
+
+	if ( empty( $help_url ) ) {
+		return;
+	}
+	?>
+	<div class="mini-cart-help">
+		<a href="<?php echo esc_url( $help_url ); ?>"
+			class="help-link"><?php esc_html_e( 'Need Help?', 'blaze-blocksy' ); ?></a>
+	</div>
+	<?php
+}, 10 );
+
+/**
+ * Add dynamic CSS for mini cart product title font
+ */
+add_filter( 'blocksy:header:dynamic-styles-args:cart', function ( $args ) {
+	return $args;
+} );
+
+add_action( 'blocksy:global-dynamic-css:enqueue', function ( $args ) {
+	$cart_options = blaze_blocksy_get_cart_options();
+
+	if ( ! function_exists( 'blocksy_output_font_css' ) || ! function_exists( 'blocksy_akg' ) || ! function_exists( 'blocksy_output_colors' ) ) {
+		return;
+	}
+
+	// Product Title Font
+	$product_title_font = blocksy_akg(
+		'mini_cart_product_title_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n5',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_title_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '#woo-cart-panel .mini_cart_item .product-info a',
+		)
+	);
+
+	// Product Price Font
+	$product_price_font = blocksy_akg(
+		'mini_cart_product_price_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n4',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_price_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+		)
+	);
+
+	// Product Price Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_product_price_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
+
+	// Subtotal Amount Font
+	$subtotal_font = blocksy_akg(
+		'mini_cart_subtotal_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n6',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $subtotal_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+		)
+	);
+
+	// Subtotal Amount Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_subtotal_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
+}, 50 );

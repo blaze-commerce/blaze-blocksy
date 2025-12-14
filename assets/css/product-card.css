@@ -145,10 +145,6 @@
   bottom: 15px;
 }
 
-.products .product .ct-woo-card-extra .ct-button {
-  border: 1px solid var(--theme-icon-color);
-}
-
 @media screen and (max-width: 768px) {
   [data-products] .product figure {
     --product-element-spacing: 12px;

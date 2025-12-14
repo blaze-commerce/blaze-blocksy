@@ -56,7 +56,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 					<input type="text" name="coupon_code" class="coupon-code-input"
 						placeholder="<?php esc_attr_e( 'Enter Promo Code', 'blaze-blocksy' ); ?>" />
 					<button type="submit"
-						class="apply-coupon-btn"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
+						class="apply-coupon-btn button"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
 				</div>
 				<?php wp_nonce_field( 'apply_coupon_mini_cart', 'mini_cart_coupon_nonce' ); ?>
 			</form>
