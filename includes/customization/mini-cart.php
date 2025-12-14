@@ -303,6 +303,15 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			'setting' => array( 'transport' => 'postMessage' ),
 		),
 
+		'mini_cart_panel_icon_svg' => array(
+			'label' => __( 'Cart Panel Icon (SVG)', 'blaze-blocksy' ),
+			'type' => 'textarea',
+			'value' => '',
+			'design' => 'block',
+			'desc' => __( 'Enter SVG code for the icon displayed next to the cart panel title.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
 		'mini_cart_empty_message' => array(
 			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
 			'type' => 'textarea',
@@ -415,8 +424,13 @@ function blaze_blocksy_add_panel_title_to_localize( $data ) {
 		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
 		: 'Shopping Cart';
 
+	$panel_icon_svg = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_panel_icon_svg', $cart_options, '' )
+		: '';
+
 	$data['panel_title'] = $custom_title;
 	$data['default_panel_title'] = 'Shopping Cart';
+	$data['panel_icon_svg'] = $panel_icon_svg;
 
 	return $data;
 }

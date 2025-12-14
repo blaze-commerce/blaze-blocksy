@@ -58,25 +58,44 @@ jQuery(document).ready(function ($) {
         ? blazeBlocksyMiniCart.default_panel_title
         : "Shopping Cart";
 
-    // Get current heading text without the count span
+    // Get custom SVG icon from customizer
+    var panelIconSvg =
+      typeof blazeBlocksyMiniCart !== "undefined" &&
+      blazeBlocksyMiniCart.panel_icon_svg
+        ? blazeBlocksyMiniCart.panel_icon_svg
+        : "";
+
+    // Get current heading text without the count span and icon
     var $totalItems = $heading.find(".total-items");
     var currentText = $heading.clone().children().remove().end().text().trim();
 
-    // Update title if custom title is set and different
-    if (customTitle && customTitle !== defaultTitle) {
-      if (currentText === defaultTitle) {
-        // Preserve the total-items span if it exists
-        if ($totalItems.length) {
-          $heading.html(
-            customTitle +
-              ' <span class="total-items">' +
-              $totalItems.text() +
-              "</span>"
-          );
-        } else {
-          $heading.text(customTitle);
-        }
+    // Build the heading content
+    var titleToUse =
+      customTitle && customTitle !== defaultTitle ? customTitle : currentText;
+    if (titleToUse === defaultTitle && customTitle) {
+      titleToUse = customTitle;
+    }
+
+    // Only update if we have customizations
+    if (customTitle || panelIconSvg) {
+      var headingHtml = "";
+
+      // Add SVG icon if provided
+      if (panelIconSvg) {
+        headingHtml +=
+          '<span class="cart-panel-icon">' + panelIconSvg + "</span> ";
       }
+
+      // Add title
+      headingHtml += titleToUse || defaultTitle;
+
+      // Add total items count
+      if ($totalItems.length) {
+        headingHtml +=
+          ' <span class="total-items">' + $totalItems.text() + "</span>";
+      }
+
+      $heading.html(headingHtml);
     }
 
     // Always update the count
