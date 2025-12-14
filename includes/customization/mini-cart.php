@@ -284,6 +284,7 @@ function blaze_blocksy_handle_mini_cart_coupon() {
  */
 function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
 	$result = array();
+	$found = false;
 
 	foreach ( $options as $key => $value ) {
 		// Check if this is the target key
@@ -292,17 +293,12 @@ function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_op
 			foreach ( $new_options as $new_key => $new_value ) {
 				$result[ $new_key ] = $new_value;
 			}
+			$found = true;
 		}
 
-		// If value is an array, recursively process it
-		if ( is_array( $value ) ) {
-			// Check if this has nested 'options' key (common in Blocksy structure)
-			if ( isset( $value['options'] ) && is_array( $value['options'] ) ) {
-				$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
-			}
-
-			// Also check for direct nested arrays (tabs, conditions, etc.)
-			$value = blaze_blocksy_insert_options_before_key( $value, $target_key, $new_options );
+		// If value is an array with 'options' key, recursively process it
+		if ( is_array( $value ) && isset( $value['options'] ) && is_array( $value['options'] ) ) {
+			$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
 		}
 
 		$result[ $key ] = $value;
