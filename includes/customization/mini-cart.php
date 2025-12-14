@@ -275,6 +275,43 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 }
 
 /**
+ * Helper function to recursively insert options before a target key in nested arrays
+ *
+ * @param array  $options       The options array to modify.
+ * @param string $target_key    The key before which to insert new options.
+ * @param array  $new_options   The new options to insert.
+ * @return array Modified options array.
+ */
+function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
+	$result = array();
+
+	foreach ( $options as $key => $value ) {
+		// Check if this is the target key
+		if ( $key === $target_key ) {
+			// Insert new options before the target key
+			foreach ( $new_options as $new_key => $new_value ) {
+				$result[ $new_key ] = $new_value;
+			}
+		}
+
+		// If value is an array, recursively process it
+		if ( is_array( $value ) ) {
+			// Check if this has nested 'options' key (common in Blocksy structure)
+			if ( isset( $value['options'] ) && is_array( $value['options'] ) ) {
+				$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
+			}
+
+			// Also check for direct nested arrays (tabs, conditions, etc.)
+			$value = blaze_blocksy_insert_options_before_key( $value, $target_key, $new_options );
+		}
+
+		$result[ $key ] = $value;
+	}
+
+	return $result;
+}
+
+/**
  * Add field URL to Blocksy cart customizer options
  */
 add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
@@ -283,7 +320,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		return $options;
 	}
 
-	// Add typography option before "Products Font Color" (cart_panel_font_color)
+	// Design options to add before "Products Font Color" (cart_panel_font_color)
 	$design_options = array(
 		'mini_cart_product_title_font' => array(
 			'label' => __( 'Product Title Font', 'blaze-blocksy' ),
@@ -367,22 +404,8 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		),
 	);
 
-	// Insert design options before cart_panel_font_color
-	$new_options = array();
-	foreach ( $options as $key => $value ) {
-		if ( 'cart_panel_font_color' === $key ) {
-			// Insert our custom design options before cart_panel_font_color
-			foreach ( $design_options as $design_key => $design_value ) {
-				$new_options[ $design_key ] = $design_value;
-			}
-		}
-		$new_options[ $key ] = $value;
-	}
-
-	// If cart_panel_font_color was found and options were inserted, use the new options
-	if ( count( $new_options ) > count( $options ) ) {
-		$options = $new_options;
-	}
+	// Recursively insert design options before cart_panel_font_color
+	$options = blaze_blocksy_insert_options_before_key( $options, 'cart_panel_font_color', $design_options );
 
 	// Add custom options to cart settings
 	$custom_options = array(
