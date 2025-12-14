@@ -14,6 +14,21 @@ function add_mini_cart_localize_data( $data ) {
 }
 
 /**
+ * Enqueue customizer preview sync script
+ */
+add_action( 'customize_preview_init', 'blaze_blocksy_mini_cart_customizer_preview_scripts' );
+
+function blaze_blocksy_mini_cart_customizer_preview_scripts() {
+	wp_enqueue_script(
+		'blaze-blocksy-mini-cart-customizer-sync',
+		BLAZE_BLOCKSY_URL . '/assets/js/customizer-sync.js',
+		array( 'jquery', 'customize-preview' ),
+		BLAZE_BLOCKSY_VERSION,
+		true
+	);
+}
+
+/**
  * Override mini cart template
  */
 add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
@@ -317,6 +332,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 	}
 
 	// Design options to add before "Products Font Color" (cart_panel_font_color)
+	// Note: Using 'sync' => 'live' for Blocksy's live preview system
 	$design_options = array(
 		'mini_cart_product_title_font' => array(
 			'label' => __( 'Product Title Font', 'blaze-blocksy' ),
@@ -330,7 +346,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			),
 			'design' => 'block',
 			'divider' => 'top',
-			'setting' => array( 'transport' => 'postMessage' ),
+			'sync' => 'live',
 		),
 
 		'mini_cart_product_price_font' => array(
@@ -345,14 +361,14 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			),
 			'design' => 'block',
 			'divider' => 'top',
-			'setting' => array( 'transport' => 'postMessage' ),
+			'sync' => 'live',
 		),
 
 		'mini_cart_product_price_color' => array(
 			'label' => __( 'Product Price Color', 'blaze-blocksy' ),
 			'type' => 'ct-color-picker',
 			'design' => 'inline',
-			'setting' => array( 'transport' => 'postMessage' ),
+			'sync' => 'live',
 			'value' => array(
 				'default' => array(
 					'color' => 'var(--theme-text-color)',
@@ -378,14 +394,14 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			),
 			'design' => 'block',
 			'divider' => 'top',
-			'setting' => array( 'transport' => 'postMessage' ),
+			'sync' => 'live',
 		),
 
 		'mini_cart_subtotal_color' => array(
 			'label' => __( 'Subtotal Amount Color', 'blaze-blocksy' ),
 			'type' => 'ct-color-picker',
 			'design' => 'inline',
-			'setting' => array( 'transport' => 'postMessage' ),
+			'sync' => 'live',
 			'value' => array(
 				'default' => array(
 					'color' => 'var(--theme-text-color)',
