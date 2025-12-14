@@ -203,12 +203,12 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 			<!-- Empty Cart Icon and Message -->
 
 			<div class="empty-cart-message">
-				<p><?php echo esc_html( $empty_message ); ?></p>
+				<?php echo esc_html( $empty_message ); ?>
 			</div>
 
 			<!-- Continue Shopping Button -->
 			<div class="continue-shopping-wrapper">
-				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="continue-shopping-btn">
+				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="continue-shopping-btn button">
 					<?php echo esc_html( $continue_shopping_text ); ?>
 					<span class="arrow">→</span>
 				</a>

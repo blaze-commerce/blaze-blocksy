@@ -41,6 +41,12 @@
 
   /* Shadow Colors */
   --shadow-subtle: rgba(0, 0, 0, 0.1);
+
+  --product-card-border-width: 1px;
+  --product-card-border-style: solid;
+  --product-card-border-color: transparent;
+  --product-card-border-hover-color: #eee;
+  --product-card-border-radius: 8px;
 }
 
 /* Ordering */
@@ -63,14 +69,6 @@
   padding-top: var(--panel-padding);
   margin-left: var(--panel-padding);
   margin-right: var(--panel-padding);
-}
-
-.ct-drawer-canvas .ct-panel .ct-panel-actions .ct-panel-heading {
-  font-size: 24px;
-  line-height: 36px;
-  color: var(--theme-palette-color-11, #4e594d);
-  font-family: var(--theme-heading-font-family);
-  font-weight: 400;
 }
 
 /* Existing suggested products styles */
@@ -317,16 +315,17 @@
 }
 
 .recommended-product-item {
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
+  border-width: var(--product-card-border-width);
+  border-style: var(--product-card-border-style);
+  border-color: var(--product-card-border-color);
+  border-radius: var(--product-card-border-radius);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .recommended-product-item:hover,
 .recommended-product-item.hover-effect {
-  border-color: var(--border-medium);
-  box-shadow: 0 2px 8px var(--shadow-subtle);
+  border-color: var(--product-card-border-hover-color, var(--product-card-border-color));
   transform: translateY(-2px);
 }
 
@@ -443,10 +442,10 @@
 
 .recommended-product-item-stacked .product-title {
   font-family: var(--theme-button-font-family, var(--theme-font-family));
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.3;
-  color: var(--text-dark);
+  font-weight: var(--theme-button-font-weight, 500);
+  font-size: var(--theme-button-font-size, 16px);
+  line-height: var(--theme-button-line-height, 1.4);
+  color: var(--theme-text-color);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -551,6 +550,10 @@
   height: 80px;
 }
 
+.empty-cart-message {
+  margin-bottom: 32px;
+}
+
 .empty-cart-message p {
   color: var(--text-light);
   font-size: 16px;
@@ -569,8 +572,6 @@
   justify-content: center;
   width: 100%;
   gap: 8px;
-  background: var(--primary-1000, #be252f);
-  color: var(--text-white);
   padding: 12px 24px;
   text-decoration: none;
   border-radius: 4px;
@@ -581,8 +582,6 @@
 }
 
 .continue-shopping-btn:hover {
-  background: var(--continue-shopping-hover);
-  color: var(--text-white);
   text-decoration: none;
   transform: translateY(-1px);
 }

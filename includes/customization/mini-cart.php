@@ -305,7 +305,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 
 		'mini_cart_empty_message' => array(
 			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
-			'type' => 'text',
+			'type' => 'textarea',
 			'value' => 'Your cart is empty, continue to shopping to add item',
 			'design' => 'block',
 			'desc' => __( 'Enter the message displayed when the cart is empty.', 'blaze-blocksy' ),
