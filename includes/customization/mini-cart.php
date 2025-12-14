@@ -299,6 +299,72 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			'divider' => 'top',
 			'setting' => array( 'transport' => 'postMessage' ),
 		),
+
+		'mini_cart_product_price_font' => array(
+			'label' => __( 'Product Price Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n4',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_product_price_color' => array(
+			'label' => __( 'Product Price Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'setting' => array( 'transport' => 'postMessage' ),
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
+
+		'mini_cart_subtotal_font' => array(
+			'label' => __( 'Subtotal Amount Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n6',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		'mini_cart_subtotal_color' => array(
+			'label' => __( 'Subtotal Amount Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'setting' => array( 'transport' => 'postMessage' ),
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
 	);
 
 	// Insert design options before cart_panel_font_color
@@ -500,28 +566,110 @@ add_filter( 'blocksy:header:dynamic-styles-args:cart', function ( $args ) {
 add_action( 'blocksy:global-dynamic-css:enqueue', function ( $args ) {
 	$cart_options = blaze_blocksy_get_cart_options();
 
-	// Product Title Font
-	if ( function_exists( 'blocksy_output_font_css' ) && function_exists( 'blocksy_akg' ) ) {
-		$product_title_font = blocksy_akg(
-			'mini_cart_product_title_font',
-			$cart_options,
-			blocksy_typography_default_values(
-				array(
-					'size' => '14px',
-					'variation' => 'n5',
-					'line-height' => '1.4',
-				)
-			)
-		);
-
-		blocksy_output_font_css(
-			array(
-				'font_value' => $product_title_font,
-				'css' => $args['css'],
-				'tablet_css' => $args['tablet_css'],
-				'mobile_css' => $args['mobile_css'],
-				'selector' => '#woo-cart-panel .mini_cart_item .product-info a',
-			)
-		);
+	if ( ! function_exists( 'blocksy_output_font_css' ) || ! function_exists( 'blocksy_akg' ) || ! function_exists( 'blocksy_output_colors' ) ) {
+		return;
 	}
+
+	// Product Title Font
+	$product_title_font = blocksy_akg(
+		'mini_cart_product_title_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n5',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_title_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '#woo-cart-panel .mini_cart_item .product-info a',
+		)
+	);
+
+	// Product Price Font
+	$product_price_font = blocksy_akg(
+		'mini_cart_product_price_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n4',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_price_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+		)
+	);
+
+	// Product Price Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_product_price_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
+
+	// Subtotal Amount Font
+	$subtotal_font = blocksy_akg(
+		'mini_cart_subtotal_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n6',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $subtotal_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+		)
+	);
+
+	// Subtotal Amount Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_subtotal_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
 }, 50 );
