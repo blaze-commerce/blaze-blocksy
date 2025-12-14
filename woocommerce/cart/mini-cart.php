@@ -118,9 +118,51 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 						$cart_item_key
 					);
 					?>
-					<figure class="product-image-wrapper">
-						<?php echo $thumbnail; ?>
-					</figure>
+					<?php
+					// Read global variables set by Blocksy's view.php for Customizer integration
+					global $blocksy_mini_cart_ratio;
+					global $blocksy_mini_cart_size;
+
+					$size_to_use = 'woocommerce_thumbnail';
+					$ratio_to_use = '1/1';
+
+					if ( $blocksy_mini_cart_size ) {
+						$size_to_use = $blocksy_mini_cart_size;
+					}
+
+					if ( $blocksy_mini_cart_ratio ) {
+						$ratio_to_use = $blocksy_mini_cart_ratio;
+					}
+
+					// Use blocksy_media() function for proper Customizer integration (Image Ratio & Border Radius)
+					if ( function_exists( 'blocksy_media' ) ) {
+						echo apply_filters(
+							'woocommerce_cart_item_thumbnail',
+							blocksy_media(
+								array(
+									'no_image_type' => 'woo',
+									'attachment_id' => $_product->get_image_id(),
+									'post_id' => $_product->get_id(),
+									'size' => $size_to_use,
+									'ratio' => $ratio_to_use,
+									'tag_name' => 'a',
+									'html_atts' => array(
+										'href' => esc_url( $product_permalink ),
+									),
+								)
+							),
+							$cart_item,
+							$cart_item_key
+						);
+					} else {
+						// Fallback if blocksy_media doesn't exist
+						?>
+						<figure class="product-image-wrapper ct-media-container">
+							<?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</figure>
+						<?php
+					}
+					?>
 					<div class="product-info">
 						<?php if ( empty( $product_permalink ) ) : ?>
 							<?php echo wp_kses_post( $product_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

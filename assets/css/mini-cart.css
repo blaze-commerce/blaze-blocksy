@@ -521,11 +521,12 @@
   padding-right: 32px;
 }
 
-#woo-cart-panel .mini_cart_item .product-info a {
-  font-family: var(--theme-button-font-family, var(--theme-font-family));
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 20px;
+#woo-cart-panel .mini_cart_item .product-info a,
+#woo-cart-panel .mini_cart_item .woocommerce-Price-amount {
+  font-family: var(--theme-font-family);
+  font-weight: var(--theme-font-weight);
+  font-size: var(--theme-font-size);
+  line-height: var(--theme-line-height);
 }
 
 #woo-cart-panel .mini_cart_item .product-info .product-price-quantity {
