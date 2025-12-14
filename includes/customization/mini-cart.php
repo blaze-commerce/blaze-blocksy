@@ -283,6 +283,41 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		return $options;
 	}
 
+	// Add typography option before "Products Font Color" (cart_panel_font_color)
+	$design_options = array(
+		'mini_cart_product_title_font' => array(
+			'label' => __( 'Product Title Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n5',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+	);
+
+	// Insert design options before cart_panel_font_color
+	$new_options = array();
+	foreach ( $options as $key => $value ) {
+		if ( 'cart_panel_font_color' === $key ) {
+			// Insert our custom design options before cart_panel_font_color
+			foreach ( $design_options as $design_key => $design_value ) {
+				$new_options[ $design_key ] = $design_value;
+			}
+		}
+		$new_options[ $key ] = $value;
+	}
+
+	// If cart_panel_font_color was found and options were inserted, use the new options
+	if ( count( $new_options ) > count( $options ) ) {
+		$options = $new_options;
+	}
+
 	// Add custom options to cart settings
 	$custom_options = array(
 		'bmcu_divider' => array(
@@ -455,4 +490,38 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	<?php
 }, 10 );
 
+/**
+ * Add dynamic CSS for mini cart product title font
+ */
+add_filter( 'blocksy:header:dynamic-styles-args:cart', function ( $args ) {
+	return $args;
+} );
 
+add_action( 'blocksy:global-dynamic-css:enqueue', function ( $args ) {
+	$cart_options = blaze_blocksy_get_cart_options();
+
+	// Product Title Font
+	if ( function_exists( 'blocksy_output_font_css' ) && function_exists( 'blocksy_akg' ) ) {
+		$product_title_font = blocksy_akg(
+			'mini_cart_product_title_font',
+			$cart_options,
+			blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n5',
+					'line-height' => '1.4',
+				)
+			)
+		);
+
+		blocksy_output_font_css(
+			array(
+				'font_value' => $product_title_font,
+				'css' => $args['css'],
+				'tablet_css' => $args['tablet_css'],
+				'mobile_css' => $args['mobile_css'],
+				'selector' => '#woo-cart-panel .mini_cart_item .product-info a',
+			)
+		);
+	}
+}, 50 );

@@ -57,6 +57,13 @@
 
 /* Panel Customization */
 
+.ct-panel-actions .ct-panel-heading {
+  display: inline-flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .ct-drawer-canvas .ct-panel {
   --panel-padding: 24px;
 }

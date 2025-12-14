@@ -87,7 +87,9 @@ jQuery(document).ready(function ($) {
       }
 
       // Add title
-      headingHtml += titleToUse || defaultTitle;
+      headingHtml +=
+        '<span class="cart-panel-title">' + titleToUse ||
+        defaultTitle + "</span>";
 
       // Add total items count
       if ($totalItems.length) {
