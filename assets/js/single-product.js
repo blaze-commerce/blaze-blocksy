@@ -137,8 +137,6 @@
         }, 300); // Match the CSS transition duration
       },
       error: function () {
-        console.log("Failed to load recently viewed products");
-
         // Hide loading indicator on error
         $loading.addClass("fade-out");
         setTimeout(function () {
@@ -238,6 +236,9 @@
     initNoticesObserver();
   });
 
+  // Store observer reference for cleanup
+  let noticesObserver = null;
+
   /**
    * Initialize MutationObserver to watch for WooCommerce notices
    * When notices (errors/alerts) are added after AJAX add to cart, scroll to them
@@ -251,8 +252,13 @@
       return;
     }
 
+    // Disconnect existing observer if any (prevent duplicates)
+    if (noticesObserver) {
+      noticesObserver.disconnect();
+    }
+
     // Create observer to watch for added notices
-    const observer = new MutationObserver(function (mutations) {
+    noticesObserver = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
         mutation.addedNodes.forEach(function (node) {
           // Check if the added node is an error notice
@@ -271,9 +277,17 @@
     });
 
     // Start observing
-    observer.observe(noticesWrapper, {
+    noticesObserver.observe(noticesWrapper, {
       childList: true,
       subtree: true,
+    });
+
+    // Cleanup observer on page unload to prevent memory leaks
+    window.addEventListener("beforeunload", function () {
+      if (noticesObserver) {
+        noticesObserver.disconnect();
+        noticesObserver = null;
+      }
     });
   }
 

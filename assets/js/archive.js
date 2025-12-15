@@ -1,4 +1,18 @@
 (function ($) {
+  // Cache DOM elements for better performance
+  let $pagination = null;
+  let $resultCount = null;
+  let $categoryCount = null;
+
+  /**
+   * Initialize cached selectors
+   */
+  const initCachedSelectors = function () {
+    $pagination = $(".ct-pagination");
+    $resultCount = $(".woocommerce-result-count");
+    $categoryCount = $(".ct-product-category-count");
+  };
+
   /**
    * Generate counter text based on current and total products
    */
@@ -21,11 +35,11 @@
     let navCountEl = document.querySelector(".ct-product-category-count");
 
     // Ensure navigation counter element exists
-    if (!navCountEl && $(".ct-pagination").length > 0) {
-      $(".ct-pagination").prepend(
-        '<div class="ct-product-category-count"></div>'
-      );
+    if (!navCountEl && $pagination && $pagination.length > 0) {
+      $pagination.prepend('<div class="ct-product-category-count"></div>');
       navCountEl = document.querySelector(".ct-product-category-count");
+      // Update cached selector
+      $categoryCount = $(".ct-product-category-count");
     }
 
     if (!resultCountEl || !productsContainer) {
@@ -62,14 +76,21 @@
    */
   const displayProductCount = function () {
     // Ensure the element exists
-    if ($(".ct-product-category-count").length === 0) {
-      $(".ct-pagination").prepend(
-        '<div class="ct-product-category-count"></div>'
-      );
+    if (!$categoryCount || $categoryCount.length === 0) {
+      if ($pagination && $pagination.length > 0) {
+        $pagination.prepend('<div class="ct-product-category-count"></div>');
+        $categoryCount = $(".ct-product-category-count");
+      }
     }
 
-    const theText = $(".woocommerce-result-count").text();
-    $(".ct-product-category-count").text(theText);
+    if (
+      $resultCount &&
+      $resultCount.length > 0 &&
+      $categoryCount &&
+      $categoryCount.length > 0
+    ) {
+      $categoryCount.text($resultCount.text());
+    }
   };
 
   /**
@@ -91,10 +112,15 @@
   const debouncedUpdateCounters = debounce(updateCounters, 100);
 
   $(document).ready(function () {
-    // Add element to .ct-pagination
-    $(".ct-pagination").prepend(
-      '<div class="ct-product-category-count"></div>'
-    );
+    // Initialize cached selectors
+    initCachedSelectors();
+
+    // Add element to .ct-pagination using cached selector
+    if ($pagination && $pagination.length > 0) {
+      $pagination.prepend('<div class="ct-product-category-count"></div>');
+      // Update cached selector after adding element
+      $categoryCount = $(".ct-product-category-count");
+    }
     displayProductCount();
 
     // Initialize load more counter functionality
@@ -121,8 +147,10 @@
 
     // Fallback: MutationObserver for DOM changes
     const productsContainer = document.querySelector(".products");
+    let productsObserver = null;
+
     if (productsContainer) {
-      const observer = new MutationObserver(function (mutations) {
+      productsObserver = new MutationObserver(function (mutations) {
         let shouldUpdate = false;
 
         mutations.forEach(function (mutation) {
@@ -146,9 +174,17 @@
         }
       });
 
-      observer.observe(productsContainer, {
+      productsObserver.observe(productsContainer, {
         childList: true,
         subtree: true,
+      });
+
+      // Cleanup observer on page unload to prevent memory leaks
+      window.addEventListener("beforeunload", function () {
+        if (productsObserver) {
+          productsObserver.disconnect();
+          productsObserver = null;
+        }
       });
     }
 
