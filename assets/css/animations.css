@@ -1,0 +1,171 @@
+/**
+ * CSS Animation Utilities
+ * 
+ * Replaces jQuery animations with GPU-accelerated CSS transitions.
+ * This provides smoother animations and better performance.
+ * 
+ * Usage:
+ * - slideToggle: Add/remove 'is-open' class, element needs 'blaze-slide' class
+ * - fadeIn/Out: Add/remove 'is-visible' class, element needs 'blaze-fade' class
+ * - smooth scroll: Use native CSS scroll-behavior or scrollIntoView API
+ * 
+ * @package Blaze_Blocksy
+ * @since 1.0.0
+ */
+
+/* ==========================================================================
+   SLIDE ANIMATIONS (replaces jQuery slideToggle/slideDown/slideUp)
+   ========================================================================== */
+
+/**
+ * Base slide container - applies to elements that slide
+ * Uses max-height technique for smooth height transitions
+ */
+.blaze-slide {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.blaze-slide.is-open {
+    max-height: 2000px; /* Large enough for most content */
+    opacity: 1;
+    transition: max-height 0.4s ease-in, opacity 0.3s ease-in;
+}
+
+/* Variant for smaller content (faster animation) */
+.blaze-slide--small {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.blaze-slide--small.is-open {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* ==========================================================================
+   FADE ANIMATIONS (replaces jQuery fadeIn/fadeOut)
+   ========================================================================== */
+
+/**
+ * Base fade element
+ */
+.blaze-fade {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.blaze-fade.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Fade with slight transform for more visual interest */
+.blaze-fade--up {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+}
+
+.blaze-fade--up.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   SMOOTH SCROLL BEHAVIOR
+   ========================================================================== */
+
+/**
+ * Enable smooth scrolling for the entire page
+ * Can be applied to html or specific containers
+ */
+.blaze-smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Apply to html for global smooth scrolling */
+html.blaze-smooth-scroll-enabled {
+    scroll-behavior: smooth;
+}
+
+/* ==========================================================================
+   COUPON FORM ANIMATIONS (mini-cart specific)
+   ========================================================================== */
+
+.coupon-form-wrapper {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.coupon-form-wrapper.is-open {
+    max-height: 200px;
+    opacity: 1;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* ==========================================================================
+   FEEDBACK MESSAGE ANIMATIONS
+   ========================================================================== */
+
+.blaze-feedback {
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.blaze-feedback.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.blaze-feedback.is-hiding {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+/* ==========================================================================
+   FORM SWITCH ANIMATIONS (my-account login/register)
+   ========================================================================== */
+
+.blaze-login-register.template2 .login-container,
+.blaze-login-register.template2 .register-container {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.blaze-login-register.template2 .login-container.is-hidden,
+.blaze-login-register.template2 .register-container.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   SUMMARY CONTENT SLIDE (thank-you page)
+   ========================================================================== */
+
+.blaze-commerce-summary-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.blaze-commerce-summary-content.is-collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+}
+

@@ -58,20 +58,30 @@ jQuery(document).ready(function ($) {
 
       const $button = $(this);
       const $content = $(".blaze-commerce-summary-content");
+      const contentEl = $content[0];
 
-      $content.slideToggle(300, function () {
-        if ($content.is(":visible")) {
-          $button.text("Hide");
-        } else {
-          $button.text("Show");
-        }
-      });
+      // Use CSS transitions instead of jQuery slideToggle
+      const isCollapsed = $content.hasClass("is-collapsed");
+
+      if (isCollapsed) {
+        // Expanding: remove collapsed class, set max-height
+        $content.removeClass("is-collapsed");
+        contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+        $button.text("Hide");
+      } else {
+        // Collapsing: set current height first, then collapse
+        contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+        // Force reflow
+        contentEl.offsetHeight;
+        $content.addClass("is-collapsed");
+        $button.text("Show");
+      }
 
       // Track toggle event
       if (typeof gtag !== "undefined") {
         gtag("event", "toggle_order_summary", {
           event_category: "user_interaction",
-          action: $content.is(":visible") ? "show" : "hide",
+          action: isCollapsed ? "show" : "hide",
         });
       }
     });
@@ -166,12 +176,20 @@ jQuery(document).ready(function ($) {
    */
   function showResendEmailFeedback(type, message) {
     const $feedback = $("#resend-feedback");
-    $feedback.removeClass("success error").addClass(type).text(message).show();
+    $feedback
+      .removeClass("success error is-hiding")
+      .addClass(type)
+      .addClass("is-visible")
+      .text(message);
 
-    // Auto-hide success messages after 5 seconds
+    // Auto-hide success messages after 5 seconds using CSS transition
     if (type === "success") {
       setTimeout(function () {
-        $feedback.fadeOut();
+        $feedback.addClass("is-hiding");
+        // Remove visibility after transition completes
+        setTimeout(function () {
+          $feedback.removeClass("is-visible is-hiding");
+        }, 300);
       }, 5000);
     }
   }
@@ -256,21 +274,12 @@ jQuery(document).ready(function ($) {
       sections.forEach((selector, index) => {
         const $section = $(selector);
         if ($section.length) {
-          // Start from visible state, add subtle enhancement
-          $section.css({
-            opacity: "0.8",
-            transform: "translateY(10px)",
-          });
+          // Add CSS transition class and initial state
+          $section.addClass("blaze-fade--up");
 
+          // Stagger the animations using setTimeout
           setTimeout(() => {
-            $section
-              .animate(
-                {
-                  opacity: "1",
-                },
-                400
-              )
-              .css("transform", "translateY(0)");
+            $section.addClass("is-visible");
           }, index * 100);
         }
       });
@@ -446,19 +455,26 @@ jQuery(document).ready(function ($) {
 
   /**
    * Add smooth scrolling for anchor links
+   * Uses native scrollIntoView API with smooth behavior (CSS-based)
    */
   function initSmoothScrolling() {
     $('a[href^="#"]').on("click", function (e) {
       e.preventDefault();
 
-      const target = $($(this).attr("href"));
-      if (target.length) {
-        $("html, body").animate(
-          {
-            scrollTop: target.offset().top - 100,
-          },
-          500
-        );
+      const targetSelector = $(this).attr("href");
+      const targetEl = document.querySelector(targetSelector);
+
+      if (targetEl) {
+        // Use native smooth scroll - more performant than jQuery animate
+        targetEl.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+
+        // Adjust for header offset after scroll completes
+        setTimeout(function () {
+          window.scrollBy(0, -100);
+        }, 500);
       }
     });
   }

@@ -138,20 +138,24 @@ jQuery(document).ready(function ($) {
 
   /**
    * Toggle coupon form visibility
+   * Uses CSS transitions instead of jQuery slideToggle for better performance
    */
   $(document).on("click", ".coupon-toggle", function (e) {
     e.preventDefault();
 
     var $wrapper = $(this).siblings(".coupon-form-wrapper");
     var $arrow = $(this).find(".coupon-arrow");
+    var wrapperEl = $wrapper[0];
 
-    $wrapper.slideToggle(300);
+    // Toggle using CSS class (see animations.css for transition styles)
+    var isOpen = $wrapper.hasClass("is-open");
 
-    // Toggle arrow direction
-    if ($arrow.text() === "▼") {
-      $arrow.text("▲");
-    } else {
+    if (isOpen) {
+      $wrapper.removeClass("is-open");
       $arrow.text("▼");
+    } else {
+      $wrapper.addClass("is-open");
+      $arrow.text("▲");
     }
   });
 
@@ -203,21 +207,32 @@ jQuery(document).ready(function ($) {
 
   /**
    * Show coupon message
+   * Uses CSS transitions instead of jQuery fadeOut for better performance
    */
   function showCouponMessage(message, type) {
     var messageClass = type === "success" ? "coupon-success" : "coupon-error";
     var $message = $(
-      '<div class="coupon-message ' + messageClass + '">' + message + "</div>"
+      '<div class="coupon-message blaze-fade ' +
+        messageClass +
+        '">' +
+        message +
+        "</div>"
     );
 
     $(".mini-cart-coupon-section").append($message);
 
-    // Auto-hide success messages after 3 seconds
+    // Trigger reflow to enable CSS transition
+    $message[0].offsetHeight;
+    $message.addClass("is-visible");
+
+    // Auto-hide success messages after 3 seconds using CSS transition
     if (type === "success") {
       setTimeout(function () {
-        $message.fadeOut(300, function () {
-          $(this).remove();
-        });
+        $message.removeClass("is-visible");
+        // Remove element after CSS transition completes
+        setTimeout(function () {
+          $message.remove();
+        }, 300);
       }, 3000);
     }
   }

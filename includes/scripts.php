@@ -16,6 +16,14 @@ function blaze_blocksy_enqueue_assets() {
 	// === GLOBAL STYLES ===
 	wp_enqueue_style( 'parent-style', $template_uri . '/style.css' );
 
+	// Animation utilities CSS (GPU-accelerated transitions)
+	wp_enqueue_style(
+		'blaze-blocksy-animations',
+		$template_uri . '/assets/css/animations.css',
+		array( 'parent-style' ),
+		'1.0.0'
+	);
+
 	// Enqueue child styles
 	wp_enqueue_style(
 		'blocksy-child-search-style',
