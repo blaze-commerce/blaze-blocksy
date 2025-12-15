@@ -4,13 +4,11 @@ body .dgwt-wcas-search-wrapp {
 
 body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
   min-height: 48px;
-  background-color: transparent !important;
   border-radius: 8px;
   color: white;
 }
 
 body .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
-  background-color: transparent !important;
   border-radius: 8px;
 }
 
