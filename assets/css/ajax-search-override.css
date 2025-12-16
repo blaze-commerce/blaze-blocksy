@@ -1,0 +1,135 @@
+/**
+ * AJAX Search for WooCommerce - Custom Suggestion Template Styling
+ * 
+ * Styles for the custom "recommended-product-item" template
+ * used in AJAX search suggestions.
+ * 
+ * @package Blaze Blocksy
+ * @since 1.0.0
+ */
+
+/* Override default suggestion styles */
+.dgwt-wcas-suggestion.recommended-product-item {
+	padding: 0;
+	border-bottom: 1px solid #f0f0f0;
+	display: block;
+	background-color: transparent;
+	transition: background-color 0.3s ease;
+}
+
+.dgwt-wcas-suggestion.recommended-product-item:hover,
+.dgwt-wcas-suggestion.recommended-product-item.dgwt-wcas-suggestion-selected {
+	background-color: #f9f9f9;
+}
+
+/* Product link styling */
+.recommended-product-item .product-link {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px;
+	text-decoration: none;
+	color: inherit;
+	transition: all 0.3s ease;
+}
+
+.recommended-product-item .product-link:hover {
+	text-decoration: none;
+}
+
+/* Product image styling */
+.recommended-product-item .product-image {
+	flex-shrink: 0;
+	width: 60px;
+	height: 60px;
+	overflow: hidden;
+	border-radius: 4px;
+	background-color: #f5f5f5;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.recommended-product-item .product-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* Product info styling */
+.recommended-product-item .product-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* Product title styling */
+.recommended-product-item .product-title {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: #333;
+	word-break: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+/* Product SKU styling */
+.recommended-product-item .product-sku {
+	font-size: 11px;
+	color: #999;
+	display: block;
+}
+
+/* Product price styling */
+.recommended-product-item .product-price {
+	font-size: 12px;
+	font-weight: 600;
+	color: #2c2c2c;
+	margin-top: 2px;
+}
+
+/* Hover effect */
+.recommended-product-item.hover-effect {
+	background-color: #f9f9f9;
+}
+
+.recommended-product-item.hover-effect .product-link {
+	transform: translateX(2px);
+}
+
+/* RTL support */
+.rtl .recommended-product-item .product-link {
+	flex-direction: row-reverse;
+}
+
+.rtl .recommended-product-item .product-image {
+	margin-left: 0;
+	margin-right: 12px;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+	.recommended-product-item .product-link {
+		padding: 10px;
+		gap: 10px;
+	}
+
+	.recommended-product-item .product-image {
+		width: 50px;
+		height: 50px;
+	}
+
+	.recommended-product-item .product-title {
+		font-size: 12px;
+	}
+}
+

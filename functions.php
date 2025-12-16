@@ -127,6 +127,7 @@ $required_files = [
 	'/includes/features/product-information.php',
 	'/includes/features/offcanvas-module.php', // Generic offcanvas module
 	'/includes/customization/fibo-search-suggestions.php',
+	'/includes/customization/ajax-search-override.php',
 	'/includes/customization/thank-you-page.php',
 	'/includes/customization/thank-you-page-customizer.php',
 	'/includes/customization/my-account.php',
