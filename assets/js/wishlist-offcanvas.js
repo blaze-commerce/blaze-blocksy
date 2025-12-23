@@ -22,9 +22,13 @@
     };
 
     // Initialize when DOM is ready
-    $(document).ready(function () {
+    // Use robust DOM ready detection to ensure initialization happens
+    // regardless of WordPress/Blocksy loading sequence
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWishlistOffCanvas);
+    } else {
         initWishlistOffCanvas();
-    });
+    }
 
     /**
      * Initialize wishlist off-canvas functionality
