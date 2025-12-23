@@ -222,9 +222,9 @@ class Results_Count_Placement {
 
 		wp_enqueue_style(
 			'blz-results-count-placement',
-			get_template_directory_uri() . '/assets/css/results-count-placement.css',
+			get_stylesheet_directory_uri() . '/assets/css/results-count-placement.css',
 			array(),
-			filemtime( get_template_directory() . '/assets/css/results-count-placement.css' )
+			filemtime( get_stylesheet_directory() . '/assets/css/results-count-placement.css' )
 		);
 	}
 
