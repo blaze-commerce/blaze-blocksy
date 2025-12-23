@@ -49,8 +49,8 @@ class Results_Count_Placement {
 		// Handle placement repositioning on frontend
 		add_action( 'wp', array( $this, 'handle_placement' ), 10 );
 
-		// Output custom styles when placement is after sort dropdown
-		add_action( 'wp_head', array( $this, 'output_placement_styles' ), 99 );
+		// Enqueue custom styles when placement is after sort dropdown
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_placement_styles' ) );
 	}
 
 	/**
@@ -204,14 +204,14 @@ class Results_Count_Placement {
 	}
 
 	/**
-	 * Output inline styles for the relocated results count.
+	 * Enqueue styles for the relocated results count.
 	 *
-	 * Only outputs on shop/archive pages when placement is set to after_sort_dropdown.
+	 * Only enqueues on shop/archive pages when placement is set to after_sort_dropdown.
 	 *
 	 * @return void
 	 */
-	public function output_placement_styles() {
-		// Only output on shop/archive pages when placement is after_sort_dropdown
+	public function enqueue_placement_styles() {
+		// Only enqueue on shop/archive pages when placement is after_sort_dropdown
 		if ( ! function_exists( 'is_shop' ) || ( ! is_shop() && ! is_product_taxonomy() ) ) {
 			return;
 		}
@@ -219,20 +219,13 @@ class Results_Count_Placement {
 		if ( 'after_sort_dropdown' !== $this->get_placement() ) {
 			return;
 		}
-		?>
-		<style id="blz-results-count-placement-styles">
-			/* Reset layout, border, and padding from original .woo-listing-top */
-			.blz-results-count-wrapper.woo-listing-top {
-				display: block;
-				margin-bottom: var(--ct-content-spacing, 40px);
-				border-bottom: 0;
-				padding-bottom: 0;
-			}
-			.blz-results-count-wrapper .woocommerce-result-count {
-				margin: 0;
-			}
-		</style>
-		<?php
+
+		wp_enqueue_style(
+			'blz-results-count-placement',
+			get_template_directory_uri() . '/assets/css/results-count-placement.css',
+			array(),
+			filemtime( get_template_directory() . '/assets/css/results-count-placement.css' )
+		);
 	}
 
 	/**
