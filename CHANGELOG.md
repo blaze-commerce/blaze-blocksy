@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.52.0] - 2025-12-23
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.51.0 (#161)
+- bump theme version to 1.50.0 (#159)
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Replace jQuery document.ready with robust DOM ready detection (#162)
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
 ## [1.51.0] - 2025-12-19
 
 ### Added
@@ -3134,4 +3179,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.49.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.49.0
 [1.50.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.50.0
 [1.51.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.51.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.51.0...HEAD
+[1.52.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.52.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.52.0...HEAD
