@@ -86,6 +86,10 @@ function blaze_blocksy_enqueue_assets() {
 		);
 	}
 
+	// === WISHLIST OVERLAY ASSETS ===
+	wp_enqueue_style( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/css/wishlist-overlay.css', array(), '1.0.2' );
+	wp_enqueue_script( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/js/wishlist-overlay.js', array(), '1.0.2', true );
+
 	// === LOCALIZE SCRIPTS ===
 	blaze_blocksy_localize_scripts();
 }
