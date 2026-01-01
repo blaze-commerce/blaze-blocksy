@@ -145,6 +145,7 @@ $required_files = [
 	'/includes/customization/product-full-description.php',
 	'/includes/customization/slideshow-on-mobile.php',
 	'/includes/customization/bundle-products.php',
+	'/includes/customization/results-count-placement.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',

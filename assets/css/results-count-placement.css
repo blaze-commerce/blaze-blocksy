@@ -1,0 +1,20 @@
+/**
+ * Results Count Placement Styles
+ *
+ * Styles for the relocated results count when positioned after the sort dropdown.
+ *
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* Reset layout, border, and padding from original .woo-listing-top */
+.blz-results-count-wrapper.woo-listing-top {
+	display: block;
+	margin-bottom: var(--ct-content-spacing, 40px);
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.blz-results-count-wrapper .woocommerce-result-count {
+	margin: 0;
+}
