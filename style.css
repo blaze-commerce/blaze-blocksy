@@ -183,3 +183,34 @@
     height: 100px !important;
   }
 }
+
+/* ============================================
+   Checkout Error Auto-Scroll Highlight Effect
+   ============================================ */
+
+/* Smooth highlight animation for error messages */
+@keyframes errorPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    border-color: rgba(220, 53, 69, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 10px 5px rgba(220, 53, 69, 0.3);
+    border-color: rgba(220, 53, 69, 1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    border-color: rgba(220, 53, 69, 0.5);
+  }
+}
+
+.error-highlight {
+  animation: errorPulse 1s ease-in-out 2;
+  transition: all 0.3s ease;
+}
+
+/* Enhanced error message visibility */
+.woocommerce-error,
+.woocommerce-NoticeGroup-checkout .woocommerce-error {
+  scroll-margin-top: 120px; /* Space from top when scrolled to */
+}
