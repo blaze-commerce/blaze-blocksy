@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.54.0] - 2026-01-01
+
 ### Added
 - Wishlist overlay backdrop with dark overlay effect when panel opens
 - Click-to-close functionality for wishlist panel (click outside to close)
 - Smooth fade transitions for overlay appearance/disappearance
 - Comprehensive documentation for wishlist overlay implementation
+
 ## [1.53.0] - 2026-01-01
 
 ### Added
@@ -3239,4 +3242,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.51.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.51.0
 [1.52.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.52.0
 [1.53.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.53.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.53.0...HEAD
+[1.54.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.54.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.54.0...HEAD
