@@ -8,8 +8,8 @@
  * @package Blaze_Blocksy
  */
 
-/* Mobile and Tablet viewports only (up to 1024px) */
-@media (max-width: 1024px) {
+/* Mobile and Tablet viewports only (up to 999px) */
+@media (max-width: 999px) {
 
   /* Move sidebar above main content using flexbox order */
   .fc-wrapper {

@@ -14,7 +14,7 @@
    */
   function initOrderSummaryToggle() {
     // Only run on mobile/tablet viewports
-    if (window.innerWidth > 1024) {
+    if (window.innerWidth > 999) {
       return;
     }
 
@@ -78,7 +78,7 @@
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
       // Remove existing toggle if viewport is now desktop
-      if (window.innerWidth > 1024) {
+      if (window.innerWidth > 999) {
         const existingToggle = document.getElementById('order-summary-toggle');
         if (existingToggle) {
           existingToggle.remove();
