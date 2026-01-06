@@ -71,6 +71,84 @@
   }
 
   /**
+   * Move place order button below payment fields on mobile
+   */
+  function movePlaceOrderButton() {
+    console.log('[Blaze] movePlaceOrderButton() called', {
+      viewportWidth: window.innerWidth,
+      timestamp: new Date().toISOString()
+    });
+
+    // Only run on mobile/tablet viewports
+    if (window.innerWidth > 999) {
+      console.log('[Blaze] Skipping - desktop viewport');
+      return;
+    }
+
+    const placeOrderSection = document.querySelector('.fc-place-order__section');
+    const paymentSection = document.querySelector('.fc-substep__fields--payment');
+
+    console.log('[Blaze] Elements found:', {
+      placeOrderSection: !!placeOrderSection,
+      paymentSection: !!paymentSection
+    });
+
+    if (!placeOrderSection || !paymentSection) {
+      console.log('[Blaze] Missing elements - aborting');
+      return;
+    }
+
+    // Check if already in correct location (verify actual parent, not just data attribute)
+    const paymentParent = paymentSection.parentElement;
+    const isInCorrectLocation = placeOrderSection.parentElement === paymentParent;
+
+    console.log('[Blaze] Current state:', {
+      placeOrderParent: placeOrderSection.parentElement.className,
+      paymentParent: paymentParent.className,
+      isInCorrectLocation: isInCorrectLocation,
+      dataAttribute: placeOrderSection.dataset.movedToPayment
+    });
+
+    if (isInCorrectLocation && placeOrderSection.dataset.movedToPayment === 'true') {
+      console.log('[Blaze] Already in correct location - skipping');
+      return;
+    }
+
+    console.log('[Blaze] Moving place order section...');
+
+    // Mark as moved
+    placeOrderSection.dataset.movedToPayment = 'true';
+
+    // Move place order section after payment section
+    paymentParent.insertBefore(placeOrderSection, paymentSection.nextSibling);
+
+    console.log('[Blaze] Move complete!', {
+      newParent: placeOrderSection.parentElement.className
+    });
+  }
+
+  /**
+   * Restore place order button to sidebar on desktop
+   */
+  function restorePlaceOrderButton() {
+    const placeOrderSection = document.querySelector('.fc-place-order__section');
+    const orderReviewInner = document.querySelector('.fc-checkout-order-review__inner');
+
+    if (!placeOrderSection || !orderReviewInner) {
+      return;
+    }
+
+    // Only restore if it was moved
+    if (placeOrderSection.dataset.movedToPayment === 'true') {
+      // Remove the marker
+      delete placeOrderSection.dataset.movedToPayment;
+
+      // Move back to sidebar
+      orderReviewInner.appendChild(placeOrderSection);
+    }
+  }
+
+  /**
    * Re-initialize on window resize
    */
   let resizeTimeout;
@@ -89,8 +167,11 @@
           orderReview.classList.remove('show');
           orderReview.style.display = '';
         }
+        // Restore place order button to sidebar
+        restorePlaceOrderButton();
       } else {
         initOrderSummaryToggle();
+        movePlaceOrderButton();
       }
     }, 250);
   });
@@ -99,10 +180,21 @@
    * Initialize on document ready and after FluidCheckout updates
    */
   $(document).ready(function() {
+    console.log('[Blaze] Document ready - initializing checkout mobile customizations');
     initOrderSummaryToggle();
+    movePlaceOrderButton();
 
     // Re-initialize after FluidCheckout AJAX updates
-    $(document.body).on('updated_checkout', initOrderSummaryToggle);
+    $(document.body).on('updated_checkout', function() {
+      console.log('[Blaze] FluidCheckout updated_checkout event fired');
+      initOrderSummaryToggle();
+
+      // Delay execution to ensure FluidCheckout finishes its DOM manipulation
+      setTimeout(function() {
+        console.log('[Blaze] Executing delayed movePlaceOrderButton after updated_checkout');
+        movePlaceOrderButton();
+      }, 100);
+    });
   });
 
 })(jQuery);
