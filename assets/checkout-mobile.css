@@ -1,0 +1,98 @@
+/**
+ * FluidCheckout Mobile/Tablet Customizations
+ *
+ * Modifications:
+ * - Move order summary sidebar above checkout form (mobile/tablet only)
+ * - Add collapsible toggle header for order summary (mobile/tablet only)
+ *
+ * @package Blaze_Blocksy
+ */
+
+/* Mobile and Tablet viewports only (up to 1024px) */
+@media (max-width: 1024px) {
+
+  /* Move sidebar above main content using flexbox order */
+  .fc-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .fc-sidebar {
+    order: -1 !important;
+    margin-bottom: 24px;
+    margin-top: 24px;
+  }
+
+  .fc-inside {
+    order: 1 !important;
+  }
+
+  /* Order summary toggle header */
+  .fc-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    color: #FFFFFF;
+    padding: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 0;
+    transition: background-color 0.2s ease;
+  }
+
+  .fc-sidebar-header:hover {
+    background: transparent;
+  }
+
+  .fc-sidebar-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fc-sidebar-header-icon {
+    width: 16px;
+    height: 16px;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .fc-sidebar-header-text {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.71;
+    text-transform: uppercase;
+    color: #FFFFFF;
+  }
+
+  .fc-sidebar-header-chevron {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .fc-sidebar-header-chevron.rotated {
+    transform: rotate(180deg);
+  }
+
+  .fc-sidebar-header-total {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.71;
+    color: #FFFFFF;
+  }
+
+  /* Hide order summary content by default on mobile/tablet */
+  #fc-checkout-order-review {
+    display: none;
+    margin-top: 24px;
+  }
+
+  #fc-checkout-order-review.show {
+    display: block;
+  }
+}

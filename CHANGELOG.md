@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-01-06
+
+### Added
+- Mobile/tablet checkout order summary toggle with collapsible functionality
+- Reordered checkout layout to display order summary above form on mobile/tablet
+- Shopping cart icon and chevron indicator for order summary toggle
+- Responsive CSS and JavaScript for checkout mobile enhancements (max-width: 1024px)
+
+### Changed
+- Order summary now appears above checkout form on mobile/tablet viewports
+- Order summary starts collapsed by default on mobile/tablet for better UX
+- Toggle header matches Figma design with cart icon, text, chevron, and total price
+
 ## [1.54.0] - 2026-01-01
 
 ### Added
