@@ -62,7 +62,7 @@ function blaze_blocksy_enqueue_checkout_mobile_assets() {
 		'blaze-checkout-mobile',
 		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.css',
 		array(),
-		'1.40.4',
+		'1.40.5',
 		'all'
 	);
 
@@ -71,7 +71,7 @@ function blaze_blocksy_enqueue_checkout_mobile_assets() {
 		'blaze-checkout-mobile',
 		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.js',
 		array( 'jquery' ),
-		'1.40.4',
+		'1.40.5',
 		true
 	);
 }

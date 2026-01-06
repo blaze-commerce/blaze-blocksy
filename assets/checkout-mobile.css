@@ -96,4 +96,18 @@
   #fc-checkout-order-review.show {
     display: block;
   }
+
+  /* Move place order section below payment fields */
+  .fc-substep__content {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .fc-substep__fields--payment {
+    order: 1 !important;
+  }
+
+  .fc-place-order__section {
+    order: 2 !important;
+  }
 }
