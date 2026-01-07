@@ -19,8 +19,8 @@
 
   .fc-sidebar {
     order: -1 !important;
-    margin-bottom: 16px;
-    margin-top: 24px;
+    margin-bottom: 16px !important;
+    margin-top: 20px !important;
   }
 
   .fc-inside {
