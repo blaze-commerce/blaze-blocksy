@@ -42,6 +42,41 @@ function blaze_blocksy_fluid_checkout_spacing() {
 }
 add_action( 'wp_head', 'blaze_blocksy_fluid_checkout_spacing', 999 );
 
+/**
+ * Enqueue Fluid Checkout Mobile/Tablet Customizations
+ *
+ * Loads CSS and JavaScript for mobile/tablet checkout enhancements:
+ * - Moves order summary sidebar above checkout form
+ * - Adds collapsible toggle for order summary
+ *
+ * @since 1.40.0
+ */
+function blaze_blocksy_enqueue_checkout_mobile_assets() {
+	// Only load on checkout page and when FluidCheckout is active
+	if ( ! is_checkout() || ! class_exists( 'FluidCheckout' ) ) {
+		return;
+	}
+
+	// Enqueue CSS
+	wp_enqueue_style(
+		'blaze-checkout-mobile',
+		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.css',
+		array(),
+		'1.40.12',
+		'all'
+	);
+
+	// Enqueue JavaScript
+	wp_enqueue_script(
+		'blaze-checkout-mobile',
+		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.js',
+		array( 'jquery' ),
+		'1.40.12',
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'blaze_blocksy_enqueue_checkout_mobile_assets', 999 );
+
 
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
