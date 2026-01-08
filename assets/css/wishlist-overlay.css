@@ -1,0 +1,85 @@
+/**
+ * Wishlist Overlay Styles
+ *
+ * Creates a dark overlay (backdrop) that appears when the wishlist panel is opened,
+ * similar to the effect on shinetrim.com
+ *
+ * @package WishlistPlugin
+ * @since 1.0.0
+ */
+
+/* ============================================
+   Overlay Backdrop
+   ============================================ */
+
+/**
+ * Create overlay using CSS pseudo-element
+ * - Fixed positioning covers entire viewport
+ * - Semi-transparent black background (50% opacity)
+ * - Hidden by default with opacity 0
+ * - Smooth fade in/out transition (0.3s)
+ * - Z-index 9999 to cover header (z-index 1000) and all other content
+ * - pointer-events: none when hidden to avoid blocking clicks
+ */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ============================================
+   Overlay Active State
+   ============================================ */
+
+/**
+ * Show overlay when wishlist panel is active
+ * Targets multiple possible states:
+ * 1. Wishlist dialog with .active class
+ * 2. Wish-list dialog with .active class
+ * 3. Body with data-panel attribute (Blocksy theme convention)
+ */
+body:has([id*="wishlist"][role="dialog"].active)::before,
+body:has([id*="wish-list"][role="dialog"].active)::before,
+body[data-panel*="in"]::before {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ============================================
+   Wishlist Panel Z-Index
+   ============================================ */
+
+/**
+ * Panel should already have proper z-index and positioning
+ * from the theme - no modifications needed here
+ */
+
+/* ============================================
+   Additional Notes
+   ============================================ */
+
+/**
+ * Browser Compatibility:
+ * - :has() selector requires modern browsers (Chrome 105+, Safari 15.4+, Firefox 121+)
+ * - Fallback: Manual JavaScript-based approach for older browsers
+ *
+ * Z-Index Stacking:
+ * - Header: z-index 1000 (theme default)
+ * - Overlay: z-index 9999 (covers header and all content)
+ * - Wishlist Panel: Should have z-index > 9999 (theme manages this)
+ *
+ * Customization Options:
+ * - Adjust background-color opacity (0.5) for lighter/darker overlay
+ * - Modify transition duration (0.3s) for faster/slower fade
+ * - Change z-index values if conflicts with other elements
+ */

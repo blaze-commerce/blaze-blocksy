@@ -7,6 +7,408 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.55.0] - 2026-01-07
+
+### Added
+- Add mobile/tablet checkout order summary toggle (#171)
+- add auto-scroll to checkout validation errors (#169)
+- Add Wishlist Overlay Backdrop with Z-Index Fix (#166)
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.54.0 (#170)
+- bump theme version to 1.53.0 (#167)
+- Fix FOUC issue with product carousel showing multiple rows before JS init (#157)
+- bump theme version to 1.52.0 (#165)
+- fix enqueue path url
+- Extracted all inline styles into a dedicated CSS file
+- Add support for Result Count Placement
+- bump theme version to 1.51.0 (#161)
+- bump theme version to 1.50.0 (#159)
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Replace jQuery document.ready with robust DOM ready detection (#162)
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.55.0] - 2026-01-06
+
+### Added
+- Mobile/tablet checkout order summary toggle with collapsible functionality
+- Reordered checkout layout to display order summary above form on mobile/tablet
+- Shopping cart icon and chevron indicator for order summary toggle
+- Responsive CSS and JavaScript for checkout mobile enhancements (max-width: 1024px)
+
+### Changed
+- Order summary now appears above checkout form on mobile/tablet viewports
+- Order summary starts collapsed by default on mobile/tablet for better UX
+- Toggle header matches Figma design with cart icon, text, chevron, and total price
+
+## [1.54.0] - 2026-01-01
+
+### Added
+- Wishlist overlay backdrop with dark overlay effect when panel opens
+- Click-to-close functionality for wishlist panel (click outside to close)
+- Smooth fade transitions for overlay appearance/disappearance
+- Comprehensive documentation for wishlist overlay implementation
+
+## [1.53.0] - 2026-01-01
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- Fix FOUC issue with product carousel showing multiple rows before JS init (#157)
+- bump theme version to 1.52.0 (#165)
+- fix enqueue path url
+- Extracted all inline styles into a dedicated CSS file
+- Add support for Result Count Placement
+- bump theme version to 1.51.0 (#161)
+- bump theme version to 1.50.0 (#159)
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Replace jQuery document.ready with robust DOM ready detection (#162)
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.52.0] - 2025-12-23
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- fix enqueue path url
+- Extracted all inline styles into a dedicated CSS file
+- Add support for Result Count Placement
+- bump theme version to 1.51.0 (#161)
+- bump theme version to 1.50.0 (#159)
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Replace jQuery document.ready with robust DOM ready detection (#162)
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.51.0] - 2025-12-19
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.50.0 (#159)
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.50.0] - 2025-12-15
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Remove transparent background override from search input (#158)
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.49.0] - 2025-12-11
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.48.0] - 2025-12-10
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.47.0] - 2025-12-10
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.46.0 (#151)
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- Allow Checkout page in Blocksy header conditions (#150)
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
+## [1.46.0] - 2025-12-10
+
+### Added
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
 ## [1.45.0] - 2025-12-05
 
 ### Added
@@ -2900,4 +3302,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.43.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.43.0
 [1.44.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.44.0
 [1.45.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.28.0...v1.45.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...HEAD
+[1.46.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.46.0
+[1.47.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.47.0
+[1.48.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.48.0
+[1.49.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.49.0
+[1.50.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.50.0
+[1.51.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.51.0
+[1.52.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.52.0
+[1.53.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.53.0
+[1.54.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.54.0
+[1.55.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.55.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.55.0...HEAD
