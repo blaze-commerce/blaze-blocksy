@@ -33,7 +33,7 @@ class BlazeBlocksy_Product_Tabs_Customizer {
 		add_action( 'blocksy:woocommerce:product:custom:layer', array( $this, 'render_layer' ) );
 
 		// Add disable option to Single Product customizer (WooCommerce General section)
-		add_filter( 'blocksy_customizer_options:woocommerce:general:end', array( $this, 'add_disable_tabs_option' ), 60 );
+		add_filter( 'blocksy_customizer_options:woocommerce:general:end', array( $this, 'add_disable_tabs_option' ), 90 );
 
 		// Handle disabling default product tabs using remove_action
 		add_action( 'wp', array( $this, 'maybe_disable_default_tabs' ) );

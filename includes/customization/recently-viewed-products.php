@@ -21,12 +21,9 @@ function display_recently_viewed_products_placeholder() {
 	$current_product_id = $product->get_id();
 	?>
 	<!-- Loading indicator for recently viewed products -->
-	<div id="recently-viewed-loading" class="recently-viewed-loading"
-		style="text-align: center; padding: 20px; display: block;">
-		<div class="loading-spinner"
-			style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #333; border-radius: 50%; animation: spin 1s linear infinite;">
-		</div>
-		<span style="margin-left: 10px; color: #666;">Loading recently viewed products...</span>
+	<div id="recently-viewed-loading" class="recently-viewed-loading">
+		<div class="loading-spinner"></div>
+		<span>Loading recently viewed products...</span>
 	</div>
 
 	<section class="recently-viewed-products up-sells products is-width-constrained" id="recently-viewed-section"
@@ -36,36 +33,6 @@ function display_recently_viewed_products_placeholder() {
 			<!-- Products will be loaded via AJAX -->
 		</div>
 	</section>
-
-	<style>
-		@keyframes spin {
-			0% {
-				transform: rotate(0deg);
-			}
-
-			100% {
-				transform: rotate(360deg);
-			}
-		}
-
-		.recently-viewed-loading {
-			opacity: 1;
-			transition: opacity 0.3s ease;
-		}
-
-		.recently-viewed-loading.fade-out {
-			opacity: 0;
-		}
-	</style>
-
-	<script>
-		jQuery(document).ready(function ($) {
-			// Load recently viewed products via AJAX (function defined in single-product.js)
-			if (typeof loadRecentlyViewedProducts === 'function') {
-				loadRecentlyViewedProducts(<?php echo $current_product_id; ?>);
-			}
-		});
-	</script>
 	<?php
 }
 
@@ -115,7 +82,7 @@ function ajax_get_recently_viewed_products() {
 	$recently_viewed_products = get_recently_viewed_products_from_storage();
 
 	// Filter out current product and limit to 10 products
-	$product_ids = array_filter( $recently_viewed_products, function ($id) use ($current_product_id) {
+	$product_ids = array_filter( $recently_viewed_products, function ( $id ) use ( $current_product_id ) {
 		return intval( $id ) !== $current_product_id;
 	} );
 	$product_ids = array_slice( $product_ids, 0, 10 );

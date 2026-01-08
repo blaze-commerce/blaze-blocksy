@@ -14,6 +14,21 @@ function add_mini_cart_localize_data( $data ) {
 }
 
 /**
+ * Enqueue customizer preview sync script
+ */
+add_action( 'customize_preview_init', 'blaze_blocksy_mini_cart_customizer_preview_scripts' );
+
+function blaze_blocksy_mini_cart_customizer_preview_scripts() {
+	wp_enqueue_script(
+		'blaze-blocksy-mini-cart-customizer-sync',
+		BLAZE_BLOCKSY_URL . '/assets/js/customizer-sync.js',
+		array( 'jquery', 'customize-preview' ),
+		BLAZE_BLOCKSY_VERSION,
+		true
+	);
+}
+
+/**
  * Override mini cart template
  */
 add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
@@ -41,7 +56,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 					<input type="text" name="coupon_code" class="coupon-code-input"
 						placeholder="<?php esc_attr_e( 'Enter Promo Code', 'blaze-blocksy' ); ?>" />
 					<button type="submit"
-						class="apply-coupon-btn"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
+						class="apply-coupon-btn button"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
 				</div>
 				<?php wp_nonce_field( 'apply_coupon_mini_cart', 'mini_cart_coupon_nonce' ); ?>
 			</form>
@@ -275,6 +290,39 @@ function blaze_blocksy_handle_mini_cart_coupon() {
 }
 
 /**
+ * Helper function to recursively insert options before a target key in nested arrays
+ *
+ * @param array  $options       The options array to modify.
+ * @param string $target_key    The key before which to insert new options.
+ * @param array  $new_options   The new options to insert.
+ * @return array Modified options array.
+ */
+function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
+	$result = array();
+	$found = false;
+
+	foreach ( $options as $key => $value ) {
+		// Check if this is the target key
+		if ( $key === $target_key ) {
+			// Insert new options before the target key
+			foreach ( $new_options as $new_key => $new_value ) {
+				$result[ $new_key ] = $new_value;
+			}
+			$found = true;
+		}
+
+		// If value is an array with 'options' key, recursively process it
+		if ( is_array( $value ) && isset( $value['options'] ) && is_array( $value['options'] ) ) {
+			$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
+		}
+
+		$result[ $key ] = $value;
+	}
+
+	return $result;
+}
+
+/**
  * Add field URL to Blocksy cart customizer options
  */
 add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside ) {
@@ -282,6 +330,94 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 	if ( strpos( $path, 'panel-builder/header/cart/options.php' ) === false ) {
 		return $options;
 	}
+
+	// Design options to add before "Products Font Color" (cart_panel_font_color)
+	// Note: Using 'sync' => 'live' for Blocksy's live preview system
+	$design_options = array(
+		'mini_cart_product_title_font' => array(
+			'label' => __( 'Product Title Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n5',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_product_price_font' => array(
+			'label' => __( 'Product Price Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n4',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_product_price_color' => array(
+			'label' => __( 'Product Price Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'sync' => 'live',
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
+
+		'mini_cart_subtotal_font' => array(
+			'label' => __( 'Subtotal Amount Font', 'blaze-blocksy' ),
+			'type' => 'ct-typography',
+			'value' => blocksy_typography_default_values(
+				array(
+					'size' => '14px',
+					'variation' => 'n6',
+					'line-height' => '1.4',
+				)
+			),
+			'design' => 'block',
+			'divider' => 'top',
+			'sync' => 'live',
+		),
+
+		'mini_cart_subtotal_color' => array(
+			'label' => __( 'Subtotal Amount Color', 'blaze-blocksy' ),
+			'type' => 'ct-color-picker',
+			'design' => 'inline',
+			'sync' => 'live',
+			'value' => array(
+				'default' => array(
+					'color' => 'var(--theme-text-color)',
+				),
+			),
+			'pickers' => array(
+				array(
+					'title' => __( 'Color', 'blaze-blocksy' ),
+					'id' => 'default',
+				),
+			),
+		),
+	);
+
+	// Recursively insert design options before cart_panel_font_color
+	$options = blaze_blocksy_insert_options_before_key( $options, 'cart_panel_font_color', $design_options );
 
 	// Add custom options to cart settings
 	$custom_options = array(
@@ -303,10 +439,19 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			'setting' => array( 'transport' => 'postMessage' ),
 		),
 
+		'mini_cart_panel_icon_svg' => array(
+			'label' => __( 'Cart Panel Icon (SVG)', 'blaze-blocksy' ),
+			'type' => 'textarea',
+			'value' => '',
+			'design' => 'block',
+			'desc' => __( 'Enter SVG code for the icon displayed next to the cart panel title.', 'blaze-blocksy' ),
+			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
 		'mini_cart_empty_message' => array(
 			'label' => __( 'Empty Cart Message', 'blaze-blocksy' ),
-			'type' => 'text',
-			'value' => 'Your cart is empty, continue to shopping to add item',
+			'type' => 'textarea',
+			'value' => 'Your cart is empty, continue shopping to add item',
 			'design' => 'block',
 			'desc' => __( 'Enter the message displayed when the cart is empty.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
@@ -315,7 +460,7 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 		'mini_cart_continue_shopping_text' => array(
 			'label' => __( 'Continue Shopping Button Text', 'blaze-blocksy' ),
 			'type' => 'text',
-			'value' => 'CONTINUE TO SHOPPING',
+			'value' => 'CONTINUE SHOPPING',
 			'design' => 'block',
 			'desc' => __( 'Enter the text for the continue shopping button.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
@@ -415,8 +560,13 @@ function blaze_blocksy_add_panel_title_to_localize( $data ) {
 		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
 		: 'Shopping Cart';
 
+	$panel_icon_svg = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_panel_icon_svg', $cart_options, '' )
+		: '';
+
 	$data['panel_title'] = $custom_title;
 	$data['default_panel_title'] = 'Shopping Cart';
+	$data['panel_icon_svg'] = $panel_icon_svg;
 
 	return $data;
 }
@@ -441,4 +591,120 @@ add_action( 'woocommerce_widget_shopping_cart_after_buttons', function () {
 	<?php
 }, 10 );
 
+/**
+ * Add dynamic CSS for mini cart product title font
+ */
+add_filter( 'blocksy:header:dynamic-styles-args:cart', function ( $args ) {
+	return $args;
+} );
 
+add_action( 'blocksy:global-dynamic-css:enqueue', function ( $args ) {
+	$cart_options = blaze_blocksy_get_cart_options();
+
+	if ( ! function_exists( 'blocksy_output_font_css' ) || ! function_exists( 'blocksy_akg' ) || ! function_exists( 'blocksy_output_colors' ) ) {
+		return;
+	}
+
+	// Product Title Font
+	$product_title_font = blocksy_akg(
+		'mini_cart_product_title_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n5',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_title_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '#woo-cart-panel .mini_cart_item .product-info a',
+		)
+	);
+
+	// Product Price Font
+	$product_price_font = blocksy_akg(
+		'mini_cart_product_price_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n4',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $product_price_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+		)
+	);
+
+	// Product Price Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_product_price_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-price-quantity .product-price .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
+
+	// Subtotal Amount Font
+	$subtotal_font = blocksy_akg(
+		'mini_cart_subtotal_font',
+		$cart_options,
+		blocksy_typography_default_values(
+			array(
+				'size' => '14px',
+				'variation' => 'n6',
+				'line-height' => '1.4',
+			)
+		)
+	);
+
+	blocksy_output_font_css(
+		array(
+			'font_value' => $subtotal_font,
+			'css' => $args['css'],
+			'tablet_css' => $args['tablet_css'],
+			'mobile_css' => $args['mobile_css'],
+			'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+		)
+	);
+
+	// Subtotal Amount Color
+	blocksy_output_colors(
+		array(
+			'value' => blocksy_akg( 'mini_cart_subtotal_color', $cart_options ),
+			'default' => array(
+				'default' => array( 'color' => 'var(--theme-text-color)' ),
+			),
+			'css' => $args['css'],
+			'variables' => array(
+				'default' => array(
+					'selector' => '.woocommerce-mini-cart-item.mini_cart_item .product-subtotal .subtotal-amount .woocommerce-Price-amount',
+					'variable' => 'color',
+				),
+			),
+		)
+	);
+}, 50 );

@@ -39,9 +39,6 @@ class BlazeBlocksy_Product_Information_Customizer {
 		// Generate dynamic CSS
 		add_action( 'blocksy:global-dynamic-css:enqueue', array( $this, 'generate_dynamic_css' ), 10, 1 );
 
-		// Add base CSS that uses the CSS variables
-		add_action( 'wp_head', array( $this, 'add_base_css' ), 99 );
-
 		// Enqueue scripts
 		add_action( 'wp_footer', array( $this, 'add_frontend_script' ), 100 );
 
@@ -61,24 +58,6 @@ class BlazeBlocksy_Product_Information_Customizer {
 			array( 'jquery', 'customize-preview' ),
 			filemtime( get_stylesheet_directory() . '/assets/js/customizer-preview-product-information.js' ),
 			true
-		);
-	}
-
-	/**
-	 * Add base CSS that applies CSS variables to the element
-	 *
-	 * @return void
-	 */
-	public function add_base_css() {
-		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
-			return;
-		}
-
-		wp_enqueue_style(
-			'product-information-styles',
-			BLAZE_BLOCKSY_URL . '/assets/product/information/style.css',
-			array(),
-			filemtime( BLAZE_BLOCKSY_PATH . '/assets/product/information/style.css' )
 		);
 	}
 
@@ -558,14 +537,8 @@ class BlazeBlocksy_Product_Information_Customizer {
 			return;
 		}
 
-		ob_start();
-		include BLAZE_BLOCKSY_PATH . '/assets/product/information/script.js';
-		$js = ob_get_clean();
-		?>
-		<script>
-			<?php echo $js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-		</script>
-		<?php
+		// Script is now bundled in single-product.js which is enqueued in includes/scripts.php
+		// No inline script needed - initProductInformationOffcanvas() is called on document ready
 	}
 }
 

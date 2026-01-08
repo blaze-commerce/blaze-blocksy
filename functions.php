@@ -180,6 +180,7 @@ $required_files = [
 	'/includes/customization/product-full-description.php',
 	'/includes/customization/slideshow-on-mobile.php',
 	'/includes/customization/bundle-products.php',
+	'/includes/customization/free-shipping-offcanvas.php',
 	'/includes/customization/results-count-placement.php',
 
 	// Gutenberg Blocks
