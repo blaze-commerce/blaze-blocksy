@@ -22,18 +22,18 @@
  * - pointer-events: none when hidden to avoid blocking clicks
  */
 body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 9999;
-  pointer-events: none;
+   content: '';
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.5);
+   opacity: 0;
+   visibility: hidden;
+   transition: opacity 0.3s ease, visibility 0.3s ease;
+   z-index: 9999;
+   pointer-events: none;
 }
 
 /* ============================================
@@ -48,11 +48,10 @@ body::before {
  * 3. Body with data-panel attribute (Blocksy theme convention)
  */
 body:has([id*="wishlist"][role="dialog"].active)::before,
-body:has([id*="wish-list"][role="dialog"].active)::before,
-body[data-panel*="in"]::before {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+body:has([id*="wish-list"][role="dialog"].active)::before {
+   opacity: 1;
+   visibility: visible;
+   pointer-events: auto;
 }
 
 /* ============================================
