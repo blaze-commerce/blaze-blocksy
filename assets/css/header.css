@@ -29,8 +29,22 @@
   z-index: 1000;
 }
 
-.ct-header {
+/* Main header - exclude panel (panel also has .ct-header class) */
+.ct-header:not(.ct-panel) {
   z-index: 1000 !important;
+}
+
+/* Off-Canvas Menu z-index Fix - All Viewports
+   The panel element has BOTH .ct-panel and .ct-header classes,
+   so we need explicit rules to ensure it appears above the header */
+.ct-panel,
+.ct-panel.ct-header,
+.ct-panel.ct-header.active {
+  z-index: 9999 !important;
+}
+
+.ct-panel-inner {
+  z-index: 9999 !important;
 }
 
 #header .ct-header-content-block .stk-block {
@@ -41,19 +55,9 @@
 /* Ensure off-canvas menu appears above header on mobile */
 @media (max-width: 999px) {
 
-  /* Off-canvas overlay */
-  .ct-panel-inner {
-    z-index: 1001 !important;
-  }
-
-  /* Off-canvas menu container */
-  .ct-panel {
-    z-index: 1001 !important;
-  }
-
   /* Mobile menu backdrop */
   .ct-panel-backdrop {
-    z-index: 1000 !important;
+    z-index: 9998 !important;
   }
 
   /* Hamburger menu button */
@@ -66,9 +70,9 @@
   }
 }
 
-/* Desktop - Keep header on top */
+/* Desktop - Keep header on top (but not the panel) */
 @media (min-width: 1000px) {
-  .ct-header {
+  .ct-header:not(.ct-panel) {
     z-index: 1000 !important;
   }
 
