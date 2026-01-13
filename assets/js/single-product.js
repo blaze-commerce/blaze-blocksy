@@ -186,16 +186,9 @@
       blazeBlocksySingleProduct.recently_viewed &&
       blazeBlocksySingleProduct.recently_viewed.current_product_id
     ) {
-      var currentProductId =
-        blazeBlocksySingleProduct.recently_viewed.current_product_id;
-
-      // Track current product
-      trackCurrentProduct(currentProductId);
-
-      // Auto-load recently viewed products if container exists
-      if ($("#recently-viewed-loading").length) {
-        loadRecentlyViewedProducts(currentProductId);
-      }
+      trackCurrentProduct(
+        blazeBlocksySingleProduct.recently_viewed.current_product_id
+      );
     }
 
     $(
@@ -293,14 +286,14 @@
         "header.site-header, .site-header, #header, [data-sticky]"
       );
       const headerHeight = header ? header.offsetHeight : 0;
-
+      
       // Get configurable offset from localized data, fallback to default
-      const extraPadding =
-        typeof blazeBlocksySingleProduct !== "undefined" &&
-        blazeBlocksySingleProduct.scrollOffsetPadding !== undefined
+      const extraPadding = 
+        (typeof blazeBlocksySingleProduct !== 'undefined' && 
+         blazeBlocksySingleProduct.scrollOffsetPadding !== undefined)
           ? parseInt(blazeBlocksySingleProduct.scrollOffsetPadding, 10)
           : -60;
-
+      
       const headerOffset = headerHeight + extraPadding;
 
       const elementPosition = noticeElement.getBoundingClientRect().top;
@@ -313,111 +306,4 @@
       });
     }, 100);
   }
-  /**
-   * Initialize Product Information Offcanvas functionality
-   */
-  function initProductInformationOffcanvas() {
-    var ctProductInformationOffCanvas = document.getElementById(
-      "ct-product-information-offcanvas"
-    );
-    var ctProductInformationOffCanvasOverlay = document.getElementById(
-      "ct-product-information-offcanvas-overlay"
-    );
-
-    // Skip if elements don't exist
-    if (
-      !ctProductInformationOffCanvas ||
-      !ctProductInformationOffCanvasOverlay
-    ) {
-      return;
-    }
-
-    // Open offcanvas function
-    window.openOffcanvas = function (tab) {
-      ctProductInformationOffCanvasOverlay.classList.add("active");
-      ctProductInformationOffCanvas.classList.add("active");
-      switchTab(tab);
-    };
-
-    // Close offcanvas function
-    window.closeOffcanvas = function () {
-      ctProductInformationOffCanvasOverlay.classList.remove("active");
-      ctProductInformationOffCanvas.classList.remove("active");
-    };
-
-    // Switch tab function
-    function switchTab(tabName) {
-      var tabs = document.querySelectorAll(".offcanvas-tab");
-      var contents = document.querySelectorAll(".tab-content");
-
-      tabs.forEach(function (tab) {
-        tab.classList.remove("active");
-      });
-      contents.forEach(function (content) {
-        content.classList.remove("active");
-      });
-
-      var selectedTab = document.querySelector('[data-tab="' + tabName + '"]');
-      var selectedContent = document.getElementById(tabName + "-content");
-
-      if (selectedTab) selectedTab.classList.add("active");
-      if (selectedContent) selectedContent.classList.add("active");
-    }
-
-    // Add click event listeners to tabs
-    document.querySelectorAll(".offcanvas-tab").forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        var tabName = this.getAttribute("data-tab");
-        switchTab(tabName);
-      });
-    });
-
-    // Close offcanvas when pressing Escape key
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        window.closeOffcanvas();
-      }
-    });
-  }
-
-  /**
-   * Initialize Product Full Description show/less toggle functionality
-   */
-  function initProductFullDescriptionToggle() {
-    $(".ct-product-full-description-element").each(function () {
-      var container = $(this);
-      var content = container.find(".ct-full-description-content");
-      var toggle = container.find(".ct-full-description-toggle");
-      var maxLines = parseInt(container.data("max-lines")) || 4;
-      var lineHeight = parseFloat(content.css("line-height")) || 24;
-      var maxHeight = maxLines * lineHeight;
-
-      // Check if content exceeds max lines
-      if (content[0] && content[0].scrollHeight > maxHeight + 5) {
-        container.addClass("is-truncated");
-        content.css("max-height", maxHeight + "px");
-        toggle.show();
-      } else {
-        toggle.hide();
-      }
-
-      // Toggle click handler
-      toggle.on("click", function (e) {
-        e.preventDefault();
-        if (container.hasClass("is-expanded")) {
-          container.removeClass("is-expanded").addClass("is-truncated");
-          content.css("max-height", maxHeight + "px");
-        } else {
-          container.removeClass("is-truncated").addClass("is-expanded");
-          content.css("max-height", "none");
-        }
-      });
-    });
-  }
-
-  // Initialize Product Full Description toggle and Product Information Offcanvas on document ready
-  $(document).ready(function () {
-    initProductFullDescriptionToggle();
-    initProductInformationOffcanvas();
-  });
 })(jQuery);

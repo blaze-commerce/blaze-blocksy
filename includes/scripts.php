@@ -32,7 +32,8 @@ function blaze_blocksy_enqueue_assets() {
 	wp_enqueue_style(
 		'blocksy-child-header-style',
 		$template_uri . '/assets/css/header.css',
-		array( 'parent-style' )
+		array( 'parent-style' ),
+		'2026011112'
 	);
 
 	wp_enqueue_style(
@@ -85,10 +86,6 @@ function blaze_blocksy_enqueue_assets() {
 			true
 		);
 	}
-
-	// === WISHLIST OVERLAY ASSETS ===
-	wp_enqueue_style( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/css/wishlist-overlay.css', array(), '1.0.2' );
-	wp_enqueue_script( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/js/wishlist-overlay.js', array(), '1.0.2', true );
 
 	// === LOCALIZE SCRIPTS ===
 	blaze_blocksy_localize_scripts();

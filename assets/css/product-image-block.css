@@ -1,0 +1,314 @@
+/**
+ * WooCommerce Product Image Block Enhancements
+ * 
+ * Styles for hover image effect and wishlist button functionality
+ * on WooCommerce Product Image blocks.
+ * 
+ * @package BlazeBlocksy
+ * @since 1.0.0
+ */
+
+/* ============================================
+   CSS Variables
+   ============================================ */
+:root {
+  --wishlist-button-size: 32px;
+  --wishlist-button-size-mobile: 32px;
+  --wishlist-button-position-top: 10px;
+  --wishlist-button-position-right: 10px;
+  --wishlist-button-bg: rgba(255, 255, 255, 0.95);
+  --wishlist-button-bg-hover: #000000;
+  --wishlist-button-hover-svg-stroke: #ffffff;
+  --wishlist-button-active-bg: #333333;
+  --wishlist-button-active-bg-hover: #000000;
+  --wishlist-button-border-color: #ddd;
+  --wishlist-button-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --wishlist-button-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --hover-image-transition: 0.3s ease-in-out;
+  --wishlist-button-transition: all 0.3s ease;
+}
+
+/* ============================================
+   Enhanced Product Image Container
+   ============================================ */
+.wc-enhanced-product-image {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Hover Image Effect
+   ============================================ */
+.wc-hover-image-enabled img {
+  transition: opacity var(--hover-image-transition),
+    transform var(--hover-image-transition);
+  will-change: transform, opacity;
+}
+
+.wc-hover-image-enabled:hover img {
+  transform: scale(1.05);
+}
+
+/* Smooth image swap */
+.wc-hover-image-enabled img.swapping {
+  opacity: 0;
+}
+
+/* ============================================
+   Wishlist Button Base Styles
+   ============================================ */
+.wc-product-image-wishlist-button {
+  /* Positioning */
+  position: absolute;
+  top: var(--wishlist-button-position-top);
+  right: var(--wishlist-button-position-right);
+  z-index: 10;
+
+  /* Size */
+  width: var(--wishlist-button-size);
+  height: var(--wishlist-button-size);
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Appearance */
+  background: var(--wishlist-button-bg);
+  border: 1px solid var(--wishlist-button-border-color);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* Interaction */
+  cursor: pointer;
+  transition: var(--wishlist-button-transition);
+
+  /* Always visible - no longer hidden by default */
+  opacity: 1;
+  transform: translateY(0);
+
+  /* Remove default button styles */
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+/* Button is always visible - no need for hover effect to show */
+/* Removed hover effect for showing button since it's always visible now */
+
+/* ============================================
+   Wishlist Button Hover State
+   ============================================ */
+.wc-product-image-wishlist-button:hover {
+  background: var(--wishlist-button-bg-hover);
+  border-color: var(--wishlist-button-border-color);
+}
+/* ============================================
+   Wishlist Button Active/Added State
+   ============================================ */
+.wc-product-image-wishlist-button.added {
+  background: var(--wishlist-button-active-bg);
+  border-color: var(--wishlist-button-active-bg);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wc-product-image-wishlist-button.added svg {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.wc-product-image-wishlist-button.added:hover {
+  background: var(--wishlist-button-active-bg-hover);
+  border-color: var(--wishlist-button-active-bg-hover);
+}
+
+/* ============================================
+   Wishlist Button Loading State
+   ============================================ */
+.wc-product-image-wishlist-button.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.wc-product-image-wishlist-button.loading svg {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   Wishlist Button Icon Styles
+   ============================================ */
+.wc-product-image-wishlist-button svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--theme-text-color, #333);
+  fill: transparent;
+  transition: all 0.2s ease;
+}
+
+.wc-product-image-wishlist-button:hover svg {
+  stroke: var(--wishlist-button-hover-svg-stroke);
+}
+
+.wc-product-image-wishlist-button.added svg {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+/* ============================================
+   Wishlist Notification Message
+   ============================================ */
+.wc-wishlist-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.3s ease-out;
+  max-width: 300px;
+}
+
+.wc-wishlist-notification.success {
+  background: #27ae60;
+  color: white;
+}
+
+.wc-wishlist-notification.error {
+  background: #e74c3c;
+  color: white;
+}
+
+.wc-wishlist-notification.info {
+  background: #3498db;
+  color: white;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   Mobile & Tablet Responsive Styles
+   ============================================ */
+@media (max-width: 768px) {
+  .wc-product-image-wishlist-button {
+    /* Smaller size on mobile */
+    width: var(--wishlist-button-size-mobile);
+    height: var(--wishlist-button-size-mobile);
+
+    /* Always visible on mobile */
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .wc-product-image-wishlist-button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Adjust notification position on mobile */
+  .wc-wishlist-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+}
+
+/* ============================================
+   Touch Device Optimizations
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  /* Always show wishlist button on touch devices */
+  .wc-product-image-wishlist-button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Disable hover image effect on touch devices */
+  .wc-hover-image-enabled:hover img {
+    transform: none;
+  }
+}
+
+/* ============================================
+   High DPI / Retina Display Support
+   ============================================ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .wc-product-image-wishlist-button {
+    border-width: 0.5px;
+  }
+}
+
+/* ============================================
+   Accessibility Enhancements
+   ============================================ */
+.wc-product-image-wishlist-button:focus {
+  outline: 2px solid var(--theme-link-initial-color, #3498db);
+  outline-offset: 2px;
+}
+
+.wc-product-image-wishlist-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+  .wc-product-image-wishlist-button {
+    display: none;
+  }
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .wc-hover-image-enabled img,
+  .wc-product-image-wishlist-button,
+  .wc-product-image-wishlist-button svg {
+    transition: none;
+    animation: none;
+  }
+
+  .wc-hover-image-enabled:hover img {
+    transform: none;
+  }
+}
+

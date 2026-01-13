@@ -1,0 +1,101 @@
+/* ==========================================================================
+	HEADER STYLES
+	========================================================================== */
+
+/* Header Container - Fixed positioning and z-index */
+.ct-sticky-container {
+  z-index: 1000;
+}
+
+.ct-header {
+  z-index: 1000 !important;
+}
+
+#header .ct-header-content-block .stk-block {
+  margin-bottom: 0px;
+}
+
+/* Mobile Off-Canvas Menu Fix */
+/* Ensure off-canvas menu appears above header on mobile */
+@media (max-width: 999px) {
+  /* Off-canvas overlay */
+  .ct-panel-inner {
+    z-index: 1001 !important;
+  }
+
+  /* Off-canvas menu container */
+  .ct-panel {
+    z-index: 1001 !important;
+  }
+
+  /* Mobile menu backdrop */
+  .ct-panel-backdrop {
+    z-index: 1000 !important;
+  }
+
+  /* Hamburger menu button */
+  .ct-header-trigger {
+    z-index: 1002 !important;
+  }
+
+  span.ct-panel-heading {
+    color: #040711;
+  }
+}
+
+/* Desktop - Keep header on top */
+@media (min-width: 1000px) {
+  .ct-header {
+    z-index: 1000 !important;
+  }
+
+  .ct-sticky-container {
+    z-index: 1000;
+  }
+}
+
+/* Additional Header Styling */
+.ct-header-transparent {
+  background-color: transparent;
+}
+
+/* Header Navigation */
+.ct-header .ct-navigation {
+  position: relative;
+}
+
+/* Mobile Menu Toggle */
+.ct-header-trigger {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ct-header-trigger:hover {
+  opacity: 0.8;
+}
+
+/* Mobile Off-Canvas Panel Heading Color */
+.ct-panel-actions .ct-panel-heading {
+  color: #040711 !important;
+}
+
+/* Alternative selector if above doesn't work */
+span.ct-panel-heading {
+  color: #040711 !important;
+}
+
+/* Hide several breadcrumb elements on mobile */
+@media screen and (max-width: 768px) {
+  .entry-header .ct-breadcrumbs[data-source="default"] > span {
+    display: none !important;
+  }
+
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:first-child,
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:last-child,
+  .entry-header
+    .ct-breadcrumbs[data-source="default"]
+    > span:nth-last-child(2) {
+    display: inline-flex !important
+;
+  }
+}

@@ -99,6 +99,7 @@
 	margin: 0 auto;
 	padding: 30px;
 	border: 1px solid #ddd;
+	border-radius: 4px;
 }
 
 .blaze-login-register.template2 h2 {
@@ -253,7 +254,8 @@
 
 	.blaze-login-register.template1,
 	.blaze-login-register.template2 {
-		padding: 15px;
+		padding: 24px;
+		border-radius: 4px;
 	}
 
 	.blaze-login-register.template1 .login-form-footer .remember-me,

@@ -2,41 +2,23 @@
 	HEADER STYLES
 	========================================================================== */
 
-@media screen and (max-width: 540px) {
-  html .hero-section .entry-header {
-    overflow-x: auto;
-  }
-
-  html .hero-section .entry-header .ct-breadcrumbs {
-    width: max-content;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .entry-header .ct-breadcrumbs[data-source="default"]>span {
-    display: none !important;
-  }
-
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:first-child,
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:last-child,
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:nth-last-child(2) {
-    display: inline-flex !important;
-  }
-}
-
 /* Header Container - Fixed positioning and z-index */
 .ct-sticky-container {
   z-index: 1000;
 }
 
-/* Main header - exclude panel (panel also has .ct-header class) */
+/* Main header - NOT the panel (panel also has .ct-header class) */
 .ct-header:not(.ct-panel) {
   z-index: 1000 !important;
 }
 
-/* Off-Canvas Menu z-index Fix - All Viewports
-   The panel element has BOTH .ct-panel and .ct-header classes,
-   so we need explicit rules to ensure it appears above the header */
+#header .ct-header-content-block .stk-block {
+  margin-bottom: 0px;
+}
+
+/* Off-Canvas Menu z-index Fix - All Viewports */
+/* Ensure off-canvas menu appears above header when open */
+/* Use high specificity to override any other rules */
 .ct-panel,
 .ct-panel.ct-header,
 .ct-panel.ct-header.active {
@@ -47,30 +29,30 @@
   z-index: 9999 !important;
 }
 
-#header .ct-header-content-block .stk-block {
-  margin-bottom: 0px;
+.ct-panel-backdrop,
+.ct-panel::before {
+  z-index: 9998 !important;
 }
 
-/* Mobile Off-Canvas Menu Fix */
-/* Ensure off-canvas menu appears above header on mobile */
+/* Hamburger menu button - always on top */
+.ct-header-trigger {
+  z-index: 10000 !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ct-header-trigger:hover {
+  opacity: 0.8;
+}
+
+/* Mobile-specific adjustments */
 @media (max-width: 999px) {
-
-  /* Mobile menu backdrop */
-  .ct-panel-backdrop {
-    z-index: 9998 !important;
-  }
-
-  /* Hamburger menu button */
-  .ct-header-trigger {
-    z-index: 1002 !important;
-  }
-
   span.ct-panel-heading {
     color: #040711;
   }
 }
 
-/* Desktop - Keep header on top (but not the panel) */
+/* Desktop - Header base z-index (only for main header, not panel) */
 @media (min-width: 1000px) {
   .ct-header:not(.ct-panel) {
     z-index: 1000 !important;
@@ -78,6 +60,13 @@
 
   .ct-sticky-container {
     z-index: 1000;
+  }
+  
+  /* Ensure panel always above header at desktop viewport */
+  .ct-panel,
+  .ct-panel.ct-header,
+  .ct-panel.ct-header.active {
+    z-index: 9999 !important;
   }
 }
 
@@ -91,25 +80,26 @@
   position: relative;
 }
 
-/* Mobile Menu Toggle */
-.ct-header-trigger {
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Mobile Off-Canvas Panel Heading Color */
+.ct-panel-actions .ct-panel-heading {
+  color: #040711 !important;
 }
 
-.ct-header-trigger:hover {
-  opacity: 0.8;
+span.ct-panel-heading {
+  color: #040711 !important;
 }
 
 /* Hide several breadcrumb elements on mobile */
 @media screen and (max-width: 768px) {
-  .entry-header .ct-breadcrumbs[data-source="default"]>span {
+  .entry-header .ct-breadcrumbs[data-source="default"] > span {
     display: none !important;
   }
 
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:first-child,
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:last-child,
-  .entry-header .ct-breadcrumbs[data-source="default"]>span:nth-last-child(2) {
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:first-child,
+  .entry-header .ct-breadcrumbs[data-source="default"] > span:last-child,
+  .entry-header
+    .ct-breadcrumbs[data-source="default"]
+    > span:nth-last-child(2) {
     display: inline-flex !important;
   }
 }

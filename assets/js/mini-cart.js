@@ -5,103 +5,29 @@
 
 jQuery(document).ready(function ($) {
   /**
-   * Get cart item count from Blocksy's dynamic count element
-   */
-  function getCartItemCount() {
-    var $countElement = $(".ct-dynamic-count-cart");
-    if ($countElement.length) {
-      var count = $countElement.attr("data-count");
-      return parseInt(count, 10) || 0;
-    }
-    return 0;
-  }
-
-  /**
-   * Update cart panel heading with item count
-   */
-  function updateCartPanelHeadingCount() {
-    var $heading = $("#woo-cart-panel .ct-panel-heading");
-    if (!$heading.length) {
-      return;
-    }
-
-    var count = getCartItemCount();
-    var $totalItems = $heading.find(".total-items");
-
-    // Create or update the total-items span
-    if ($totalItems.length) {
-      $totalItems.text("(" + count + ")");
-    } else {
-      $heading.append(' <span class="total-items">(' + count + ")</span>");
-    }
-  }
-
-  /**
    * Update cart panel heading text from customizer setting
    * This replaces expensive PHP output buffering with lightweight JS
    */
   function updateCartPanelHeading() {
-    var $heading = $("#woo-cart-panel .ct-panel-heading");
-    if (!$heading.length) {
+    if (
+      typeof blazeBlocksyMiniCart === "undefined" ||
+      !blazeBlocksyMiniCart.panel_title
+    ) {
       return;
     }
 
-    // Get the base title text (without the count)
-    var customTitle =
-      typeof blazeBlocksyMiniCart !== "undefined" &&
-      blazeBlocksyMiniCart.panel_title
-        ? blazeBlocksyMiniCart.panel_title
-        : null;
+    var customTitle = blazeBlocksyMiniCart.panel_title;
     var defaultTitle =
-      typeof blazeBlocksyMiniCart !== "undefined" &&
-      blazeBlocksyMiniCart.default_panel_title
-        ? blazeBlocksyMiniCart.default_panel_title
-        : "Shopping Cart";
+      blazeBlocksyMiniCart.default_panel_title || "Shopping Cart";
 
-    // Get custom SVG icon from customizer
-    var panelIconSvg =
-      typeof blazeBlocksyMiniCart !== "undefined" &&
-      blazeBlocksyMiniCart.panel_icon_svg
-        ? blazeBlocksyMiniCart.panel_icon_svg
-        : "";
-
-    // Get current heading text without the count span and icon
-    var $totalItems = $heading.find(".total-items");
-    var currentText = $heading.clone().children().remove().end().text().trim();
-
-    // Build the heading content
-    var titleToUse =
-      customTitle && customTitle !== defaultTitle ? customTitle : currentText;
-    if (titleToUse === defaultTitle && customTitle) {
-      titleToUse = customTitle;
-    }
-
-    // Only update if we have customizations
-    if (customTitle || panelIconSvg) {
-      var headingHtml = "";
-
-      // Add SVG icon if provided
-      if (panelIconSvg) {
-        headingHtml +=
-          '<span class="cart-panel-icon">' + panelIconSvg + "</span> ";
+    // Only update if custom title is different from default
+    if (customTitle && customTitle !== defaultTitle) {
+      // Find the cart panel heading (Blocksy uses #woo-cart-panel)
+      var $heading = $("#woo-cart-panel .ct-panel-heading");
+      if ($heading.length && $heading.text().trim() === defaultTitle) {
+        $heading.text(customTitle);
       }
-
-      // Add title
-      headingHtml +=
-        '<span class="cart-panel-title">' + titleToUse ||
-        defaultTitle + "</span>";
-
-      // Add total items count
-      if ($totalItems.length) {
-        headingHtml +=
-          ' <span class="total-items">' + $totalItems.text() + "</span>";
-      }
-
-      $heading.html(headingHtml);
     }
-
-    // Always update the count
-    updateCartPanelHeadingCount();
   }
 
   // Run on page load
@@ -122,18 +48,6 @@ jQuery(document).ready(function ($) {
   var cartPanel = document.getElementById("woo-cart-panel");
   if (cartPanel) {
     cartPanelObserver.observe(cartPanel, { attributes: true });
-  }
-
-  // Observe changes to the cart count element
-  var countElement = document.querySelector(".ct-dynamic-count-cart");
-  if (countElement) {
-    var countObserver = new MutationObserver(function () {
-      updateCartPanelHeadingCount();
-    });
-    countObserver.observe(countElement, {
-      attributes: true,
-      attributeFilter: ["data-count"],
-    });
   }
 
   /**
@@ -228,9 +142,6 @@ jQuery(document).ready(function ($) {
   $(document.body).on("wc_fragments_refreshed", function () {
     // Re-initialize any dynamic elements if needed
     console.log("Mini cart fragments refreshed");
-
-    // Update heading count when cart is refreshed
-    updateCartPanelHeadingCount();
   });
 
   /**

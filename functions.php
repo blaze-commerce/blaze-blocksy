@@ -7,76 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'BLAZE_BLOCKSY_URL', get_stylesheet_directory_uri() );
 define( 'BLAZE_BLOCKSY_PATH', get_stylesheet_directory() );
 
-/**
- * WOOLESS-8737: Fluid Checkout Spacing Fix
- *
- * Adds 20px bottom margin to Fluid Checkout progress bar and express checkout sections.
- * Uses wp_head hook to output inline CSS directly.
- *
- * @since 1.39.0
- */
-function blaze_blocksy_fluid_checkout_spacing() {
-	// Only load on checkout page
-	if ( ! is_checkout() ) {
-		return;
-	}
-	?>
-	<style id="wooless-8737-fluid-checkout-spacing">
-		/* WOOLESS-8737: Fluid Checkout Spacing */
-		.fc-wrapper .fc-progress-bar,
-		.woocommerce-checkout .fc-progress-bar {
-			margin-bottom: 20px !important;
-		}
-
-		.fc-wrapper .fc-express-checkout,
-		.woocommerce-checkout .fc-express-checkout {
-			margin-bottom: 20px !important;
-		}
-
-		/* WOOLESS-8737: Amazon Pay Button Container Max-Width */
-		.amazonpay-button-container {
-			max-width: 100% !important;
-		}
-	</style>
-	<?php
-}
-add_action( 'wp_head', 'blaze_blocksy_fluid_checkout_spacing', 999 );
-
-/**
- * Enqueue Fluid Checkout Mobile/Tablet Customizations
- *
- * Loads CSS and JavaScript for mobile/tablet checkout enhancements:
- * - Moves order summary sidebar above checkout form
- * - Adds collapsible toggle for order summary
- *
- * @since 1.40.0
- */
-function blaze_blocksy_enqueue_checkout_mobile_assets() {
-	// Only load on checkout page and when FluidCheckout is active
-	if ( ! is_checkout() || ! class_exists( 'FluidCheckout' ) ) {
-		return;
-	}
-
-	// Enqueue CSS
-	wp_enqueue_style(
-		'blaze-checkout-mobile',
-		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.css',
-		array(),
-		'1.40.12',
-		'all'
-	);
-
-	// Enqueue JavaScript
-	wp_enqueue_script(
-		'blaze-checkout-mobile',
-		BLAZE_BLOCKSY_URL . '/assets/checkout-mobile.js',
-		array( 'jquery' ),
-		'1.40.12',
-		true
-	);
-}
-add_action( 'wp_enqueue_scripts', 'blaze_blocksy_enqueue_checkout_mobile_assets', 999 );
-
 
 // Disable Blocksy WooCommerce filters at earliest possible point
 add_action(
@@ -160,13 +90,11 @@ $required_files = [
 	'/includes/scripts.php',
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
-	'/includes/features/offcanvas-module.php', // Generic offcanvas module
 	'/includes/customization/fibo-search-suggestions.php',
-	'/includes/customization/thank-you-page.php',
 	'/includes/customization/thank-you-page-customizer.php',
+	'/includes/customization/thank-you-page.php',
 	'/includes/customization/my-account.php',
 	'/includes/customization/judgeme.php',
-	'/includes/customization/klaviyo-star-ratings.php',
 	'/includes/customization/mini-cart.php',
 	'/includes/customization/related-carousel.php',
 	'/includes/customization/product-category.php',
@@ -175,35 +103,18 @@ $required_files = [
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
 	'/includes/customization/mix-and-match-products.php',
-	'/includes/customization/product-tabs.php',
-	'/includes/customization/product-stock.php',
-	'/includes/customization/product-full-description.php',
-	'/includes/customization/slideshow-on-mobile.php',
-	'/includes/customization/bundle-products.php',
 	'/includes/customization/free-shipping-offcanvas.php',
-	'/includes/customization/results-count-placement.php',
+	'/includes/customization/product-image-block.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
 ];
 
-// Conditionally load Fluid Checkout files only if Fluid Checkout is active
-// This prevents fatal errors if the Fluid Checkout plugin is deactivated
-if ( class_exists( 'FluidCheckout' ) ) {
-	$required_files[] = '/includes/customization/fluid-checkout-customizer.php';
-	$required_files[] = '/includes/customization/fluid-checkout-field-labels.php';
-	$required_files[] = '/includes/customization/fluid-checkout-fixes.php';
-} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-	error_log( 'BlazeCommerce: Fluid Checkout Customizer not loaded - FluidCheckout class not found. Please ensure Fluid Checkout Lite or Pro is installed and activated.' );
-}
-
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	// $required_files[] = '/includes/debug/product-card-border-test.php';
-	// $required_files[] = '/includes/debug/judgeme-tab-test.php';
-	// Uncomment to enable notification offcanvas example
-	// $required_files[] = '/includes/features/notification-offcanvas-example.php';
+	$required_files[] = '/includes/debug/product-card-border-test.php';
+	$required_files[] = '/includes/debug/judgeme-tab-test.php';
 }
 
 foreach ( $required_files as $file ) {
@@ -212,15 +123,11 @@ foreach ( $required_files as $file ) {
 		try {
 			require_once $file_path;
 		} catch (Error $e) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( 'BlazeCommerce: Failed to load ' . $file . ': ' . $e->getMessage() );
 			}
-		} catch (Exception $e) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				error_log( 'BlazeCommerce: Exception loading ' . $file . ': ' . $e->getMessage() );
-			}
 		}
-	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( 'BlazeCommerce: File not found: ' . $file_path );
 	}
 }
@@ -299,3 +206,34 @@ add_filter( 'woocommerce_locate_template', function ( $template, $template_name 
 	return $template;
 
 }, 999, 2 );
+
+/**
+ * Custom code for infinitytargets only
+ */
+
+add_action( 'template_redirect', function () {
+
+
+	if ( ! is_page( 'dealer-resources' ) ) {
+		return true;
+	}
+
+	// check if current user role is admin or editor
+	if ( current_user_can( 'administrator' ) || current_user_can( 'editor' ) ) {
+		return true;
+	}
+
+	if ( is_user_logged_in() ) {
+
+		$user_id = get_current_user_id();
+		if ( function_exists( 'is_wholesaler_user' ) && is_wholesaler_user( $user_id ) ) {
+			return true;
+		}
+
+	}
+
+	//redirect user to home page
+	wp_redirect( home_url() );
+	exit;
+} );
+// Add customizer setting for thank you page toggle

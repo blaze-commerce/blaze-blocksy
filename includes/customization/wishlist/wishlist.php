@@ -754,6 +754,15 @@ class BlocksyChildWishlistOffCanvas {
 			true
 		);
 
+		// Enqueue frontend JavaScript for DOM modifications
+		wp_enqueue_script(
+			'wishlist-offcanvas-frontend',
+			get_stylesheet_directory_uri() . '/assets/js/wishlist-offcanvas-frontend.js',
+			array( 'jquery' ),
+			$theme_version,
+			true
+		);
+
 		// Localize script with AJAX data
 		wp_localize_script(
 			'wishlist-offcanvas',

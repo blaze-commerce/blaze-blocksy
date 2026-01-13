@@ -1,49 +1,9 @@
 /**
  * Product Carousel Block Styles
- *
+ * 
  * Styles for the custom Gutenberg product carousel block
  * Integrates with existing product card styles and Owl Carousel
  */
-
-/* ============================================
-   Pre-initialization State - FOUC Prevention
-   ============================================
-   These styles prevent Flash of Unstyled Content by displaying
-   products in a single row BEFORE Owl Carousel JavaScript initializes.
-   The :not(.owl-loaded) selector ensures these only apply before JS runs.
-   CSS variables are dynamically set from PHP block attributes.
-   ============================================ */
-
-.blaze-product-carousel:not(.owl-loaded) {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow: hidden;
-  gap: var(--carousel-margin, 24px);
-}
-
-.blaze-product-carousel:not(.owl-loaded) > .product {
-  flex: 0 0 var(--carousel-desktop-flex, calc(25% - 18px));
-  max-width: var(--carousel-desktop-flex, calc(25% - 18px));
-  min-width: 0;
-}
-
-/* Tablet: matches carousel responsive settings */
-@media (max-width: 999px) {
-  .blaze-product-carousel:not(.owl-loaded) > .product {
-    flex: 0 0 var(--carousel-tablet-flex, calc(50% - 12px));
-    max-width: var(--carousel-tablet-flex, calc(50% - 12px));
-  }
-}
-
-/* Mobile: matches carousel responsive settings */
-@media (max-width: 767px) {
-  .blaze-product-carousel:not(.owl-loaded) > .product {
-    flex: 0 0 var(--carousel-mobile-flex, calc(50% - 12px));
-    max-width: var(--carousel-mobile-flex, calc(50% - 12px));
-  }
-}
-
-/* ============================================ */
 
 /* Carousel Wrapper */
 .blaze-product-carousel-wrapper {
@@ -267,7 +227,6 @@
 /* Hover effect on add-to-cart when product card is hovered */
 .blaze-product-carousel .product:hover .ct-woo-card-actions a {
   background-color: var(--theme-palette-color-1, #007cba);
-  color: #fff;
   border-color: var(--theme-palette-color-1, #007cba);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

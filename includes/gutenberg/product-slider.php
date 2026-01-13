@@ -299,19 +299,8 @@ class Product_Carousel_Block {
 			),
 		);
 
-		// Calculate CSS variables for pre-initialization state (FOUC prevention)
-		$desktop_items = $attributes['productsPerSlide']['desktop'];
-		$tablet_items = $attributes['productsPerSlide']['tablet'];
-		$mobile_items = $attributes['productsPerSlide']['mobile'];
-		$margin = $attributes['margin'];
-
-		// Calculate flex basis percentages accounting for gaps
-		$desktop_flex = 'calc(' . (100 / $desktop_items) . '% - ' . ($margin * ($desktop_items - 1) / $desktop_items) . 'px)';
-		$tablet_flex = 'calc(' . (100 / $tablet_items) . '% - ' . ($margin * ($tablet_items - 1) / $tablet_items) . 'px)';
-		$mobile_flex = 'calc(' . (100 / $mobile_items) . '% - ' . ($margin * ($mobile_items - 1) / $mobile_items) . 'px)';
-
 		?>
-		<div <?php echo $wrapper_attributes; ?> style="--carousel-desktop-flex: <?php echo esc_attr( $desktop_flex ); ?>; --carousel-tablet-flex: <?php echo esc_attr( $tablet_flex ); ?>; --carousel-mobile-flex: <?php echo esc_attr( $mobile_flex ); ?>; --carousel-margin: <?php echo esc_attr( $margin ); ?>px;">
+		<div <?php echo $wrapper_attributes; ?>>
 			<div class="products columns-4 owl-carousel owl-theme blaze-product-carousel"
 				data-carousel-config='<?php echo wp_json_encode( $carousel_config ); ?>' data-products="type-1"
 				data-hover="swap">
