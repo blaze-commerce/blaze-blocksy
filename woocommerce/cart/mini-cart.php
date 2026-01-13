@@ -4,28 +4,32 @@
  * Add mini cart specific data to localize script
  * This uses the filter hook from scripts.php
  */
-add_filter( 'blaze_blocksy_mini_cart_localize_data', 'add_mini_cart_localize_data' );
+if ( ! function_exists( 'add_mini_cart_localize_data' ) ) {
+	add_filter( 'blaze_blocksy_mini_cart_localize_data', 'add_mini_cart_localize_data' );
 
-function add_mini_cart_localize_data( $data ) {
-	// Add any mini cart specific localization data here
-	// The base data (ajax_url, nonce, etc.) is already handled in scripts.php
+	function add_mini_cart_localize_data( $data ) {
+		// Add any mini cart specific localization data here
+		// The base data (ajax_url, nonce, etc.) is already handled in scripts.php
 
-	return $data;
+		return $data;
+	}
 }
 
 /**
  * Enqueue customizer preview sync script
  */
-add_action( 'customize_preview_init', 'blaze_blocksy_mini_cart_customizer_preview_scripts' );
+if ( ! function_exists( 'blaze_blocksy_mini_cart_customizer_preview_scripts' ) ) {
+	add_action( 'customize_preview_init', 'blaze_blocksy_mini_cart_customizer_preview_scripts' );
 
-function blaze_blocksy_mini_cart_customizer_preview_scripts() {
-	wp_enqueue_script(
-		'blaze-blocksy-mini-cart-customizer-sync',
-		BLAZE_BLOCKSY_URL . '/assets/js/customizer-sync.js',
-		array( 'jquery', 'customize-preview' ),
-		BLAZE_BLOCKSY_VERSION,
-		true
-	);
+	function blaze_blocksy_mini_cart_customizer_preview_scripts() {
+		wp_enqueue_script(
+			'blaze-blocksy-mini-cart-customizer-sync',
+			BLAZE_BLOCKSY_URL . '/assets/js/customizer-sync.js',
+			array( 'jquery', 'customize-preview' ),
+			BLAZE_BLOCKSY_VERSION,
+			true
+		);
+	}
 }
 
 /**
@@ -166,126 +170,130 @@ add_action( 'woocommerce_mini_cart_contents', function () {
 /**
  * Get recommended products for mini cart display
  */
-function blaze_blocksy_get_recommended_products_for_mini_cart() {
-	// Early return if WooCommerce cart is not available
-	if ( ! WC()->cart ) {
-		return;
-	}
-
-	$cart_items = WC()->cart->get_cart();
-	$product_ids = array();
-
-	// Collect product IDs from cart
-	foreach ( $cart_items as $cart_item ) {
-		$product_ids[] = $cart_item['product_id'];
-	}
-
-	// Skip caching for empty carts to avoid cache key collision
-	// All empty carts would generate the same md5 hash
-	$use_cache = ! empty( $product_ids );
-	$recommended_products = false;
-
-	if ( $use_cache ) {
-		// Generate cache key based on cart product IDs
-		$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
-		$recommended_products = get_transient( $cache_key );
-	}
-
-	// If no cached data, fetch from database
-	if ( false === $recommended_products ) {
-		$recommended_products = array();
-
-		if ( ! empty( $product_ids ) ) {
-			// Get related products from the first cart item
-			$first_product_id = $product_ids[0];
-			$related_ids = wc_get_related_products( $first_product_id, 2 );
-
-			if ( ! empty( $related_ids ) ) {
-				$recommended_products = $related_ids;
-			}
+if ( ! function_exists( 'blaze_blocksy_get_recommended_products_for_mini_cart' ) ) {
+	function blaze_blocksy_get_recommended_products_for_mini_cart() {
+		// Early return if WooCommerce cart is not available
+		if ( ! WC()->cart ) {
+			return;
 		}
 
-		// Fallback to recent products if no related products found
-		if ( empty( $recommended_products ) ) {
-			$recent_products = wc_get_products( array(
-				'limit' => 2,
-				'orderby' => 'date',
-				'order' => 'DESC',
-				'status' => 'publish',
-				'exclude' => $product_ids,
-				'return' => 'ids', // Return only IDs for better performance
-			) );
+		$cart_items = WC()->cart->get_cart();
+		$product_ids = array();
 
-			$recommended_products = $recent_products;
+		// Collect product IDs from cart
+		foreach ( $cart_items as $cart_item ) {
+			$product_ids[] = $cart_item['product_id'];
 		}
 
-		// Cache for 1 hour (only when cart has products)
+		// Skip caching for empty carts to avoid cache key collision
+		// All empty carts would generate the same md5 hash
+		$use_cache = ! empty( $product_ids );
+		$recommended_products = false;
+
 		if ( $use_cache ) {
-			set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
+			// Generate cache key based on cart product IDs
+			$cache_key = 'blaze_mini_cart_recs_' . md5( implode( '_', $product_ids ) );
+			$recommended_products = get_transient( $cache_key );
 		}
-	}
 
-	// Display recommended products
-	if ( ! empty( $recommended_products ) ) {
-		// Store original product to restore later
-		$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+		// If no cached data, fetch from database
+		if ( false === $recommended_products ) {
+			$recommended_products = array();
 
-		// Get layout setting from customizer
-		$cart_options = blaze_blocksy_get_cart_options();
-		$layout = function_exists( 'blocksy_akg' )
-			? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
-			: 'stacked';
+			if ( ! empty( $product_ids ) ) {
+				// Get related products from the first cart item
+				$first_product_id = $product_ids[0];
+				$related_ids = wc_get_related_products( $first_product_id, 2 );
 
-		// Determine wrapper class and template based on layout
-		$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
-		$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+				if ( ! empty( $related_ids ) ) {
+					$recommended_products = $related_ids;
+				}
+			}
 
-		echo '<div class="' . esc_attr( $wrapper_class ) . '">';
-		foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( $product ) {
-				$GLOBALS['product'] = $product;
-				wc_get_template_part( $template_name );
+			// Fallback to recent products if no related products found
+			if ( empty( $recommended_products ) ) {
+				$recent_products = wc_get_products( array(
+					'limit' => 2,
+					'orderby' => 'date',
+					'order' => 'DESC',
+					'status' => 'publish',
+					'exclude' => $product_ids,
+					'return' => 'ids', // Return only IDs for better performance
+				) );
+
+				$recommended_products = $recent_products;
+			}
+
+			// Cache for 1 hour (only when cart has products)
+			if ( $use_cache ) {
+				set_transient( $cache_key, $recommended_products, HOUR_IN_SECONDS );
 			}
 		}
-		echo '</div>';
 
-		// Restore original product
-		$GLOBALS['product'] = $original_product;
+		// Display recommended products
+		if ( ! empty( $recommended_products ) ) {
+			// Store original product to restore later
+			$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+
+			// Get layout setting from customizer
+			$cart_options = blaze_blocksy_get_cart_options();
+			$layout = function_exists( 'blocksy_akg' )
+				? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
+				: 'stacked';
+
+			// Determine wrapper class and template based on layout
+			$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
+			$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+
+			echo '<div class="' . esc_attr( $wrapper_class ) . '">';
+			foreach ( array_slice( $recommended_products, 0, 2 ) as $product_id ) {
+				$product = wc_get_product( $product_id );
+				if ( $product ) {
+					$GLOBALS['product'] = $product;
+					wc_get_template_part( $template_name );
+				}
+			}
+			echo '</div>';
+
+			// Restore original product
+			$GLOBALS['product'] = $original_product;
+		}
 	}
 }
 
 /**
  * Handle AJAX coupon application in mini cart
  */
-add_action( 'wp_ajax_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
-add_action( 'wp_ajax_nopriv_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
+if ( ! function_exists( 'blaze_blocksy_handle_mini_cart_coupon' ) ) {
+	add_action( 'wp_ajax_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
+	add_action( 'wp_ajax_nopriv_apply_mini_cart_coupon', 'blaze_blocksy_handle_mini_cart_coupon' );
 
-function blaze_blocksy_handle_mini_cart_coupon() {
-	// Verify nonce
-	if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
-		wp_die( 'Security check failed' );
-	}
+	function blaze_blocksy_handle_mini_cart_coupon() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
 
-	$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
+		$coupon_code = sanitize_text_field( $_POST['coupon_code'] );
 
-	if ( empty( $coupon_code ) ) {
-		wp_send_json_error( array( 'message' => __( 'Please enter a coupon code.', 'blaze-blocksy' ) ) );
-	}
+		if ( empty( $coupon_code ) ) {
+			wp_send_json_error( array( 'message' => __( 'Please enter a coupon code.', 'blaze-blocksy' ) ) );
+		}
 
-	// Apply coupon
-	$result = WC()->cart->apply_coupon( $coupon_code );
+		// Apply coupon
+		$result = WC()->cart->apply_coupon( $coupon_code );
 
-	if ( $result ) {
-		// Get updated cart fragments
-		WC_AJAX::get_refreshed_fragments();
-	} else {
-		// Get the last error message
-		$notices = wc_get_notices( 'error' );
-		$error_message = ! empty( $notices ) ? $notices[0]['notice'] : __( 'Invalid coupon code.', 'blaze-blocksy' );
-		wc_clear_notices();
+		if ( $result ) {
+			// Get updated cart fragments
+			WC_AJAX::get_refreshed_fragments();
+		} else {
+			// Get the last error message
+			$notices = wc_get_notices( 'error' );
+			$error_message = ! empty( $notices ) ? $notices[0]['notice'] : __( 'Invalid coupon code.', 'blaze-blocksy' );
+			wc_clear_notices();
 
-		wp_send_json_error( array( 'message' => $error_message ) );
+			wp_send_json_error( array( 'message' => $error_message ) );
+		}
 	}
 }
 
@@ -297,29 +305,31 @@ function blaze_blocksy_handle_mini_cart_coupon() {
  * @param array  $new_options   The new options to insert.
  * @return array Modified options array.
  */
-function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
-	$result = array();
-	$found = false;
+if ( ! function_exists( 'blaze_blocksy_insert_options_before_key' ) ) {
+	function blaze_blocksy_insert_options_before_key( $options, $target_key, $new_options ) {
+		$result = array();
+		$found = false;
 
-	foreach ( $options as $key => $value ) {
-		// Check if this is the target key
-		if ( $key === $target_key ) {
-			// Insert new options before the target key
-			foreach ( $new_options as $new_key => $new_value ) {
-				$result[ $new_key ] = $new_value;
+		foreach ( $options as $key => $value ) {
+			// Check if this is the target key
+			if ( $key === $target_key ) {
+				// Insert new options before the target key
+				foreach ( $new_options as $new_key => $new_value ) {
+					$result[ $new_key ] = $new_value;
+				}
+				$found = true;
 			}
-			$found = true;
+
+			// If value is an array with 'options' key, recursively process it
+			if ( is_array( $value ) && isset( $value['options'] ) && is_array( $value['options'] ) ) {
+				$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
+			}
+
+			$result[ $key ] = $value;
 		}
 
-		// If value is an array with 'options' key, recursively process it
-		if ( is_array( $value ) && isset( $value['options'] ) && is_array( $value['options'] ) ) {
-			$value['options'] = blaze_blocksy_insert_options_before_key( $value['options'], $target_key, $new_options );
-		}
-
-		$result[ $key ] = $value;
+		return $result;
 	}
-
-	return $result;
 }
 
 /**
@@ -533,42 +543,46 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 /**
  * Get Blocksy cart options with caching
  */
-function blaze_blocksy_get_cart_options() {
-	static $cart_options = null;
+if ( ! function_exists( 'blaze_blocksy_get_cart_options' ) ) {
+	function blaze_blocksy_get_cart_options() {
+		static $cart_options = null;
 
-	if ( null === $cart_options ) {
-		$cart_options = array();
+		if ( null === $cart_options ) {
+			$cart_options = array();
 
-		if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
-			$header = new Blocksy_Header_Builder_Render();
-			$cart_options = $header->get_item_data_for( 'cart' );
+			if ( class_exists( 'Blocksy_Header_Builder_Render' ) ) {
+				$header = new Blocksy_Header_Builder_Render();
+				$cart_options = $header->get_item_data_for( 'cart' );
+			}
 		}
-	}
 
-	return $cart_options;
+		return $cart_options;
+	}
 }
 
 /**
  * Add custom panel title to localized script data
  * This replaces the expensive output buffering approach with lightweight JavaScript
  */
-add_filter( 'blaze_blocksy_mini_cart_localize_data', 'blaze_blocksy_add_panel_title_to_localize' );
+if ( ! function_exists( 'blaze_blocksy_add_panel_title_to_localize' ) ) {
+	add_filter( 'blaze_blocksy_mini_cart_localize_data', 'blaze_blocksy_add_panel_title_to_localize' );
 
-function blaze_blocksy_add_panel_title_to_localize( $data ) {
-	$cart_options = blaze_blocksy_get_cart_options();
-	$custom_title = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
-		: 'Shopping Cart';
+	function blaze_blocksy_add_panel_title_to_localize( $data ) {
+		$cart_options = blaze_blocksy_get_cart_options();
+		$custom_title = function_exists( 'blocksy_akg' )
+			? blocksy_akg( 'mini_cart_panel_title', $cart_options, 'Shopping Cart' )
+			: 'Shopping Cart';
 
-	$panel_icon_svg = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_panel_icon_svg', $cart_options, '' )
-		: '';
+		$panel_icon_svg = function_exists( 'blocksy_akg' )
+			? blocksy_akg( 'mini_cart_panel_icon_svg', $cart_options, '' )
+			: '';
 
-	$data['panel_title'] = $custom_title;
-	$data['default_panel_title'] = 'Shopping Cart';
-	$data['panel_icon_svg'] = $panel_icon_svg;
+		$data['panel_title'] = $custom_title;
+		$data['default_panel_title'] = 'Shopping Cart';
+		$data['panel_icon_svg'] = $panel_icon_svg;
 
-	return $data;
+		return $data;
+	}
 }
 
 /**
