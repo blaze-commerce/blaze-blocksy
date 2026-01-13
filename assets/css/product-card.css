@@ -109,7 +109,6 @@
 
 .products .product .ct-woo-card-actions a {
   width: 100%;
-  display: block;
   text-align: center;
   border-radius: 0;
   border-radius: var(--product-card-add-to-cart-border-radius);
