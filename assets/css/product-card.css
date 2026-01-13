@@ -8,7 +8,7 @@
   --product-card-badge-border-radius: 999px;
   --product-card-add-to-cart-border-color: var(--theme-button-text-initial-color);
   --product-card-add-to-cart-hover-border-color: var(--theme-button-text-hover-color);
-  --product-card-add-to-cart-border-radius: 999px;
+  --product-card-add-to-cart-border-radius: var(--theme-button-border-radius);
 }
 
 .products .product {
