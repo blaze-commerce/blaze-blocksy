@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.58.0] - 2026-01-13
+
+### Added
+- Add mobile/tablet checkout order summary toggle (#171)
+- add auto-scroll to checkout validation errors (#169)
+- Add Wishlist Overlay Backdrop with Z-Index Fix (#166)
+- add customizer live preview sync for font and color options
+- add font and color customizer options for product price and subtotal
+- add Product Title Font customizer option for mini cart items
+- add customizer option for SVG icon in cart panel heading
+- improve mini-cart, product card and single product styles and functionality
+- add SVG support in content rendering
+- replace Blocksy flexy with OwlCarousel + Fancybox for mobile slideshow
+- add slideshow on mobile for stacked gallery
+- jump user to the error wrapper
+- add customizer option for recommendation products layout
+- enhance product page styling and mini-cart improvements
+- add Product Full Description element with live preview spacing
+- add Product Stock element with instant live preview
+- add documentation
+- add Product Tabs element and disable option
+
+### Changed
+- bump theme version to 1.57.0 (#178)
+- bump theme version to 1.56.0 (#176)
+- bump theme version to 1.55.0 (#172)
+- bump theme version to 1.54.0 (#170)
+- bump theme version to 1.53.0 (#167)
+- Fix FOUC issue with product carousel showing multiple rows before JS init (#157)
+- bump theme version to 1.52.0 (#165)
+- fix enqueue path url
+- Extracted all inline styles into a dedicated CSS file
+- Add support for Result Count Placement
+- bump theme version to 1.51.0 (#161)
+- bump theme version to 1.50.0 (#159)
+- update mini-cart, product-card, and single-product styles and functionality
+- bump theme version to 1.49.0 (#156)
+- Revert "Fix: Allow Checkout page in Blocksy header conditions" (#155)
+- remove orphaned assets/product/information files
+- consolidate CSS and JS for single product performance
+- bump theme version to 1.48.0 (#154)
+- Remove infinitytargets custom code from functions.php (#153)
+- bump theme version to 1.47.0 (#152)
+- bump theme version to 1.46.0 (#151)
+- update CSS styles and add git commit rules
+- add missing trailing newlines to CSS files
+- bump theme version to 1.45.0 (#148)
+- remove using buffer and use javascript handler to change the cart title
+- replace external CDN resources with local assets
+- bump theme version to 1.44.0
+- standardize customizer options following product-stock pattern
+- update
+- checkpoint
+
+### Fixed
+- add function_exists guards to prevent redeclaration errors (#179)
+- off-canvas menu z-index overlap at 1000px+ viewport (#177)
+- wishlist css causing other diaglog to have overlay issue
+- Replace jQuery document.ready with robust DOM ready detection (#162)
+- Restore full wishlist off-canvas functionality (#160)
+- Remove transparent background override from search input (#158)
+- restore Blocksy Customizer integration for image options
+- simplify recursive function to properly handle Blocksy nested options
+- use recursive function to insert design options in nested Blocksy structure
+- fix grammar in empty cart message and button text
+- Allow Checkout page in Blocksy header conditions (#150)
+- fix padding and border-radius not working in customizer live preview
+- skip cache for empty cart to prevent cache key collision
+- add file existence check before enqueuing customizer preview script in product-stock.php
+- issue with static value in javascript
+- remove unneeded script
+- issue with changelog readme
+
+### Documentation
+- add live preview troubleshooting and update customizer documentation
+
 ## [1.57.0] - 2026-01-12
 
 ### Added
@@ -3460,4 +3536,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.55.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.55.0
 [1.56.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.56.0
 [1.57.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.57.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.57.0...HEAD
+[1.58.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.58.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.58.0...HEAD
