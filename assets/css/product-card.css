@@ -123,10 +123,6 @@
   background-color: #eee !important;
 }
 
-.products .product .ct-woo-card-actions a.added_to_cart {
-  display: none !important;
-}
-
 @media screen and (max-width: 768px) {
   .products .product .ct-woo-card-actions a {
     font-size: 14px;
