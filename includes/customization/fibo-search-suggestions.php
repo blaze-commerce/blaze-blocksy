@@ -26,6 +26,16 @@ add_action(
 			// Function to process suggestions
 			function processSuggestions(container) {
 				console.log('FiboSearch Custom: Processing suggestions');
+
+				// CRITICAL FIX: Check if already processed FIRST to prevent overwrites
+				// This handles race conditions where multiple setTimeout callbacks fire
+				// after another callback already processed the container
+				var hasProcessedStructure = container.find('.dgwt-wcas-suggestion-section').length > 0;
+				if (hasProcessedStructure) {
+					console.log('FiboSearch Custom: Already processed (has .dgwt-wcas-suggestion-section), skipping to prevent overwrite');
+					return;
+				}
+
 				console.log('FiboSearch Custom: Container HTML before:', container.html());
 
 				// Check if we have headlines or just product suggestions
