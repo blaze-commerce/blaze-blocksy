@@ -120,7 +120,8 @@
 }
 
 .products .product .ct-woo-card-actions a.loading {
-  background-color: #eee !important;
+  background-color: var(--theme-button-background-initial-color);
+  opacity: 0.7;
 }
 
 @media screen and (max-width: 768px) {
