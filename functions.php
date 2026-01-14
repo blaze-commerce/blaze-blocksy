@@ -183,6 +183,9 @@ $required_files = [
 	'/includes/customization/free-shipping-offcanvas.php',
 	'/includes/customization/results-count-placement.php',
 
+	// Enable this if you need to convert brand attributes to product_brand taxonomy
+	// '/includes/customization/brand-attributes-converter.php',
+
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
