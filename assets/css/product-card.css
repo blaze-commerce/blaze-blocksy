@@ -124,6 +124,12 @@
   opacity: 0.7;
 }
 
+.products .product .ct-woo-card-actions a.added_to_cart {
+  background-color: var(--theme-button-background-initial-color);
+  opacity: 0.80;
+  display: none;
+}
+
 @media screen and (max-width: 768px) {
   .products .product .ct-woo-card-actions a {
     font-size: 14px;
