@@ -12,8 +12,6 @@
 	wp.customize.bind(
 		'ready',
 		function () {
-			console.log( '🎨 My Account Customizer Preview initialized' );
-
 			// Initialize live preview handlers
 			initTypographyPreview();
 			initColorPreview();
@@ -23,6 +21,7 @@
 			initAccountNavigationPreview();
 			initResponsivePreview();
 			initTemplatePreview();
+			initCustomCssPreview();
 		}
 	);
 
@@ -47,6 +46,24 @@
 										updateElementStyle( element, property, newValue );
 									}
 								);
+							}
+						);
+					}
+				);
+			}
+		);
+
+		// Text alignment for heading and body
+		['heading', 'body'].forEach(
+			function (element) {
+				var settingId = 'blocksy_child_my_account_' + element + '_text_align';
+
+				wp.customize(
+					settingId,
+					function (value) {
+						value.bind(
+							function (newValue) {
+								updateElementStyle( element, 'text_align', newValue );
 							}
 						);
 					}
@@ -520,7 +537,8 @@
 			'font_size': 'font-size',
 			'font_color': 'color',
 			'font_weight': 'font-weight',
-			'text_transform': 'text-transform'
+			'text_transform': 'text-transform',
+			'text_align': 'text-align'
 		};
 
 		return properties[property] || '';
@@ -582,6 +600,36 @@
 
 		// Add new rule
 		css += rule;
+
+		$style.text( css );
+	}
+
+	/**
+	 * Initialize custom CSS live preview
+	 */
+	function initCustomCssPreview() {
+		wp.customize(
+			'blocksy_child_my_account_custom_css',
+			function (value) {
+				value.bind(
+					function (newValue) {
+						updateCustomCSS( newValue );
+					}
+				);
+			}
+		);
+	}
+
+	/**
+	 * Update custom CSS
+	 */
+	function updateCustomCSS(css) {
+		var styleId = 'blocksy-my-account-custom-css-preview';
+		var $style  = $( '#' + styleId );
+
+		if ($style.length === 0) {
+			$style = $( '<style id="' + styleId + '"></style>' ).appendTo( 'head' );
+		}
 
 		$style.text( css );
 	}
