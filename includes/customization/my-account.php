@@ -301,9 +301,12 @@ class Blocksy_Child_Blaze_My_Account {
 	 * Output dynamic CSS based on settings
 	 */
 	private function output_dynamic_css( $template, $settings ) {
-		extract( $settings );
+		$heading_font           = $settings['heading_font'];
+		$heading_font_size      = $settings['heading_font_size'];
+		$heading_color          = $settings['heading_color'];
+		$heading_font_weight    = $settings['heading_font_weight'];
+		$heading_text_transform = $settings['heading_text_transform'];
 
-		// Get all settings from theme mods
 		$body_font           = get_theme_mod( 'blocksy_child_my_account_body_font', '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' );
 		$body_font_size      = get_theme_mod( 'blocksy_child_my_account_body_font_size', '16px' );
 		$body_color          = get_theme_mod( 'blocksy_child_my_account_body_font_color', '#666666' );
@@ -334,68 +337,57 @@ class Blocksy_Child_Blaze_My_Account {
 		$button_padding_bottom = get_theme_mod( 'blocksy_child_my_account_button_padding_bottom', '12px' );
 		$button_padding_left   = get_theme_mod( 'blocksy_child_my_account_button_padding_left', '24px' );
 
-		echo '<style type="text/css">
-            /* Blocksy Child My Account - Custom Styles for Template ' . esc_attr( $template ) . ' */
-
-            /* Heading Styles */
-            .blaze-login-register.' . esc_attr( $template ) . ' h2 {
-                font-family: ' . esc_attr( $heading_font ) . ' !important;
-                font-size: ' . esc_attr( $heading_font_size ) . ' !important;
-                color: ' . esc_attr( $heading_color ) . ' !important;
-                font-weight: ' . esc_attr( $heading_font_weight ) . ' !important;
-                text-transform: ' . esc_attr( $heading_text_transform ) . ' !important;
-            }
-
-            /* Body Text Styles */
-            .blaze-login-register.' . esc_attr( $template ) . ' p,
-            .blaze-login-register.' . esc_attr( $template ) . ' label,
-            .blaze-login-register.' . esc_attr( $template ) . ' span,
-            .blaze-login-register.' . esc_attr( $template ) . ' a {
-                font-family: ' . esc_attr( $body_font ) . ' !important;
-                font-size: ' . esc_attr( $body_font_size ) . ' !important;
-                color: ' . esc_attr( $body_color ) . ' !important;
-                font-weight: ' . esc_attr( $body_font_weight ) . ' !important;
-                text-transform: ' . esc_attr( $body_text_transform ) . ' !important;
-            }
-
-            /* Input Styles */
-            .blaze-login-register.' . esc_attr( $template ) . ' input[type="text"],
-            .blaze-login-register.' . esc_attr( $template ) . ' input[type="email"],
-            .blaze-login-register.' . esc_attr( $template ) . ' input[type="password"] {
-                color: ' . esc_attr( $input_text_color ) . ' !important;
-                background-color: ' . esc_attr( $input_background ) . ' !important;
-                border-color: ' . esc_attr( $input_border ) . ' !important;
-            }
-
-            /* Placeholder Styles */
-            .blaze-login-register.' . esc_attr( $template ) . ' input::placeholder {
-                font-family: ' . esc_attr( $placeholder_font ) . ' !important;
-                font-size: ' . esc_attr( $placeholder_font_size ) . ' !important;
-                color: ' . esc_attr( $placeholder_color ) . ' !important;
-                font-weight: ' . esc_attr( $placeholder_font_weight ) . ' !important;
-                text-transform: ' . esc_attr( $placeholder_text_transform ) . ' !important;
-            }
-
-            /* Button Styles */
-            .blaze-login-register.' . esc_attr( $template ) . ' button,
-            .blaze-login-register.' . esc_attr( $template ) . ' .button {
-                font-family: ' . esc_attr( $button_font ) . ' !important;
-                font-size: ' . esc_attr( $button_font_size ) . ' !important;
-                font-weight: ' . esc_attr( $button_font_weight ) . ' !important;
-                text-transform: ' . esc_attr( $button_text_transform ) . ' !important;
-                color: ' . esc_attr( $button_text_color ) . ' !important;
-                background-color: ' . esc_attr( $button_background ) . ' !important;
-                padding: ' . esc_attr( $button_padding_top ) . ' ' . esc_attr( $button_padding_right ) . ' ' . esc_attr( $button_padding_bottom ) . ' ' . esc_attr( $button_padding_left ) . ' !important;
-            }
-
-            .blaze-login-register.' . esc_attr( $template ) . ' button:hover,
-            .blaze-login-register.' . esc_attr( $template ) . ' .button:hover {
-                color: ' . esc_attr( $button_hover_text_color ) . ' !important;
-                background-color: ' . esc_attr( $button_hover_background ) . ' !important;
-            }
-        </style>';
-
-		// Add responsive styles
+		$t = esc_attr( $template );
+		?>
+		<style type="text/css" id="blocksy-my-account-dynamic-css">
+			.blaze-login-register.<?php echo $t; ?> h2 {
+				font-family: <?php echo esc_attr( $heading_font ); ?> !important;
+				font-size: <?php echo esc_attr( $heading_font_size ); ?> !important;
+				color: <?php echo esc_attr( $heading_color ); ?> !important;
+				font-weight: <?php echo esc_attr( $heading_font_weight ); ?> !important;
+				text-transform: <?php echo esc_attr( $heading_text_transform ); ?> !important;
+			}
+			.blaze-login-register.<?php echo $t; ?> p,
+			.blaze-login-register.<?php echo $t; ?> label,
+			.blaze-login-register.<?php echo $t; ?> span,
+			.blaze-login-register.<?php echo $t; ?> a {
+				font-family: <?php echo esc_attr( $body_font ); ?> !important;
+				font-size: <?php echo esc_attr( $body_font_size ); ?> !important;
+				color: <?php echo esc_attr( $body_color ); ?> !important;
+				font-weight: <?php echo esc_attr( $body_font_weight ); ?> !important;
+				text-transform: <?php echo esc_attr( $body_text_transform ); ?> !important;
+			}
+			.blaze-login-register.<?php echo $t; ?> input[type="text"],
+			.blaze-login-register.<?php echo $t; ?> input[type="email"],
+			.blaze-login-register.<?php echo $t; ?> input[type="password"] {
+				color: <?php echo esc_attr( $input_text_color ); ?> !important;
+				background-color: <?php echo esc_attr( $input_background ); ?> !important;
+				border-color: <?php echo esc_attr( $input_border ); ?> !important;
+			}
+			.blaze-login-register.<?php echo $t; ?> input::placeholder {
+				font-family: <?php echo esc_attr( $placeholder_font ); ?> !important;
+				font-size: <?php echo esc_attr( $placeholder_font_size ); ?> !important;
+				color: <?php echo esc_attr( $placeholder_color ); ?> !important;
+				font-weight: <?php echo esc_attr( $placeholder_font_weight ); ?> !important;
+				text-transform: <?php echo esc_attr( $placeholder_text_transform ); ?> !important;
+			}
+			.blaze-login-register.<?php echo $t; ?> button,
+			.blaze-login-register.<?php echo $t; ?> .button {
+				font-family: <?php echo esc_attr( $button_font ); ?> !important;
+				font-size: <?php echo esc_attr( $button_font_size ); ?> !important;
+				font-weight: <?php echo esc_attr( $button_font_weight ); ?> !important;
+				text-transform: <?php echo esc_attr( $button_text_transform ); ?> !important;
+				color: <?php echo esc_attr( $button_text_color ); ?> !important;
+				background-color: <?php echo esc_attr( $button_background ); ?> !important;
+				padding: <?php echo esc_attr( $button_padding_top . ' ' . $button_padding_right . ' ' . $button_padding_bottom . ' ' . $button_padding_left ); ?> !important;
+			}
+			.blaze-login-register.<?php echo $t; ?> button:hover,
+			.blaze-login-register.<?php echo $t; ?> .button:hover {
+				color: <?php echo esc_attr( $button_hover_text_color ); ?> !important;
+				background-color: <?php echo esc_attr( $button_hover_background ); ?> !important;
+			}
+		</style>
+		<?php
 		$this->output_responsive_css( $template );
 	}
 
@@ -403,145 +395,59 @@ class Blocksy_Child_Blaze_My_Account {
 	 * Output responsive CSS for tablet and mobile
 	 */
 	private function output_responsive_css( $template ) {
-		// Get tablet settings
-		$tablet_heading_font_size       = get_theme_mod( 'blocksy_child_my_account_tablet_heading_font_size', '' );
-		$tablet_heading_font_weight     = get_theme_mod( 'blocksy_child_my_account_tablet_heading_font_weight', '' );
-		$tablet_body_font_size          = get_theme_mod( 'blocksy_child_my_account_tablet_body_font_size', '' );
-		$tablet_body_font_weight        = get_theme_mod( 'blocksy_child_my_account_tablet_body_font_weight', '' );
-		$tablet_placeholder_font_size   = get_theme_mod( 'blocksy_child_my_account_tablet_placeholder_font_size', '' );
-		$tablet_placeholder_font_weight = get_theme_mod( 'blocksy_child_my_account_tablet_placeholder_font_weight', '' );
-		$tablet_button_font_size        = get_theme_mod( 'blocksy_child_my_account_tablet_button_font_size', '' );
-		$tablet_button_font_weight      = get_theme_mod( 'blocksy_child_my_account_tablet_button_font_weight', '' );
+		$tablet_css = $this->build_device_css( $template, 'tablet' );
+		$mobile_css = $this->build_device_css( $template, 'mobile' );
 
-		// Get mobile settings
-		$mobile_heading_font_size       = get_theme_mod( 'blocksy_child_my_account_mobile_heading_font_size', '' );
-		$mobile_heading_font_weight     = get_theme_mod( 'blocksy_child_my_account_mobile_heading_font_weight', '' );
-		$mobile_body_font_size          = get_theme_mod( 'blocksy_child_my_account_mobile_body_font_size', '' );
-		$mobile_body_font_weight        = get_theme_mod( 'blocksy_child_my_account_mobile_body_font_weight', '' );
-		$mobile_placeholder_font_size   = get_theme_mod( 'blocksy_child_my_account_mobile_placeholder_font_size', '' );
-		$mobile_placeholder_font_weight = get_theme_mod( 'blocksy_child_my_account_mobile_placeholder_font_weight', '' );
-		$mobile_button_font_size        = get_theme_mod( 'blocksy_child_my_account_mobile_button_font_size', '' );
-		$mobile_button_font_weight      = get_theme_mod( 'blocksy_child_my_account_mobile_button_font_weight', '' );
-
-		// Output tablet styles if any settings exist
-		if ( $tablet_heading_font_size || $tablet_heading_font_weight || $tablet_body_font_size || $tablet_body_font_weight ||
-			$tablet_placeholder_font_size || $tablet_placeholder_font_weight || $tablet_button_font_size || $tablet_button_font_weight ) {
-
-			echo '<style type="text/css">
-                @media (max-width: 1023px) and (min-width: 768px) {
-                    /* Tablet Styles for Template ' . esc_attr( $template ) . ' */';
-
-			if ( $tablet_heading_font_size || $tablet_heading_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' h2 {';
-				if ( $tablet_heading_font_size ) {
-					echo 'font-size: ' . esc_attr( $tablet_heading_font_size ) . ' !important;';
-				}
-				if ( $tablet_heading_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $tablet_heading_font_weight ) . ' !important;';
-				}
-				echo '}';
+		if ( ! $tablet_css && ! $mobile_css ) {
+			return;
+		}
+		?>
+		<style type="text/css" id="blocksy-my-account-responsive-css">
+			<?php if ( $tablet_css ) : ?>
+			@media (max-width: 1023px) and (min-width: 768px) {
+				<?php echo $tablet_css; ?>
 			}
-
-			if ( $tablet_body_font_size || $tablet_body_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' p,
-                      .blaze-login-register.' . esc_attr( $template ) . ' label,
-                      .blaze-login-register.' . esc_attr( $template ) . ' span,
-                      .blaze-login-register.' . esc_attr( $template ) . ' a {';
-				if ( $tablet_body_font_size ) {
-					echo 'font-size: ' . esc_attr( $tablet_body_font_size ) . ' !important;';
-				}
-				if ( $tablet_body_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $tablet_body_font_weight ) . ' !important;';
-				}
-				echo '}';
+			<?php endif; ?>
+			<?php if ( $mobile_css ) : ?>
+			@media (max-width: 767px) {
+				<?php echo $mobile_css; ?>
 			}
+			<?php endif; ?>
+		</style>
+		<?php
+	}
 
-			if ( $tablet_placeholder_font_size || $tablet_placeholder_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' input::placeholder {';
-				if ( $tablet_placeholder_font_size ) {
-					echo 'font-size: ' . esc_attr( $tablet_placeholder_font_size ) . ' !important;';
+	/**
+	 * Build CSS for a specific device (tablet or mobile)
+	 */
+	private function build_device_css( $template, $device ) {
+		$t   = esc_attr( $template );
+		$css = '';
+
+		$elements = array(
+			'heading'     => ".blaze-login-register.{$t} h2",
+			'body'        => ".blaze-login-register.{$t} p, .blaze-login-register.{$t} label, .blaze-login-register.{$t} span, .blaze-login-register.{$t} a",
+			'placeholder' => ".blaze-login-register.{$t} input::placeholder",
+			'button'      => ".blaze-login-register.{$t} button, .blaze-login-register.{$t} .button",
+		);
+
+		foreach ( $elements as $element => $selector ) {
+			$font_size   = get_theme_mod( "blocksy_child_my_account_{$device}_{$element}_font_size", '' );
+			$font_weight = get_theme_mod( "blocksy_child_my_account_{$device}_{$element}_font_weight", '' );
+
+			if ( $font_size || $font_weight ) {
+				$css .= $selector . ' {';
+				if ( $font_size ) {
+					$css .= 'font-size: ' . esc_attr( $font_size ) . ' !important;';
 				}
-				if ( $tablet_placeholder_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $tablet_placeholder_font_weight ) . ' !important;';
+				if ( $font_weight ) {
+					$css .= 'font-weight: ' . esc_attr( $font_weight ) . ' !important;';
 				}
-				echo '}';
+				$css .= '}';
 			}
-
-			if ( $tablet_button_font_size || $tablet_button_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' button,
-                      .blaze-login-register.' . esc_attr( $template ) . ' .button {';
-				if ( $tablet_button_font_size ) {
-					echo 'font-size: ' . esc_attr( $tablet_button_font_size ) . ' !important;';
-				}
-				if ( $tablet_button_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $tablet_button_font_weight ) . ' !important;';
-				}
-				echo '}';
-			}
-
-			echo '}
-                </style>';
 		}
 
-		// Output mobile styles if any settings exist
-		if ( $mobile_heading_font_size || $mobile_heading_font_weight || $mobile_body_font_size || $mobile_body_font_weight ||
-			$mobile_placeholder_font_size || $mobile_placeholder_font_weight || $mobile_button_font_size || $mobile_button_font_weight ) {
-
-			echo '<style type="text/css">
-                @media (max-width: 767px) {
-                    /* Mobile Styles for Template ' . esc_attr( $template ) . ' */';
-
-			if ( $mobile_heading_font_size || $mobile_heading_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' h2 {';
-				if ( $mobile_heading_font_size ) {
-					echo 'font-size: ' . esc_attr( $mobile_heading_font_size ) . ' !important;';
-				}
-				if ( $mobile_heading_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $mobile_heading_font_weight ) . ' !important;';
-				}
-				echo '}';
-			}
-
-			if ( $mobile_body_font_size || $mobile_body_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' p,
-                      .blaze-login-register.' . esc_attr( $template ) . ' label,
-                      .blaze-login-register.' . esc_attr( $template ) . ' span,
-                      .blaze-login-register.' . esc_attr( $template ) . ' a {';
-				if ( $mobile_body_font_size ) {
-					echo 'font-size: ' . esc_attr( $mobile_body_font_size ) . ' !important;';
-				}
-				if ( $mobile_body_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $mobile_body_font_weight ) . ' !important;';
-				}
-				echo '}';
-			}
-
-			if ( $mobile_placeholder_font_size || $mobile_placeholder_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' input::placeholder {';
-				if ( $mobile_placeholder_font_size ) {
-					echo 'font-size: ' . esc_attr( $mobile_placeholder_font_size ) . ' !important;';
-				}
-				if ( $mobile_placeholder_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $mobile_placeholder_font_weight ) . ' !important;';
-				}
-				echo '}';
-			}
-
-			if ( $mobile_button_font_size || $mobile_button_font_weight ) {
-				echo '.blaze-login-register.' . esc_attr( $template ) . ' button,
-                      .blaze-login-register.' . esc_attr( $template ) . ' .button {';
-				if ( $mobile_button_font_size ) {
-					echo 'font-size: ' . esc_attr( $mobile_button_font_size ) . ' !important;';
-				}
-				if ( $mobile_button_font_weight ) {
-					echo 'font-weight: ' . esc_attr( $mobile_button_font_weight ) . ' !important;';
-				}
-				echo '}';
-			}
-
-			echo '}
-                </style>';
-		}
+		return $css;
 	}
 
 	/**
