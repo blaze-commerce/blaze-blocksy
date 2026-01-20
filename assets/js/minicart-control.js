@@ -66,15 +66,18 @@ function initializeBlazeCommerceCartFlow() {
 }
 
 function setupCartFlow() {
-    console.log('🚀 BlazeCommerce Minicart Control initialized (FIXED VERSION)');
+    console.log('🚀 BlazeCommerce Minicart Control initialized (SIMPLE FIX)');
 
-    // ✅ FIX: Use WooCommerce's standard added_to_cart event instead of intercepting clicks
-    // This allows WooCommerce to handle fragments properly
+    // ✅ CRITICAL DISCOVERY: wc_fragments_refreshed fires BEFORE added_to_cart
+    // This means by the time added_to_cart fires, fragments are ALREADY refreshed!
+    // Solution: Just listen for added_to_cart and open minicart immediately with small delay
+
     jQuery(document.body).on('added_to_cart', function(event, fragments, cart_hash, button) {
-        console.log('✅ Product added to cart successfully via WooCommerce event (FIXED VERSION)');
+        console.log('✅ Product added to cart - fragments already refreshed! (SIMPLE FIX)');
 
-        // Wait for fragments to fully update (WooCommerce handles this)
+        // Small delay to ensure DOM rendering completes
         setTimeout(() => {
+            console.log('✅ Opening minicart now (SIMPLE FIX)');
             redirectToHomepageWithMinicart();
         }, 300);
     });
@@ -243,4 +246,4 @@ window.BlazeCommerceMinicart = {
     redirectToHomepage: redirectToHomepageWithMinicart
 };
 
-console.log('✅ BlazeCommerce Minicart Control script loaded successfully (FIXED VERSION)');
+console.log('✅ BlazeCommerce Minicart Control script loaded successfully (SIMPLE FIX)');
