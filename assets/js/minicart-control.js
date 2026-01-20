@@ -78,7 +78,7 @@ function setupCartFlow() {
         // Small delay to ensure DOM rendering completes
         setTimeout(() => {
             console.log('✅ Opening minicart now (SIMPLE FIX)');
-            redirectToHomepageWithMinicart();
+            openMinicart();
         }, 300);
     });
 
