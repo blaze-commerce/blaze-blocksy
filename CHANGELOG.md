@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.61.0] - 2026-01-21
+
+### Changed
+- Update checkout mobile toggle default colors from white to black for better contrast
+- Remove border-radius from checkout mobile toggle header for cleaner appearance
+
 ## [1.60.0] - 2026-01-15
 
 ### Added

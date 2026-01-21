@@ -33,11 +33,10 @@
     align-items: center;
     justify-content: space-between;
     background: transparent;
-    color: #FFFFFF;
+    color: #000000;
     padding: 16px;
     cursor: pointer;
     border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
-    border-radius: 8px;
     margin-bottom: 0;
     transition: background-color 0.2s ease;
   }
@@ -55,7 +54,7 @@
   .fc-sidebar-header-icon {
     width: 16px;
     height: 16px;
-    color: #FFFFFF;
+    color: #000000;
     flex-shrink: 0;
   }
 
@@ -65,7 +64,7 @@
     font-size: 14px;
     line-height: 1.71;
     text-transform: uppercase;
-    color: #FFFFFF;
+    color: #000000;
   }
 
   .fc-sidebar-header-chevron {
@@ -84,7 +83,7 @@
     font-weight: 700;
     font-size: 14px;
     line-height: 1.71;
-    color: #FFFFFF;
+    color: #000000;
   }
 
   /* Hide order summary content by default on mobile/tablet */
