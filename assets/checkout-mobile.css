@@ -108,7 +108,12 @@
     border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
     padding: 20px;
     margin: 0 -20px;
-    margin-top: 0;
+    margin-top: 24px;
+  }
+
+  /* Remove spacing below TOTAL inside order summary */
+  #fc-checkout-order-review .order-total {
+    margin-bottom: 0 !important;
   }
 }
 
