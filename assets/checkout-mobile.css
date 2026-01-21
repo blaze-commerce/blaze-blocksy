@@ -102,6 +102,16 @@
   }
 }
 
+/* Mobile viewports only (below 768px) - add borders to order summary content */
+@media (max-width: 767px) {
+  #fc-checkout-order-review {
+    border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
+    padding: 20px;
+    margin: 0 -20px;
+    margin-top: 24px;
+  }
+}
+
 /* Tablet viewports only (768px to 999px) - match spacing with sections below */
 @media (min-width: 768px) and (max-width: 999px) {
   .fc-sidebar-header {
