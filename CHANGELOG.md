@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add Product Tabs element and disable option
 
 ### Changed
+- Update checkout mobile toggle default colors from white to black for better contrast
+- Remove border-radius from checkout mobile toggle header for cleaner appearance
 - clean code and reorganize customizer sections (#187)
 - bump theme version to 1.60.0 (#186)
 - bump theme version to 1.59.0 (#183)

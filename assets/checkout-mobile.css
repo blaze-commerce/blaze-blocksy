@@ -33,12 +33,11 @@
     align-items: center;
     justify-content: space-between;
     background: transparent;
-    color: #FFFFFF;
+    color: #000000;
     padding: 16px;
     cursor: pointer;
     border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
-    border-radius: 8px;
-    margin-bottom: 0;
+    margin: 0 -20px 0 -20px;
     transition: background-color 0.2s ease;
   }
 
@@ -55,7 +54,7 @@
   .fc-sidebar-header-icon {
     width: 16px;
     height: 16px;
-    color: #FFFFFF;
+    color: #000000;
     flex-shrink: 0;
   }
 
@@ -65,7 +64,7 @@
     font-size: 14px;
     line-height: 1.71;
     text-transform: uppercase;
-    color: #FFFFFF;
+    color: #000000;
   }
 
   .fc-sidebar-header-chevron {
@@ -84,7 +83,7 @@
     font-weight: 700;
     font-size: 14px;
     line-height: 1.71;
-    color: #FFFFFF;
+    color: #000000;
   }
 
   /* Hide order summary content by default on mobile/tablet */
@@ -100,5 +99,22 @@
   /* Place order section styling when moved below payment fields */
   .fc-place-order__section[data-moved-to-payment="true"] {
     margin-top: 24px;
+  }
+}
+
+/* Mobile viewports only (below 768px) - add borders to order summary content */
+@media (max-width: 767px) {
+  #fc-checkout-order-review {
+    border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
+    padding: 20px;
+    margin: 0 -20px;
+    margin-top: 24px;
+  }
+}
+
+/* Tablet viewports only (768px to 999px) - match spacing with sections below */
+@media (min-width: 768px) and (max-width: 999px) {
+  .fc-sidebar-header {
+    margin: 0 0 0 0;
   }
 }
