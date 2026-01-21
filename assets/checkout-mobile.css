@@ -101,3 +101,10 @@
     margin-top: 24px;
   }
 }
+
+/* Tablet viewports only (768px to 999px) - match spacing with sections below */
+@media (min-width: 768px) and (max-width: 999px) {
+  .fc-sidebar-header {
+    margin: 0 0 0 0;
+  }
+}
