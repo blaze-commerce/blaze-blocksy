@@ -110,11 +110,6 @@
     margin: 0 -20px;
     margin-top: 24px;
   }
-
-  /* Remove spacing below TOTAL inside order summary */
-  #fc-checkout-order-review .order-total {
-    margin-bottom: 0 !important;
-  }
 }
 
 /* Tablet viewports only (768px to 999px) - match spacing with sections below */
