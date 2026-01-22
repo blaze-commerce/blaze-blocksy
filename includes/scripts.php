@@ -89,7 +89,7 @@ function blaze_blocksy_enqueue_assets() {
 	// === CHECKOUT PAGE ASSETS ===
 	if ( is_checkout() ) {
 		// Checkout page styles
-		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css' );
+		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css', array(), '1.0.0' );
 	}
 
 	// === WISHLIST OVERLAY ASSETS ===
