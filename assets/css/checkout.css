@@ -13,7 +13,7 @@
    =================================================================== */
 
 /* Coupon Error */
-.fc-coupon-code-messages .woocommerce-error:before {
+.fc-coupon-code-messages .woocommerce-error::before {
 	display: none !important;
 }
 .fc-wrapper .fc-coupon-code-messages .woocommerce-error {
