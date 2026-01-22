@@ -572,6 +572,13 @@
     }
 }
 
+/* Desktop adjustments - 16px remove button */
+@media (min-width: 1025px) {
+    .ct-offcanvas-wishlist .wishlist-item-actions .ct-wishlist-remove {
+        font-size: 16px !important;
+    }
+}
+
 /* ========================================
    8. THEME INTEGRATION & OVERRIDES
    ======================================== */
