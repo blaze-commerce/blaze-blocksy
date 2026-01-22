@@ -11,52 +11,11 @@
 /* ===================================================================
    COUPON ERROR MESSAGE LAYOUT FIX - Fluid Checkout Specific
    =================================================================== */
-/**
- * Fix coupon error message layout
- * Ensures bell icon doesn't overlap with text and everything is vertically centered
- */
 
-/* Error message container - use flexbox for vertical centering */
+/* Coupon Error */
+.fc-coupon-code-messages .woocommerce-error:before {
+	display: none !important;
+}
 .fc-wrapper .fc-coupon-code-messages .woocommerce-error {
-	position: relative !important;
-	padding: 16px 16px 16px 56px !important;
-	margin-bottom: 16px !important;
-	display: flex !important;
-	align-items: center !important;
-	min-height: 48px !important;
-}
-
-/* Bell icon - position absolutely and vertically center */
-.fc-wrapper .fc-coupon-code-messages .woocommerce-error::before {
-	position: absolute !important;
-	left: 18px !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	font-size: 20px !important;
-	line-height: 1 !important;
-	width: 20px !important;
-	height: 20px !important;
-	margin: 0 !important;
-}
-
-/* List item - flexbox layout for text and dismiss button */
-.fc-wrapper .fc-coupon-code-messages .woocommerce-error li {
-	margin: 0 !important;
-	padding: 0 !important;
-	display: flex !important;
-	align-items: center !important;
-	flex-wrap: wrap !important;
-	gap: 12px !important;
-	flex: 1 !important;
-	line-height: 1.5 !important;
-}
-
-/* Dismiss button - ensure it's visible with proper spacing */
-.fc-wrapper .fc-coupon-code-messages .woocommerce-error .fc-coupon-code-message-dismiss {
-	display: inline-block !important;
-	margin-left: auto !important;
-	padding: 4px 12px !important;
-	text-decoration: underline !important;
-	white-space: nowrap !important;
-	flex-shrink: 0 !important;
+	padding: 10px !important;
 }
