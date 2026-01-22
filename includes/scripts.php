@@ -86,6 +86,12 @@ function blaze_blocksy_enqueue_assets() {
 		);
 	}
 
+	// === CHECKOUT PAGE ASSETS ===
+	if ( is_checkout() ) {
+		// Checkout page styles
+		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css' );
+	}
+
 	// === WISHLIST OVERLAY ASSETS ===
 	wp_enqueue_style( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/css/wishlist-overlay.css', array(), '1.0.2' );
 	wp_enqueue_script( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/js/wishlist-overlay.js', array(), '1.0.2', true );

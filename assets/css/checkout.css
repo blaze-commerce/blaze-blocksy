@@ -1,0 +1,42 @@
+/**
+ * Checkout Page Styles
+ *
+ * Custom styles for WooCommerce checkout page including error messages,
+ * form layouts, and payment sections.
+ *
+ * @package Blocksy_Child
+ * @since 1.0.0
+ */
+
+/* ===================================================================
+   COUPON ERROR MESSAGE LAYOUT FIX
+   =================================================================== */
+/**
+ * Fix coupon error message layout
+ * - Position bell icon to the left with proper spacing
+ * - Prevent text overlap with icon
+ * - Center bell icon vertically
+ * - Add proper spacing between error text and dismiss button
+ */
+.woocommerce-error {
+	padding: 16px 20px 16px 60px !important;
+	position: relative;
+}
+
+.woocommerce-error::before {
+	left: 20px !important;
+	top: 50% !important;
+	transform: translateY(-50%) !important;
+}
+
+.woocommerce-error li {
+	padding-left: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	flex-wrap: wrap !important;
+}
+
+.woocommerce-error .fc-coupon-code-message-dismiss {
+	margin-left: auto !important;
+}
