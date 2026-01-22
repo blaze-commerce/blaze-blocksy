@@ -13,28 +13,44 @@
    =================================================================== */
 /**
  * Fix coupon error message layout
- * Uses Fluid Checkout specific selectors for higher specificity
- * to override plugin's default padding: 0 rule
+ * Ensures bell icon doesn't overlap with text by:
+ * 1. Positioning container relatively
+ * 2. Adding left padding for icon space
+ * 3. Ensuring text content has proper left margin
+ * 4. Proper dismiss button layout
  */
+
+/* Error message container - make room for icon */
 .fc-wrapper .fc-coupon-code-messages .woocommerce-error {
-	padding: 16px 20px 16px 60px !important;
+	position: relative !important;
+	padding: 12px 16px 12px 16px !important;
+	margin-bottom: 16px !important;
+}
+
+/* Bell icon - position absolutely to the left */
+.fc-wrapper .fc-coupon-code-messages .woocommerce-error::before {
+	position: absolute !important;
+	left: 16px !important;
+	top: 16px !important;
+	font-size: 20px !important;
+	line-height: 1 !important;
+	width: 20px !important;
+	height: 20px !important;
+}
+
+/* List item - add left margin to avoid icon overlap */
+.fc-wrapper .fc-coupon-code-messages .woocommerce-error li {
+	margin-left: 44px !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	display: block !important;
 	position: relative !important;
 }
 
-.fc-wrapper .fc-coupon-code-messages .woocommerce-error::before {
-	left: 20px !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-}
-
-.fc-wrapper .fc-coupon-code-messages .woocommerce-error li {
-	padding-left: 0 !important;
-	display: flex !important;
-	align-items: center !important;
-	gap: 8px !important;
-	flex-wrap: wrap !important;
-}
-
+/* Dismiss button - position to the right */
 .fc-wrapper .fc-coupon-code-messages .woocommerce-error .fc-coupon-code-message-dismiss {
-	margin-left: auto !important;
+	display: inline-block !important;
+	margin-left: 12px !important;
+	padding: 4px 8px !important;
+	text-decoration: underline !important;
 }
