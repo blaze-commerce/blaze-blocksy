@@ -29,23 +29,38 @@ test.describe('Add to Cart', () => {
     await page.waitForTimeout(500);
 
     // Look for simple product Add to Cart buttons (not variable products with "Select options")
-    const addToCartButton = page.locator([
+    // First try buttons in active carousel slides (for sites with Swiper carousels)
+    // Then fall back to regular buttons
+    const activeSlideSelector = [
+      '.swiper-slide-active a.product_type_simple.add_to_cart_button',
+      '.swiper-slide-active button.product_type_simple.add_to_cart_button',
+      '.swiper-slide-active a.ajax_add_to_cart:not(.product_type_variable)',
+      '.swiper-slide-active button.ajax_add_to_cart:not(.product_type_variable)',
+    ].join(', ');
+
+    const regularSelector = [
       'a.product_type_simple.add_to_cart_button',
       'button.product_type_simple.add_to_cart_button',
       'a.ajax_add_to_cart:not(.product_type_variable)',
       'button.ajax_add_to_cart:not(.product_type_variable)',
-    ].join(', ')).first();
+    ].join(', ');
 
-    const buttonCount = await addToCartButton.count();
+    // Try active slide buttons first, then fall back to regular buttons
+    let addToCartButton = page.locator(activeSlideSelector).first();
+    let buttonCount = await addToCartButton.count();
+
+    if (buttonCount === 0) {
+      addToCartButton = page.locator(regularSelector).first();
+      buttonCount = await addToCartButton.count();
+    }
 
     if (buttonCount === 0) {
       console.log(`[${siteName}/${viewportType}] No Add to Cart button found on homepage - this is acceptable`);
       return;
     }
 
-    // Scroll to the add to cart button so it's visible
+    // Scroll to the button
     await addToCartButton.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
 
     // Get product info
     const productId = await addToCartButton.getAttribute('data-product_id');
