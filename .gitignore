@@ -387,6 +387,12 @@ screenshots/
 test-screenshots/
 visual-regression/
 playwright-screenshots/
+e2e/screenshots/
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
 
 # Coverage Reports (additional patterns)
 coverage-final.json

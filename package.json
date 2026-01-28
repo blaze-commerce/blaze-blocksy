@@ -4,6 +4,21 @@
   "description": "A WordPress child theme for Blocksy by BlazeCommerce with comprehensive quality standards and Git workflow integration",
   "main": "functions.php",
   "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:video": "cross-env RECORD_VIDEO=true playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:staging": "cross-env TEST_ENV=staging playwright test",
+    "test:production": "cross-env TEST_ENV=production playwright test",
+    "test:literacyworks": "cross-env TEST_SITE=literacyworks playwright test",
+    "test:cannaclear": "cross-env TEST_SITE=cannaclear playwright test",
+    "test:henryholsters": "cross-env TEST_SITE=henryholsters playwright test",
+    "test:birdcontrol": "cross-env TEST_SITE=birdcontrol playwright test",
+    "test:hanglogic": "cross-env TEST_SITE=hanglogic playwright test",
+    "test:shinetrim": "cross-env TEST_SITE=shinetrim playwright test",
+    "test:dancewear": "cross-env TEST_SITE=dancewear playwright test",
+    "test:highcountryoffroad": "cross-env TEST_SITE=highcountryoffroad playwright test",
+    "test:infinitytargets": "cross-env TEST_SITE=infinitytargets playwright test"
   },
   "repository": {
     "type": "git",
@@ -27,5 +42,11 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^20.19.30",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.9.3"
+  }
 }
