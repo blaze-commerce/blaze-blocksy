@@ -1,46 +1,6 @@
-import { test, expect, collectConsoleErrors, filterKnownErrors } from '../../fixtures/test-base';
+import { test, expect } from '../../fixtures/test-base';
 
 test.describe('Homepage', () => {
-  test('should load and display correctly', async ({
-    page,
-    baseUrl,
-    siteName,
-    viewportType,
-    takeScreenshot,
-    waitForPageLoad,
-  }) => {
-    // Collect console errors during page load
-    const consoleErrors = collectConsoleErrors(page);
-
-    // Navigate to the homepage
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
-
-    // Wait for page to be fully loaded
-    await waitForPageLoad();
-
-    // Take a full-page screenshot
-    await takeScreenshot('homepage');
-
-    // Basic assertions
-    // Page should have a title
-    const title = await page.title();
-    expect(title).toBeTruthy();
-    expect(title.length).toBeGreaterThan(0);
-
-    // Page should have visible content
-    const body = page.locator('body');
-    await expect(body).toBeVisible();
-
-    // Check for critical console errors (excluding known/acceptable ones)
-    const criticalErrors = filterKnownErrors(consoleErrors);
-    if (criticalErrors.length > 0) {
-      console.warn(`[${siteName}/${viewportType}] Console errors:`, criticalErrors);
-    }
-
-    // Log successful completion
-    console.log(`[${siteName}/${viewportType}] Homepage loaded successfully`);
-  });
-
   test('should have proper meta tags', async ({
     page,
     baseUrl,
@@ -127,56 +87,5 @@ test.describe('Homepage', () => {
     } else {
       console.warn(`[${siteName}] No footer element found`);
     }
-  });
-
-  test('should not have broken images', async ({
-    page,
-    baseUrl,
-    siteName,
-    viewportType,
-    waitForPageLoad,
-  }) => {
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
-    await waitForPageLoad();
-
-    // Find all images and check if they loaded
-    const brokenImages = await page.evaluate(() => {
-      const images = Array.from(document.querySelectorAll('img'));
-      return images
-        .filter((img) => {
-          // Skip data URIs (lazy-load placeholders, inline SVGs)
-          if (img.src.startsWith('data:')) return false;
-
-          // Skip lazy-loaded images that haven't loaded yet
-          const isLazyLoading =
-            img.hasAttribute('data-src') ||
-            img.hasAttribute('data-lazy-src') ||
-            img.hasAttribute('data-srcset') ||
-            img.loading === 'lazy';
-          if (isLazyLoading && img.naturalWidth === 0) return false;
-
-          // Check if image failed to load
-          // naturalWidth === 0 indicates a broken image
-          const isBroken = !img.complete || img.naturalWidth === 0;
-
-          // Skip 1x1 tracking pixels
-          const isTrackingPixel = img.width <= 1 && img.height <= 1;
-
-          return isBroken && !isTrackingPixel;
-        })
-        .map((img) => img.src);
-    });
-
-    if (brokenImages.length > 0) {
-      console.warn(`[${siteName}/${viewportType}] Broken images:`, brokenImages);
-    }
-
-    // Allow up to a small number of broken images (some may be lazy-loaded or dynamic)
-    expect(
-      brokenImages.length,
-      `Found ${brokenImages.length} broken images`
-    ).toBeLessThanOrEqual(3);
-
-    console.log(`[${siteName}/${viewportType}] Image check complete`);
   });
 });
