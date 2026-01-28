@@ -5,6 +5,8 @@
   "main": "functions.php",
   "scripts": {
     "test:e2e": "playwright test",
+    "test:e2e:visual": "playwright test visual.spec.ts",
+    "test:e2e:update-snapshots": "playwright test visual.spec.ts --update-snapshots",
     "test:e2e:video": "cross-env RECORD_VIDEO=true playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",

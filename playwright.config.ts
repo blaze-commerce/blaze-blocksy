@@ -109,7 +109,18 @@ export default defineConfig({
   // Timeout for expect assertions
   expect: {
     timeout: 10000,
+    // Visual comparison settings
+    toHaveScreenshot: {
+      // Allow 5% pixel difference to handle rendering variations
+      maxDiffPixelRatio: 0.05,
+      // Threshold for color comparison (0-1, lower is stricter)
+      threshold: 0.3,
+    },
   },
+
+  // Snapshot path template: e2e/screenshots/{projectName}/{snapshotName}
+  // projectName is like "cannaclear-desktop", arg is the screenshot name
+  snapshotPathTemplate: '{testDir}/../screenshots/{projectName}/{arg}{ext}',
 
   // Dynamic projects based on sites
   projects: generateProjects(),

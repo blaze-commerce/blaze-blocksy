@@ -382,12 +382,12 @@ vulnerability-report.json
 load-test-*.json
 stress-test-*.json
 
-# Visual Regression Testing
+# Visual Regression Testing (keep e2e/screenshots for baselines)
 screenshots/
 test-screenshots/
 visual-regression/
 playwright-screenshots/
-e2e/screenshots/
+# Note: e2e/screenshots/ is NOT ignored - contains visual comparison baselines
 
 # Playwright
 playwright-report/
