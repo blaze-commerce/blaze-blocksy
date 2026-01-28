@@ -24,6 +24,13 @@ export interface SiteConfig {
     mainContent?: string;
     navigation?: string;
   };
+  /** Test product URLs for E2E testing */
+  testProducts?: {
+    /** URL path for simple product */
+    simple?: string;
+    /** URL path for variable product (future) */
+    variable?: string;
+  };
 }
 
 export const siteConfigs = {
@@ -36,6 +43,9 @@ export const siteConfigs = {
       hasContactForm: true,
       hasSearch: true,
     },
+    testProducts: {
+      simple: '/product/delta-9-thc-gummies-blue-razzberry/',
+    },
   },
   birdcontrol: {
     production: 'https://birdcontrolaustralia.com.au',
@@ -46,6 +56,9 @@ export const siteConfigs = {
       hasContactForm: true,
       hasSearch: true,
     },
+    testProducts: {
+      simple: '/shop/bird-spikes/thorny-devil-polycarbonate-spikes-5-meter-box/',
+    },
   },
   hanglogic: {
     production: 'https://hanglogic.com.au',
@@ -55,6 +68,9 @@ export const siteConfigs = {
       hasFluidCheckout: true,
       hasContactForm: true,
       hasSearch: true,
+    },
+    testProducts: {
+      simple: '/product/back-frame-hanging-system-floating-mount-kit/',
     },
   },
 } as const satisfies Record<string, SiteConfig>;
