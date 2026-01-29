@@ -1,0 +1,236 @@
+/**
+ * Admin Product Custom Tabs Styles
+ *
+ * Styles for the custom product tabs metabox in product edit page.
+ *
+ * @package BlazeBlocksy
+ * @since 1.65.0
+ */
+
+/* Wrapper */
+.blaze-custom-tabs-wrapper {
+	padding: 10px 0;
+}
+
+.blaze-custom-tabs-wrapper > .description {
+	margin-bottom: 15px;
+	color: #646970;
+}
+
+/* Container */
+.blaze-custom-tabs-container {
+	margin-bottom: 15px;
+}
+
+/* Tab Item */
+.blaze-custom-tab-item {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.blaze-custom-tab-item:hover {
+	border-color: #8c8f94;
+}
+
+.blaze-custom-tab-item.is-dragging {
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+	border-color: #2271b1;
+}
+
+/* Tab Header */
+.blaze-tab-header {
+	display: flex;
+	align-items: center;
+	padding: 12px;
+	background: #f6f7f7;
+	border-bottom: 1px solid #c3c4c7;
+	border-radius: 4px 4px 0 0;
+	gap: 10px;
+}
+
+.blaze-custom-tab-item.is-collapsed .blaze-tab-header {
+	border-bottom: none;
+	border-radius: 4px;
+}
+
+/* Drag Handle */
+.blaze-tab-drag-handle {
+	cursor: grab;
+	color: #8c8f94;
+	font-size: 20px;
+	line-height: 1;
+	transition: color 0.2s ease;
+}
+
+.blaze-tab-drag-handle:hover {
+	color: #2271b1;
+}
+
+.blaze-custom-tab-item.is-dragging .blaze-tab-drag-handle {
+	cursor: grabbing;
+}
+
+/* Tab Number */
+.blaze-tab-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 50%;
+	font-size: 12px;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+/* Title Input */
+.blaze-tab-title-input {
+	flex: 1;
+	padding: 6px 10px;
+	font-size: 14px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.blaze-tab-title-input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Toggle Button */
+.blaze-tab-toggle {
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+
+.blaze-tab-toggle .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+/* Delete Button */
+.blaze-tab-delete {
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+
+.blaze-tab-delete .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	color: #d63638;
+}
+
+.blaze-tab-delete:hover .dashicons {
+	color: #b32d2e;
+}
+
+/* Content Wrapper */
+.blaze-tab-content-wrapper {
+	padding: 15px;
+}
+
+.blaze-custom-tab-item.is-collapsed .blaze-tab-content-wrapper {
+	display: none;
+}
+
+/* Content Label */
+.blaze-tab-content-label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* Content Textarea */
+.blaze-tab-content-textarea {
+	width: 100%;
+	min-height: 200px;
+}
+
+/* WordPress Editor Wrapper */
+.blaze-tab-content-wrapper .wp-editor-wrap {
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.blaze-tab-content-wrapper .wp-editor-tabs {
+	border-bottom-color: #c3c4c7;
+}
+
+/* Sortable Placeholder */
+.blaze-tab-sortable-placeholder {
+	background: #f0f6fc;
+	border: 2px dashed #2271b1;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	min-height: 80px;
+}
+
+/* Add Button */
+#blaze-add-custom-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+#blaze-add-custom-tab .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+}
+
+/* Empty State */
+.blaze-custom-tabs-container:empty::after {
+	content: attr(data-empty-message);
+	display: block;
+	padding: 30px;
+	text-align: center;
+	background: #f6f7f7;
+	border: 2px dashed #c3c4c7;
+	border-radius: 4px;
+	color: #646970;
+	font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 782px) {
+	.blaze-tab-header {
+		flex-wrap: wrap;
+	}
+
+	.blaze-tab-title-input {
+		order: 5;
+		width: 100%;
+		flex: none;
+		margin-top: 10px;
+	}
+
+	.blaze-tab-number {
+		order: 1;
+	}
+
+	.blaze-tab-drag-handle {
+		order: 2;
+	}
+
+	.blaze-tab-toggle {
+		order: 3;
+		margin-left: auto;
+	}
+
+	.blaze-tab-delete {
+		order: 4;
+	}
+}
