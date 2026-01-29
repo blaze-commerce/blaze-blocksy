@@ -303,4 +303,70 @@ test.describe('Visual Comparison', () => {
 
     console.log(`[${siteName}/${viewportType}] Product page visual comparison passed`);
   });
+
+  test('category page should match visual baseline', async ({
+    page,
+    baseUrl,
+    siteName,
+    viewportType,
+    siteConfig,
+  }) => {
+    // Skip if site doesn't have WooCommerce
+    test.skip(!siteConfig.features.hasWooCommerce, 'Site does not have WooCommerce');
+
+    // Skip if no test category configured
+    test.skip(!siteConfig.testCategories?.main, 'No test category URL configured');
+
+    // Navigate to category page
+    const categoryUrl = baseUrl + siteConfig.testCategories!.main;
+    await page.goto(categoryUrl, { waitUntil: 'domcontentloaded' });
+    await waitForVisualStability(page);
+
+    // Handle age gate (if present, e.g., CannaClear)
+    const ageGate = page.locator('#agl_yes_button');
+    if (await ageGate.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await ageGate.click();
+      await page.waitForTimeout(1000);
+    }
+
+    // Dismiss all popups and stop animations
+    await dismissAllPopups(page);
+    await stopAllAnimations(page);
+
+    // Scroll to top to ensure consistent starting position
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(500);
+
+    // Define elements to mask (dynamic content that changes between runs)
+    const maskLocators = [
+      // Carousels and sliders
+      page.locator('.swiper, .swiper-container, .carousel, .slider, .slick-slider'),
+      // Cart count/badge
+      page.locator('.cart-count, .cart-contents .count, .woo-cart-count'),
+      // Live chat widgets
+      page.locator('#livechat-compact-container, .crisp-client, .intercom-lightweight-app'),
+      // Cookie banners
+      page.locator('.cookie-notice, #cookie-notice, .cc-window'),
+      // Time-based content
+      page.locator('[data-countdown], .countdown-timer'),
+    ];
+
+    // Filter to only visible elements to avoid errors
+    const visibleMasks = [];
+    for (const locator of maskLocators) {
+      if (await locator.first().isVisible().catch(() => false)) {
+        visibleMasks.push(locator);
+      }
+    }
+
+    // Take visual comparison screenshot (viewport only for stability)
+    await expect(page).toHaveScreenshot('category-page.png', {
+      fullPage: false, // Viewport only - full page is unstable due to lazy loading
+      mask: visibleMasks,
+      animations: 'disabled',
+      timeout: 30000,
+    });
+
+    console.log(`[${siteName}/${viewportType}] Category page visual comparison passed`);
+  });
 });

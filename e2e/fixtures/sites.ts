@@ -31,6 +31,11 @@ export interface SiteConfig {
     /** URL path for variable product (future) */
     variable?: string;
   };
+  /** Test category URLs for E2E testing */
+  testCategories?: {
+    /** URL path for main category page */
+    main?: string;
+  };
 }
 
 export const siteConfigs = {
@@ -46,6 +51,9 @@ export const siteConfigs = {
     testProducts: {
       simple: '/product/delta-9-thc-gummies-blue-razzberry/',
     },
+    testCategories: {
+      main: '/product-category/cbn/',
+    },
   },
   birdcontrol: {
     production: 'https://birdcontrolaustralia.com.au',
@@ -59,6 +67,9 @@ export const siteConfigs = {
     testProducts: {
       simple: '/shop/bird-spikes/thorny-devil-polycarbonate-spikes-5-meter-box/',
     },
+    testCategories: {
+      main: '/product-category/agricultural/',
+    },
   },
   hanglogic: {
     production: 'https://hanglogic.com.au',
@@ -71,6 +82,9 @@ export const siteConfigs = {
     },
     testProducts: {
       simple: '/product/back-frame-hanging-system-floating-mount-kit/',
+    },
+    testCategories: {
+      main: '/product-category/picture-rails/',
     },
   },
 } as const satisfies Record<string, SiteConfig>;
