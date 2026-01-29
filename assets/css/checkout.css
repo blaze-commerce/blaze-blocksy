@@ -1,0 +1,21 @@
+/**
+ * Checkout Page Styles
+ *
+ * Custom styles for WooCommerce checkout page including error messages,
+ * form layouts, and payment sections.
+ *
+ * @package Blocksy_Child
+ * @since 1.0.0
+ */
+
+/* ===================================================================
+   COUPON ERROR MESSAGE LAYOUT FIX - Fluid Checkout Specific
+   =================================================================== */
+
+/* Coupon Error */
+.fc-coupon-code-messages .woocommerce-error::before {
+	display: none !important;
+}
+.fc-coupon-code-messages .woocommerce-error {
+	padding: 10px !important;
+}

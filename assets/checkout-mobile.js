@@ -70,6 +70,9 @@
     });
   }
 
+  // Global observer reference
+  let placeOrderObserver = null;
+
   /**
    * Move place order button below payment fields on mobile
    */
@@ -128,6 +131,67 @@
   }
 
   /**
+   * Set up MutationObserver to watch for Place Order button being moved back
+   */
+  function setupPlaceOrderObserver() {
+    // Only run on mobile/tablet viewports
+    if (window.innerWidth > 999) {
+      return;
+    }
+
+    // Disconnect existing observer if any
+    if (placeOrderObserver) {
+      placeOrderObserver.disconnect();
+    }
+
+    const orderReviewInner = document.querySelector('.fc-checkout-order-review__inner');
+    if (!orderReviewInner) {
+      console.log('[Blaze] Order review inner not found for observer');
+      return;
+    }
+
+    console.log('[Blaze] Setting up MutationObserver to watch order review section');
+
+    placeOrderObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          // Check if Place Order button was added back to order review
+          const placeOrderSection = document.querySelector('.fc-checkout-order-review__inner .fc-place-order__section');
+
+          if (placeOrderSection) {
+            console.log('[Blaze] MutationObserver detected Place Order button in order summary - moving it!');
+
+            // Remove the moved marker since it's been reset
+            delete placeOrderSection.dataset.movedToPayment;
+
+            // Move it back to correct location
+            movePlaceOrderButton();
+          }
+        }
+      });
+    });
+
+    // Observe the order review inner section
+    placeOrderObserver.observe(orderReviewInner, {
+      childList: true,
+      subtree: true
+    });
+
+    console.log('[Blaze] MutationObserver active');
+  }
+
+  /**
+   * Disconnect the Place Order observer
+   */
+  function disconnectPlaceOrderObserver() {
+    if (placeOrderObserver) {
+      placeOrderObserver.disconnect();
+      placeOrderObserver = null;
+      console.log('[Blaze] MutationObserver disconnected');
+    }
+  }
+
+  /**
    * Restore place order button to sidebar on desktop
    */
   function restorePlaceOrderButton() {
@@ -137,6 +201,9 @@
     if (!placeOrderSection || !orderReviewInner) {
       return;
     }
+
+    // Disconnect observer on desktop
+    disconnectPlaceOrderObserver();
 
     // Only restore if it was moved
     if (placeOrderSection.dataset.movedToPayment === 'true') {
@@ -172,6 +239,7 @@
       } else {
         initOrderSummaryToggle();
         movePlaceOrderButton();
+        setupPlaceOrderObserver();
       }
     }, 250);
   });
@@ -183,6 +251,7 @@
     console.log('[Blaze] Document ready - initializing checkout mobile customizations');
     initOrderSummaryToggle();
     movePlaceOrderButton();
+    setupPlaceOrderObserver();
 
     // Re-initialize after FluidCheckout AJAX updates
     $(document.body).on('updated_checkout', function() {
@@ -193,6 +262,7 @@
       setTimeout(function() {
         console.log('[Blaze] Executing delayed movePlaceOrderButton after updated_checkout');
         movePlaceOrderButton();
+        setupPlaceOrderObserver();
       }, 100);
     });
   });

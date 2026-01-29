@@ -10,9 +10,6 @@
 
 jQuery( document ).ready(
 	function ($) {
-
-		console.log( '🎯 Blocksy Child My Account functionality loaded' );
-
 		/**
 		 * Initialize login/register form functionality
 		 */
@@ -191,7 +188,5 @@ jQuery( document ).ready(
 
 		// Initialize all functionality
 		initLoginRegisterForms();
-
-		console.log( '✅ Blocksy Child My Account functionality initialized successfully' );
 	}
 );

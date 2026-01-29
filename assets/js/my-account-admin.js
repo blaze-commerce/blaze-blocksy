@@ -9,21 +9,11 @@
 
 jQuery( document ).ready(
 	function ($) {
-
-		console.log( '🎯 Blocksy Child My Account Admin functionality loaded' );
-
 		/**
 		 * Initialize color pickers
 		 */
 		function initColorPickers() {
-			$( '.color-picker' ).wpColorPicker(
-				{
-					change: function (event, ui) {
-						// Optional: Add live preview functionality here
-						console.log( 'Color changed:', ui.color.toString() );
-					}
-				}
-			);
+			$( '.color-picker' ).wpColorPicker();
 		}
 
 		/**
@@ -57,48 +47,42 @@ jQuery( document ).ready(
 
 			switch (template) {
 				case 'template1':
-					previewHtml         = `
-					< div class         = "template-preview" >
-						< h4 > Template 1 - Side by Side Layout < / h4 >
-						< div style     = "display: flex; gap: 20px; border: 1px solid #ddd; padding: 20px; margin-top: 10px;" >
-							< div style = "flex: 1; border: 1px solid #ccc; padding: 15px;" >
-								< strong > Login Form < / strong >
-								< p > Username / Email field < / p >
-								< p > Password field < / p >
-								< p > Login button < / p >
-							< / div >
-							< div style = "flex: 1; border: 1px solid #ccc; padding: 15px;" >
-								< strong > Register Form < / strong >
-								< p > Username field < / p >
-								< p > Email field < / p >
-								< p > Password field < / p >
-								< p > Register button < / p >
-							< / div >
-						< / div >
-					< / div >
-					`;
+					previewHtml = '<div class="template-preview">' +
+						'<h4>Template 1 - Side by Side Layout</h4>' +
+						'<div style="display: flex; gap: 20px; border: 1px solid #ddd; padding: 20px; margin-top: 10px;">' +
+							'<div style="flex: 1; border: 1px solid #ccc; padding: 15px;">' +
+								'<strong>Login Form</strong>' +
+								'<p>Username / Email field</p>' +
+								'<p>Password field</p>' +
+								'<p>Login button</p>' +
+							'</div>' +
+							'<div style="flex: 1; border: 1px solid #ccc; padding: 15px;">' +
+								'<strong>Register Form</strong>' +
+								'<p>Username field</p>' +
+								'<p>Email field</p>' +
+								'<p>Password field</p>' +
+								'<p>Register button</p>' +
+							'</div>' +
+						'</div>' +
+					'</div>';
 					break;
 				case 'template2':
-					previewHtml     = `
-					< div class     = "template-preview" >
-						< h4 > Template 2 - Centered Layout < / h4 >
-						< div style = "max-width: 400px; border: 1px solid #ddd; padding: 20px; margin: 10px auto; text-align: center;" >
-							< strong > Login Form( Centered ) < / strong >
-							< p > Username / Email field < / p >
-							< p > Password field < / p >
-							< p > Login button < / p >
-							< p > < small > Toggle to Register form < / small > < / p >
-						< / div >
-					< / div >
-					`;
+					previewHtml = '<div class="template-preview">' +
+						'<h4>Template 2 - Centered Layout</h4>' +
+						'<div style="max-width: 400px; border: 1px solid #ddd; padding: 20px; margin: 10px auto; text-align: center;">' +
+							'<strong>Login Form (Centered)</strong>' +
+							'<p>Username / Email field</p>' +
+							'<p>Password field</p>' +
+							'<p>Login button</p>' +
+							'<p><small>Toggle to Register form</small></p>' +
+						'</div>' +
+					'</div>';
 					break;
 				default:
-					previewHtml = `
-					< div class = "template-preview" >
-						< h4 > Default WooCommerce Template < / h4 >
-						< p > Uses the standard WooCommerce my - account layout.< / p >
-					< / div >
-					`;
+					previewHtml = '<div class="template-preview">' +
+						'<h4>Default WooCommerce Template</h4>' +
+						'<p>Uses the standard WooCommerce my-account layout.</p>' +
+					'</div>';
 			}
 
 			$( 'select[name="blocksy_child_my_account_template"]' ).closest( 'td' ).append( previewHtml );
@@ -161,14 +145,11 @@ jQuery( document ).ready(
 		 * Initialize live preview functionality
 		 */
 		function initLivePreview() {
-			// Add live preview toggle
 			if ($( '.template-preview' ).length === 0) {
 				$( 'h1' ).after(
-					`
-					< div class = "notice notice-info" >
-					< p > < strong > Live Preview: < / strong > Changes will be visible on your my - account page after saving.< / p >
-					< / div >
-					`
+					'<div class="notice notice-info">' +
+					'<p><strong>Live Preview:</strong> Changes will be visible on your my-account page after saving.</p>' +
+					'</div>'
 				);
 			}
 		}
@@ -177,7 +158,6 @@ jQuery( document ).ready(
 		 * Initialize help tooltips
 		 */
 		function initHelpTooltips() {
-			// Add help tooltips for complex settings
 			$( 'input[name*="font"]' ).each(
 				function () {
 					var $input = $( this );
@@ -193,7 +173,6 @@ jQuery( document ).ready(
 				}
 			);
 
-			// Add tooltips for padding inputs
 			$( 'input[name*="padding"]' ).each(
 				function () {
 					var $input = $( this );
@@ -201,7 +180,6 @@ jQuery( document ).ready(
 				}
 			);
 
-			// Add tooltips for color inputs
 			$( 'input.color-picker' ).each(
 				function () {
 					var $input = $( this );
@@ -209,7 +187,6 @@ jQuery( document ).ready(
 				}
 			);
 
-			// Style tooltips
 			$( '.help-tooltip' ).css(
 				{
 					'display': 'inline-block',
@@ -231,115 +208,50 @@ jQuery( document ).ready(
 		 * Initialize responsive settings tabs
 		 */
 		function initResponsiveTabs() {
-			// Only initialize if we're on the my-account admin page and tabs exist
 			if ( ! $( '.responsive-tabs-wrapper' ).length) {
 				return;
 			}
 
-			// Handle tab switching
 			$( '.nav-tab' ).on(
 				'click',
 				function (e) {
 					e.preventDefault();
 					var targetTab = $( this ).data( 'tab' );
 
-					// Update tab navigation
 					$( '.nav-tab' ).removeClass( 'nav-tab-active' );
 					$( this ).addClass( 'nav-tab-active' );
 
-					// Update tab content
 					$( '.tab-panel' ).removeClass( 'active' ).hide();
 					$( '#' + targetTab + '-responsive' ).addClass( 'active' ).show();
 				}
 			);
 
-			// Add custom CSS for tabs
 			addTabStyles();
-
-			console.log( '✅ Responsive tabs initialized successfully' );
 		}
 
 		/**
 		 * Add custom CSS styles for tabs
 		 */
 		function addTabStyles() {
-			var tabStyles = `
-			< style >
-			.responsive - tabs - wrapper {
-				background: #fff;
-				border: 1px solid #ccd0d4;
-				border - radius: 4px;
-				padding: 20px;
-				margin: 20px 0;
+			var styleId = 'blocksy-my-account-admin-tabs';
+			if ( $( '#' + styleId ).length ) {
+				return;
 			}
 
-			.responsive - tabs - wrapper .nav - tab - wrapper {
-				border - bottom: 1px solid #ccd0d4;
-				margin: 0 0 20px 0;
-				padding: 0;
-			}
+			var css = '.responsive-tabs-wrapper { background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; padding: 20px; margin: 20px 0; }' +
+				'.responsive-tabs-wrapper .nav-tab-wrapper { border-bottom: 1px solid #ccd0d4; margin: 0 0 20px 0; padding: 0; }' +
+				'.responsive-tabs-wrapper .nav-tab { background: #f1f1f1; border: 1px solid #ccd0d4; border-bottom: none; color: #555; text-decoration: none; padding: 8px 12px; margin: 0 2px -1px 0; display: inline-block; cursor: pointer; transition: all 0.2s ease; }' +
+				'.responsive-tabs-wrapper .nav-tab:hover { background: #e1e1e1; color: #333; }' +
+				'.responsive-tabs-wrapper .nav-tab.nav-tab-active { background: #fff; border-bottom: 1px solid #fff; color: #333; font-weight: 600; }' +
+				'.responsive-tabs-wrapper .tab-content-wrapper { min-height: 200px; }' +
+				'.responsive-tabs-wrapper .tab-panel { display: none; }' +
+				'.responsive-tabs-wrapper .tab-panel.active { display: block; }' +
+				'.responsive-tabs-wrapper .form-table th { width: 200px; padding: 15px 10px 15px 0; }' +
+				'.responsive-tabs-wrapper .form-table td { padding: 15px 10px; }' +
+				'.responsive-tabs-wrapper .description { font-style: italic; color: #666; margin-top: 5px; }' +
+				'.responsive-tabs-wrapper h3 { margin-top: 0; color: #23282d; font-size: 16px; }';
 
-			.responsive - tabs - wrapper .nav - tab {
-				background: #f1f1f1;
-				border: 1px solid #ccd0d4;
-				border - bottom: none;
-				color: #555;
-				text - decoration: none;
-				padding: 8px 12px;
-				margin: 0 2px - 1px 0;
-				display: inline - block;
-				cursor: pointer;
-				transition: all 0.2s ease;
-			}
-
-			.responsive - tabs - wrapper .nav - tab:hover {
-				background: #e1e1e1;
-				color: #333;
-			}
-
-			.responsive - tabs - wrapper .nav - tab.nav - tab - active {
-				background: #fff;
-				border - bottom: 1px solid #fff;
-				color: #333;
-				font - weight: 600;
-			}
-
-			.responsive - tabs - wrapper .tab - content - wrapper {
-				min - height: 200px;
-			}
-
-			.responsive - tabs - wrapper .tab - panel {
-				display: none;
-			}
-
-			.responsive - tabs - wrapper .tab - panel.active {
-				display: block;
-			}
-
-			.responsive - tabs - wrapper .form - table th {
-				width: 200px;
-				padding: 15px 10px 15px 0;
-			}
-
-			.responsive - tabs - wrapper .form - table td {
-				padding: 15px 10px;
-			}
-
-			.responsive - tabs - wrapper .description {
-				font - style: italic;
-				color: #666;
-				margin - top: 5px;
-			}
-
-			.responsive - tabs - wrapper h3 {
-				margin - top: 0;
-				color: #23282d;
-				font - size: 16px;
-			}
-			< / style >
-			`;
-
-			$( 'head' ).append( tabStyles );
+			$( 'head' ).append( '<style id="' + styleId + '">' + css + '</style>' );
 		}
 
 		// Initialize all admin functionality
@@ -349,7 +261,5 @@ jQuery( document ).ready(
 		initLivePreview();
 		initHelpTooltips();
 		initResponsiveTabs();
-
-		console.log( '✅ Blocksy Child My Account Admin functionality initialized successfully' );
 	}
 );

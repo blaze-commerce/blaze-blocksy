@@ -107,25 +107,4 @@ do_action( 'woocommerce_before_customer_login_form' );
 	<?php endif; ?>
 </div>
 
-<script>
-jQuery(document).ready(function($) {
-	// Initially hide the register form
-	$('.blaze-login-register.template2 .register-container').hide();
-	
-	// Show register form
-	$('.show-register-form').on('click', function(e) {
-		e.preventDefault();
-		$('.blaze-login-register.template2 .login-container').hide();
-		$('.blaze-login-register.template2 .register-container').show();
-	});
-	
-	// Show login form
-	$('.show-login-form').on('click', function(e) {
-		e.preventDefault();
-		$('.blaze-login-register.template2 .register-container').hide();
-		$('.blaze-login-register.template2 .login-container').show();
-	});
-});
-</script>
-
 <?php do_action( 'woocommerce_after_customer_login_form' ); ?>

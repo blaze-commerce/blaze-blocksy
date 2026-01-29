@@ -263,7 +263,7 @@
 }
 
 /* ========================================
-	CUSTOM STYLES FOR SPECIFIC THEMES
+	FORM ELEMENT DEFAULTS
 	======================================== */
 
 .blaze-login-register input.woocommerce-form__input-checkbox {
@@ -277,34 +277,12 @@
 	font-size: 14px !important;
 }
 
-/* Integration with Blocksy theme */
-.idefense-my_account .ct-acount-nav {
-	border: 1px solid #CDD1D4 !important;
-}
-
-.idefense-my_account .woocommerce-MyAccount-navigation {
-	--theme-box-shadow: none;
-}
-
-.idefense-my_account p,
-.idefense-my_account a {
-	color: #242424;
-}
-
-.idefense-my_account ul li.is-active {
-	--account-nav-background-active-color: #be252f;
-}
-
-.idefense-my_account ul li:hover {
-	--account-nav-background-active-color: #be252f;
-}
-
 /* ========================================
 	ACCESSIBILITY ENHANCEMENTS
 	======================================== */
 
 @media (prefers-reduced-motion: reduce) {
-	.blaze-my-account.template2 .tab-links li a {
+	.blaze-login-register.template2 a {
 		transition: none !important;
 	}
 }
@@ -328,19 +306,14 @@
 }
 
 
-/* Keep non-customizable styles */
+/* ========================================
+	BLOCKSY THEME INTEGRATION
+	======================================== */
+
 .blz-my_account .woocommerce-MyAccount-navigation {
 	--theme-box-shadow: none;
 }
 
-#post-9 {
-	--theme-boxed-content-box-shadow: none;
-}
-
-.wp-block-group.is-layout-constrained.wp-container-core-group-is-layout-87fbb315.wp-block-group-is-layout-constrained {
-	display: none;
-}
-
-.ct-acount-nav {
+.blz-my_account .ct-acount-nav {
 	background: #fff !important;
 }
