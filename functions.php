@@ -183,6 +183,7 @@ $required_files = [
 	'/includes/customization/bundle-products.php',
 	'/includes/customization/free-shipping-offcanvas.php',
 	'/includes/customization/results-count-placement.php',
+	'/includes/speed-optimization.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
