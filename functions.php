@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'BLAZE_BLOCKSY_URL', get_stylesheet_directory_uri() );
 define( 'BLAZE_BLOCKSY_PATH', get_stylesheet_directory() );
+define( 'BLAZE_BLOCKSY_VERSION', wp_get_theme()->get( 'Version' ) );
 
 /**
  * WOOLESS-8737: Fluid Checkout Spacing Fix
