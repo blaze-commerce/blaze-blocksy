@@ -1,0 +1,148 @@
+name: E2E Tests
+
+on:
+  # Manual trigger with site/environment selection
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Site to test'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - literacyworks
+          - cannaclear
+          - henryholsters
+          - birdcontrol
+          - hanglogic
+          - shinetrim
+          - dancewear
+          - highcountryoffroad
+          - infinitytargets
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+  # Daily scheduled run on production
+  schedule:
+    - cron: '0 6 * * *' # 6 AM UTC daily
+
+  # Run on push to main for E2E changes
+  push:
+    branches:
+      - main
+    paths:
+      - 'e2e/**'
+      - 'playwright.config.ts'
+      - '.github/workflows/e2e-tests.yml'
+
+  # Run on PRs that modify E2E tests
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'e2e/**'
+      - 'playwright.config.ts'
+      - '.github/workflows/e2e-tests.yml'
+
+jobs:
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run sites in parallel
+        site: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.site != 'all' && fromJson(format('["{0}"]', github.event.inputs.site)) || fromJson('["literacyworks", "cannaclear", "henryholsters", "birdcontrol", "hanglogic", "shinetrim", "dancewear", "highcountryoffroad", "infinitytargets"]') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Set environment variables
+        run: |
+          echo "TEST_SITE=${{ matrix.site }}" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TEST_ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          else
+            echo "TEST_ENV=production" >> $GITHUB_ENV
+          fi
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.site }}
+          path: e2e/screenshots/
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.site }}
+          path: test-results/
+          retention-days: 7
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.site }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Summary job that runs after all tests
+  summary:
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Generate summary
+        run: |
+          echo "## E2E Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Site | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for site in literacyworks cannaclear henryholsters birdcontrol hanglogic shinetrim dancewear highcountryoffroad infinitytargets; do
+            if [ -d "artifacts/test-results-$site" ]; then
+              if [ -f "artifacts/test-results-$site/.last-run.json" ]; then
+                echo "| $site | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "| $site | :x: Failed |" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "| $site | :grey_question: Not Run |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See individual job artifacts for detailed reports." >> $GITHUB_STEP_SUMMARY

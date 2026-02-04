@@ -92,5 +92,8 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "prisma-smart-formatter.typescript.defaultFormatter": "esbenp.prettier-vscode",
+  "prisma-smart-formatter.typescriptreact.defaultFormatter": "vscode.typescript-language-features",
+  "prisma-smart-formatter.prisma.defaultFormatter": "Prisma.prisma"
 }
