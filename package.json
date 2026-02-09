@@ -10,6 +10,7 @@
     "test:e2e:video": "cross-env RECORD_VIDEO=true playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
+    "test:site": "node e2e/run-test.js",
     "test:staging": "cross-env TEST_ENV=staging playwright test",
     "test:production": "cross-env TEST_ENV=production playwright test",
     "test:literacyworks": "cross-env TEST_SITE=literacyworks playwright test",
