@@ -89,6 +89,7 @@ class CalculateShipping {
 		$country = $request->get_param( 'country' );
 		$state = $request->get_param( 'state' );
 		$post_code = $request->get_param( 'post_code' );
+		$json_response = array();
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			$response = new \WP_REST_Response( 'Error: Woocommerce is not active!' );
@@ -105,53 +106,78 @@ class CalculateShipping {
 		require_once WC_ABSPATH . 'includes/class-wc-shipping.php';
 		require_once WC_ABSPATH . 'includes/class-wc-customer.php';
 
-
-		\WC()->session = new \WC_Session_Handler();
-		\WC()->session->init();
-		WC()->session->destroy_session();
-
-		$customer = new \WC_Customer();
-		WC()->customer = $customer;
-
-		// Create a new cart object
-		$cart = new \WC_Cart();
-		\WC()->cart = $cart;
-
-		foreach ( $products as $product ) {
-			$variation_id = 0;
-			$variation_data = array();
-			if ( isset( $product['variation'] ) ) {
-				$variation_id = $product['variation']['id'];
-				unset( $product['variation']['id'] );
-				$variation_data = $product['variation'];
-			}
-			$cart->add_to_cart( $product['id'], $product['quantity'], $variation_id, $variation_data );
+		// Ensure WC session and cart are initialized
+		if ( ! WC()->session ) {
+			WC()->session = new \WC_Session_Handler();
+			WC()->session->init();
+		}
+		if ( ! WC()->customer ) {
+			WC()->customer = new \WC_Customer();
+		}
+		if ( ! WC()->cart ) {
+			WC()->cart = new \WC_Cart();
 		}
 
-		WC()->customer->set_shipping_country( $country );
-		WC()->customer->set_shipping_state( $state );
-		WC()->customer->set_shipping_postcode( $post_code );
+		// Save the current cart contents
+		$saved_cart_contents = WC()->cart->get_cart_contents();
 
-		$packages = WC()->cart->get_shipping_packages(); // Prepare the packages
-		$shipping_methods = WC()->shipping()->calculate_shipping( $packages ); // Calculate shipping
+		try {
+			// Empty the cart for shipping calculation (without clearing session/cookies)
+			WC()->cart->empty_cart( false );
 
-		$available_methods = $shipping_methods[0];
+			// Add products from the request to the cart
+			foreach ( $products as $product ) {
+				$variation_id = 0;
+				$variation_data = array();
+				if ( isset( $product['variation'] ) ) {
+					$variation_id = $product['variation']['id'];
+					unset( $product['variation']['id'] );
+					$variation_data = $product['variation'];
+				}
+				WC()->cart->add_to_cart( $product['id'], $product['quantity'], $variation_id, $variation_data );
+			}
 
-		$rates = array_map( function (\WC_Shipping_Rate $rate) {
-			return array(
-				'id' => $rate->id,
-				'method_id' => $rate->method_id,
-				'instance_id' => $rate->instance_id,
-				'label' => $rate->label,
-				'cost' => $rate->cost,
-				'taxes' => $rate->taxes,
-			);
-		}, $available_methods['rates'] );
+			// Set shipping destination
+			WC()->customer->set_shipping_country( $country );
+			WC()->customer->set_shipping_state( $state );
+			WC()->customer->set_shipping_postcode( $post_code );
 
-		$response = new \WP_REST_Response( array(
-			'subtotal' => WC()->cart->subtotal,
-			'rates' => $rates,
-		) );
+			// Calculate shipping
+			$packages = WC()->cart->get_shipping_packages();
+			$shipping_methods = WC()->shipping()->calculate_shipping( $packages );
+
+			$available_methods = $shipping_methods[0];
+
+			$rates = array_map( function ( \WC_Shipping_Rate $rate ) {
+				return array(
+					'id' => $rate->id,
+					'method_id' => $rate->method_id,
+					'instance_id' => $rate->instance_id,
+					'label' => $rate->label,
+					'cost' => $rate->cost,
+					'taxes' => $rate->taxes,
+				);
+			}, $available_methods['rates'] );
+
+			$subtotal = WC()->cart->subtotal;
+		} finally {
+			// Restore the original cart contents
+			WC()->cart->empty_cart( false );
+			foreach ( $saved_cart_contents as $cart_item_key => $cart_item ) {
+				WC()->cart->add_to_cart(
+					$cart_item['product_id'],
+					$cart_item['quantity'],
+					isset( $cart_item['variation_id'] ) ? $cart_item['variation_id'] : 0,
+					isset( $cart_item['variation'] ) ? $cart_item['variation'] : array()
+				);
+			}
+			WC()->cart->calculate_totals();
+		}
+
+		$json_response['subtotal'] = $subtotal;
+		$json_response['rates'] = $rates;
+
+		$response = new \WP_REST_Response( $json_response );
 
 		// Add a custom status code
 		$response->set_status( 201 );
