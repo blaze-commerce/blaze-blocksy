@@ -1,22 +1,16 @@
 name: Semantic Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
-      - master
-      # Note: This workflow will skip execution for automated version bump PRs
-      # to prevent cascading releases (version bump PRs have branch pattern 'release/bump-v*')
 
 jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    if: >
-      github.event.pull_request.merged == true &&
-      !startsWith(github.event.pull_request.head.ref, 'release/bump-v') &&
-      !startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
+    # Skip version sync commits to prevent infinite loops
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     permissions:
       contents: write
@@ -25,7 +19,7 @@ jobs:
 
     outputs:
       new-release-version: ${{ steps.new-version.outputs.new-version }}
-      
+
     steps:
       - name: Generate GitHub App Token
         id: app-token
@@ -48,26 +42,18 @@ jobs:
             echo "using-fallback=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Validate merge commit SHA
-        run: |
-          if [ -z "${{ github.event.pull_request.merge_commit_sha }}" ]; then
-            echo "Error: merge_commit_sha is empty"
-            exit 1
-          fi
-          echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
-
-      - name: Checkout repository at merge commit
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: main
           token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Check if changes are non-functional
         id: check-non-functional
         run: |
-          # Get the list of changed files in this PR
-          CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path')
+          # Get the list of changed files in this push (compared to previous commit)
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
@@ -163,13 +149,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rsync zip
-          
+
       - name: Configure Git
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
           git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
-          
+
       - name: Skip release for non-functional changes
         if: steps.check-non-functional.outputs.non-functional-only == 'true'
         run: |
@@ -542,74 +528,35 @@ jobs:
 
           echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
 
-      - name: Create version bump branch
-        id: create-bump-branch
+      - name: Commit version bump to main
+        id: commit-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        env:
-          NEW_VERSION: ${{ steps.new-version.outputs.new-version }}
-          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
           set -e
-          # Escape version for safe use in branch name and commit message
-          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
-          BRANCH="release/bump-v${NEW_VERSION}"
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
-          # Check if branch already exists and delete it
-          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch $BRANCH already exists, deleting it"
-            git push origin --delete "$BRANCH" || true
+          # Clean up backup files before committing
+          rm -f *.bak *.backup *.old CHANGELOG.md.bak 2>/dev/null || true
+
+          # Stage version files
+          git add style.css CHANGELOG.md
+
+          # Check if there are actual changes to commit
+          if git diff --cached --quiet; then
+            echo "⚠️ No changes to commit (version files already up to date)"
+            echo "committed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore: sync version to ${NEW_VERSION} [skip ci]"
+            git push origin main
+            echo "✅ Version bump committed and pushed to main"
+            echo "committed=true" >> $GITHUB_OUTPUT
           fi
 
-          # Delete local branch if it exists
-          git branch -D "$BRANCH" 2>/dev/null || true
-
-          git checkout -b "$BRANCH"
-          git add style.css CHANGELOG.md
-          git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
-          git push --set-upstream origin "$BRANCH"
-
-          echo "branch-name=${BRANCH}" >> $GITHUB_OUTPUT
-
-      - name: Open PR for version bump
-        if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.token-fallback.outputs.token }}
-          script: |
-            const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
-            const base = '${{ github.event.pull_request.base.ref }}';
-            const title = `chore(release): bump theme version to ${{ steps.new-version.outputs.new-version }}`;
-            const body = `Automated post-release version bump to keep style.css and CHANGELOG.md in sync with the latest release.\n\nThis PR was created by the release workflow after PR #${{ github.event.pull_request.number }} was approved and merged.\n\n### Changes:\n- Updated style.css version to ${{ steps.new-version.outputs.new-version }}\n- Updated CHANGELOG.md with release information`;
-
-            // Check if a PR already exists
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: 'open'
-            });
-            if (prs.length > 0) {
-              core.info(`PR already exists: #${prs[0].number}`);
-              return;
-            }
-            const { data: pr } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: branch,
-              base: base,
-              title,
-              body,
-              maintainer_can_modify: true
-            });
-            core.info(`Opened PR #${pr.number} for version bump`);
-
-      - name: Create Git tag from version bump commit
+      - name: Create Git tag
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           set -e
           git fetch --tags
-          # Tag the version bump commit (current HEAD) instead of merge commit
-          # This ensures the tagged commit contains the version update
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
           # Input validation for security
