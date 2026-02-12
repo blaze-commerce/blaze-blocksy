@@ -10,8 +10,7 @@ on:
     - cron: '0 2 * * *'
   push:
     paths:
-      - '.github/workflows/auto-merge-*.yml'
-      - '.github/workflows/security-validation.yml'
+      - '.github/workflows/*.yml'
 
 jobs:
   security-validation:
@@ -20,7 +19,6 @@ jobs:
     
     permissions:
       contents: read
-      security-events: write
       
     steps:
       - name: Checkout repository
@@ -31,11 +29,11 @@ jobs:
       - name: Validate workflow syntax
         run: |
           set -euo pipefail
-          
-          echo "🔍 Validating YAML syntax for all auto-merge workflows"
-          
-          # Check YAML syntax
-          for workflow in .github/workflows/auto-merge-*.yml; do
+
+          echo "🔍 Validating YAML syntax for all workflows"
+
+          # Check YAML syntax for all workflow files
+          for workflow in .github/workflows/*.yml; do
             if [ -f "$workflow" ]; then
               echo "Checking $workflow..."
               if python3 -c "import yaml; yaml.safe_load(open('$workflow'))" 2>/dev/null; then
@@ -65,24 +63,26 @@ jobs:
           fi
           
           # Check for proper secret usage
-          if grep -r "\${{ secrets\." .github/workflows/auto-merge-*.yml | grep -v "BLAZECOMMERCE_BOT\|GITHUB_TOKEN"; then
+          if grep -r "\${{ secrets\." .github/workflows/*.yml | grep -v "BLAZECOMMERCE_BOT\|GITHUB_TOKEN"; then
             echo "⚠️ Unexpected secret usage found"
             security_issues=$((security_issues + 1))
           else
             echo "✅ Secret usage follows expected patterns"
           fi
-          
-          # Check for command injection vulnerabilities
-          if grep -r "echo.*\${{" .github/workflows/auto-merge-*.yml | grep -v "sanitize\|head -c"; then
-            echo "⚠️ Potential command injection vectors found"
+
+          # Check for command injection vulnerabilities (untrusted data in run: blocks)
+          # Look for github.event data used directly in run: without env: block
+          if grep -rn "run:" .github/workflows/*.yml -A 50 | grep -E "\\\$\{\{ github\.event\.(pull_request\.(title|body|head\.ref)|issue\.(title|body))" | grep -v "^.*env:" | head -5; then
+            echo "⚠️ Potential script injection: untrusted event data used in run blocks"
+            echo "These should use env: blocks instead"
             security_issues=$((security_issues + 1))
           else
-            echo "✅ No obvious command injection vulnerabilities"
+            echo "✅ No obvious script injection vulnerabilities"
           fi
-          
-          # Check for proper input validation
-          if ! grep -q "sanitize_input" .github/workflows/auto-merge-guard.yml; then
-            echo "❌ Input sanitization missing in guard workflow"
+
+          # Check for input sanitization in monitor workflow
+          if ! grep -q "sanitize_input" .github/workflows/auto-merge-monitor.yml; then
+            echo "❌ Input sanitization missing in monitor workflow"
             security_issues=$((security_issues + 1))
           else
             echo "✅ Input sanitization implemented"
@@ -131,7 +131,7 @@ jobs:
           echo "🔐 Validating workflow permissions"
           
           # Check that workflows follow principle of least privilege
-          for workflow in .github/workflows/auto-merge-*.yml; do
+          for workflow in .github/workflows/*.yml; do
             if [ -f "$workflow" ]; then
               echo "Checking permissions in $workflow..."
               

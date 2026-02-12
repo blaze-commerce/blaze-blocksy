@@ -1,31 +1,27 @@
 name: Semantic Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
-      - master
-      # Note: This workflow will skip execution for automated version bump PRs
-      # to prevent cascading releases (version bump PRs have branch pattern 'release/bump-v*')
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    if: >
-      github.event.pull_request.merged == true &&
-      !startsWith(github.event.pull_request.head.ref, 'release/bump-v') &&
-      !startsWith(github.event.pull_request.title, 'chore(release): bump theme version to')
+    # Skip version sync commits to prevent infinite loops
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
 
     outputs:
       new-release-version: ${{ steps.new-version.outputs.new-version }}
-      
+
     steps:
       - name: Generate GitHub App Token
         id: app-token
@@ -37,37 +33,40 @@ jobs:
 
       - name: Fallback to GITHUB_TOKEN if App Token fails
         id: token-fallback
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          FALLBACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_OUTCOME: ${{ steps.app-token.outcome }}
         run: |
-          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+          if [ "$APP_OUTCOME" = "failure" ]; then
             echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
-            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "::add-mask::$FALLBACK_TOKEN"
+            echo "token=$FALLBACK_TOKEN" >> $GITHUB_OUTPUT
             echo "using-fallback=true" >> $GITHUB_OUTPUT
           else
             echo "✅ GitHub App token generated successfully"
-            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+            echo "::add-mask::$APP_TOKEN"
+            echo "token=$APP_TOKEN" >> $GITHUB_OUTPUT
             echo "using-fallback=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Validate merge commit SHA
-        run: |
-          if [ -z "${{ github.event.pull_request.merge_commit_sha }}" ]; then
-            echo "Error: merge_commit_sha is empty"
-            exit 1
-          fi
-          echo "Merge commit SHA: ${{ github.event.pull_request.merge_commit_sha }}"
-
-      - name: Checkout repository at merge commit
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: main
           token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Check if changes are non-functional
         id: check-non-functional
         run: |
-          # Get the list of changed files in this PR
-          CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path')
+          # Get the list of changed files in this push
+          # Use github.event.before if available, fall back to HEAD~1
+          BEFORE_SHA="${{ github.event.before }}"
+          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE_SHA="HEAD~1"
+          fi
+          CHANGED_FILES=$(git diff --name-only "$BEFORE_SHA" HEAD 2>/dev/null || git diff --name-only HEAD)
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
@@ -156,20 +155,20 @@ jobs:
 
           echo "non-functional-only=${NON_FUNCTIONAL_ONLY}" >> $GITHUB_OUTPUT
           echo "Non-functional-only changes: ${NON_FUNCTIONAL_ONLY}"
-        env:
-          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rsync zip
-          
+          # rsync and zip may not be pre-installed on all runner images
+          which rsync >/dev/null 2>&1 && which zip >/dev/null 2>&1 || sudo apt-get install -y rsync zip
+
       - name: Configure Git
+        env:
+          TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
-          
+          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
+
       - name: Skip release for non-functional changes
         if: steps.check-non-functional.outputs.non-functional-only == 'true'
         run: |
@@ -386,129 +385,92 @@ jobs:
           fi
 
           # Create temporary changelog content for release (GitHub release description)
-          RELEASE_CHANGELOG="## What's Changed\n\n$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)\n\n**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
-          echo -e "$RELEASE_CHANGELOG" > RELEASE_CHANGELOG.md
+          if [ -n "$LAST_TAG" ]; then
+            RELEASE_LOG=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            RELEASE_LOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          {
+            echo "## What's Changed"
+            echo ""
+            echo "$RELEASE_LOG"
+            echo ""
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/${COMPARE_URL}"
+          } > RELEASE_CHANGELOG.md
 
           # Create backup
           cp CHANGELOG.md CHANGELOG.md.bak
 
+          # Write commits to a temp file to avoid shell injection in Python
+          echo "$COMMITS" > /tmp/commits.txt
+
+          # Export for Python subprocess
+          export NEW_VERSION CURRENT_DATE
+
           # Enhanced changelog update with automatic categorization from conventional commits
           python3 -c "
-          import re
-          import sys
+          import re, os, sys
 
           def categorize_commit(commit_msg):
-              '''Categorize commit message based on conventional commit format'''
               commit_msg = commit_msg.strip()
-
-              # Parse conventional commit format: type(scope): description
               conventional_pattern = r'^(\w+)(\(.+\))?(!)?: (.+)$'
               match = re.match(conventional_pattern, commit_msg)
-
               if not match:
                   return 'changed', commit_msg
-
               commit_type = match.group(1).lower()
               description = match.group(4)
               is_breaking = match.group(3) == '!'
-
-              # Map conventional commit types to changelog categories
               type_mapping = {
-                  'feat': 'added',
-                  'feature': 'added',
-                  'add': 'added',
-                  'fix': 'fixed',
-                  'bugfix': 'fixed',
-                  'hotfix': 'fixed',
-                  'docs': 'documentation',
-                  'doc': 'documentation',
-                  'style': 'changed',
-                  'refactor': 'changed',
-                  'perf': 'changed',
-                  'test': 'changed',
-                  'chore': 'changed',
-                  'ci': 'changed',
-                  'build': 'changed',
-                  'revert': 'fixed'
+                  'feat': 'added', 'feature': 'added', 'add': 'added',
+                  'fix': 'fixed', 'bugfix': 'fixed', 'hotfix': 'fixed',
+                  'docs': 'documentation', 'doc': 'documentation',
+                  'style': 'changed', 'refactor': 'changed', 'perf': 'changed',
+                  'test': 'changed', 'chore': 'changed', 'ci': 'changed',
+                  'build': 'changed', 'revert': 'fixed'
               }
-
               category = type_mapping.get(commit_type, 'changed')
-
-              # Breaking changes always go to 'changed' with special notation
               if is_breaking:
                   category = 'changed'
                   description = f'**BREAKING:** {description}'
-
               return category, description
 
           def extract_unreleased_content(content):
-              '''Extract content from [Unreleased] section'''
-              # Find the [Unreleased] section
               unreleased_pattern = r'## \[Unreleased\](.*?)(?=## \[|\Z)'
               match = re.search(unreleased_pattern, content, re.DOTALL)
-
               if not match:
                   return ''
-
               unreleased_content = match.group(1).strip()
-
-              # Check if it's just empty lines or minimal content
               if not unreleased_content or len(unreleased_content.strip()) < 10:
                   return ''
-
               return unreleased_content
 
           def generate_changelog_sections(commits_text):
-              '''Generate categorized changelog sections from commits'''
               if not commits_text.strip():
                   return ''
-
               commits = [line.strip() for line in commits_text.split('\n') if line.strip()]
-
-              categories = {
-                  'added': [],
-                  'changed': [],
-                  'fixed': [],
-                  'documentation': [],
-                  'security': []
-              }
-
+              categories = {'added': [], 'changed': [], 'fixed': [], 'documentation': [], 'security': []}
               for commit in commits:
                   category, description = categorize_commit(commit)
                   if category in categories:
                       categories[category].append(f'- {description}')
-
-              # Generate sections
               sections = []
-
-              section_titles = {
-                  'added': 'Added',
-                  'changed': 'Changed',
-                  'fixed': 'Fixed',
-                  'documentation': 'Documentation',
-                  'security': 'Security'
-              }
-
+              section_titles = {'added': 'Added', 'changed': 'Changed', 'fixed': 'Fixed', 'documentation': 'Documentation', 'security': 'Security'}
               for category in ['added', 'changed', 'fixed', 'documentation', 'security']:
                   if categories[category]:
                       sections.append(f'### {section_titles[category]}')
                       sections.extend(categories[category])
                       sections.append('')
-
               return '\n'.join(sections).rstrip()
 
-          # Read current changelog
           with open('CHANGELOG.md', 'r') as f:
               content = f.read()
 
-          new_version = '${NEW_VERSION}'
-          current_date = '${CURRENT_DATE}'
-          commits_text = '''${COMMITS}'''
+          new_version = os.environ['NEW_VERSION']
+          current_date = os.environ['CURRENT_DATE']
+          with open('/tmp/commits.txt', 'r') as f:
+              commits_text = f.read()
 
-          # Extract existing unreleased content
           existing_unreleased = extract_unreleased_content(content)
-
-          # Generate new content from commits if unreleased section is empty/minimal
           if not existing_unreleased:
               print('Generating changelog sections from conventional commits...')
               generated_content = generate_changelog_sections(commits_text)
@@ -517,10 +479,8 @@ jobs:
               print('Using existing unreleased content...')
               version_content = existing_unreleased
 
-          # Replace [Unreleased] with new version and add new empty [Unreleased] section
           pattern = r'## \[Unreleased\].*?(?=## \[|\Z)'
           replacement = f'## [Unreleased]\n\n## [{new_version}] - {current_date}\n\n{version_content}\n\n'
-
           content = re.sub(pattern, replacement, content, flags=re.DOTALL)
 
           with open('CHANGELOG.md', 'w') as f:
@@ -542,74 +502,35 @@ jobs:
 
           echo "Updated CHANGELOG.md for version ${NEW_VERSION}"
 
-      - name: Create version bump branch
-        id: create-bump-branch
+      - name: Commit version bump to main
+        id: commit-version
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        env:
-          NEW_VERSION: ${{ steps.new-version.outputs.new-version }}
-          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
           set -e
-          # Escape version for safe use in branch name and commit message
-          SAFE_VERSION=$(printf '%q' "${NEW_VERSION}")
-          BRANCH="release/bump-v${NEW_VERSION}"
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
-          # Check if branch already exists and delete it
-          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
-            echo "Branch $BRANCH already exists, deleting it"
-            git push origin --delete "$BRANCH" || true
+          # Clean up backup files before committing
+          rm -f *.bak *.backup *.old CHANGELOG.md.bak 2>/dev/null || true
+
+          # Stage version files
+          git add style.css CHANGELOG.md
+
+          # Check if there are actual changes to commit
+          if git diff --cached --quiet; then
+            echo "⚠️ No changes to commit (version files already up to date)"
+            echo "committed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "chore: sync version to ${NEW_VERSION} [skip ci]"
+            git push origin main
+            echo "✅ Version bump committed and pushed to main"
+            echo "committed=true" >> $GITHUB_OUTPUT
           fi
 
-          # Delete local branch if it exists
-          git branch -D "$BRANCH" 2>/dev/null || true
-
-          git checkout -b "$BRANCH"
-          git add style.css CHANGELOG.md
-          git commit -m "chore(release): bump theme version to ${SAFE_VERSION}"
-          git push --set-upstream origin "$BRANCH"
-
-          echo "branch-name=${BRANCH}" >> $GITHUB_OUTPUT
-
-      - name: Open PR for version bump
-        if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.token-fallback.outputs.token }}
-          script: |
-            const branch = '${{ steps.create-bump-branch.outputs.branch-name }}';
-            const base = '${{ github.event.pull_request.base.ref }}';
-            const title = `chore(release): bump theme version to ${{ steps.new-version.outputs.new-version }}`;
-            const body = `Automated post-release version bump to keep style.css and CHANGELOG.md in sync with the latest release.\n\nThis PR was created by the release workflow after PR #${{ github.event.pull_request.number }} was approved and merged.\n\n### Changes:\n- Updated style.css version to ${{ steps.new-version.outputs.new-version }}\n- Updated CHANGELOG.md with release information`;
-
-            // Check if a PR already exists
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: 'open'
-            });
-            if (prs.length > 0) {
-              core.info(`PR already exists: #${prs[0].number}`);
-              return;
-            }
-            const { data: pr } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: branch,
-              base: base,
-              title,
-              body,
-              maintainer_can_modify: true
-            });
-            core.info(`Opened PR #${pr.number} for version bump`);
-
-      - name: Create Git tag from version bump commit
+      - name: Create Git tag
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         run: |
           set -e
           git fetch --tags
-          # Tag the version bump commit (current HEAD) instead of merge commit
-          # This ensures the tagged commit contains the version update
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
           # Input validation for security
@@ -997,7 +918,7 @@ jobs:
       - name: Check and clean up existing release
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
         env:
-          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
 
@@ -1031,29 +952,18 @@ jobs:
             echo "✅ No existing release found for v${NEW_VERSION}"
           fi
 
-      - name: Create GitHub Release
-        id: create_release
+      - name: Create GitHub Release with ZIP
         if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
-        with:
-          tag_name: v${{ steps.new-version.outputs.new-version }}
-          release_name: Release v${{ steps.new-version.outputs.new-version }}
-          body_path: RELEASE_CHANGELOG.md
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new-version }}"
+          ZIP_NAME="${{ steps.create-zip.outputs.zip-name }}"
 
-      - name: Upload ZIP to Release
-        if: steps.check-non-functional.outputs.non-functional-only != 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.create-zip.outputs.zip-name }}
-          asset_name: ${{ steps.create-zip.outputs.zip-name }}
-          asset_content_type: application/zip
+          gh release create "v${NEW_VERSION}" \
+            "./${ZIP_NAME}" \
+            --title "Release v${NEW_VERSION}" \
+            --notes-file RELEASE_CHANGELOG.md
 
       - name: Notify on success
         if: success()
@@ -1090,13 +1000,19 @@ jobs:
 
       - name: Fallback to GITHUB_TOKEN if App Token fails
         id: token-fallback
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          FALLBACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_OUTCOME: ${{ steps.app-token.outcome }}
         run: |
-          if [ "${{ steps.app-token.outcome }}" = "failure" ]; then
+          if [ "$APP_OUTCOME" = "failure" ]; then
             echo "⚠️ GitHub App token generation failed, falling back to GITHUB_TOKEN"
-            echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
+            echo "::add-mask::$FALLBACK_TOKEN"
+            echo "token=$FALLBACK_TOKEN" >> $GITHUB_OUTPUT
           else
             echo "✅ GitHub App token generated successfully"
-            echo "token=${{ steps.app-token.outputs.token }}" >> $GITHUB_OUTPUT
+            echo "::add-mask::$APP_TOKEN"
+            echo "token=$APP_TOKEN" >> $GITHUB_OUTPUT
           fi
 
       - name: Checkout repository
@@ -1106,14 +1022,16 @@ jobs:
           token: ${{ steps.token-fallback.outputs.token }}
 
       - name: Configure Git
+        env:
+          TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           git config --global user.name "BlazeCommerce Automation Bot"
           git config --global user.email "automation@blazecommerce.io"
-          git remote set-url origin https://x-access-token:${{ steps.token-fallback.outputs.token }}@github.com/${{ github.repository }}.git
+          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
 
       - name: Rollback tag and release
         env:
-          GITHUB_TOKEN: ${{ steps.token-fallback.outputs.token }}
+          GH_TOKEN: ${{ steps.token-fallback.outputs.token }}
         run: |
           VERSION="${{ needs.release.outputs.new-release-version }}"
           if [ -n "${VERSION}" ]; then

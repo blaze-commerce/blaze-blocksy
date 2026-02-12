@@ -51,6 +51,10 @@ on:
       - 'playwright.config.ts'
       - '.github/workflows/e2e-tests.yml'
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   e2e-tests:
     timeout-minutes: 60
@@ -116,6 +120,7 @@ jobs:
 
   # Summary job that runs after all tests
   summary:
+    timeout-minutes: 5
     needs: e2e-tests
     runs-on: ubuntu-latest
     if: always()
