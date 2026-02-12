@@ -184,6 +184,7 @@ $required_files = [
 	'/includes/customization/free-shipping-offcanvas.php',
 	'/includes/customization/results-count-placement.php',
 	'/includes/speed-optimization.php',
+	'/includes/features/hide-cart-page.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
