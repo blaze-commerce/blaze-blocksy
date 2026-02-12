@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<<<<<<< release/bump-v1.67.0
+## [1.67.0] - 2026-02-12
+
+### Added
+- add speed optimization for product image preloading
+=======
 ## [1.66.1] - 2026-02-11
+>>>>>>> main
 
 ### Fixed
 - issue with remove all existing items when calculating the shipping cost. after calculation, the cart must be restored
@@ -4241,5 +4248,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.64.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.64.0
 [1.65.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.65.0
 [1.66.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.66.0
+<<<<<<< release/bump-v1.67.0
+[1.67.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.67.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.67.0...HEAD
+=======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.1...HEAD
+>>>>>>> main
