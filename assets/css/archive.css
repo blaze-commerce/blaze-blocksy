@@ -150,3 +150,22 @@
 .ct-product-category-description-wrapper .ct-product-category-description {
   margin-top: 24px;
 }
+
+/* Offcanvas filter bottom actions - sticky "Show X results" button */
+.mobile-filters-bottom-actions {
+  position: sticky;
+  bottom: 0;
+  padding: 16px;
+  background: var(--offcanvas-bg, #fff);
+  border-top: 1px solid var(--offcanvas-border-color, #e5e7eb);
+  z-index: 1;
+}
+
+.mobile-filters-show-results {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+}

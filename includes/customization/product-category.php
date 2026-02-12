@@ -119,12 +119,13 @@ function blaze_enqueue_archive_assets() {
 		true
 	);
 
-	// Pass sidebar header HTML to JavaScript for AJAX restoration.
+	// Pass HTML to JavaScript for AJAX restoration.
 	wp_localize_script(
 		'blaze-blocksy-archive',
 		'blazeArchive',
 		array(
-			'sidebarHeaderHTML' => blaze_get_woo_sidebar_header_html(),
+			'sidebarHeaderHTML'      => blaze_get_woo_sidebar_header_html(),
+			'showResultsButtonHTML'  => blaze_get_show_results_button_html(),
 		)
 	);
 }
@@ -146,7 +147,7 @@ function blaze_display_category_description() {
 		return;
 	}
 
-	$term_title  = $term->name;
+	$term_title = $term->name;
 	$description = $term->description;
 
 	if ( empty( $description ) ) {
@@ -248,3 +249,30 @@ function blaze_add_sidebar_title() {
 	echo blaze_get_woo_sidebar_header_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 add_action( 'blocksy:sidebar:start', 'blaze_add_sidebar_title' );
+
+/**
+ * Get the "Show X results" button HTML for offcanvas filter.
+ *
+ * Single source of truth for both PHP render and JavaScript restoration.
+ *
+ * @since 1.0.0
+ * @return string The button HTML.
+ */
+function blaze_get_show_results_button_html() {
+	$total = wc_get_loop_prop( 'total', 0 );
+
+	return sprintf(
+		'<div class="mobile-filters-bottom-actions">
+			<button type="button" class="button mobile-filters-show-results">Show %s results</button>
+		</div>',
+		esc_html( $total )
+	);
+}
+
+add_action(
+	'blocksy:pro:woo-extra:offcanvas-filters:bottom',
+	function () {
+		echo blaze_get_show_results_button_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	},
+	999_999
+);
