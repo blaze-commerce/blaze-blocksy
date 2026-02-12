@@ -6,7 +6,6 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - main
-      - master
 
 jobs:
   validate-commits:
@@ -65,6 +64,7 @@ jobs:
 
           # Create temporary files to track results (avoid subshell array issues)
           TEMP_DIR=$(mktemp -d)
+          trap 'rm -rf "$TEMP_DIR"' EXIT
           INVALID_FILE="$TEMP_DIR/invalid_commits"
           VALID_FILE="$TEMP_DIR/valid_commits"
 
@@ -163,16 +163,13 @@ jobs:
             fi
           fi
 
-          # Cleanup temporary files
-          rm -rf "$TEMP_DIR"
-
       - name: Validate PR title
         id: validate-pr-title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           set -euo pipefail
           echo "🔍 Validating PR title..."
-          
-          PR_TITLE="${{ github.event.pull_request.title }}"
           echo "PR Title: $PR_TITLE"
           
           # PR title should also follow conventional commit format
@@ -224,8 +221,8 @@ jobs:
           # Check for breaking change indicators
           BREAKING_CHANGES=false
 
-          # Check for breaking change indicator (! before colon)
-          if echo "$COMMITS" | grep -q "!:"; then
+          # Check for breaking change indicator (! before colon in conventional commit)
+          if echo "$COMMITS" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?!:"; then
             echo "⚠️ Breaking change detected in commit message (! indicator)"
             BREAKING_CHANGES=true
           fi
