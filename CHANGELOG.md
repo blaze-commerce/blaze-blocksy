@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Hide cart page feature — redirects /cart/ to checkout (or shop if empty), removes cart links from menus, filters cart URLs site-wide, adds noindex for SEO, and removes cart from breadcrumbs (#86ewjqyw7)
 
+## [1.67.0] - 2026-02-12
+
+### Added
+- add speed optimization for product image preloading
+
+## [1.66.1] - 2026-02-11
+
+### Fixed
+- issue with remove all existing items when calculating the shipping cost. after calculation, the cart must be restored
+
 ## [1.66.0] - 2026-02-04
 
 ### Added
@@ -4239,4 +4249,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.64.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.64.0
 [1.65.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.65.0
 [1.66.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.66.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...HEAD
+<<<<<<< release/bump-v1.67.0
+[1.67.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.67.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.67.0...HEAD
+=======
+[1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.1...HEAD
+>>>>>>> main
