@@ -84,6 +84,13 @@ function blaze_blocksy_enqueue_assets() {
 			'1.0.0',
 			true
 		);
+
+		// === SELECTWOO FOR SHIPPING CALCULATOR ===
+		// Use WooCommerce's bundled selectWoo (Select2 fork) for searchable country/state dropdowns
+		if ( wp_script_is( 'selectWoo', 'registered' ) ) {
+			wp_enqueue_script( 'selectWoo' );
+			wp_enqueue_style( 'select2' );
+		}
 	}
 
 	// === CHECKOUT PAGE ASSETS ===

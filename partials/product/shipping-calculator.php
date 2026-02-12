@@ -13,7 +13,7 @@ $available_countries = $countries->get_countries();
 	?>
 
 	<div class="form-group">
-		<label for="country">Country</label>
+		<label for="country-options">Country</label>
 		<select id="country-options">
 			<option value="">Country</option>
 			<?php foreach ( $available_countries as $country_code => $country_name ) { ?>
@@ -23,7 +23,7 @@ $available_countries = $countries->get_countries();
 	</div>
 
 	<div class="form-group">
-		<label for="state">State/Province</label>
+		<label for="state-options">State/Province</label>
 		<select id="state-options">
 			<option value="">Select State</option>
 		</select>
@@ -46,6 +46,26 @@ $available_countries = $countries->get_countries();
 </div> <!-- End shipping-calculator-container -->
 <script>
 	jQuery(document).ready(function ($) {
+
+		// === SELECTWOO INITIALIZATION ===
+		var selectWooAvailable = typeof $.fn.selectWoo !== 'undefined';
+
+		function initSelectWoo($el) {
+			if (!selectWooAvailable) return;
+			// Destroy existing instance before re-init
+			if ($el.data('select2')) {
+				$el.selectWoo('destroy');
+			}
+			$el.selectWoo({
+				width: '100%',
+				placeholder: $el.find('option:first').text(),
+				dropdownParent: $('#ct-product-information-offcanvas')
+			});
+		}
+
+		// Init selectWoo on country and state dropdowns
+		initSelectWoo($('#country-options'));
+		initSelectWoo($('#state-options'));
 
 		// Check if blockUI is available (from WooCommerce)
 		var hasBlockUI = typeof $.blockUI !== 'undefined';
@@ -99,6 +119,7 @@ $available_countries = $countries->get_countries();
 
 			// If no country selected, return
 			if (!selectedCountry) {
+				initSelectWoo(statesSelect);
 				return;
 			}
 
@@ -139,6 +160,9 @@ $available_countries = $countries->get_countries();
 						statesSelect.append('<option value="">Error loading states</option>');
 						console.error('Error loading states:', response.data ? response.data.message : 'Unknown error');
 					}
+
+					// Re-init selectWoo after options are populated
+					initSelectWoo(statesSelect);
 				},
 				error: function (xhr, status, error) {
 					// Unblock UI
@@ -148,6 +172,9 @@ $available_countries = $countries->get_countries();
 					statesSelect.empty().append('<option value="">Select State</option>');
 					statesSelect.append('<option value="">Error loading states</option>');
 					console.error('AJAX Error:', error);
+
+					// Re-init selectWoo after error state
+					initSelectWoo(statesSelect);
 				}
 			});
 		});
