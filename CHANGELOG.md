@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Hide cart page feature — redirects /cart/ to checkout (or shop if empty), removes cart links from menus, filters cart URLs site-wide, adds noindex for SEO, and removes cart from breadcrumbs (#86ewjqyw7)
+
 ## [1.66.0] - 2026-02-04
 
 ### Added
