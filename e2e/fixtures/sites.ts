@@ -97,7 +97,7 @@ export const siteConfigs = {
       hasSearch: true,
     },
     testProducts: {
-      simple: '/product/flared-dance-jazz-yoga-pants/',
+      simple: '/product/ballerina-mouse-keyring-bag-charm/',
     },
     testCategories: {
       main: '/product-category/women/dance-pants/',
