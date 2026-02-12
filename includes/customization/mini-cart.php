@@ -76,7 +76,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 						placeholder="<?php esc_attr_e( 'Enter postcode/zip', 'blaze-blocksy' ); ?>">
 				</div>
 				<button type="button"
-					class="calculate-btn mini-cart-calculate-shipping-btn"><?php esc_html_e( 'CALCULATE SHIPPING', 'blaze-blocksy' ); ?></button>
+					class="calculate-btn mini-cart-calculate-shipping-btn"><?php esc_html_e( 'Calculate Shipping', 'blaze-blocksy' ); ?></button>
 				<div class="mini-cart-shipping-results" style="display: none;">
 					<h4><?php esc_html_e( 'Available Shipping Methods', 'blaze-blocksy' ); ?></h4>
 					<div class="mini-cart-shipping-methods-list"></div>
