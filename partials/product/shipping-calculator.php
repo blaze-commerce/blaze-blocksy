@@ -56,10 +56,11 @@ $available_countries = $countries->get_countries();
 			if ($el.data('select2')) {
 				$el.selectWoo('destroy');
 			}
+
+			//find parent element
 			$el.selectWoo({
 				width: '100%',
-				placeholder: $el.find('option:first').text(),
-				dropdownParent: $('#ct-product-information-offcanvas')
+				placeholder: $el.find('option:first').text()
 			});
 		}
 
@@ -110,6 +111,16 @@ $available_countries = $countries->get_countries();
 				$('#shipping-calculator-container .shipping-loading-overlay').remove();
 			}
 		}
+		// Save state to localStorage on change
+		$('#state-options').on('change', function () {
+			var state = $(this).val();
+			if (state) {
+				localStorage.setItem('blaze_shipping_state', state);
+			} else {
+				localStorage.removeItem('blaze_shipping_state');
+			}
+		});
+
 		$('#country-options').change(function () {
 			var selectedCountry = $(this).val();
 			var statesSelect = $('#state-options');
@@ -119,9 +130,13 @@ $available_countries = $countries->get_countries();
 
 			// If no country selected, return
 			if (!selectedCountry) {
+				localStorage.removeItem('blaze_shipping_country');
+				localStorage.removeItem('blaze_shipping_state');
 				initSelectWoo(statesSelect);
 				return;
 			}
+
+			localStorage.setItem('blaze_shipping_country', selectedCountry);
 
 			// Block UI while loading states
 			blockShippingCalculator('Loading states...');
@@ -163,6 +178,12 @@ $available_countries = $countries->get_countries();
 
 					// Re-init selectWoo after options are populated
 					initSelectWoo(statesSelect);
+
+					// Restore saved state if available
+					var savedState = localStorage.getItem('blaze_shipping_state');
+					if (savedState && statesSelect.find('option[value="' + savedState + '"]').length) {
+						statesSelect.val(savedState).trigger('change.select2');
+					}
 				},
 				error: function (xhr, status, error) {
 					// Unblock UI
@@ -260,6 +281,13 @@ $available_countries = $countries->get_countries();
 				}
 			});
 		});
+
+		// Restore saved country → triggers change → loads states → restores state
+		// Must be after change handler is bound so AJAX fires
+		var savedCountry = localStorage.getItem('blaze_shipping_country');
+		if (savedCountry && $('#country-options').find('option[value="' + savedCountry + '"]').length) {
+			$('#country-options').val(savedCountry).trigger('change');
+		}
 
 		// Function to display shipping methods
 		function displayShippingMethods(methods) {

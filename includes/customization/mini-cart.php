@@ -41,16 +41,63 @@ add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
 }, 999, 3 );
 
 /**
+ * Add shipping calculator to mini cart before total
+ */
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	?>
+	<div class="mini-cart-shipping-calculator mini-cart-form-section">
+		<div class="mini-cart-toggle shipping-calculator-toggle">
+			<span class="mini-cart-label shipping-calculator-label">
+				<?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?>
+			</span>
+			<span class="mini-cart-arrow shipping-calculator-arrow">&#9660;</span>
+		</div>
+		<div class="mini-cart-form-wrapper shipping-calculator-form-wrapper" style="display: none;">
+			<?php
+			$countries = new WC_Countries();
+			$available_countries = $countries->get_countries();
+			?>
+			<div class="mini-cart-shipping-form">
+				<div class="form-group">
+					<select id="mini-cart-shipping-country" class="mini-cart-shipping-select">
+						<option value=""><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></option>
+						<?php foreach ( $available_countries as $code => $name ) : ?>
+							<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="form-group">
+					<select id="mini-cart-shipping-state" class="mini-cart-shipping-select">
+						<option value=""><?php esc_html_e( 'Select State', 'blaze-blocksy' ); ?></option>
+					</select>
+				</div>
+				<div class="form-group">
+					<input type="text" id="mini-cart-shipping-postcode"
+						placeholder="<?php esc_attr_e( 'Enter postcode/zip', 'blaze-blocksy' ); ?>">
+				</div>
+				<button type="button"
+					class="calculate-btn mini-cart-calculate-shipping-btn"><?php esc_html_e( 'CALCULATE SHIPPING', 'blaze-blocksy' ); ?></button>
+				<div class="mini-cart-shipping-results" style="display: none;">
+					<h4><?php esc_html_e( 'Available Shipping Methods', 'blaze-blocksy' ); ?></h4>
+					<div class="mini-cart-shipping-methods-list"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+}, 10 );
+
+/**
  * Add coupon form to mini cart before buttons
  */
 add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 	?>
-	<div class="mini-cart-coupon-section">
-		<div class="coupon-toggle">
-			<span class="coupon-label"><?php esc_html_e( 'Coupon Code', 'blaze-blocksy' ); ?></span>
-			<span class="coupon-arrow">&#9660;</span>
+	<div class="mini-cart-coupon-section mini-cart-form-section">
+		<div class="mini-cart-toggle coupon-toggle">
+			<span class="mini-cart-label coupon-label"><?php esc_html_e( 'Coupon Code', 'blaze-blocksy' ); ?></span>
+			<span class="mini-cart-arrow coupon-arrow">&#9660;</span>
 		</div>
-		<div class="coupon-form-wrapper" style="display: none;">
+		<div class="mini-cart-form-wrapper coupon-form-wrapper" style="display: none;">
 			<form class="mini-cart-coupon-form" method="post">
 				<div class="coupon-input-wrapper">
 					<input type="text" name="coupon_code" class="coupon-code-input"
@@ -63,7 +110,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 		</div>
 	</div>
 	<?php
-} );
+}, 20 );
 
 /**
  * Customize mini cart total display with price breakdown

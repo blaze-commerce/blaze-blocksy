@@ -71,6 +71,12 @@ function blaze_blocksy_enqueue_assets() {
 		wp_enqueue_script( 'owl-carousel', $template_uri . '/assets/vendor/owlcarousel/owl.carousel.min.js', array( 'jquery' ), '2.3.4', true );
 	}
 
+	// === SELECTWOO FOR SHIPPING CALCULATOR (mini-cart + product page) ===
+	if ( wp_script_is( 'selectWoo', 'registered' ) ) {
+		wp_enqueue_script( 'selectWoo' );
+		wp_enqueue_style( 'select2' );
+	}
+
 	// === SINGLE PRODUCT PAGE ASSETS ===
 	if ( is_product() ) {
 		// Single product styles
@@ -84,13 +90,6 @@ function blaze_blocksy_enqueue_assets() {
 			'1.0.0',
 			true
 		);
-
-		// === SELECTWOO FOR SHIPPING CALCULATOR ===
-		// Use WooCommerce's bundled selectWoo (Select2 fork) for searchable country/state dropdowns
-		if ( wp_script_is( 'selectWoo', 'registered' ) ) {
-			wp_enqueue_script( 'selectWoo' );
-			wp_enqueue_style( 'select2' );
-		}
 	}
 
 	// === CHECKOUT PAGE ASSETS ===
