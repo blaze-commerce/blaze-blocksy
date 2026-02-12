@@ -208,6 +208,10 @@
 
 .mini-cart-shipping-results h4 {
   font-family: var(--theme-font-family);
+  font-family: var(--theme-font-family);
+  margin-bottom: 12px !important;
+  line-height: 1;
+  font-size: 14px !important;
 }
 
 /* selectWoo dropdown inside offcanvas panel */
