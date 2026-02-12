@@ -169,3 +169,18 @@
   line-height: 24px;
   cursor: pointer;
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-filters-bottom-actions.fade-in-up {
+  animation: fadeInUp 0.25s ease-out;
+}

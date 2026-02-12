@@ -355,6 +355,15 @@
         const total = getTotalFromResultCount();
         button.textContent =
           "Show " + total + " result" + (total !== 1 ? "s" : "");
+
+        // Trigger fadeInUp animation
+        const wrapper = button.closest(".mobile-filters-bottom-actions");
+        if (wrapper) {
+          wrapper.classList.remove("fade-in-up");
+          // Force reflow to restart animation
+          void wrapper.offsetWidth;
+          wrapper.classList.add("fade-in-up");
+        }
       });
     } catch (e) {
       // Silently fail
