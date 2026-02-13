@@ -234,7 +234,7 @@ $available_countries = $countries->get_shipping_countries();
 			}
 
 			// Show loading state
-			$button.prop('disabled', true).text('CALCULATING...');
+			$button.prop('disabled', true).text('Calculating...');
 			$results.hide();
 			$methodsList.empty();
 

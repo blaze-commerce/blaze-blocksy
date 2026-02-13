@@ -103,7 +103,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 					<input type="text" name="coupon_code" class="coupon-code-input"
 						placeholder="<?php esc_attr_e( 'Enter Promo Code', 'blaze-blocksy' ); ?>" />
 					<button type="submit"
-						class="apply-coupon-btn button"><?php esc_html_e( 'APPLY COUPON', 'blaze-blocksy' ); ?></button>
+						class="apply-coupon-btn button"><?php esc_html_e( 'Apply Coupon', 'blaze-blocksy' ); ?></button>
 				</div>
 				<?php wp_nonce_field( 'apply_coupon_mini_cart', 'mini_cart_coupon_nonce' ); ?>
 			</form>
@@ -121,38 +121,49 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	}
 
 	$cart = WC()->cart;
-	$subtotal = $cart->get_cart_subtotal();
+	$subtotal = $cart->get_subtotal() + $cart->get_subtotal_tax();
+	$shipping_total = $cart->get_shipping_total();
+	$shipping_tax = $cart->get_shipping_tax();
+	$tax_total = $cart->get_total_tax();
 	$discount_total = $cart->get_discount_total();
+	$total = $cart->get_total( 'edit' );
 
-	// Get shipping/tax note from customizer
-	$cart_options = blaze_blocksy_get_cart_options();
-	$shipping_tax_note = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_shipping_tax_note', $cart_options, '* Shipping and tax are calculated after the shipping step is completed.' )
-		: '* Shipping and tax are calculated after the shipping step is completed.';
+	$chosen_methods = WC()->session ? WC()->session->get( 'chosen_shipping_methods' ) : array();
+	$has_chosen_shipping = ! empty( $chosen_methods ) && is_array( $chosen_methods ) && ! empty( array_filter( $chosen_methods ) );
+	$has_shipping = floatval( $shipping_total ) > 0 || $has_chosen_shipping;
+	$shipping_display = ( floatval( $shipping_total ) == 0 && $has_shipping ) ? 'Free' : wc_price( $shipping_total + $shipping_tax );
 
-	ob_start();
 	?>
 	<div class="mini-cart-totals-breakdown">
 		<div class="total-line subtotal-line">
 			<span class="total-label"><?php esc_html_e( 'Subtotal', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"><?php wc_cart_totals_subtotal_html(); ?></span>
+			<span class="total-amount"><?php echo wc_price( $subtotal ); ?></span>
+		</div>
+
+		<div class="total-line shipping-line" <?php echo ! $has_shipping ? 'style="display:none;"' : ''; ?>>
+			<span class="total-label"><?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?></span>
+			<span class="total-amount"><?php echo $has_shipping ? $shipping_display : ''; ?></span>
+		</div>
+
+		<div class="total-line tax-line">
+			<span class="total-label"><?php esc_html_e( 'Tax', 'blaze-blocksy' ); ?></span>
+			<span class="total-amount"><?php echo wc_price( $tax_total ); ?></span>
 		</div>
 
 		<?php if ( $discount_total > 0 ) : ?>
-			<div class="total-line discount-line">
-				<span class="total-label"><?php esc_html_e( 'Discount', 'blaze-blocksy' ); ?></span>
+			<div class="total-line coupon-line">
+				<span class="total-label"><?php esc_html_e( 'Coupon', 'blaze-blocksy' ); ?></span>
 				<span class="total-amount">-<?php echo wc_price( $discount_total ); ?></span>
 			</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $shipping_tax_note ) ) : ?>
-			<div class="shipping-tax-note">
-				<small><?php echo esc_html( $shipping_tax_note ); ?></small>
-			</div>
-		<?php endif; ?>
+		<div class="total-line grand-total-line">
+			<span class="total-label"><?php esc_html_e( 'Total', 'blaze-blocksy' ); ?></span>
+			<span class="total-amount"><?php echo wc_price( $total ); ?></span>
+		</div>
 	</div>
 	<?php
-	echo ob_get_clean();
+
 } );
 
 add_action( 'wp', function () {
@@ -167,14 +178,20 @@ add_action( 'wp', function () {
 add_action( 'woocommerce_widget_shopping_cart_buttons', function () {
 	$checkout_url = wc_get_checkout_url();
 
-	ob_start();
 	?>
-	<a href="<?php echo esc_url( $checkout_url ); ?>" class="button checkout wc-forward secure-checkout-btn">
-		<?php esc_html_e( 'SECURE CHECKOUT', 'blaze-blocksy' ); ?>
-		<span class="checkout-arrow">&rarr;</span>
+	<a href="<?php echo esc_url( $checkout_url ); ?>" class="button checkout wc-forward proceed-checkout-btn">
+		<?php esc_html_e( 'Proceed to Checkout', 'blaze-blocksy' ); ?>
 	</a>
+	<div class="mini-cart-ssl-badge">
+		<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+			<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+		</svg>
+		<span><?php esc_html_e( 'Secure checkout · 256-bit SSL', 'blaze-blocksy' ); ?></span>
+	</div>
 	<?php
-	echo ob_get_clean();
+
 }, 99999 );
 
 /**

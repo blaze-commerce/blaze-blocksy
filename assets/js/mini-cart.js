@@ -144,11 +144,41 @@ jQuery(document).ready(function ($) {
 
   /**
    * Toggle mini cart form sections
+   * Using both click and touchend for iOS compatibility
    */
-  $(document).on("click", ".mini-cart-toggle", function (e) {
+  $(document).on("click touchend", ".mini-cart-toggle", function (e) {
     e.preventDefault();
-    var $wrapper = $(this).siblings(".mini-cart-form-wrapper");
-    var $arrow = $(this).find(".mini-cart-arrow");
+    e.stopPropagation();
+
+    // Prevent double-firing on devices that trigger both touch and click
+    if (e.type === "touchend") {
+      $(this).data("touchFired", true);
+      return void handleToggle($(this));
+    }
+    if ($(this).data("touchFired")) {
+      $(this).removeData("touchFired");
+      return;
+    }
+    handleToggle($(this));
+  });
+
+  function handleToggle($toggle) {
+    var $wrapper = $toggle.siblings(".mini-cart-form-wrapper");
+    var $arrow = $toggle.find(".mini-cart-arrow");
+    var $section = $toggle.closest(".mini-cart-form-section");
+    var isOpening = $wrapper.is(":hidden");
+
+    // Accordion: close other sections when opening this one
+    if (isOpening) {
+      $(".mini-cart-form-section").not($section).each(function () {
+        var $otherWrapper = $(this).find(".mini-cart-form-wrapper");
+        var $otherArrow = $(this).find(".mini-cart-arrow");
+        if ($otherWrapper.is(":visible")) {
+          $otherWrapper.slideUp(300);
+          $otherArrow.text("▼");
+        }
+      });
+    }
 
     $wrapper.slideToggle(300);
 
@@ -158,7 +188,7 @@ jQuery(document).ready(function ($) {
     } else {
       $arrow.text("▼");
     }
-  });
+  }
 
   /**
    * Shipping Calculator in Mini Cart
@@ -173,7 +203,7 @@ jQuery(document).ready(function ($) {
     $el.selectWoo({
       width: "100%",
       placeholder: $el.find("option:first").text(),
-      dropdownParent: $("#woo-cart-panel .ct-panel-content"),
+      dropdownParent: $("body"),
     });
   }
 
@@ -273,9 +303,7 @@ jQuery(document).ready(function ($) {
         }
       },
       error: function () {
-        $state
-          .empty()
-          .append('<option value="">Error loading states</option>');
+        $state.empty().append('<option value="">Error loading states</option>');
         initMiniCartSelectWoo($state);
       },
     });
@@ -321,15 +349,27 @@ jQuery(document).ready(function ($) {
           } else {
             var html = '<div class="shipping-methods">';
             $.each(methods, function (i, method) {
-              html += '<div class="shipping-method">';
+              var checked = i === 0 ? " checked" : "";
+              html += '<label class="shipping-method-radio">';
               html +=
-                '<span class="method-title">' + method.title + "</span>";
-              html +=
-                '<span class="method-cost">' + method.cost + "</span>";
-              html += "</div>";
+                '<input type="radio" name="mini_cart_shipping_method" value="' +
+                method.id +
+                '" data-raw-cost="' +
+                method.raw_cost +
+                '"' +
+                checked +
+                ">";
+              html += '<span class="method-title">' + method.title + "</span>";
+              html += '<span class="method-cost">' + method.cost + "</span>";
+              html += "</label>";
             });
             html += "</div>";
             $methodsList.html(html);
+
+            // Auto-select first shipping method
+            $methodsList
+              .find('input[name="mini_cart_shipping_method"]:first')
+              .trigger("change");
           }
           $results.show();
         } else {
@@ -348,10 +388,70 @@ jQuery(document).ready(function ($) {
         $results.show();
       },
       complete: function () {
-        $button.prop("disabled", false).text("CALCULATE SHIPPING");
+        $button.prop("disabled", false).text("Calculate Shipping");
       },
     });
   });
+
+  /**
+   * Handle shipping method selection in mini cart
+   */
+  $(document).on(
+    "change",
+    'input[name="mini_cart_shipping_method"]',
+    function () {
+      var methodId = $(this).val();
+      var $breakdown = $(".mini-cart-totals-breakdown");
+
+      // Persist selected shipping method to localStorage
+      localStorage.setItem("blaze_shipping_method", methodId);
+
+      // Show shipping line
+      $breakdown.find(".shipping-line").show();
+
+      $.ajax({
+        url: blazeBlocksyMiniCart.ajax_url,
+        type: "POST",
+        data: {
+          action: "select_mini_cart_shipping_method",
+          method_id: methodId,
+          nonce: blazeBlocksyMiniCart.nonce,
+        },
+        success: function (response) {
+          if (response.success && response.data) {
+            var totals = response.data;
+            $breakdown
+              .find(".subtotal-line .total-amount")
+              .html(totals.subtotal);
+            $breakdown
+              .find(".shipping-line .total-amount")
+              .html(totals.shipping);
+            $breakdown.find(".tax-line .total-amount").html(totals.tax);
+
+            if (totals.discount_raw > 0) {
+              var $couponLine = $breakdown.find(".coupon-line");
+              if ($couponLine.length) {
+                $couponLine.find(".total-amount").html("-" + totals.discount);
+                $couponLine.show();
+              } else {
+                $(
+                  '<div class="total-line coupon-line">' +
+                    '<span class="total-label">Coupon</span>' +
+                    '<span class="total-amount">-' +
+                    totals.discount +
+                    "</span></div>",
+                ).insertBefore($breakdown.find(".grand-total-line"));
+              }
+            }
+
+            $breakdown
+              .find(".grand-total-line .total-amount")
+              .html(totals.total);
+          }
+        },
+      });
+    },
+  );
 
   /**
    * Handle coupon form submission
@@ -421,6 +521,81 @@ jQuery(document).ready(function ($) {
   }
 
   /**
+   * Auto-recalculate shipping after cart fragment refresh
+   * If a shipping method was previously selected, recalculate and re-select it
+   */
+  function autoRecalculateShipping() {
+    var savedMethod = localStorage.getItem("blaze_shipping_method");
+    if (!savedMethod) return;
+
+    var country = $("#mini-cart-shipping-country").val();
+    var state = $("#mini-cart-shipping-state").val();
+    var postcode = $("#mini-cart-shipping-postcode").val();
+
+    if (!country || !state) return;
+
+    var $results = $(".mini-cart-shipping-results");
+    var $methodsList = $(".mini-cart-shipping-methods-list");
+
+    $.ajax({
+      url: blazeBlocksyMiniCart.ajax_url,
+      type: "POST",
+      data: {
+        action: "calculate_cart_shipping",
+        country: country,
+        state: state,
+        postcode: postcode || "",
+        nonce: blazeBlocksyMiniCart.nonce,
+      },
+      success: function (response) {
+        if (response.success && response.data) {
+          var methods = response.data;
+          if (!methods.length) {
+            $methodsList.html(
+              '<div class="no-shipping">No shipping methods available for this location.</div>',
+            );
+          } else {
+            var html = '<div class="shipping-methods">';
+            $.each(methods, function (i, method) {
+              var checked = method.id === savedMethod ? " checked" : "";
+              html += '<label class="shipping-method-radio">';
+              html +=
+                '<input type="radio" name="mini_cart_shipping_method" value="' +
+                method.id +
+                '" data-raw-cost="' +
+                method.raw_cost +
+                '"' +
+                checked +
+                ">";
+              html += '<span class="method-title">' + method.title + "</span>";
+              html += '<span class="method-cost">' + method.cost + "</span>";
+              html += "</label>";
+            });
+            html += "</div>";
+            $methodsList.html(html);
+
+            // Select saved method, or fallback to first if saved method no longer available
+            var $savedRadio = $methodsList.find(
+              'input[name="mini_cart_shipping_method"][value="' +
+                savedMethod +
+                '"]',
+            );
+            if ($savedRadio.length) {
+              $savedRadio.prop("checked", true).trigger("change");
+            } else {
+              $methodsList
+                .find('input[name="mini_cart_shipping_method"]:first')
+                .prop("checked", true)
+                .trigger("change");
+            }
+          }
+          $results.show();
+        }
+      },
+    });
+  }
+
+  /**
    * Handle mini cart updates
    */
   $(document.body).on("wc_fragments_refreshed", function () {
@@ -428,6 +603,27 @@ jQuery(document).ready(function ($) {
     var panel = document.getElementById("woo-cart-panel");
     if (panel && !panel.hasAttribute("inert")) {
       initShippingSelectWoo();
+
+      // Auto-recalculate shipping if a method was previously selected
+      // Wait for initShippingSelectWoo to finish restoring country/state via AJAX
+      var savedMethod = localStorage.getItem("blaze_shipping_method");
+      if (savedMethod) {
+        // Use a polling approach to wait for state select to be restored
+        var attempts = 0;
+        var maxAttempts = 20;
+        var checkInterval = setInterval(function () {
+          attempts++;
+          var country = $("#mini-cart-shipping-country").val();
+          var state = $("#mini-cart-shipping-state").val();
+
+          if ((country && state) || attempts >= maxAttempts) {
+            clearInterval(checkInterval);
+            if (country && state) {
+              autoRecalculateShipping();
+            }
+          }
+        }, 200);
+      }
     }
 
     // Update heading count when cart is refreshed
