@@ -55,7 +55,7 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 		<div class="mini-cart-form-wrapper shipping-calculator-form-wrapper" style="display: none;">
 			<?php
 			$countries = new WC_Countries();
-			$available_countries = $countries->get_countries();
+			$available_countries = $countries->get_shipping_countries();
 			?>
 			<div class="mini-cart-shipping-form">
 				<div class="form-group">

@@ -1,8 +1,8 @@
 <?php
 $countries = new WC_Countries();
 
-// get all available countries
-$available_countries = $countries->get_countries();
+// get shipping countries based on WooCommerce settings
+$available_countries = $countries->get_shipping_countries();
 ?>
 
 <div id="shipping-calculator-container" class="shipping-calculator-container">
@@ -298,6 +298,12 @@ $available_countries = $countries->get_countries();
 		var savedCountry = localStorage.getItem('blaze_shipping_country');
 		if (savedCountry && $('#country-options').find('option[value="' + savedCountry + '"]').length) {
 			$('#country-options').val(savedCountry).trigger('change');
+		} else {
+			// Auto-select if only one shipping country is available
+			var $countryOptions = $('#country-options option[value!=""]');
+			if ($countryOptions.length === 1) {
+				$('#country-options').val($countryOptions.first().val()).trigger('change');
+			}
 		}
 
 		// Restore saved postcode

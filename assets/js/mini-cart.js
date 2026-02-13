@@ -190,6 +190,12 @@ jQuery(document).ready(function ($) {
       $country.find('option[value="' + savedCountry + '"]').length
     ) {
       $country.val(savedCountry).trigger("change");
+    } else {
+      // Auto-select if only one shipping country is available
+      var $countryOptions = $country.find('option[value!=""]');
+      if ($countryOptions.length === 1) {
+        $country.val($countryOptions.first().val()).trigger("change");
+      }
     }
 
     // Restore saved postcode
