@@ -18,11 +18,26 @@ test.describe('Add to Cart', () => {
     await page.waitForTimeout(3000);
 
     // Dismiss age verification popups (common on CBD/cannabis sites)
-    const ageVerifyButton = page.locator('#agl_yes_button').first();
-    if (await ageVerifyButton.count() > 0) {
-      await ageVerifyButton.click().catch(() => {});
-      await page.waitForTimeout(1000);
+    // Wait for the age gate to exist in the DOM — it may load asynchronously
+    const ageGateOverlay = page.locator('#agl_wrapper');
+    try {
+      await ageGateOverlay.waitFor({ state: 'attached', timeout: 5000 });
+      // Click confirm button via evaluate to bypass pointer interception issues
+      await page.evaluate(() => {
+        const btn = document.querySelector('#agl_yes_button') as HTMLElement;
+        if (btn) { btn.click(); return; }
+        const link = document.querySelector('#agl_wrapper a') as HTMLElement;
+        if (link) link.click();
+      });
+      await page.waitForTimeout(2000);
+    } catch {
+      // No age gate on this site, continue
     }
+
+    // Always remove the age gate wrapper if still present
+    await page.evaluate(() => {
+      document.querySelector('#agl_wrapper')?.remove();
+    });
 
     // Close newsletter/signup popups by pressing Escape
     await page.keyboard.press('Escape');

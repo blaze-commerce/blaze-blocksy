@@ -236,11 +236,29 @@ test.describe('Visual Comparison', () => {
     await waitForVisualStability(page);
 
     // Handle age gate (if present)
-    const ageGate = page.locator('#agl_yes_button');
-    if (await ageGate.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await ageGate.click();
-      await page.waitForTimeout(1000);
+    // Wait for the age gate to exist in the DOM — it may load asynchronously
+    const ageGateOverlay = page.locator('#agl_wrapper');
+    try {
+      await ageGateOverlay.waitFor({ state: 'attached', timeout: 5000 });
+      await page.evaluate(() => {
+        const btn = document.querySelector('#agl_yes_button') as HTMLElement;
+        if (btn) { btn.click(); return; }
+        const link = document.querySelector('#agl_wrapper a') as HTMLElement;
+        if (link) link.click();
+      });
+      await page.waitForTimeout(2000);
+    } catch {
+      // No age gate on this site, continue
     }
+
+    // Always remove the age gate wrapper if still present
+    await page.evaluate(() => {
+      document.querySelector('#agl_wrapper')?.remove();
+    });
+
+    // Dismiss any popups (newsletter, etc.)
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
 
     // Dismiss all popups and stop animations
     await dismissAllPopups(page);
@@ -323,11 +341,29 @@ test.describe('Visual Comparison', () => {
     await waitForVisualStability(page);
 
     // Handle age gate (if present, e.g., CannaClear)
-    const ageGate = page.locator('#agl_yes_button');
-    if (await ageGate.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await ageGate.click();
-      await page.waitForTimeout(1000);
+    // Wait for the age gate to exist in the DOM — it may load asynchronously
+    const ageGateOverlay2 = page.locator('#agl_wrapper');
+    try {
+      await ageGateOverlay2.waitFor({ state: 'attached', timeout: 5000 });
+      await page.evaluate(() => {
+        const btn = document.querySelector('#agl_yes_button') as HTMLElement;
+        if (btn) { btn.click(); return; }
+        const link = document.querySelector('#agl_wrapper a') as HTMLElement;
+        if (link) link.click();
+      });
+      await page.waitForTimeout(2000);
+    } catch {
+      // No age gate on this site, continue
     }
+
+    // Always remove the age gate wrapper if still present
+    await page.evaluate(() => {
+      document.querySelector('#agl_wrapper')?.remove();
+    });
+
+    // Dismiss any popups (newsletter, etc.)
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
 
     // Dismiss all popups and stop animations
     await dismissAllPopups(page);
