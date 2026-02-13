@@ -262,7 +262,7 @@ function blaze_get_show_results_button_html() {
 	$total = wc_get_loop_prop( 'total', 0 );
 
 	return sprintf(
-		'<div class="mobile-filters-bottom-actions">
+		'<div class="mobile-filters-bottom-actions hidden">
 			<button type="button" class="button mobile-filters-show-results">Show %s results</button>
 		</div>',
 		esc_html( $total )

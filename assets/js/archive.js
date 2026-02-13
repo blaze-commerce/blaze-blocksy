@@ -356,13 +356,17 @@
         button.textContent =
           "Show " + total + " result" + (total !== 1 ? "s" : "");
 
-        // Trigger fadeInUp animation
+        // Show the button and trigger fadeInUp animation
         const wrapper = button.closest(".mobile-filters-bottom-actions");
         if (wrapper) {
+          const wasHidden = wrapper.classList.contains("hidden");
+          wrapper.classList.remove("hidden");
           wrapper.classList.remove("fade-in-up");
           // Force reflow to restart animation
           void wrapper.offsetWidth;
-          wrapper.classList.add("fade-in-up");
+          if (wasHidden) {
+            wrapper.classList.add("fade-in-up");
+          }
         }
       });
     } catch (e) {
@@ -395,14 +399,24 @@
     CONFIG.timing.counterDebounce
   );
 
+  // Track whether user has interacted with a filter widget
+  let filterInteracted = false;
+
   /**
-   * Handle AJAX filter completion
+   * Handle AJAX filter completion.
+   * Always restores button to DOM (hidden).
+   * Only shows button if user has interacted with a filter.
    */
   const onFilterComplete = function () {
     restoreSidebarHeader();
     displayProductCount();
     debouncedUpdateCounters();
-    updateShowResultsButton();
+
+    if (filterInteracted) {
+      updateShowResultsButton();
+    } else {
+      restoreShowResultsButton();
+    }
   };
 
   /**
@@ -419,9 +433,6 @@
       // Initialize product count display
       displayProductCount();
 
-      // Initialize show results button text
-      updateShowResultsButton();
-
       // Close offcanvas when show results button is clicked
       $(document).on("click", CONFIG.selectors.showResultsButton, function (e) {
         e.preventDefault();
@@ -433,6 +444,31 @@
           }
         }
       });
+
+      // Track user interaction with filter widgets inside offcanvas panel
+      $(document).on(
+        "click",
+        "#woo-filters-panel .ct-widget a, #woo-filters-panel .ct-widget label",
+        function () {
+          filterInteracted = true;
+        }
+      );
+      $(document).on(
+        "change",
+        "#woo-filters-panel .ct-widget input, #woo-filters-panel .ct-widget select",
+        function () {
+          filterInteracted = true;
+        }
+      );
+
+      // Reset flag when offcanvas panel is closed
+      $(document).on(
+        "click",
+        "#woo-filters-panel .ct-toggle-close",
+        function () {
+          filterInteracted = false;
+        }
+      );
 
       // Listen for Blocksy theme events
       if (window.ctEvents) {
