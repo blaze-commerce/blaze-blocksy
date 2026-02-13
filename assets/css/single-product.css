@@ -340,6 +340,23 @@
   line-height: var(--theme-line-height, 1.4);
 }
 
+.ct-product-information .info-item.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.ct-product-information .info-item.loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 6px;
+}
+
 .ct-information-canvas.offcanvas-overlay {
   position: fixed;
   top: 0;

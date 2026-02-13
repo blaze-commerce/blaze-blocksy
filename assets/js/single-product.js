@@ -314,69 +314,173 @@
     }, 100);
   }
   /**
-   * Initialize Product Information Offcanvas functionality
+   * Initialize Product Information Offcanvas functionality (lazy-loaded)
    */
-  function initProductInformationOffcanvas() {
-    var ctProductInformationOffCanvas = document.getElementById(
-      "ct-product-information-offcanvas"
-    );
-    var ctProductInformationOffCanvasOverlay = document.getElementById(
-      "ct-product-information-offcanvas-overlay"
-    );
+  var offcanvasLoaded = false;
+  var offcanvasLoading = false;
+  var pendingTab = null;
 
-    // Skip if elements don't exist
-    if (
-      !ctProductInformationOffCanvas ||
-      !ctProductInformationOffCanvasOverlay
-    ) {
+  function initProductInformationOffcanvas() {
+    var infoList = document.querySelector(
+      ".ct-product-information .info-list"
+    );
+    if (!infoList) {
       return;
     }
 
-    // Open offcanvas function
+    // Open offcanvas function — lazy-loads content on first click
     window.openOffcanvas = function (tab) {
-      ctProductInformationOffCanvasOverlay.classList.add("active");
-      ctProductInformationOffCanvas.classList.add("active");
-      switchTab(tab);
+      if (offcanvasLoaded) {
+        showOffcanvas(tab);
+        return;
+      }
+
+      if (offcanvasLoading) {
+        pendingTab = tab;
+        return;
+      }
+
+      pendingTab = tab;
+      loadOffcanvasContent();
     };
 
     // Close offcanvas function
     window.closeOffcanvas = function () {
-      ctProductInformationOffCanvasOverlay.classList.remove("active");
-      ctProductInformationOffCanvas.classList.remove("active");
+      var overlay = document.getElementById(
+        "ct-product-information-offcanvas-overlay"
+      );
+      var panel = document.getElementById(
+        "ct-product-information-offcanvas"
+      );
+      if (overlay) overlay.classList.remove("active");
+      if (panel) panel.classList.remove("active");
     };
-
-    // Switch tab function
-    function switchTab(tabName) {
-      var tabs = document.querySelectorAll(".offcanvas-tab");
-      var contents = document.querySelectorAll(".tab-content");
-
-      tabs.forEach(function (tab) {
-        tab.classList.remove("active");
-      });
-      contents.forEach(function (content) {
-        content.classList.remove("active");
-      });
-
-      var selectedTab = document.querySelector('[data-tab="' + tabName + '"]');
-      var selectedContent = document.getElementById(tabName + "-content");
-
-      if (selectedTab) selectedTab.classList.add("active");
-      if (selectedContent) selectedContent.classList.add("active");
-    }
-
-    // Add click event listeners to tabs
-    document.querySelectorAll(".offcanvas-tab").forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        var tabName = this.getAttribute("data-tab");
-        switchTab(tabName);
-      });
-    });
 
     // Close offcanvas when pressing Escape key
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         window.closeOffcanvas();
       }
+    });
+  }
+
+  function loadOffcanvasContent() {
+    if (
+      typeof blazeBlocksySingleProduct === "undefined" ||
+      !blazeBlocksySingleProduct.product_information
+    ) {
+      return;
+    }
+
+    offcanvasLoading = true;
+
+    var infoItems = document.querySelectorAll(
+      ".ct-product-information .info-item"
+    );
+    infoItems.forEach(function (item) {
+      item.classList.add("loading");
+    });
+
+    jQuery.ajax({
+      url: blazeBlocksySingleProduct.ajax_url,
+      type: "POST",
+      data: {
+        action: "blaze_blocksy_load_product_information_offcanvas",
+        nonce: blazeBlocksySingleProduct.product_information.nonce,
+        product_id: blazeBlocksySingleProduct.product_information.product_id,
+      },
+      success: function (response) {
+        if (response.success && response.data.html) {
+          var container = document.getElementById(
+            "ct-product-information-offcanvas-container"
+          );
+          if (container) {
+            container.innerHTML = response.data.html;
+            executeInjectedScripts(container);
+            initOffcanvasTabs();
+
+            offcanvasLoaded = true;
+            offcanvasLoading = false;
+
+            infoItems.forEach(function (item) {
+              item.classList.remove("loading");
+            });
+
+            if (pendingTab) {
+              setTimeout(function () {
+                showOffcanvas(pendingTab);
+                pendingTab = null;
+              }, 50);
+            }
+          }
+        }
+      },
+      error: function () {
+        offcanvasLoading = false;
+        infoItems.forEach(function (item) {
+          item.classList.remove("loading");
+        });
+      },
+    });
+  }
+
+  /**
+   * Execute inline scripts after AJAX HTML injection.
+   * Browser does not execute <script> tags inserted via innerHTML.
+   */
+  function executeInjectedScripts(container) {
+    var scripts = container.querySelectorAll("script");
+    scripts.forEach(function (oldScript) {
+      var newScript = document.createElement("script");
+      Array.from(oldScript.attributes).forEach(function (attr) {
+        newScript.setAttribute(attr.name, attr.value);
+      });
+      newScript.textContent = oldScript.textContent;
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+  }
+
+  function showOffcanvas(tab) {
+    var overlay = document.getElementById(
+      "ct-product-information-offcanvas-overlay"
+    );
+    var panel = document.getElementById(
+      "ct-product-information-offcanvas"
+    );
+
+    if (!overlay || !panel) return;
+
+    overlay.classList.add("active");
+    panel.classList.add("active");
+    switchOffcanvasTab(tab);
+  }
+
+  function switchOffcanvasTab(tabName) {
+    var tabs = document.querySelectorAll(".offcanvas-tab");
+    var contents = document.querySelectorAll(".tab-content");
+
+    tabs.forEach(function (tab) {
+      tab.classList.remove("active");
+    });
+    contents.forEach(function (content) {
+      content.classList.remove("active");
+    });
+
+    var selectedTab = document.querySelector(
+      '[data-tab="' + tabName + '"]'
+    );
+    var selectedContent = document.getElementById(tabName + "-content");
+
+    if (selectedTab) selectedTab.classList.add("active");
+    if (selectedContent) selectedContent.classList.add("active");
+  }
+
+  function initOffcanvasTabs() {
+    document.querySelectorAll(".offcanvas-tab").forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var tabName = this.getAttribute("data-tab");
+        switchOffcanvasTab(tabName);
+      });
     });
   }
 

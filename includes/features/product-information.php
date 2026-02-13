@@ -42,6 +42,13 @@ class BlazeBlocksy_Product_Information_Customizer {
 		// Enqueue scripts
 		add_action( 'wp_footer', array( $this, 'add_frontend_script' ), 100 );
 
+		// AJAX handler for lazy-loading offcanvas content
+		add_action( 'wp_ajax_blaze_blocksy_load_product_information_offcanvas', array( $this, 'ajax_load_offcanvas' ) );
+		add_action( 'wp_ajax_nopriv_blaze_blocksy_load_product_information_offcanvas', array( $this, 'ajax_load_offcanvas' ) );
+
+		// Add offcanvas data to single product localized script
+		add_filter( 'blaze_blocksy_single_product_localize_data', array( $this, 'add_offcanvas_localize_data' ) );
+
 		// Enqueue customizer preview script for instant live preview
 		add_action( 'customize_preview_init', array( $this, 'enqueue_customizer_preview_script' ) );
 	}
@@ -333,6 +340,62 @@ class BlazeBlocksy_Product_Information_Customizer {
 		include BLAZE_BLOCKSY_PATH . '/partials/product/information.php';
 
 		echo '</div>';
+	}
+
+	/**
+	 * AJAX handler for lazy-loading the product information offcanvas content.
+	 *
+	 * @return void
+	 */
+	public function ajax_load_offcanvas() {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'product_information_offcanvas_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
+
+		$product_id = isset( $_POST['product_id'] ) ? intval( $_POST['product_id'] ) : 0;
+
+		if ( $product_id ) {
+			global $product;
+			$product = wc_get_product( $product_id );
+		}
+
+		ob_start();
+		include BLAZE_BLOCKSY_PATH . '/partials/product/information-offcanvas.php';
+		$html = ob_get_clean();
+
+		wp_send_json_success( array( 'html' => $html ) );
+	}
+
+	/**
+	 * Add product information offcanvas data to the single product localized script.
+	 *
+	 * @param array $data Existing localized data.
+	 * @return array
+	 */
+	public function add_offcanvas_localize_data( $data ) {
+		$layout = blocksy_get_theme_mod( 'woo_single_layout', array() );
+		$layer_enabled = false;
+
+		foreach ( $layout as $layer ) {
+			if ( isset( $layer['id'] ) && 'product_information' === $layer['id'] && ! empty( $layer['enabled'] ) ) {
+				$layer_enabled = true;
+				break;
+			}
+		}
+
+		if ( ! $layer_enabled ) {
+			return $data;
+		}
+
+		global $product;
+
+		$data['product_information'] = array(
+			'nonce'      => wp_create_nonce( 'product_information_offcanvas_nonce' ),
+			'product_id' => $product ? $product->get_id() : 0,
+		);
+
+		return $data;
 	}
 
 	/**
