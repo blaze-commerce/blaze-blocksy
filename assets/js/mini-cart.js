@@ -191,6 +191,12 @@ jQuery(document).ready(function ($) {
     ) {
       $country.val(savedCountry).trigger("change");
     }
+
+    // Restore saved postcode
+    var savedPostcode = localStorage.getItem("blaze_shipping_postcode");
+    if (savedPostcode) {
+      $("#mini-cart-shipping-postcode").val(savedPostcode);
+    }
   }
 
   // Save state to localStorage on change
@@ -200,6 +206,16 @@ jQuery(document).ready(function ($) {
       localStorage.setItem("blaze_shipping_state", state);
     } else {
       localStorage.removeItem("blaze_shipping_state");
+    }
+  });
+
+  // Save postcode to localStorage on change
+  $(document).on("input", "#mini-cart-shipping-postcode", function () {
+    var postcode = $(this).val();
+    if (postcode) {
+      localStorage.setItem("blaze_shipping_postcode", postcode);
+    } else {
+      localStorage.removeItem("blaze_shipping_postcode");
     }
   });
 
@@ -213,6 +229,7 @@ jQuery(document).ready(function ($) {
     if (!country) {
       localStorage.removeItem("blaze_shipping_country");
       localStorage.removeItem("blaze_shipping_state");
+      localStorage.removeItem("blaze_shipping_postcode");
       initMiniCartSelectWoo($state);
       return;
     }

@@ -121,6 +121,16 @@ $available_countries = $countries->get_countries();
 			}
 		});
 
+		// Save postcode to localStorage on change
+		$('#postcode').on('input', function () {
+			var postcode = $(this).val();
+			if (postcode) {
+				localStorage.setItem('blaze_shipping_postcode', postcode);
+			} else {
+				localStorage.removeItem('blaze_shipping_postcode');
+			}
+		});
+
 		$('#country-options').change(function () {
 			var selectedCountry = $(this).val();
 			var statesSelect = $('#state-options');
@@ -132,6 +142,7 @@ $available_countries = $countries->get_countries();
 			if (!selectedCountry) {
 				localStorage.removeItem('blaze_shipping_country');
 				localStorage.removeItem('blaze_shipping_state');
+				localStorage.removeItem('blaze_shipping_postcode');
 				initSelectWoo(statesSelect);
 				return;
 			}
@@ -287,6 +298,12 @@ $available_countries = $countries->get_countries();
 		var savedCountry = localStorage.getItem('blaze_shipping_country');
 		if (savedCountry && $('#country-options').find('option[value="' + savedCountry + '"]').length) {
 			$('#country-options').val(savedCountry).trigger('change');
+		}
+
+		// Restore saved postcode
+		var savedPostcode = localStorage.getItem('blaze_shipping_postcode');
+		if (savedPostcode) {
+			$('#postcode').val(savedPostcode);
 		}
 
 		// Function to display shipping methods
