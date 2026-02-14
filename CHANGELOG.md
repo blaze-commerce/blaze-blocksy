@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.69.0] - 2026-02-14
+
+### Added
+- implement Figma design for order confirmation page (#212)
+
 ## [1.68.0] - 2026-02-14
 
 ### Added
@@ -4254,9 +4259,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <<<<<<< release/bump-v1.67.0
 [1.67.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.67.0
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...HEAD
+[1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...HEAD
+[1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...HEAD
 >>>>>>> main
