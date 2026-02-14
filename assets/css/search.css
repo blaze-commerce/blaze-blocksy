@@ -132,8 +132,15 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-al
   font-weight: 400;
   line-height: 28px;
   /* 155.556% */
-  padding-top: 15px;
-  display: block;
+  text-decoration: none !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 6px !important;
+  margin-top: 12px !important;
 }
 
 @media (max-width: 1024px) {
@@ -210,6 +217,15 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-al
 
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-all {
     font-size: 16px;
+    text-decoration: none !important;
+    text-transform: uppercase !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    border-radius: 6px !important;
+    margin-top: 12px !important;
   }
 
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-section-content {

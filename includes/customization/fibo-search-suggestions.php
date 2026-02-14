@@ -23,6 +23,22 @@ add_action(
 		jQuery(document).ready(function ($) {
 			console.log('FiboSearch Custom: Script loaded');
 
+			// Helper: get the active search query from the visible input
+			function getActiveSearchQuery() {
+				var query = '';
+				$('.dgwt-wcas-search-input').each(function() {
+					if ($(this).val()) { query = $(this).val(); return false; }
+				});
+				return query;
+			}
+
+			// Helper: build the "SEE ALL PRODUCTS" link
+			function buildViewAllLink(searchQuery, total) {
+				var q = searchQuery || getActiveSearchQuery();
+				var label = total ? 'SEE ALL ' + total + ' PRODUCTS' : 'SEE ALL PRODUCTS';
+				return $('<a href="/?s=' + encodeURIComponent(q) + '&post_type=product" class="dgwt-wcas-view-all">' + label + ' &rarr;</a>');
+			}
+
 			// Function to process suggestions
 			function processSuggestions(container) {
 				console.log('FiboSearch Custom: Processing suggestions');
@@ -46,9 +62,9 @@ add_action(
 				var $currentSectionWrapper = null;
 				var $currentSectionContent = null;
 				var productCount = 0;
-				var searchQuery = $('.dgwt-wcas-search-input').val() || '';
+				var searchQuery = getActiveSearchQuery();
 				var $newContainer = $('<div>');
-				var $pendingViewAllLink = null;
+				var viewAllTotal = null;
 
 				// Process each element in the container
 				container.children().each(function () {
@@ -122,13 +138,11 @@ add_action(
 						}
 
 					} else if ($element.hasClass('js-dgwt-wcas-suggestion-more')) {
-						// Handle "See all products" element
+						// Extract total count from "See all products" element
 						if (currentSection === 'products') {
 							var moreText = $element.find('.dgwt-wcas-st-more-total').text();
 							var totalMatch = moreText.match(/\((\d+)\)/);
-							var total = totalMatch ? totalMatch[1] : '46';
-
-							$pendingViewAllLink = $('<a href="/?s=' + encodeURIComponent(searchQuery) + '&post_type=product" class="dgwt-wcas-view-all">VIEW ALL ' + total + ' PRODUCTS →</a>');
+							viewAllTotal = totalMatch ? totalMatch[1] : null;
 						}
 					}
 				});
@@ -136,14 +150,26 @@ add_action(
 				// Finalize last section
 				if ($currentSectionWrapper && $currentSectionContent) {
 					$currentSectionWrapper.append($currentSectionContent);
-					if ($pendingViewAllLink && currentSection === 'products') {
-						$currentSectionWrapper.append($pendingViewAllLink);
-					}
 					$newContainer.append($currentSectionWrapper);
 				}
 
+				// Always add "SEE ALL PRODUCTS" link after products section
+				var $productsSection = $newContainer.find('.dgwt-wcas-section-products');
+				if ($productsSection.length > 0) {
+					$productsSection.append(buildViewAllLink(searchQuery, viewAllTotal));
+				}
+
+				// Reorder sections: Categories → Products → Blog/Pages/Other
+				var $orderedContainer = $('<div>');
+				var sectionOrder = ['categories', 'products', 'blog', 'pages', 'other'];
+				sectionOrder.forEach(function(sectionName) {
+					$newContainer.find('.dgwt-wcas-section-' + sectionName).each(function() {
+						$orderedContainer.append($(this));
+					});
+				});
+
 				// Replace container content
-				container.html($newContainer.html());
+				container.html($orderedContainer.html());
 
 				console.log('FiboSearch Custom: Container HTML after:', container.html());
 			}
@@ -152,7 +178,7 @@ add_action(
 			function createProductsOnlySection(container) {
 				console.log('Creating products-only section');
 
-				var searchQuery = $('.dgwt-wcas-search-input').val() || '';
+				var searchQuery = getActiveSearchQuery();
 				var $productSuggestions = container.find('.dgwt-wcas-suggestion-product');
 				var $moreSuggestion = container.find('.js-dgwt-wcas-suggestion-more');
 
@@ -181,15 +207,14 @@ add_action(
 
 				$sectionWrapper.append($sectionContent);
 
-				// Handle "See all products" link if present
+				// Always add "SEE ALL PRODUCTS" link — extract total if available
+				var viewAllTotal = null;
 				if ($moreSuggestion.length > 0) {
 					var moreText = $moreSuggestion.find('.dgwt-wcas-st-more-total').text();
 					var totalMatch = moreText.match(/\((\d+)\)/);
-					var total = totalMatch ? totalMatch[1] : $productSuggestions.length;
-
-					var $viewAllLink = $('<a href="/?s=' + encodeURIComponent(searchQuery) + '&post_type=product" class="dgwt-wcas-view-all">VIEW ALL ' + total + ' PRODUCTS →</a>');
-					$sectionWrapper.append($viewAllLink);
+					viewAllTotal = totalMatch ? totalMatch[1] : null;
 				}
+				$sectionWrapper.append(buildViewAllLink(searchQuery, viewAllTotal));
 
 				// Replace container content
 				container.html($sectionWrapper);
