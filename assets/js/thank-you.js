@@ -13,22 +13,11 @@ jQuery(document).ready(function($) {
     console.log('🎉 Blaze Commerce Thank You page loaded');
 
     // CRITICAL FIX: Immediate visibility enforcement
+    // Only set opacity/visibility — do NOT override display property (breaks flex/grid layouts)
     console.log('🔧 Applying immediate visibility fixes');
     $('.blaze-commerce-thank-you-wrapper, .blaze-commerce-thank-you-container, .blaze-commerce-thank-you-header, .blaze-commerce-main-content, .blaze-commerce-order-details, .blaze-commerce-addresses-section, .blaze-commerce-account-creation, .blaze-commerce-order-summary').css({
-        'opacity': '1 !important',
-        'visibility': 'visible !important',
-        'display': 'block'
-    });
-
-    // Ensure grid containers display correctly
-    $('.blaze-commerce-thank-you-container, .blaze-commerce-addresses-grid, .blaze-commerce-account-form').each(function() {
-        if ($(this).css('display') === 'none' || $(this).css('opacity') === '0') {
-            $(this).css({
-                'display': 'grid',
-                'opacity': '1',
-                'visibility': 'visible'
-            });
-        }
+        'opacity': '1',
+        'visibility': 'visible'
     });
 
     // Register global function for compatibility
@@ -51,34 +40,133 @@ jQuery(document).ready(function($) {
         // initPrintOrder();
         initResponsiveBehavior();
     }
-    
+
     /**
      * Initialize order summary toggle functionality
+     *
+     * On mobile/tablet (<=1023px): Creates a collapsible toggle header matching
+     * the checkout page pattern. Summary content is hidden by default.
+     * On desktop (>1023px): No toggle — summary is always visible in sidebar.
      */
     function initOrderSummaryToggle() {
-        $('.blaze-commerce-summary-toggle').on('click', function(e) {
-            e.preventDefault();
+        // Only create toggle on tablet/mobile
+        if (window.innerWidth > 1023) {
+            return;
+        }
 
-            const $button = $(this);
-            const $content = $('.blaze-commerce-summary-content');
+        var $orderSummary = $('.blaze-commerce-order-summary');
+        var $summaryContent = $orderSummary.find('.blaze-commerce-summary-content');
 
-            $content.slideToggle(300, function() {
-                if ($content.is(':visible')) {
-                    $button.text('Hide');
-                } else {
-                    $button.text('Show');
-                }
-            });
+        if (!$orderSummary.length || !$summaryContent.length) {
+            return;
+        }
+
+        // Prevent duplicate toggle creation
+        if ($('.blaze-commerce-toggle-header').length) {
+            return;
+        }
+
+        // Get the total price from the summary
+        var totalPrice = $orderSummary.find('.blaze-commerce-total-value').text().trim() || '';
+
+        // Create toggle header HTML (matching checkout toggle pattern)
+        var toggleHTML = '<div class="blaze-commerce-toggle-header" role="button" tabindex="0" aria-expanded="false">' +
+            '<div class="blaze-commerce-toggle-header-left">' +
+                '<div class="blaze-commerce-toggle-header-icon">' +
+                    '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">' +
+                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>' +
+                    '</svg>' +
+                '</div>' +
+                '<span class="blaze-commerce-toggle-header-text">Show order summary</span>' +
+                '<svg class="blaze-commerce-toggle-header-chevron" fill="currentColor" viewBox="0 0 20 20" width="24" height="24">' +
+                    '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>' +
+                '</svg>' +
+            '</div>' +
+            '<div class="blaze-commerce-toggle-header-total">' + totalPrice + '</div>' +
+        '</div>';
+
+        // Insert toggle header inside the order summary, before the summary header
+        // This keeps the toggle within the flex-ordered .blaze-commerce-order-summary container
+        $orderSummary.prepend(toggleHTML);
+
+        // Move the summary header INTO the summary content so it appears
+        // inside the bordered/padded expanded area (Figma shows heading inside content)
+        var $summaryHeader = $orderSummary.find('.blaze-commerce-summary-header');
+        if ($summaryHeader.length && $summaryContent.length) {
+            $summaryContent.prepend($summaryHeader);
+        }
+
+        // Bind click handler using native addEventListener for reliable event handling
+        var toggleEl = document.querySelector('.blaze-commerce-toggle-header');
+        if (!toggleEl) return;
+
+        var chevronEl = toggleEl.querySelector('.blaze-commerce-toggle-header-chevron');
+        var toggleTextEl = toggleEl.querySelector('.blaze-commerce-toggle-header-text');
+        var summaryContentEl = $summaryContent[0];
+
+        function handleToggleClick() {
+            var isExpanding = !summaryContentEl.classList.contains('show');
+
+            summaryContentEl.classList.toggle('show');
+            toggleEl.classList.toggle('expanded');
+            $orderSummary[0].classList.toggle('expanded');
+            if (chevronEl) chevronEl.classList.toggle('rotated');
+
+            if (toggleTextEl) {
+                toggleTextEl.textContent = isExpanding ? 'Hide order summary' : 'Show order summary';
+            }
+            toggleEl.setAttribute('aria-expanded', isExpanding);
 
             // Track toggle event
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'toggle_order_summary', {
                     'event_category': 'user_interaction',
-                    'action': $content.is(':visible') ? 'show' : 'hide'
+                    'action': isExpanding ? 'show' : 'hide'
                 });
+            }
+        }
+
+        toggleEl.addEventListener('click', handleToggleClick);
+
+        // Keyboard accessibility: Enter/Space to toggle
+        toggleEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleToggleClick();
             }
         });
     }
+
+    /**
+     * Clean up toggle on resize to desktop
+     */
+    var resizeTimeout;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            if (window.innerWidth > 1023) {
+                // Remove toggle header on desktop
+                $('.blaze-commerce-toggle-header').remove();
+                // Ensure summary content is visible
+                var $summaryContent = $('.blaze-commerce-summary-content');
+                $summaryContent.removeClass('show');
+                // Remove expanded classes
+                var $orderSummary = $('.blaze-commerce-order-summary');
+                $orderSummary.removeClass('expanded');
+                // Move summary header back to its original position (before summary-content)
+                var $summaryHeader = $summaryContent.find('.blaze-commerce-summary-header');
+                if ($summaryHeader.length) {
+                    $summaryContent.before($summaryHeader);
+                }
+                $summaryHeader.show();
+            } else {
+                // Re-create toggle if needed
+                if (!$('.blaze-commerce-toggle-header').length) {
+                    initOrderSummaryToggle();
+                }
+            }
+        }, 250);
+    });
 
     /**
      * Initialize resend email functionality
@@ -214,7 +302,7 @@ jQuery(document).ready(function($) {
             }
         });
     }
-    
+
     /**
      * Initialize entrance animations for Blaze Commerce design
      * CRITICAL FIX: Ensure elements remain visible if animations fail
@@ -222,7 +310,8 @@ jQuery(document).ready(function($) {
     function initAnimations() {
         console.log('🎬 Initializing animations with visibility safeguards');
 
-        // CRITICAL FIX: First ensure all elements are visible
+        // CRITICAL FIX: Ensure all elements are visible
+        // Only set opacity/visibility — do NOT override display (breaks flex/grid from CSS)
         const allBlazeCommerceElements = [
             '.blaze-commerce-thank-you-wrapper',
             '.blaze-commerce-thank-you-container',
@@ -238,8 +327,7 @@ jQuery(document).ready(function($) {
         allBlazeCommerceElements.forEach(selector => {
             $(selector).css({
                 'opacity': '1',
-                'visibility': 'visible',
-                'display': 'block'
+                'visibility': 'visible'
             });
         });
 
@@ -274,7 +362,7 @@ jQuery(document).ready(function($) {
 
         console.log('✅ Animation initialization complete with visibility safeguards');
     }
-    
+
     /**
      * Add copy order number functionality for Blaze Commerce design
      */
@@ -315,7 +403,7 @@ jQuery(document).ready(function($) {
             });
         }
     }
-    
+
     /**
      * Copy text to clipboard
      */
@@ -336,7 +424,7 @@ jQuery(document).ready(function($) {
             textArea.remove();
         }
     }
-    
+
     /**
      * Show copy feedback
      */
@@ -374,45 +462,13 @@ jQuery(document).ready(function($) {
             }
         });
     }
-    
+
     /**
      * Initialize responsive behavior for Blaze Commerce design
      */
     function initResponsiveBehavior() {
-        function handleResize() {
-            const windowWidth = $(window).width();
-
-            // Handle order summary positioning on mobile/tablet
-            if (windowWidth < 1024) {
-                $('.blaze-commerce-addresses-grid').css('grid-template-columns', '1fr');
-                $('.blaze-commerce-account-form').css('grid-template-columns', '1fr');
-            } else {
-                $('.blaze-commerce-order-summary').css('order', 'initial');
-                $('.blaze-commerce-addresses-grid').css('grid-template-columns', '1fr 1fr');
-                $('.blaze-commerce-account-form').css('grid-template-columns', '1fr 1fr');
-            }
-
-            // Handle product item layout on mobile
-            if (windowWidth < 768) {
-                $('.blaze-commerce-product-item').css({
-                    'flex-direction': 'column',
-                    'align-items': 'center',
-                    'text-align': 'center'
-                });
-            } else {
-                $('.blaze-commerce-product-item').css({
-                    'flex-direction': 'row',
-                    'align-items': 'flex-start',
-                    'text-align': 'left'
-                });
-            }
-        }
-
-        // Initial call
-        handleResize();
-
-        // Handle window resize
-        $(window).on('resize', debounce(handleResize, 250));
+        // All responsive layout is handled by CSS media queries.
+        // No inline style overrides needed — they conflict with CSS flex/grid rules.
     }
 
     /**
@@ -445,7 +501,7 @@ jQuery(document).ready(function($) {
             }
         });
     }
-    
+
     // Initialize all functionality
     initThankYouPage();
     initSmoothScrolling();
