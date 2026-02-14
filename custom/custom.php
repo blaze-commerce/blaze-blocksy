@@ -21,7 +21,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_style( 'custom-minicart', BLAZE_BLOCKSY_URL . '/custom/minicart.css', array( 'blaze-blocksy-mini-cart' ), '1.0.0' );
 
 	// Header Figma-exact styles (Task: 86evcm56n)
-	wp_enqueue_style( 'custom-header', BLAZE_BLOCKSY_URL . '/custom/header/header.css', array(), '1.25.0' );
+	wp_enqueue_style( 'custom-header', BLAZE_BLOCKSY_URL . '/custom/header/header.css', array(), '1.26.0' );
 	wp_enqueue_style( 'custom-header-search', BLAZE_BLOCKSY_URL . '/custom/header/header-search.css', array(), '1.11.0' );
 	wp_enqueue_script( 'header-carousel', BLAZE_BLOCKSY_URL . '/custom/header/carousel.js', array(), '1.0.0', true );
 
