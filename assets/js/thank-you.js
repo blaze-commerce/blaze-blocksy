@@ -10,11 +10,8 @@
 
 jQuery(document).ready(function($) {
 
-    console.log('🎉 Blaze Commerce Thank You page loaded');
-
     // CRITICAL FIX: Immediate visibility enforcement
     // Only set opacity/visibility — do NOT override display property (breaks flex/grid layouts)
-    console.log('🔧 Applying immediate visibility fixes');
     $('.blaze-commerce-thank-you-wrapper, .blaze-commerce-thank-you-container, .blaze-commerce-thank-you-header, .blaze-commerce-main-content, .blaze-commerce-order-details, .blaze-commerce-addresses-section, .blaze-commerce-account-creation, .blaze-commerce-order-summary').css({
         'opacity': '1',
         'visibility': 'visible'
@@ -22,11 +19,8 @@ jQuery(document).ready(function($) {
 
     // Register global function for compatibility
     window.blocksy_child_blaze_commerce_order_summary = function() {
-        console.log('✅ blocksy_child_blaze_commerce_order_summary function available globally');
         return true;
     };
-
-    console.log('✅ Immediate visibility fixes applied');
 
     /**
      * Initialize thank you page enhancements
@@ -308,8 +302,6 @@ jQuery(document).ready(function($) {
      * CRITICAL FIX: Ensure elements remain visible if animations fail
      */
     function initAnimations() {
-        console.log('🎬 Initializing animations with visibility safeguards');
-
         // CRITICAL FIX: Ensure all elements are visible
         // Only set opacity/visibility — do NOT override display (breaks flex/grid from CSS)
         const allBlazeCommerceElements = [
@@ -360,7 +352,6 @@ jQuery(document).ready(function($) {
             });
         }
 
-        console.log('✅ Animation initialization complete with visibility safeguards');
     }
 
     /**
@@ -465,21 +456,6 @@ jQuery(document).ready(function($) {
     }
 
     /**
-     * Debounce function to limit resize event calls
-     */
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    /**
      * Add smooth scrolling for anchor links
      */
     function initSmoothScrolling() {
@@ -499,5 +475,4 @@ jQuery(document).ready(function($) {
     initThankYouPage();
     initSmoothScrolling();
 
-    console.log('✅ Blaze Commerce Thank You page initialized successfully');
 });
