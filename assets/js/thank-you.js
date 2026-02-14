@@ -374,14 +374,8 @@ jQuery(document).ready(function($) {
             const orderNumber = orderNumberElement.text().replace('#', '');
 
             // Make order number clickable
-            orderNumberElement.css({
-                'cursor': 'pointer',
-                'position': 'relative',
-                'padding': '4px 8px',
-                'border-radius': '4px',
-                'transition': 'all 0.2s ease',
-                'background-color': '#f8f9fa'
-            }).attr('title', 'Click to copy order number');
+            orderNumberElement.addClass('blaze-commerce-copy-target')
+                .attr('title', 'Click to copy order number');
 
             orderNumberElement.on('click', function() {
                 copyToClipboard(orderNumber);
@@ -397,9 +391,9 @@ jQuery(document).ready(function($) {
             });
 
             orderNumberElement.on('mouseenter', function() {
-                $(this).css('background-color', '#e9ecef');
+                $(this).addClass('blaze-commerce-copy-target--hover');
             }).on('mouseleave', function() {
-                $(this).css('background-color', '#f8f9fa');
+                $(this).removeClass('blaze-commerce-copy-target--hover');
             });
         }
     }
@@ -430,12 +424,11 @@ jQuery(document).ready(function($) {
      */
     function showCopyFeedback($element) {
         const originalTitle = $element.attr('title');
-        const originalBg = $element.css('background-color');
 
-        $element.attr('title', 'Copied!').css('background-color', '#d1fae5');
+        $element.attr('title', 'Copied!').addClass('blaze-commerce-copy-target--copied');
 
         setTimeout(() => {
-            $element.attr('title', originalTitle).css('background-color', originalBg);
+            $element.attr('title', originalTitle).removeClass('blaze-commerce-copy-target--copied');
         }, 2000);
     }
 
@@ -445,7 +438,7 @@ jQuery(document).ready(function($) {
     function initPrintOrder() {
         // Add print button to the order summary
         if (!$('.blaze-commerce-print-order-btn').length) {
-            const printButton = $('<button class="blaze-commerce-print-order-btn" style="margin-top: 16px; padding: 8px 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; font-size: 14px; cursor: pointer; width: 100%;">📄 Print Order Details</button>');
+            const printButton = $('<button class="blaze-commerce-print-order-btn">Print Order Details</button>');
 
             $('.blaze-commerce-order-summary').append(printButton);
         }

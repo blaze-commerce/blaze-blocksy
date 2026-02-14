@@ -4,19 +4,40 @@
  * Complete layout redesign based on Blaze Commerce specifications.
  * Pixel-perfect responsive implementation with preserved functionality.
  *
+ * Colors, fonts, and brand values are defined as CSS custom properties
+ * so each site can override them. Defaults are neutral/inheritable.
+ *
  * @package Blocksy_Child
  * @since 2.0.3
  */
+
+/* ========================================
+	THEME VARIABLES (override per-site in custom/ directory)
+	======================================== */
+
+.woocommerce-order {
+	--bc-ty-font-family: inherit;
+	--bc-ty-color: inherit;
+	--bc-ty-color-secondary: #6c757d;
+	--bc-ty-bg: #ffffff;
+	--bc-ty-border-color: #e5e5e5;
+	--bc-ty-brand: currentColor;
+	--bc-ty-brand-hover: currentColor;
+	--bc-ty-input-border: #d1d5db;
+	--bc-ty-toggle-hover-bg: #fafafa;
+	--bc-ty-bullet-color: currentColor;
+	--bc-ty-btn-text: #ffffff;
+}
 
 /* ========================================
 	RESET & BASE STYLES
 	======================================== */
 
 .woocommerce-order {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	line-height: 1.3;
-	color: #353638;
-	background: #ffffff;
+	color: var(--bc-ty-color);
+	background: var(--bc-ty-bg);
 }
 
 /* Hide default WooCommerce thank you message */
@@ -84,41 +105,40 @@
 }
 
 .blaze-commerce-thank-you-title {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 28px;
 	font-weight: 700;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 0 0;
 	line-height: 1.14em;
 	text-transform: uppercase;
 }
 
 .blaze-commerce-order-confirmation {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 8px 0;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
 .blaze-commerce-order-number {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 16px 0;
 	line-height: 1.3;
 }
 
 .blaze-commerce-order-number strong {
-	color: #353638;
 	font-weight: 600;
 }
 
 .blaze-commerce-email-confirmation {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0;
 	line-height: 1.3;
 }
@@ -144,14 +164,14 @@
 	======================================== */
 
 .blaze-commerce-order-details {
-	border-bottom: 1px solid #EDEDED;
+	border-bottom: 1px solid var(--bc-ty-border-color);
 }
 
 .blaze-commerce-order-details h3 {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
 	font-weight: 600;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 20px 0;
 	line-height: 1.3;
 }
@@ -169,14 +189,9 @@
 }
 
 .blaze-commerce-order-info-item strong {
-	color: #353638;
 	font-weight: 600;
 	display: block;
 	margin-bottom: 4px;
-}
-
-.blaze-commerce-order-info-item span {
-	color: #353638;
 }
 
 /* ========================================
@@ -202,7 +217,7 @@
 }
 
 .blaze-commerce-address-block {
-	border-bottom: 1px solid #EDEDED;
+	border-bottom: 1px solid var(--bc-ty-border-color);
 	padding-bottom: 24px;
 }
 
@@ -212,18 +227,18 @@
 }
 
 .blaze-commerce-address-title {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
 	font-weight: 600;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 16px 0;
 	line-height: 1.3;
 }
 
 .blaze-commerce-address-content {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
-	color: #353638;
+	color: var(--bc-ty-color);
 	line-height: 1.3;
 	margin: 0;
 }
@@ -269,18 +284,18 @@
 	======================================== */
 
 .blaze-commerce-account-creation {
-	background: #ffffff;
-	border: 1px solid #EDEDED;
+	background: var(--bc-ty-bg);
+	border: 1px solid var(--bc-ty-border-color);
 	border-radius: 8px;
 	padding: 32px;
 	margin-bottom: 0;
 }
 
 .blaze-commerce-account-title {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
 	font-weight: 600;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0 0 24px 0;
 	line-height: 1.3;
 }
@@ -293,7 +308,7 @@
 
 .blaze-commerce-account-benefits li {
 	font-size: 16px;
-	color: #353638;
+	color: var(--bc-ty-color);
 	line-height: 1.3;
 	margin-bottom: 8px;
 	padding-left: 20px;
@@ -301,8 +316,8 @@
 }
 
 .blaze-commerce-account-benefits li:before {
-	content: "•";
-	color: #000000;
+	content: "\2022";
+	color: var(--bc-ty-bullet-color);
 	font-weight: bold;
 	position: absolute;
 	left: 0;
@@ -323,25 +338,25 @@
 .blaze-commerce-form-field label {
 	font-size: 16px;
 	font-weight: 400;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin-bottom: 8px;
 	line-height: 1.3;
 }
 
 .blaze-commerce-form-field input {
 	padding: 12px 16px;
-	border: 1px solid #d1d5db;
+	border: 1px solid var(--bc-ty-input-border);
 	border-radius: 6px;
 	font-size: 14px;
-	color: #000000;
-	background: #ffffff;
+	color: var(--bc-ty-color);
+	background: var(--bc-ty-bg);
 	transition: border-color 0.2s ease;
 }
 
 .blaze-commerce-form-field input:focus {
 	outline: none;
-	border-color: #1246D5;
-	box-shadow: 0 0 0 1px #1246D5;
+	border-color: var(--bc-ty-brand);
+	box-shadow: 0 0 0 1px var(--bc-ty-brand);
 }
 
 .blaze-commerce-password-field {
@@ -349,12 +364,12 @@
 }
 
 .blaze-commerce-create-account-btn {
-	background-color: #1246D5 !important;
-	color: #ffffff;
+	background-color: var(--bc-ty-brand) !important;
+	color: var(--bc-ty-btn-text);
 	border: none;
 	padding: 8px 24px;
 	border-radius: 9999px;
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
 	font-weight: 600;
 	line-height: 1.75em;
@@ -365,7 +380,7 @@
 }
 
 .blaze-commerce-create-account-btn:hover {
-	background-color: #0f3db8 !important;
+	background-color: var(--bc-ty-brand-hover) !important;
 }
 
 /* ========================================
@@ -374,8 +389,8 @@
 
 .blaze-commerce-order-summary {
 	grid-column: 2;
-	background: #ffffff;
-	border: 1px solid #EDEDED;
+	background: var(--bc-ty-bg);
+	border: 1px solid var(--bc-ty-border-color);
 	border-radius: 8px;
 	padding: 32px;
 	position: sticky;
@@ -391,13 +406,13 @@
 }
 
 .blaze-commerce-summary-title {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 28px;
 	font-weight: 700;
-	color: #353638;
+	color: var(--bc-ty-color);
 	margin: 0;
 	padding-bottom: 24px;
-	border-bottom: 1px solid #EDEDED;
+	border-bottom: 1px solid var(--bc-ty-border-color);
 	line-height: 1.14em;
 	display: flex;
 	justify-content: space-between;
@@ -408,7 +423,7 @@
 	background: none;
 	border: none;
 	font-size: 14px;
-	color: #666666;
+	color: var(--bc-ty-color-secondary);
 	cursor: pointer;
 	text-decoration: underline;
 }
@@ -421,7 +436,7 @@
 	text-align: left !important;
 	padding: 16px 0 0 0;
 	margin: 0;
-	border-top: 1px solid #EDEDED;
+	border-top: 1px solid var(--bc-ty-border-color);
 }
 
 .blaze-commerce-product-item:first-child,
@@ -458,19 +473,19 @@
 }
 
 .blaze-commerce-thank-you-wrapper .blaze-commerce-product-name {
-	font-family: 'Rubik', sans-serif !important;
+	font-family: var(--bc-ty-font-family) !important;
 	font-size: 16px !important;
 	font-weight: 600 !important;
-	color: #353638 !important;
+	color: var(--bc-ty-color) !important;
 	margin: 0 !important;
 	line-height: 1.3 !important;
 }
 
 .blaze-commerce-thank-you-wrapper .blaze-commerce-product-price {
-	font-family: 'Rubik', sans-serif !important;
+	font-family: var(--bc-ty-font-family) !important;
 	font-size: 14px !important;
 	font-weight: 400 !important;
-	color: #353638 !important;
+	color: var(--bc-ty-color) !important;
 	margin: 0 !important;
 	line-height: 1.3 !important;
 	white-space: nowrap;
@@ -481,7 +496,7 @@
 	margin-bottom: 0;
 	padding-top: 24px;
 	padding-bottom: 11px;
-	border-top: 1px solid #EDEDED;
+	border-top: 1px solid var(--bc-ty-border-color);
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
@@ -500,16 +515,16 @@
 }
 
 .blaze-commerce-summary-label {
-	font-family: 'Rubik', sans-serif;
-	color: #353638;
+	font-family: var(--bc-ty-font-family);
+	color: var(--bc-ty-color);
 	font-size: 16px;
 	font-weight: 400;
 	line-height: 1.5em;
 }
 
 .blaze-commerce-summary-value {
-	font-family: 'Rubik', sans-serif;
-	color: #353638;
+	font-family: var(--bc-ty-font-family);
+	color: var(--bc-ty-color);
 	font-weight: 700;
 	font-size: 16px;
 	line-height: 1.5em;
@@ -518,25 +533,25 @@
 
 .blaze-commerce-summary-total {
 	padding: 11px 0 4px;
-	border-top: 1px solid #EDEDED;
+	border-top: 1px solid var(--bc-ty-border-color);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 }
 
 .blaze-commerce-total-label {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 16px;
 	font-weight: 700;
-	color: #353638;
+	color: var(--bc-ty-color);
 	line-height: 1.5em;
 }
 
 .blaze-commerce-total-value {
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-size: 30px;
 	font-weight: 700;
-	color: #353638;
+	color: var(--bc-ty-color);
 	line-height: 1.2em;
 }
 
@@ -555,18 +570,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background: #FFFFFF;
-		color: #353638;
+		background: var(--bc-ty-bg);
+		color: var(--bc-ty-color);
 		padding: 16px;
 		cursor: pointer;
-		border: 1px solid #EDEDED;
+		border: 1px solid var(--bc-ty-border-color);
 		border-radius: 8px;
 		margin-bottom: 0;
 		transition: background-color 0.2s ease;
 	}
 
 	.blaze-commerce-toggle-header:hover {
-		background: #FAFAFA;
+		background: var(--bc-ty-toggle-hover-bg);
 	}
 
 	/* When expanded: connect toggle header to summary content below */
@@ -585,7 +600,7 @@
 	.blaze-commerce-toggle-header-icon {
 		width: 44px;
 		height: 44px;
-		color: #353638;
+		color: var(--bc-ty-color);
 		flex-shrink: 0;
 		display: flex;
 		align-items: center;
@@ -598,18 +613,18 @@
 	}
 
 	.blaze-commerce-toggle-header-text {
-		font-family: 'Rubik', sans-serif !important;
+		font-family: var(--bc-ty-font-family) !important;
 		font-weight: 400 !important;
 		font-size: 18px !important;
 		line-height: 1.3 !important;
 		text-transform: none !important;
-		color: #353638 !important;
+		color: var(--bc-ty-color) !important;
 	}
 
 	.blaze-commerce-toggle-header-chevron {
 		width: 24px;
 		height: 24px;
-		color: #353638;
+		color: var(--bc-ty-color);
 		transition: transform 0.3s ease;
 		flex-shrink: 0;
 	}
@@ -619,11 +634,11 @@
 	}
 
 	.blaze-commerce-toggle-header-total {
-		font-family: 'Rubik', sans-serif !important;
+		font-family: var(--bc-ty-font-family) !important;
 		font-weight: 700 !important;
 		font-size: 14px !important;
 		line-height: 1.714em !important;
-		color: #353638 !important;
+		color: var(--bc-ty-color) !important;
 	}
 
 	/* Show summary header inside expanded content (JS moves it into .summary-content) */
@@ -637,7 +652,7 @@
 		font-weight: 700;
 		line-height: 1.14em;
 		padding-bottom: 13px;
-		border-bottom: 1px solid #EDEDED;
+		border-bottom: 1px solid var(--bc-ty-border-color);
 	}
 
 	/* When collapsed: remove order summary's own padding/border — toggle provides them */
@@ -649,7 +664,7 @@
 
 	/* Toggle header provides the border/padding when collapsed */
 	.blaze-commerce-toggle-header {
-		border: 1px solid #EDEDED;
+		border: 1px solid var(--bc-ty-border-color);
 		border-radius: 8px;
 	}
 
@@ -661,7 +676,7 @@
 	.blaze-commerce-order-summary .blaze-commerce-summary-content.show {
 		display: block;
 		padding: 16px;
-		border: 1px solid #EDEDED;
+		border: 1px solid var(--bc-ty-border-color);
 		border-top: none;
 		border-radius: 0 0 8px 8px;
 	}
@@ -886,7 +901,7 @@
 		line-height: 1.167em;
 	}
 
-	/* Summary title — mobile (Figma: Paragraph/Big/Bold 20px/700, line-height 1.6em) */
+	/* Summary title — mobile (Paragraph/Big/Bold 20px/700, line-height 1.6em) */
 	.blaze-commerce-order-summary .blaze-commerce-summary-title {
 		font-size: 20px;
 		font-weight: 700;
@@ -1004,7 +1019,7 @@
 .blaze-commerce-form-field input:focus,
 .blaze-commerce-create-account-btn:focus,
 .blaze-commerce-summary-toggle:focus {
-	outline: 2px solid #1246D5;
+	outline: 2px solid var(--bc-ty-brand);
 	outline-offset: 2px;
 }
 
@@ -1023,9 +1038,9 @@
 }
 
 .blaze-commerce-thank-you-wrapper .blaze-commerce-product-quantity {
-	font-family: 'Rubik', sans-serif !important;
+	font-family: var(--bc-ty-font-family) !important;
 	font-size: 14px !important;
-	color: #353638 !important;
+	color: var(--bc-ty-color) !important;
 	font-weight: 400 !important;
 	line-height: 1.3 !important;
 	margin: 0 !important;
@@ -1035,7 +1050,7 @@
 	display: flex;
 	flex-direction: column;
 	border-radius: 8px;
-	border: 1px solid #EDEDED;
+	border: 1px solid var(--bc-ty-border-color);
 	gap: 24px;
 	min-width: 0;
 	max-width: 100%;
@@ -1052,7 +1067,7 @@
 
 .blaze-commerce-order-confirmation-container {
 	padding-bottom: 24px;
-	border-bottom: 1px solid #EDEDED;
+	border-bottom: 1px solid var(--bc-ty-border-color);
 }
 
 /* Desktop flexbox layout (≥1024px) */
@@ -1067,12 +1082,12 @@
 /* Transparent button styling - improved specificity */
 .blaze-commerce-thank-you-wrapper #resend-email-btn {
 	background: transparent;
-	color: #353638;
-	border: 1px solid #353638;
+	color: var(--bc-ty-color);
+	border: 1px solid currentColor;
 	border-radius: 9999px;
 	box-shadow: none;
 	text-decoration: none;
-	font-family: 'Rubik', sans-serif;
+	font-family: var(--bc-ty-font-family);
 	font-weight: 600;
 	font-size: 16px;
 	line-height: 1.75em;
@@ -1084,8 +1099,8 @@
 }
 
 .blaze-commerce-thank-you-wrapper #resend-email-btn:hover {
-	background: #353638;
-	color: #ffffff;
+	background: var(--bc-ty-color);
+	color: var(--bc-ty-btn-text);
 }
 
 .blaze-commerce-thank-you-wrapper #resend-email-btn:disabled {
@@ -1115,10 +1130,47 @@
 
 .blaze-commerce-support-contact {
 	font-size: 13px;
-	color: #6c757d;
+	color: var(--bc-ty-color-secondary);
 	margin-top: 16px;
 	margin-bottom: 0;
 	line-height: 1.4;
+}
+
+/* Copy target (order number click-to-copy) */
+.blaze-commerce-copy-target {
+	cursor: pointer;
+	position: relative;
+	padding: 4px 8px;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	background-color: var(--bc-ty-toggle-hover-bg);
+}
+
+.blaze-commerce-copy-target--hover {
+	background-color: var(--bc-ty-border-color);
+}
+
+.blaze-commerce-copy-target--copied {
+	background-color: #d4edda;
+}
+
+/* Print order button */
+.blaze-commerce-print-order-btn {
+	margin-top: 16px;
+	padding: 8px 16px;
+	background: var(--bc-ty-toggle-hover-bg);
+	border: 1px solid var(--bc-ty-border-color);
+	border-radius: 4px;
+	font-size: 14px;
+	cursor: pointer;
+	width: 100%;
+	font-family: var(--bc-ty-font-family);
+	color: var(--bc-ty-color);
+	transition: background-color 0.2s ease;
+}
+
+.blaze-commerce-print-order-btn:hover {
+	background-color: var(--bc-ty-border-color);
 }
 
 /* Hide Contents */
