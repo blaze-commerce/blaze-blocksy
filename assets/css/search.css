@@ -278,7 +278,7 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-al
     top: 68px !important;
     padding: 24px;
     display: grid !important;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: 1fr;
     padding-bottom: 50px;
     overflow-y: auto;
     max-height: calc(100vh - 70px);
@@ -304,81 +304,12 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-al
     grid-row: 3;
   }
 
-  /* Section dividers in overlay */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-section {
-    margin-bottom: 16px;
-  }
-
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-section + .dgwt-wcas-suggestion-section {
-    border-top: 1px solid #ededed;
-    padding-top: 16px;
-  }
-
-  /* Override grid-row assignments for display:block flow */
+  /* Section dividers & sidebar border removal — applies to both inline and overlay */
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories,
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products,
   .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog {
     border-right: none;
     padding-right: 0;
-  }
-
-  /* Overlay: product grid — 2 columns */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-section-content,
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-layout-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 13px !important;
-  }
-
-  /* Overlay: product cards — column layout, centered */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 16px;
-    padding: 8px;
-    border-radius: 8px !important;
-    border: none !important;
-    text-align: center;
-    background: #fff;
-    overflow: hidden;
-  }
-
-  /* Overlay: product image */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-si {
-    width: 100% !important;
-    max-width: 145px;
-  }
-
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-si img {
-    width: 100% !important;
-    object-fit: contain !important;
-    border-radius: 0 !important;
-  }
-
-  /* Overlay: product content wrapper */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-content-wrapp {
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 0 !important;
-    row-gap: 12px !important;
-    text-align: center;
-    width: 100%;
-  }
-
-  /* Overlay: product price */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp {
-    text-align: center;
-    justify-content: center;
-    padding: 0 !important;
-  }
-
-  /* Overlay: product description — 3-line clamp */
-  .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sd {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
   /* --- Overlay bar styles --- */
