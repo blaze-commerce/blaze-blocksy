@@ -4,12 +4,22 @@
  * Modifications:
  * - Move order summary sidebar above checkout form (mobile/tablet only)
  * - Add collapsible toggle header for order summary (mobile/tablet only)
+ * - Connected toggle + order review containers with expanded state
+ *
+ * Colors/fonts use CSS custom properties from checkout.css (--bc-co-*).
+ * Override per-site in custom/ directory.
  *
  * @package Blaze_Blocksy
+ * @since 1.41.0
  */
 
 /* Mobile and Tablet viewports only (up to 999px) */
 @media (max-width: 999px) {
+
+  /* Hide FC's built-in header cart link — we use our own toggle below */
+  .fc-checkout__cart-link-wrapper {
+    display: none !important;
+  }
 
   /* Move sidebar above main content using flexbox order */
   .fc-wrapper {
@@ -27,49 +37,49 @@
     order: 1 !important;
   }
 
-  /* Order summary toggle header */
+  /* Order summary toggle header - shared base styles */
   .fc-sidebar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: transparent;
-    color: #000000;
     padding: 16px;
     cursor: pointer;
-    border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
-    margin: 0 -20px 0 -20px;
+    border: 1px solid var(--bc-co-border-color, #e5e5e5);
+    border-radius: var(--bc-co-radius, 8px);
+    margin-bottom: 0;
     transition: background-color 0.2s ease;
-  }
-
-  .fc-sidebar-header:hover {
-    background: transparent;
   }
 
   .fc-sidebar-header-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
   }
 
   .fc-sidebar-header-icon {
-    width: 16px;
-    height: 16px;
-    color: #000000;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fc-sidebar-header-icon svg {
+    width: 24px;
+    height: 24px;
   }
 
   .fc-sidebar-header-text {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 1.71;
-    text-transform: uppercase;
-    color: #000000;
+    font-weight: 400 !important;
+    font-size: 18px !important;
+    line-height: 1.185em !important;
+    text-transform: none !important;
   }
 
   .fc-sidebar-header-chevron {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     transition: transform 0.3s ease;
     flex-shrink: 0;
   }
@@ -79,42 +89,88 @@
   }
 
   .fc-sidebar-header-total {
-    font-family: 'Roboto Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    line-height: 1.71;
-    color: #000000;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    line-height: 1.714em !important;
   }
 
   /* Hide order summary content by default on mobile/tablet */
   #fc-checkout-order-review {
-    display: none;
-    margin-top: 24px;
+    display: none !important;
+    margin-top: 0 !important;
+    border: 1px solid var(--bc-co-border-color, #e5e5e5) !important;
+    border-radius: 0 0 var(--bc-co-radius, 8px) var(--bc-co-radius, 8px) !important;
+    border-top: none !important;
   }
 
   #fc-checkout-order-review.show {
-    display: block;
+    display: block !important;
   }
 
-  /* Place order section styling when moved below payment fields */
-  .fc-place-order__section[data-moved-to-payment="true"] {
-    margin-top: 24px;
+  /* Connected toggle+content: when expanded, remove bottom radius from toggle */
+  .fc-sidebar-header.expanded {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none !important;
   }
+
+  /* Disable FC's flyout animation classes that conflict with our toggle */
+  #fc-checkout-order-review.fade-in-down,
+  #fc-checkout-order-review.fade-out-up {
+    animation: none !important;
+  }
+
+  /* Hide place order inside order review — it gets moved to the Payment step by our JS */
+  .fc-checkout-order-review__inner > .fc-place-order__section {
+    display: none !important;
+  }
+
 }
 
-/* Mobile viewports only (below 768px) - add borders to order summary content */
-@media (max-width: 767px) {
-  #fc-checkout-order-review {
-    border: solid var(--fluidcheckout--section--border-width,1px) var(--fluidcheckout--section--border-color,var(--fluidcheckout--border-color,var(--fluidcheckout--color--light-grey,#d8d8d8)));
-    padding: 20px;
-    margin: 0 -20px;
-    margin-top: 24px;
-  }
-}
+/* ============================================================
+   TABLET-SPECIFIC TOGGLE STYLES (500px - 999px)
+   ============================================================ */
+@media (max-width: 999px) and (min-width: 500px) {
 
-/* Tablet viewports only (768px to 999px) - match spacing with sections below */
-@media (min-width: 768px) and (max-width: 999px) {
   .fc-sidebar-header {
-    margin: 0 0 0 0;
+    padding: 32px;
+  }
+
+  .fc-sidebar-header-text {
+    font-size: 20px !important;
+    line-height: 1.185em !important;
+  }
+}
+
+/* ============================================================
+   MOBILE-SPECIFIC TOGGLE STYLES (<500px)
+   Gap reduced from 16px to 8px to prevent text wrapping on narrow viewports
+   ============================================================ */
+@media (max-width: 499px) {
+
+  .fc-sidebar-header {
+    padding: 16px;
+  }
+
+  /* Reduce gap on narrow mobile to prevent "Show order summary" text wrapping */
+  .fc-sidebar-header-left {
+    gap: 8px;
+  }
+
+  .fc-sidebar-header-text {
+    font-size: 16px !important;
+    line-height: 1.185em !important;
+  }
+}
+
+/* Extra-narrow mobile (<340px): smaller font + icon to keep single line */
+@media (max-width: 339px) {
+  .fc-sidebar-header-text {
+    font-size: 14px !important;
+  }
+
+  .fc-sidebar-header-icon {
+    width: 24px;
+    height: 24px;
   }
 }
