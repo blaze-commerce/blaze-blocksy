@@ -84,7 +84,6 @@
    * Move place order button from sidebar to payment step on mobile/tablet.
    * FC's JS moves the button into the order review sidebar on small viewports,
    * but our collapsed toggle hides it. Move it to the Payment step instead.
-   * Uses FC's placeholder system instead of MutationObserver.
    */
   function movePlaceOrderButton() {
     if (window.innerWidth > 999) {
@@ -118,6 +117,52 @@
   }
 
   /**
+   * Watch the order review sidebar for FC re-inserting the place order button.
+   * FC moves it back on every updated_checkout, so we use a MutationObserver
+   * to immediately move it back to the Payment step — eliminating flicker.
+   */
+  var placeOrderObserver = null;
+
+  function startPlaceOrderObserver() {
+    if (window.innerWidth > 999) {
+      stopPlaceOrderObserver();
+      return;
+    }
+
+    // Don't create duplicate observers
+    if (placeOrderObserver) {
+      return;
+    }
+
+    var orderReviewInner = document.querySelector('.fc-checkout-order-review__inner');
+    if (!orderReviewInner) {
+      return;
+    }
+
+    placeOrderObserver = new MutationObserver(function(mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+          var node = mutations[i].addedNodes[j];
+          if (node.nodeType === 1 && node.classList && node.classList.contains('fc-place-order__section')) {
+            // FC just moved the Place Order button back to sidebar — move it out immediately
+            movePlaceOrderButton();
+            return;
+          }
+        }
+      }
+    });
+
+    placeOrderObserver.observe(orderReviewInner, { childList: true });
+  }
+
+  function stopPlaceOrderObserver() {
+    if (placeOrderObserver) {
+      placeOrderObserver.disconnect();
+      placeOrderObserver = null;
+    }
+  }
+
+  /**
    * Re-initialize on window resize
    */
   var resizeTimeout;
@@ -136,9 +181,11 @@
           orderReview.classList.remove('show');
           orderReview.style.display = '';
         }
+        stopPlaceOrderObserver();
       } else {
         initOrderSummaryToggle();
         movePlaceOrderButton();
+        startPlaceOrderObserver();
       }
     }, 250);
   });
@@ -149,15 +196,18 @@
   $(document).ready(function() {
     initOrderSummaryToggle();
     movePlaceOrderButton();
+    startPlaceOrderObserver();
 
     // Re-initialize after FluidCheckout AJAX updates
     $(document.body).on('updated_checkout', function() {
       initOrderSummaryToggle();
 
-      // Delay to ensure FC finishes its DOM manipulation
-      setTimeout(function() {
-        movePlaceOrderButton();
-      }, 100);
+      // Move immediately — the MutationObserver will also catch FC's re-insertion
+      movePlaceOrderButton();
+
+      // Re-start observer in case FC rebuilt the DOM
+      stopPlaceOrderObserver();
+      startPlaceOrderObserver();
     });
   });
 

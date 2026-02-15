@@ -187,6 +187,9 @@
   border-radius: 9999px !important;
   padding: 8px 24px !important;
   width: 100%;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   display: inline-flex !important;
   justify-content: center;
   align-items: center;
@@ -867,9 +870,12 @@ body.woocommerce-checkout .fc-content.fc-container {
     -webkit-box-orient: vertical !important;
   }
 
-  /* Buttons full width */
+  /* Buttons full width — min-width:0 overrides FC's min-width that causes overflow */
   .woocommerce-checkout button.button,
   .woocommerce-checkout #place_order {
     width: 100%;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 }

@@ -1,20 +1,18 @@
 <?php
 /**
- * Custom functions that act independently of the theme templates.
+ * Site-specific custom functions loader.
+ * Loaded by functions.php. All custom PHP modules must be required here.
+ *
+ * This file is tracked in git as a base template. Per-deployment
+ * customizations (require_once lines, enqueue calls) are added here.
  *
  * @package Blaze_Commerce
- * @subpackage Blaze_Commerce
  * @since 1.0.0
  */
 
-/* 
- * Add your custom functions here
-
- add_action( 'wp_enqueue_scripts', function(){
-	wp_enqueue_style( 'custom-style', BLAZE_BLOCKSY_URL . '/custom.css' );
-	wp_enqueue_script( 'custom-script', BLAZE_BLOCKSY_URL . '/custom.js', array( 'jquery' ), '1.0.0', true );
- } );
-*/
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_style( 'custom-style', BLAZE_BLOCKSY_URL . '/custom/product.css', array(), '1.0.0' );
