@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.70.5] - 2026-02-15
+
+### Changed
+- 🔧 Add project CLAUDE.md and custom.php loader template (#220)
+
 ## [1.70.3] - 2026-02-15
 
 ### Fixed
@@ -4284,7 +4289,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
 [1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
 [1.70.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...v1.70.3
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...HEAD
+[1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4293,5 +4299,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
 [1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
 [1.70.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...v1.70.3
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...HEAD
+[1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...HEAD
 >>>>>>> main
