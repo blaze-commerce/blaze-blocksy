@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.70.2] - 2026-02-15
+
+### Fixed
+- prevent Place Order button flickering on mobile/tablet checkout (#218)
+
 ## [1.70.1] - 2026-02-15
 
 ### Fixed
@@ -4272,12 +4277,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
 [1.70.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...v1.70.0
 [1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...HEAD
+[1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
 [1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
 [1.70.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...v1.70.0
 [1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...HEAD
+[1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...HEAD
 >>>>>>> main
