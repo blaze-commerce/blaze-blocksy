@@ -1,0 +1,145 @@
+/**
+ * Off-Canvas Panel Layout Improvements
+ *
+ * Structural and layout fixes for Blocksy's mobile off-canvas panel (#offcanvas).
+ * Addresses spacing bugs, dropdown overflow, and adds bottom links layout.
+ *
+ * NOTE: This file contains ONLY layout/structural properties.
+ * Colors, fonts, icons, and alignment are intentionally omitted —
+ * those are site-specific and belong in each site's custom/ directory.
+ *
+ * @package BlocksyChild
+ * @since 1.70.1
+ */
+
+/* =============================================
+   OFF-CANVAS MOBILE/TABLET PANEL IMPROVEMENTS
+   ============================================= */
+@media (max-width: 1099px) {
+
+	/* Panel container — z-index above Blocksy's body::before overlay (z-index:9999) */
+	[data-header*="type-1"] #offcanvas {
+		--side-panel-width: 447px !important;
+		z-index: 10000 !important;
+	}
+
+	/* Panel inner container — padding structure */
+	[data-header*="type-1"] #offcanvas .ct-panel-inner {
+		padding: 50px 16px 24px;
+		border-radius: 0;
+	}
+
+	/* Panel actions container (holds close button) — absolute bar at top of panel.
+	   Fixes the 37px spacing bug where Blocksy renders this as static with padding-top:24px,
+	   pushing menu content down. Making it absolute removes it from document flow. */
+	#offcanvas .ct-panel-actions {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		right: 0 !important;
+		width: 100% !important;
+		height: 42px !important;
+		padding: 0 20px 0 0 !important;
+		margin: 0 !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: flex-end !important;
+		z-index: 1;
+		box-sizing: border-box;
+		border-bottom: none !important;
+	}
+
+	/* Close button — inside the absolute panel-actions bar */
+	#offcanvas .ct-toggle-close {
+		position: static !important;
+		width: auto;
+		height: 42px;
+		padding: 0 !important;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		cursor: pointer;
+	}
+
+	/* Panel content inner — remove extra padding (panel-inner already has padding).
+	   Blocksy adds padding:24px on content-inner which doubles left/right spacing. */
+	#offcanvas .ct-panel-content-inner {
+		padding: 0 !important;
+		overflow-x: hidden !important;
+	}
+
+	/* Fix Blocksy dropdown toggle negative margin — has margin-right:-5px which
+	   causes 5px content overflow, triggering horizontal scroll when Blocksy
+	   accordion JS fires scrollIntoView. */
+	#offcanvas .mobile-menu .ct-toggle-dropdown-mobile {
+		margin-right: 0 !important;
+	}
+
+	/* Mobile menu items — line-height only */
+	#offcanvas .mobile-menu .ct-menu-link {
+		line-height: 1.75em;
+	}
+
+	/* Sub-menu — flush with parent (Blocksy default: padding-left:30px) */
+	#offcanvas .mobile-menu .sub-menu {
+		padding-left: 0 !important;
+		padding-bottom: 18px;
+	}
+
+	/* Sub-menu items — spacing and line-height */
+	#offcanvas .mobile-menu .sub-menu .ct-menu-link {
+		padding: 12px 0;
+		border-radius: 6px;
+	}
+
+	/* Hide Blocksy's default sub-menu bullet dots (3x3px ::before) */
+	#offcanvas .mobile-menu .sub-menu .ct-menu-link::before {
+		display: none !important;
+	}
+
+	/* Section titles (from mega-section-header walker filter) */
+	#offcanvas .mobile-menu .mega-section-title {
+		line-height: 1em;
+		padding: 16px 0 8px;
+	}
+
+	/* Main nav list — vertical layout with gap */
+	#offcanvas .mobile-menu > ul {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	/* Off-canvas bottom links (Contact, Downloads, Wishlist, etc.) */
+	.offcanvas-bottom-links {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding-top: 24px;
+		margin-top: 24px;
+		width: 100%;
+		align-self: stretch;
+	}
+
+	.offcanvas-bottom-links a {
+		line-height: 1.5em;
+		text-decoration: none;
+		padding: 6px 0;
+		border-radius: 6px;
+	}
+}
+
+/* Tablet only: panel border-radius (panel narrower than viewport, corners visible) */
+@media (min-width: 700px) and (max-width: 1099px) {
+	[data-header*="type-1"] #offcanvas .ct-panel-inner {
+		border-radius: 0 8px 8px 0;
+	}
+}
+
+/* Mobile: narrower panel width */
+@media (max-width: 699px) {
+	[data-header*="type-1"] #offcanvas {
+		--side-panel-width: 387px !important;
+	}
+}

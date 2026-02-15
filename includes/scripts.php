@@ -36,6 +36,13 @@ function blaze_blocksy_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'blaze-blocksy-offcanvas-improvements',
+		$template_uri . '/assets/css/offcanvas-improvements.css',
+		array( 'parent-style' ),
+		BLAZE_BLOCKSY_VERSION
+	);
+
+	wp_enqueue_style(
 		'blocksy-child-product-card-style',
 		$template_uri . '/assets/css/product-card.css',
 		array( 'parent-style' )

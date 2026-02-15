@@ -162,6 +162,7 @@ $required_files = [
 	'/includes/features/shipping.php',
 	'/includes/features/product-information.php',
 	'/includes/features/offcanvas-module.php', // Generic offcanvas module
+	'/includes/features/offcanvas-bottom-links.php', // Off-canvas bottom links menu
 	'/includes/customization/fibo-search-suggestions.php',
 	'/includes/customization/thank-you-page.php',
 	'/includes/customization/thank-you-page-customizer.php',
