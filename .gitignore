@@ -409,7 +409,5 @@ test-*.tmp
 testing-*.log
 mock-data-*.json
 
-# Ignore custom directory contents (site-specific, persists across theme updates)
-# Only custom.php.dist is tracked — copy to custom.php on new deployments
-custom/*
-!custom/custom.php.dist
+# Ignore custom files
+custom/
