@@ -125,6 +125,11 @@
     display: none !important;
   }
 
+  /* Show place order when successfully moved to a checkout step (Payment) */
+  .fc-checkout-step .fc-place-order__section {
+    display: block !important;
+  }
+
 }
 
 /* ============================================================
