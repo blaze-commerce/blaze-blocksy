@@ -201,6 +201,11 @@ if ( class_exists( 'FluidCheckout' ) ) {
 	error_log( 'BlazeCommerce: Fluid Checkout Customizer not loaded - FluidCheckout class not found. Please ensure Fluid Checkout Lite or Pro is installed and activated.' );
 }
 
+// Checkout Upsell (Order Bump) — requires WooCommerce
+if ( class_exists( 'WooCommerce' ) ) {
+	$required_files[] = '/includes/checkout-upsell.php';
+}
+
 // Add debug files in debug mode
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	// $required_files[] = '/includes/debug/product-card-border-test.php';

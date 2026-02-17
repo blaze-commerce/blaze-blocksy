@@ -89,7 +89,13 @@ function blaze_blocksy_enqueue_assets() {
 	// === CHECKOUT PAGE ASSETS ===
 	if ( is_checkout() ) {
 		// Checkout page styles - error message layout fixes
-		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css', array(), '1.1.1' );
+		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css', array(), '1.2.0' );
+
+		// Upsell order bump AJAX toggle
+		wp_enqueue_script( 'blaze-blocksy-checkout-upsell', BLAZE_BLOCKSY_URL . '/assets/js/checkout-upsell.js', array( 'jquery' ), '1.0.0', true );
+		wp_localize_script( 'blaze-blocksy-checkout-upsell', 'blazeUpsell', array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+		) );
 	}
 
 	// === WISHLIST OVERLAY ASSETS ===
