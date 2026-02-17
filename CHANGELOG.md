@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.74.0] - 2026-02-17
+
+### Added
+- add checkout upsell order bump with admin settings (#223)
+
 ## [1.72.0] - 2026-02-17
 
 ### Added
@@ -4308,7 +4313,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...HEAD
+[1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4321,5 +4327,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...HEAD
+[1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
 >>>>>>> main
