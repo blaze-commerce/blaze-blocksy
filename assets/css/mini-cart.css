@@ -336,7 +336,7 @@
   height: 24px;
 }
 
-.coupon-arrow.open {
+.coupon-toggle.open .coupon-arrow {
   transform: rotate(180deg);
 }
 

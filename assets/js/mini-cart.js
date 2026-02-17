@@ -275,21 +275,15 @@ jQuery(document).ready(function ($) {
    * Display shipping methods in the results area
    */
   function displayMiniCartShippingMethods(methods, $container) {
-    var html = "";
+    $container.empty();
 
     $.each(methods, function (i, method) {
-      html +=
-        '<div class="shipping-method-item">' +
-        '<span class="shipping-method-label">' +
-        method.title +
-        "</span>" +
-        '<span class="shipping-method-cost">' +
-        method.cost +
-        "</span>" +
-        "</div>";
+      var $item = $('<div class="shipping-method-item"></div>');
+      $item.append($('<span class="shipping-method-label"></span>').text(method.title));
+      // method.cost is pre-formatted HTML from wc_price()
+      $item.append($('<span class="shipping-method-cost"></span>').html(method.cost));
+      $container.append($item);
     });
-
-    $container.html(html);
   }
 
   /**
