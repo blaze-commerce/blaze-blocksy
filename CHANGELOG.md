@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.72.0] - 2026-02-17
+
+### Added
+- add shipping calculator toggle to minicart offcanvas (#222)
+
 ## [1.71.2] - 2026-02-15
 
 ### Fixed
@@ -4302,7 +4307,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
 [1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...HEAD
+[1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4314,5 +4320,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
 [1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...HEAD
+[1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...HEAD
 >>>>>>> main
