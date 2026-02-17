@@ -16,6 +16,10 @@
   --bc-co-radius: 8px;
   --bc-co-gap: 34px;
   --bc-co-focus-color: var(--theme-palette-color-1, currentColor);
+  --bc-co-upsell-accent: var(--theme-palette-color-1, #1246D5);
+  --bc-co-upsell-text: var(--theme-text-color, rgba(29, 29, 31, 0.9));
+  --bc-co-upsell-price: var(--theme-palette-color-5, #EF4444);
+  --bc-co-upsell-white: var(--theme-bg, #ffffff);
 }
 
 /* --- Hide WooCommerce "added to cart" notice on checkout --- */
@@ -877,5 +881,174 @@ body.woocommerce-checkout .fc-content.fc-container {
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
+  }
+}
+
+/* --- Section: Checkout Upsell / Order Bump (Figma node 20417:62459) --- */
+.checkout-upsell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px dashed var(--bc-co-upsell-accent);
+  margin-top: 16px;
+}
+
+.checkout-upsell__content {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.checkout-upsell__image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.checkout-upsell__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.checkout-upsell .checkout-upsell__title {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-accent);
+}
+
+.checkout-upsell__product-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.checkout-upsell .checkout-upsell__product-name {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-text);
+}
+
+.checkout-upsell .checkout-upsell__price {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.71em;
+  color: var(--bc-co-upsell-price);
+}
+
+/* Override WooCommerce price markup inside upsell */
+.checkout-upsell .checkout-upsell__price span,
+.checkout-upsell .checkout-upsell__price bdi {
+  color: inherit;
+}
+
+.checkout-upsell .checkout-upsell__price del,
+.checkout-upsell .checkout-upsell__price del span,
+.checkout-upsell .checkout-upsell__price del bdi {
+  color: #999;
+  font-weight: 400;
+}
+
+.checkout-upsell .checkout-upsell__price ins {
+  text-decoration: none;
+  color: var(--bc-co-upsell-price);
+}
+
+.checkout-upsell .checkout-upsell__description {
+  font-weight: 400;
+  font-size: 14px !important;
+  line-height: 1.185em !important;
+  color: var(--bc-co-upsell-text);
+  margin: 0;
+}
+
+.checkout-upsell__checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Hide native checkbox */
+.checkout-upsell__checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Custom checkbox */
+.checkout-upsell__checkbox-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--bc-co-upsell-accent);
+  border-radius: 4px;
+  background: var(--bc-co-upsell-white);
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Checkmark icon */
+.checkout-upsell__checkbox-custom::after {
+  content: '';
+  display: none;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--bc-co-upsell-white);
+  border-bottom: 2px solid var(--bc-co-upsell-white);
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.checkout-upsell__checkbox:checked + .checkout-upsell__checkbox-custom {
+  background: var(--bc-co-upsell-accent);
+  border-color: var(--bc-co-upsell-accent);
+}
+
+.checkout-upsell__checkbox:checked + .checkout-upsell__checkbox-custom::after {
+  display: block;
+}
+
+.checkout-upsell .checkout-upsell__checkbox-label {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-text);
+}
+
+/* Loading state */
+.checkout-upsell--loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 425px) {
+  .checkout-upsell__content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .checkout-upsell__product-row {
+    justify-content: center;
+  }
+
+  .checkout-upsell__checkbox-row {
+    justify-content: center;
   }
 }
