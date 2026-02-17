@@ -41,6 +41,53 @@ add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
 }, 999, 3 );
 
 /**
+ * Add shipping calculator toggle to mini cart (before coupon section)
+ */
+add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	$countries = new \WC_Countries();
+	$available_countries = $countries->get_countries();
+	?>
+	<div class="mini-cart-shipping-section">
+		<div class="shipping-toggle">
+			<span class="shipping-label"><?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?></span>
+			<span class="shipping-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+		</div>
+		<div class="shipping-form-wrapper" style="display: none;">
+			<form class="mini-cart-shipping-form">
+				<div class="shipping-field">
+					<label for="minicart-shipping-country"><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></label>
+					<div class="shipping-select-wrapper">
+						<select id="minicart-shipping-country" class="shipping-country-select">
+							<option value=""><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></option>
+							<?php foreach ( $available_countries as $code => $name ) : ?>
+								<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+				<div class="shipping-field">
+					<label for="minicart-shipping-state"><?php esc_html_e( 'Town/City', 'blaze-blocksy' ); ?></label>
+					<div class="shipping-select-wrapper">
+						<select id="minicart-shipping-state" class="shipping-state-select">
+							<option value=""><?php esc_html_e( 'City', 'blaze-blocksy' ); ?></option>
+						</select>
+					</div>
+				</div>
+				<div class="shipping-field">
+					<label for="minicart-shipping-postcode"><?php esc_html_e( 'Postcode/Zip', 'blaze-blocksy' ); ?></label>
+					<input type="text" id="minicart-shipping-postcode" class="shipping-postcode-input" placeholder="3800" />
+				</div>
+				<button type="submit" class="calculate-shipping-btn"><?php esc_html_e( 'CALCULATE SHIPPING', 'blaze-blocksy' ); ?></button>
+			</form>
+			<div class="shipping-results" style="display: none;">
+				<div class="shipping-methods-list"></div>
+			</div>
+		</div>
+	</div>
+	<?php
+}, 5 );
+
+/**
  * Add coupon form to mini cart before buttons
  */
 add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
