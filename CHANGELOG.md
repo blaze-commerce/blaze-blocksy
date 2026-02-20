@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.74.0] - 2026-02-17
+
+### Added
+- add checkout upsell order bump with admin settings (#223)
+
+## [1.72.0] - 2026-02-17
+
+### Added
+- add shipping calculator toggle to minicart offcanvas (#222)
+
+## [1.71.2] - 2026-02-15
+
+### Fixed
+- extract generic structural layout fixes for mini-cart panel (#221)
+
+## [1.71.1] - 2026-02-15
+
+### Fixed
+- correct header icon sizes and reposition login modal close button (#215)
+
+## [1.70.5] - 2026-02-15
+
+### Changed
+- 🔧 Add project CLAUDE.md and custom.php loader template (#220)
+
+## [1.70.3] - 2026-02-15
+
+### Fixed
+- add bottom padding to thank-you page product items (#219)
+
+## [1.70.2] - 2026-02-15
+
+### Fixed
+- prevent Place Order button flickering on mobile/tablet checkout (#218)
+
+## [1.70.1] - 2026-02-15
+
+### Fixed
+- prevent checkout buttons overflowing containers on mobile viewports (#217)
+
+## [1.70.0] - 2026-02-14
+
+### Added
+- checkout layout improvements with generic CSS variables (#214)
+
+## [1.69.0] - 2026-02-14
+
+### Added
+- implement Figma design for order confirmation page (#212)
+
+## [1.68.0] - 2026-02-14
+
 ### Added
 - Hide cart page feature — redirects /cart/ to checkout (or shop if empty), removes cart links from menus, filters cart URLs site-wide, adds noindex for SEO, and removes cart from breadcrumbs (#86ewjqyw7)
 
@@ -4251,8 +4303,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.66.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.45.0...v1.66.0
 <<<<<<< release/bump-v1.67.0
 [1.67.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.67.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.67.0...HEAD
+[1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
+[1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
+[1.70.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...v1.70.0
+[1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
+[1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
+[1.70.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...v1.70.3
+[1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
+[1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
+[1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
+[1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
+[1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.1...HEAD
+[1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
+[1.69.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.68.0...v1.69.0
+[1.70.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.69.0...v1.70.0
+[1.70.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.0...v1.70.1
+[1.70.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.1...v1.70.2
+[1.70.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.2...v1.70.3
+[1.70.5]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.3...v1.70.5
+[1.71.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.70.5...v1.71.1
+[1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
+[1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
+[1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
 >>>>>>> main

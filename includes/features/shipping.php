@@ -61,6 +61,8 @@ class CalculateShipping {
 		add_action( 'wp_ajax_nopriv_calculate_cart_shipping', array( $this, 'ajax_calculate_cart_shipping' ) );
 		add_action( 'wp_ajax_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
 		add_action( 'wp_ajax_nopriv_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
+		add_action( 'wp_ajax_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
+		add_action( 'wp_ajax_nopriv_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
 	}
 
 	public function register_rest_endpoints() {
@@ -269,16 +271,16 @@ class CalculateShipping {
 						$cost_display = wc_price( $rate->cost );
 					}
 					$shipping_methods[] = array(
-						'id'       => $rate->id,
-						'title'    => $rate->label,
-						'cost'     => $cost_display,
+						'id' => $rate->id,
+						'title' => $rate->label,
+						'cost' => $cost_display,
 						'raw_cost' => floatval( $rate->cost ),
 					);
 				}
 			}
 
 			wp_send_json_success( $shipping_methods );
-		} catch ( \Exception $e ) {
+		} catch (\Exception $e) {
 			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
 		}
 	}
@@ -386,58 +388,67 @@ class CalculateShipping {
 	}
 
 	/**
-	 * AJAX handler for selecting a shipping method in mini cart
-	 * Sets the chosen shipping method in WC session and returns updated totals
+	 * AJAX handler for calculating shipping methods from the minicart.
+	 * Uses the actual WC cart session instead of creating a mock cart.
 	 */
-	function ajax_select_shipping_method() {
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+	function ajax_calculate_minicart_shipping() {
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'blaze_blocksy_mini_cart_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Security check failed' ) );
 			return;
 		}
 
-		$method_id = isset( $_POST['method_id'] ) ? sanitize_text_field( $_POST['method_id'] ) : '';
+		$country = isset( $_POST['country'] ) ? sanitize_text_field( $_POST['country'] ) : '';
+		$state = isset( $_POST['state'] ) ? sanitize_text_field( $_POST['state'] ) : '';
+		$postcode = isset( $_POST['postcode'] ) ? sanitize_text_field( $_POST['postcode'] ) : '';
 
-		if ( empty( $method_id ) ) {
-			wp_send_json_error( array( 'message' => 'Shipping method is required' ) );
+		if ( empty( $country ) ) {
+			wp_send_json_error( array( 'message' => 'Country is required' ) );
 			return;
 		}
 
-		if ( ! WC()->cart || WC()->cart->is_empty() ) {
-			wp_send_json_error( array( 'message' => 'Cart is empty' ) );
+		if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart ) {
+			wp_send_json_error( array( 'message' => 'WooCommerce cart is not available' ) );
+			return;
+		}
+
+		if ( WC()->cart->is_empty() ) {
+			wp_send_json_error( array( 'message' => 'Your cart is empty' ) );
 			return;
 		}
 
 		try {
-			// Set the chosen shipping method in WC session
-			WC()->session->set( 'chosen_shipping_methods', array( $method_id ) );
+			WC()->customer->set_shipping_country( $country );
+			WC()->customer->set_shipping_state( $state );
+			WC()->customer->set_shipping_postcode( $postcode );
 
-			// Recalculate totals with the selected shipping method
-			WC()->cart->calculate_totals();
+			$packages = WC()->cart->get_shipping_packages();
+			$shipping_methods_result = WC()->shipping()->calculate_shipping( $packages );
 
-			$cart = WC()->cart;
+			$shipping_methods = array();
+			if ( ! empty( $shipping_methods_result ) && isset( $shipping_methods_result[0]['rates'] ) ) {
+				foreach ( $shipping_methods_result[0]['rates'] as $rate ) {
+					$cost_display = 'Free';
+					if ( $rate->cost > 0 ) {
+						$cost_display = wc_price( $rate->cost );
+					}
 
-			$subtotal = $cart->get_subtotal() + $cart->get_subtotal_tax();
-			$shipping_total = $cart->get_shipping_total();
-			$shipping_tax = $cart->get_shipping_tax();
-			$tax_total = $cart->get_total_tax();
-			$discount_total = $cart->get_discount_total();
-			$total = $cart->get_total( 'edit' );
+					$shipping_methods[] = array(
+						'id' => $rate->id,
+						'title' => $rate->label,
+						'cost' => $cost_display,
+					);
+				}
+			}
 
-			$shipping_display = ( floatval( $shipping_total ) == 0 ) ? 'Free' : wc_price( $shipping_total + $shipping_tax );
+			if ( empty( $shipping_methods ) ) {
+				wp_send_json_error( array( 'message' => 'No shipping methods available for this location.' ) );
+				return;
+			}
 
-			wp_send_json_success( array(
-				'subtotal'         => wc_price( $subtotal ),
-				'shipping'         => $shipping_display,
-				'shipping_raw'     => floatval( $shipping_total + $shipping_tax ),
-				'tax'              => wc_price( $tax_total ),
-				'tax_raw'          => floatval( $tax_total ),
-				'discount'         => wc_price( $discount_total ),
-				'discount_raw'     => floatval( $discount_total ),
-				'total'            => wc_price( $total ),
-				'total_raw'        => floatval( $total ),
-			) );
-		} catch ( \Exception $e ) {
-			wp_send_json_error( array( 'message' => 'Error selecting shipping method: ' . $e->getMessage() ) );
+			wp_send_json_success( $shipping_methods );
+
+		} catch (\Exception $e) {
+			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
 		}
 	}
 }

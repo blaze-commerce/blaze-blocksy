@@ -1,21 +1,1054 @@
 /**
- * Checkout Page Styles
+ * Checkout Page Layout Styles
  *
- * Custom styles for WooCommerce checkout page including error messages,
- * form layouts, and payment sections.
+ * Generic layout fixes for WooCommerce checkout with Fluid Checkout Pro.
+ * All color/font values use CSS custom properties with inheritable defaults
+ * so each site can override via its own custom/ directory.
  *
- * @package Blocksy_Child
- * @since 1.0.0
+ * @package Blaze_Blocksy
+ * @since 1.1.0
  */
+
+/* --- CSS Variables (inheritable defaults — override per-site in custom/) --- */
+.woocommerce-checkout {
+  --bc-co-border-color: var(--theme-border-color, #e5e5e5);
+  --bc-co-bg: var(--theme-bg, #ffffff);
+  --bc-co-radius: 8px;
+  --bc-co-gap: 34px;
+  --bc-co-focus-color: var(--theme-palette-color-1, currentColor);
+  --bc-co-upsell-accent: var(--theme-palette-color-1, #1246D5);
+  --bc-co-upsell-text: var(--theme-text-color, rgba(29, 29, 31, 0.9));
+  --bc-co-upsell-price: var(--theme-palette-color-5, #EF4444);
+  --bc-co-upsell-white: var(--theme-bg, #ffffff);
+}
+
+/* --- Hide WooCommerce "added to cart" notice on checkout --- */
+.woocommerce-checkout .woocommerce-message:has(> .button.wc-forward) {
+  display: none !important;
+}
 
 /* ===================================================================
    COUPON ERROR MESSAGE LAYOUT FIX - Fluid Checkout Specific
    =================================================================== */
 
-/* Coupon Error */
 .fc-coupon-code-messages .woocommerce-error::before {
-	display: none !important;
+  display: none !important;
 }
 .fc-coupon-code-messages .woocommerce-error {
-	padding: 10px !important;
+  padding: 10px !important;
+}
+
+/* ===================================================================
+   DESKTOP LAYOUT (>999px) — Two-Column Flex
+   =================================================================== */
+
+@media (min-width: 1000px) {
+  .woocommerce-checkout .fc-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: var(--bc-co-gap);
+    align-items: flex-start;
+  }
+
+  .woocommerce-checkout .fc-inside {
+    flex: 1 !important;
+    width: auto !important;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* Prevent pseudo-elements and hidden inputs from breaking flex layout */
+  .woocommerce-checkout .fc-wrapper::before,
+  .woocommerce-checkout .fc-wrapper::after {
+    display: none !important;
+  }
+
+  .woocommerce-checkout .fc-wrapper > wc-order-attribution-inputs {
+    display: none !important;
+  }
+}
+
+/* Small desktop (1000-1199px): percentage sidebar, reduced padding */
+@media (min-width: 1000px) and (max-width: 1199px) {
+  body.woocommerce-checkout main.content-area {
+    max-width: none !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+
+  .woocommerce-checkout .fc-sidebar {
+    width: 46% !important;
+    max-width: 640px;
+    flex-shrink: 0;
+  }
+}
+
+/* Large desktop (1200px - 1511px): 64px padding, proportional sidebar */
+@media (min-width: 1200px) and (max-width: 1511px) {
+  body.woocommerce-checkout main.content-area {
+    max-width: none !important;
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+  }
+
+  .woocommerce-checkout .fc-sidebar {
+    width: 46% !important;
+    max-width: 640px;
+    flex-shrink: 0;
+  }
+}
+
+/* Figma-native desktop (1512px+): 640px fixed sidebar */
+@media (min-width: 1512px) {
+  body.woocommerce-checkout main.content-area {
+    max-width: none !important;
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+  }
+
+  /* Cap content width to prevent stretching on ultra-wide */
+  .woocommerce-checkout .fc-wrapper {
+    max-width: 1384px;
+  }
+
+  .woocommerce-checkout .fc-sidebar {
+    width: 640px !important;
+    max-width: 640px;
+    flex-shrink: 0;
+  }
+}
+
+/* ===================================================================
+   STEP SECTIONS / FORM CONTAINERS
+   =================================================================== */
+
+.woocommerce-checkout .fc-checkout-step,
+.woocommerce-checkout .fc-step {
+  border: 1px solid var(--bc-co-border-color) !important;
+  border-radius: var(--bc-co-radius) !important;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.woocommerce-checkout .fc-step .form-row {
+  margin-bottom: 16px;
+}
+
+.woocommerce-checkout .fc-step .form-row:last-child {
+  margin-bottom: 0;
+}
+
+.woocommerce-checkout .fc-step .form-row label {
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ===================================================================
+   FORM FIELDS — Layout Only
+   =================================================================== */
+
+.woocommerce-checkout input[type="text"],
+.woocommerce-checkout input[type="email"],
+.woocommerce-checkout input[type="tel"],
+.woocommerce-checkout input[type="password"],
+.woocommerce-checkout input[type="number"],
+.woocommerce-checkout textarea,
+.woocommerce-checkout select {
+  border: 1px solid var(--bc-co-border-color);
+  border-radius: var(--bc-co-radius);
+  padding: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.woocommerce-checkout input[type="text"]:focus,
+.woocommerce-checkout input[type="email"]:focus,
+.woocommerce-checkout input[type="tel"]:focus,
+.woocommerce-checkout input[type="password"]:focus,
+.woocommerce-checkout input[type="number"]:focus,
+.woocommerce-checkout textarea:focus,
+.woocommerce-checkout select:focus {
+  border-color: var(--bc-co-focus-color);
+  outline: none;
+  box-shadow: 0 0 0 1px var(--bc-co-focus-color);
+}
+
+.woocommerce-checkout input[type="checkbox"] {
+  border-radius: 4px !important;
+}
+
+/* ===================================================================
+   BUTTONS — Layout Only (colors handled per-site)
+   =================================================================== */
+
+.woocommerce-checkout button.button,
+.woocommerce-checkout .fc-step__next-step .button,
+.woocommerce-checkout button.fc-step__next-step,
+.woocommerce-checkout .fc-step__next-step.button,
+.woocommerce-checkout #place_order {
+  border: none !important;
+  border-radius: 9999px !important;
+  padding: 8px 24px !important;
+  width: 100%;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-transform: uppercase !important;
+}
+
+.woocommerce-checkout #place_order {
+  padding: 12px 24px !important;
+}
+
+.woocommerce-checkout button.button:focus,
+.woocommerce-checkout .fc-step__next-step .button:focus,
+.woocommerce-checkout button.fc-step__next-step:focus,
+.woocommerce-checkout .fc-step__next-step.button:focus,
+.woocommerce-checkout #place_order:focus {
+  outline: 2px solid var(--bc-co-focus-color);
+  outline-offset: 2px;
+}
+
+/* Secondary/text buttons (edit cart, back links) */
+.woocommerce-checkout .fc-checkout-order-review__edit-cart,
+.woocommerce-checkout .fc-step__prev-step {
+  text-decoration: none !important;
+  background: none !important;
+  border: none !important;
+}
+
+/* ===================================================================
+   PROGRESS BAR — Layout Only (colors handled per-site)
+   =================================================================== */
+
+.woocommerce-checkout .fc-progress-bar {
+  padding: 0 24px !important;
+  margin: 0 !important;
+}
+
+.woocommerce-checkout .fc-progress-bar__steps {
+  border-radius: 10px !important;
+  height: 6px !important;
+}
+
+/* Progress bar segments — rounded, hide text (screen reader only) */
+.woocommerce-checkout .fc-progress-bar__steps .fc-progress-bar__step {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  text-indent: -9999px !important;
+}
+
+/* ===================================================================
+   ORDER SUMMARY SIDEBAR (Desktop)
+   =================================================================== */
+
+.woocommerce-checkout #fc-checkout-order-review {
+  border: 1px solid var(--bc-co-border-color) !important;
+  border-radius: var(--bc-co-radius) !important;
+  padding: 32px;
+}
+
+.woocommerce-checkout .fc-checkout-order-review__inner {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Order summary title row */
+.woocommerce-checkout .fc-checkout-order-review__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+  padding-bottom: 24px !important;
+  border-bottom: 1px solid var(--bc-co-border-color) !important;
+}
+
+/* Product card rows — border-top between cards */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item {
+  border-top: 1px solid var(--bc-co-border-color) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+/* First cart item: no border-top */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item:first-child {
+  border-top: none !important;
+}
+
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item td {
+  padding: 16px 0 0 0 !important;
+  border: none !important;
+}
+
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item:first-child td {
+  padding-top: 0 !important;
+}
+
+/* Divider between product cards and pricing rows */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item:last-child td {
+  padding-bottom: 24px !important;
+  border-bottom: 1px solid var(--bc-co-border-color) !important;
+}
+
+/* Product card flex layout */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item .product-name {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 0 !important;
+}
+
+/* Product details column */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item .product-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding-left: 0 !important;
+}
+
+/* Reset margins on product-details children — flex gap handles spacing */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item .product-details > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Product thumbnail — 120x120 desktop */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name img,
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .attachment-woocommerce_thumbnail,
+.woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item .product-name img.wp-post-image {
+  width: 120px !important;
+  height: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: none !important;
+  border-radius: 0;
+  overflow: hidden;
+  margin: 0 !important;
+}
+
+/* Product details container (non-FC specificity variant) */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* Product name line-height for multi-line wrapping */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name,
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details .product-name-inner,
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details > a,
+.woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item .product-name .woocommerce-cart-item__product-name {
+  line-height: 1.3 !important;
+  text-decoration: none;
+}
+
+/* CRITICAL: Remove FC's clearfix ::after pseudo-element on product-name flex container.
+   FC's float-based layout adds content:"" ::after for clearfix, but when display:flex
+   is also set, this becomes a third flex item that breaks the first row's flex
+   calculation in table-layout:fixed tables. */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name[role="cell"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Hide per-product quantity overlay on thumbnails */
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-quantity {
+  display: none !important;
+  position: static !important;
+}
+
+/* Quantity selector border */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .quantity,
+.woocommerce-checkout .fc-order-summary__quantity {
+  border-radius: 6px;
+  border: 1px solid var(--bc-co-border-color);
+}
+
+/* Review order table spacing */
+.woocommerce-checkout .woocommerce-checkout-review-order-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.woocommerce-checkout .woocommerce-checkout-review-order-table tbody tr + tr {
+  border-top: none;
+}
+
+/* Product name cell — flex layout */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item td .product-name {
+  display: flex !important;
+  gap: 16px !important;
+  align-items: flex-start !important;
+  padding: 12px 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item td {
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Subtotal / Tax / Total rows */
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr {
+  border: none !important;
+  border-top: none !important;
+}
+
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td {
+  padding: 4px 0 !important;
+  border: none !important;
+}
+
+/* 24px gap between product cards and pricing rows */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .cart-subtotal th,
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .cart-subtotal td {
+  padding-top: 24px !important;
+}
+
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .cart-subtotal td,
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .tax-rate td,
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .tax-total td,
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .shipping td {
+  text-align: right;
+}
+
+/* Total row separator */
+.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .order-total {
+  border-top: 1px solid var(--bc-co-border-color) !important;
+}
+
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total th,
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total td {
+  padding: 5px 0 4px !important;
+  border-top: 1px solid var(--bc-co-border-color) !important;
+}
+
+/* Total amount — right aligned */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .order-total td {
+  text-align: right;
+}
+
+/* Coupon row padding fix */
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.coupon-code-form td,
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot td[colspan] {
+  padding: 4px 0 !important;
+  padding-bottom: 4px !important;
+}
+
+/* Badge layout (desktop only — colors per-site) */
+@media (min-width: 1000px) {
+  .woocommerce-checkout .fc-order-summary__item-count,
+  .woocommerce-checkout .fc-checkout-order-review__item-count,
+  .woocommerce-checkout .fc-cart-items-count {
+    border: 1px solid var(--bc-co-border-color) !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
+    text-align: center !important;
+    display: inline-block !important;
+  }
+}
+
+/* Coupon input */
+.woocommerce-checkout .checkout_coupon .input-text {
+  border: 1px solid var(--bc-co-border-color);
+  border-radius: var(--bc-co-radius);
+  padding: 12px;
+}
+
+/* Coupon separator */
+.woocommerce-checkout .fc-coupon-code__separator,
+.woocommerce-checkout .woocommerce-checkout-review-order .fc-divider {
+  border: none;
+  border-top: 1px solid var(--bc-co-border-color);
+  margin: 0;
+}
+
+/* ===================================================================
+   SHIPPING METHOD SELECTION
+   =================================================================== */
+
+.woocommerce-checkout .shipping-method-option,
+.woocommerce-checkout #shipping_method li {
+  border: 1px solid var(--bc-co-border-color);
+  border-radius: var(--bc-co-radius);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+/* ===================================================================
+   PAYMENT METHODS
+   =================================================================== */
+
+.woocommerce-checkout .wc_payment_methods .wc_payment_method {
+  border: 1px solid var(--bc-co-border-color);
+  border-radius: var(--bc-co-radius);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.woocommerce-checkout .wc_payment_method .payment_box {
+  background: transparent;
+  padding: 12px 0 0;
+}
+
+/* ===================================================================
+   TERMS & CONDITIONS
+   =================================================================== */
+
+.woocommerce-checkout .woocommerce-terms-and-conditions-wrapper {
+  margin-top: 16px;
+}
+
+/* ===================================================================
+   PLACE ORDER SECTION
+   =================================================================== */
+
+.woocommerce-checkout .fc-place-order__section {
+  margin-top: 24px;
+}
+
+/* Hide FC Save Changes button */
+.woocommerce-checkout .fc-checkout-step button.fc-step__substep-save.button {
+  display: none !important;
+}
+
+/* ===================================================================
+   FLUID CHECKOUT OVERRIDE FIXES
+   =================================================================== */
+
+/* Step inner padding — 24px desktop */
+.woocommerce-checkout .fc-checkout-step .fc-step__substep,
+.woocommerce-checkout .fc-checkout-step > section {
+  padding: 24px !important;
+}
+
+.woocommerce-checkout .fc-checkout-step .fc-step__actions {
+  padding: 0 24px 24px !important;
+}
+
+/* Login toggle area layout */
+.woocommerce-checkout .fc-contact-login__content {
+  padding: 20px !important;
+  border-radius: var(--bc-co-radius) !important;
+  margin-bottom: 16px;
+}
+
+/* Total label — no uppercase */
+.woocommerce-checkout .woocommerce-checkout-review-order-table .order-total th {
+  text-transform: none !important;
+}
+
+/* FC border color override on step sections */
+.woocommerce-checkout .fc-checkout-step,
+.woocommerce-checkout .fc-checkout-step .fc-step__actions {
+  border-color: var(--bc-co-border-color) !important;
+}
+
+/* Remove extra space below checkout content */
+body.woocommerce-checkout .fc-content.fc-container {
+  padding-bottom: 0 !important;
+}
+
+/* ===================================================================
+   RESPONSIVE: TABLET (425px - 999px)
+   =================================================================== */
+
+@media (max-width: 999px) and (min-width: 425px) {
+
+  body.woocommerce-checkout main.content-area {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Progress bar — reduced padding */
+  .woocommerce-checkout .fc-progress-bar {
+    padding: 0 16px !important;
+  }
+
+  /* Badge — hidden on tablet */
+  .woocommerce-checkout .fc-order-summary__item-count,
+  .woocommerce-checkout .fc-checkout-order-review__item-count,
+  .woocommerce-checkout .fc-cart-items-count {
+    display: none !important;
+  }
+
+  /* Order summary container — connected to toggle header */
+  .woocommerce-checkout #fc-checkout-order-review {
+    padding: 32px;
+    border-radius: 0 0 var(--bc-co-radius) var(--bc-co-radius) !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+  }
+
+  /* Fix FC inner container negative margin */
+  .woocommerce-checkout .fc-checkout-order-review__inner {
+    margin: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+  }
+
+  /* Toggle header expanded — connect to order summary below */
+  .woocommerce-checkout .fc-sidebar-header.expanded {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none !important;
+    position: relative;
+  }
+
+  /* Inset divider — aligned with content padding (32px) */
+  .woocommerce-checkout .fc-sidebar-header.expanded::after {
+    content: "" !important;
+    position: absolute;
+    bottom: 0;
+    left: 32px;
+    right: 32px;
+    height: 1px;
+    background: var(--bc-co-border-color);
+  }
+
+  /* Reset FC's negative margin on steps container */
+  .woocommerce-checkout .fc-checkout-steps {
+    margin: 0 !important;
+  }
+
+  /* Step inner padding — 16px tablet */
+  .woocommerce-checkout .fc-checkout-step .fc-step__substep,
+  .woocommerce-checkout .fc-checkout-step > section {
+    padding: 16px !important;
+  }
+
+  .woocommerce-checkout .fc-checkout-step .fc-step__actions {
+    padding: 0 16px 16px !important;
+  }
+
+  /* Force table to respect container width */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Reset FC's default td/th padding */
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table td,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table th {
+    padding: 4px 0 !important;
+  }
+
+  /* Remove FC's border-top on tfoot rows */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr {
+    border-top: none !important;
+  }
+
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr th,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr td {
+    border-top: none !important;
+  }
+
+  /* 24px gap between product cards and pricing rows */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .cart-subtotal th,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .cart-subtotal td {
+    padding-top: 24px !important;
+  }
+
+  /* Total row separator */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .order-total {
+    border-top: 1px solid var(--bc-co-border-color) !important;
+  }
+
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total th,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total td {
+    padding: 5px 0 4px !important;
+  }
+
+  /* Coupon row padding */
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.coupon-code-form td,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot td[colspan] {
+    padding: 4px 0 !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Product thumbnails — 80px tablet */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name img,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .attachment-woocommerce_thumbnail,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item .product-name img.wp-post-image {
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
+  }
+
+  /* Product details overflow reset */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding-left: 0 !important;
+  }
+
+  /* Product name text overflow — 2 line clamp */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+  }
+
+  /* Tfoot cell overflow */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot td {
+    word-break: break-word !important;
+  }
+}
+
+/* ===================================================================
+   RESPONSIVE: MOBILE (<425px)
+   =================================================================== */
+
+@media (max-width: 424px) {
+
+  body.woocommerce-checkout main.content-area {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* Progress bar — reduced padding */
+  .woocommerce-checkout .fc-progress-bar {
+    padding: 0 16px !important;
+  }
+
+  /* Badge — hidden on mobile */
+  .woocommerce-checkout .fc-order-summary__item-count,
+  .woocommerce-checkout .fc-checkout-order-review__item-count,
+  .woocommerce-checkout .fc-cart-items-count {
+    display: none !important;
+  }
+
+  /* Mobile padding — connected to toggle header */
+  .woocommerce-checkout #fc-checkout-order-review {
+    padding: 16px;
+    border-radius: 0 0 var(--bc-co-radius) var(--bc-co-radius) !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+  }
+
+  /* Fix FC inner container negative margin */
+  .woocommerce-checkout .fc-checkout-order-review__inner {
+    margin: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+  }
+
+  /* Toggle header expanded — connect to order summary below */
+  .woocommerce-checkout .fc-sidebar-header.expanded {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom: none !important;
+    position: relative;
+  }
+
+  /* Inset divider — aligned with content padding (16px) */
+  .woocommerce-checkout .fc-sidebar-header.expanded::after {
+    content: "" !important;
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: var(--bc-co-border-color);
+  }
+
+  .woocommerce-checkout .fc-step {
+    padding: 16px;
+  }
+
+  /* Step inner padding — 16px mobile */
+  .woocommerce-checkout .fc-checkout-step .fc-step__substep,
+  .woocommerce-checkout .fc-checkout-step > section {
+    padding: 16px !important;
+  }
+
+  .woocommerce-checkout .fc-checkout-step .fc-step__actions {
+    padding: 0 16px 16px !important;
+  }
+
+  /* Reset FC's negative margin on steps container */
+  .woocommerce-checkout .fc-checkout-steps {
+    margin: 0 !important;
+  }
+
+  /* Force table to respect container width */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Reset FC's default td/th padding */
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table td,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table th {
+    padding: 4px 0 !important;
+  }
+
+  /* Remove FC's border-top on tfoot rows */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr {
+    border-top: none !important;
+  }
+
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr th,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr td {
+    border-top: none !important;
+  }
+
+  /* 24px gap between product cards and pricing rows */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .cart-subtotal th,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .cart-subtotal td {
+    padding-top: 24px !important;
+  }
+
+  /* Total row separator */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table tfoot .order-total {
+    border-top: 1px solid var(--bc-co-border-color) !important;
+  }
+
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total th,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total td {
+    padding: 5px 0 4px !important;
+  }
+
+  /* Coupon row padding */
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.coupon-code-form td,
+  body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot td[colspan] {
+    padding: 4px 0 !important;
+    padding-bottom: 4px !important;
+  }
+
+  /* Product thumbnails — 64px mobile */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name img,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .attachment-woocommerce_thumbnail,
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .cart_item .product-name img.wp-post-image {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    max-height: 64px !important;
+  }
+
+  /* Product details overflow reset */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding-left: 0 !important;
+  }
+
+  /* Product name text overflow — 2 line clamp */
+  .woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+  }
+
+  /* Buttons full width — min-width:0 overrides FC's min-width that causes overflow */
+  .woocommerce-checkout button.button,
+  .woocommerce-checkout #place_order {
+    width: 100%;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* --- Section: Checkout Upsell / Order Bump (Figma node 20417:62459) --- */
+.checkout-upsell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px dashed var(--bc-co-upsell-accent);
+  margin-top: 16px;
+}
+
+.checkout-upsell__content {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.checkout-upsell__image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.checkout-upsell__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.checkout-upsell .checkout-upsell__title {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-accent);
+}
+
+.checkout-upsell__product-row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.checkout-upsell .checkout-upsell__product-name {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-text);
+}
+
+.checkout-upsell .checkout-upsell__price {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.71em;
+  color: var(--bc-co-upsell-price);
+}
+
+/* Override WooCommerce price markup inside upsell */
+.checkout-upsell .checkout-upsell__price span,
+.checkout-upsell .checkout-upsell__price bdi {
+  color: inherit;
+}
+
+.checkout-upsell .checkout-upsell__price del,
+.checkout-upsell .checkout-upsell__price del span,
+.checkout-upsell .checkout-upsell__price del bdi {
+  color: #999;
+  font-weight: 400;
+}
+
+.checkout-upsell .checkout-upsell__price ins {
+  text-decoration: none;
+  color: var(--bc-co-upsell-price);
+}
+
+.checkout-upsell .checkout-upsell__description {
+  font-weight: 400;
+  font-size: 14px !important;
+  line-height: 1.185em !important;
+  color: var(--bc-co-upsell-text);
+  margin: 0;
+}
+
+.checkout-upsell__checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Hide native checkbox */
+.checkout-upsell__checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Custom checkbox */
+.checkout-upsell__checkbox-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--bc-co-upsell-accent);
+  border-radius: 4px;
+  background: var(--bc-co-upsell-white);
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Checkmark icon */
+.checkout-upsell__checkbox-custom::after {
+  content: '';
+  display: none;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--bc-co-upsell-white);
+  border-bottom: 2px solid var(--bc-co-upsell-white);
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.checkout-upsell__checkbox:checked + .checkout-upsell__checkbox-custom {
+  background: var(--bc-co-upsell-accent);
+  border-color: var(--bc-co-upsell-accent);
+}
+
+.checkout-upsell__checkbox:checked + .checkout-upsell__checkbox-custom::after {
+  display: block;
+}
+
+.checkout-upsell .checkout-upsell__checkbox-label {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: var(--bc-co-upsell-text);
+}
+
+/* Loading state */
+.checkout-upsell--loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 425px) {
+  .checkout-upsell__content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .checkout-upsell__product-row {
+    justify-content: center;
+  }
+
+  .checkout-upsell__checkbox-row {
+    justify-content: center;
+  }
 }

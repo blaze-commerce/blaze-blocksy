@@ -1,6 +1,5 @@
 jQuery( document ).ready(
 	function ($) {
-		console.log( 'Checkout JS loaded' );
 
 		/**
 		 * Auto-scroll to checkout errors
@@ -41,7 +40,6 @@ jQuery( document ).ready(
 					}, 2000);
 				});
 
-				console.log('Scrolled to checkout error');
 			}
 		}
 
@@ -50,7 +48,6 @@ jQuery( document ).ready(
 		 * This is triggered when WooCommerce detects validation errors
 		 */
 		$(document.body).on('checkout_error', function() {
-			console.log('checkout_error event triggered');
 			setTimeout(scrollToCheckoutErrors, 100);
 		});
 

@@ -170,14 +170,16 @@ jQuery(document).ready(function ($) {
 
     // Accordion: close other sections when opening this one
     if (isOpening) {
-      $(".mini-cart-form-section").not($section).each(function () {
-        var $otherWrapper = $(this).find(".mini-cart-form-wrapper");
-        var $otherArrow = $(this).find(".mini-cart-arrow");
-        if ($otherWrapper.is(":visible")) {
-          $otherWrapper.slideUp(300);
-          $otherArrow.text("▼");
-        }
-      });
+      $(".mini-cart-form-section")
+        .not($section)
+        .each(function () {
+          var $otherWrapper = $(this).find(".mini-cart-form-wrapper");
+          var $otherArrow = $(this).find(".mini-cart-arrow");
+          if ($otherWrapper.is(":visible")) {
+            $otherWrapper.slideUp(300);
+            $otherArrow.text("▼");
+          }
+        });
     }
 
     $wrapper.slideToggle(300);
@@ -243,6 +245,12 @@ jQuery(document).ready(function ($) {
     } else {
       localStorage.removeItem("blaze_shipping_state");
     }
+    var $wrapper = $(this).siblings(".coupon-form-wrapper");
+
+    $wrapper.slideToggle(300);
+
+    // Toggle arrow rotation via CSS class
+    $(this).toggleClass("open");
   });
 
   // Save postcode to localStorage on change
@@ -454,6 +462,150 @@ jQuery(document).ready(function ($) {
   );
 
   /**
+   * Toggle shipping form visibility
+   */
+  $(document).on("click", ".shipping-toggle", function (e) {
+    e.preventDefault();
+
+    var $wrapper = $(this).siblings(".shipping-form-wrapper");
+
+    $wrapper.slideToggle(300);
+
+    $(this).toggleClass("open");
+  });
+
+  /**
+   * Country change - load states/provinces via AJAX
+   */
+  $(document).on("change", ".shipping-country-select", function () {
+    var countryCode = $(this).val();
+    var $stateSelect = $(this)
+      .closest(".mini-cart-shipping-form")
+      .find(".shipping-state-select");
+
+    if (!countryCode) {
+      $stateSelect
+        .html('<option value="">City</option>')
+        .prop("disabled", true);
+      return;
+    }
+
+    $stateSelect
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+
+    $.ajax({
+      url: blazeBlocksyMiniCart.ajax_url,
+      type: "POST",
+      data: {
+        action: "blaze_blocksy_get_states",
+        country_code: countryCode,
+      },
+      success: function (response) {
+        if (response.success && response.data) {
+          var states = response.data;
+          var options = '<option value="">City</option>';
+
+          if (Object.keys(states).length > 0) {
+            $.each(states, function (code, name) {
+              options += '<option value="' + code + '">' + name + "</option>";
+            });
+            $stateSelect.html(options).prop("disabled", false);
+          } else {
+            $stateSelect
+              .html('<option value="">City</option>')
+              .prop("disabled", false);
+          }
+        }
+      },
+      error: function () {
+        $stateSelect
+          .html('<option value="">City</option>')
+          .prop("disabled", false);
+      },
+    });
+  });
+
+  /**
+   * Shipping form submission - calculate shipping methods
+   */
+  $(document).on("submit", ".mini-cart-shipping-form", function (e) {
+    e.preventDefault();
+
+    var $form = $(this);
+    var $button = $form.find(".calculate-shipping-btn");
+    var $results = $form.siblings(".shipping-results");
+    var $methodsList = $results.find(".shipping-methods-list");
+
+    var country = $form.find(".shipping-country-select").val();
+    var state = $form.find(".shipping-state-select").val();
+    var postcode = $form.find(".shipping-postcode-input").val();
+
+    if (!country) {
+      return;
+    }
+
+    $button.prop("disabled", true).text("CALCULATING...");
+    $methodsList.empty();
+    $results.hide();
+
+    $.ajax({
+      url: blazeBlocksyMiniCart.ajax_url,
+      type: "POST",
+      data: {
+        action: "calculate_minicart_shipping",
+        country: country,
+        state: state,
+        postcode: postcode,
+        nonce: blazeBlocksyMiniCart.nonce,
+      },
+      success: function (response) {
+        if (response.success && response.data) {
+          displayMiniCartShippingMethods(response.data, $methodsList);
+          $results.slideDown(300);
+        } else {
+          var msg =
+            response.data && response.data.message
+              ? response.data.message
+              : "No shipping methods available.";
+          $methodsList.html(
+            '<div class="shipping-no-methods">' + msg + "</div>",
+          );
+          $results.slideDown(300);
+        }
+      },
+      error: function () {
+        $methodsList.html(
+          '<div class="shipping-no-methods">Error calculating shipping. Please try again.</div>',
+        );
+        $results.slideDown(300);
+      },
+      complete: function () {
+        $button.prop("disabled", false).text("CALCULATE SHIPPING");
+      },
+    });
+  });
+
+  /**
+   * Display shipping methods in the results area
+   */
+  function displayMiniCartShippingMethods(methods, $container) {
+    $container.empty();
+
+    $.each(methods, function (i, method) {
+      var $item = $('<div class="shipping-method-item"></div>');
+      $item.append(
+        $('<span class="shipping-method-label"></span>').text(method.title),
+      );
+      // method.cost is pre-formatted HTML from wc_price()
+      $item.append(
+        $('<span class="shipping-method-cost"></span>').html(method.cost),
+      );
+      $container.append($item);
+    });
+  }
+
+  /**
    * Handle coupon form submission
    */
   $(document).on("submit", ".mini-cart-coupon-form", function (e) {
@@ -628,6 +780,9 @@ jQuery(document).ready(function ($) {
 
     // Update heading count when cart is refreshed
     updateCartPanelHeadingCount();
+
+    // Reset shipping results on cart update (totals may have changed)
+    $(".shipping-results").hide().find(".shipping-methods-list").empty();
   });
 
   /**

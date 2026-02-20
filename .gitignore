@@ -411,3 +411,6 @@ mock-data-*.json
 
 # Ignore custom files
 custom/
+
+# Git worktrees
+.worktrees/
