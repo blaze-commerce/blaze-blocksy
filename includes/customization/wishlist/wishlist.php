@@ -1478,3 +1478,13 @@ class BlocksyChildWishlistRecommendations {
 
 // Initialize the off-canvas wishlist functionality
 new BlocksyChildWishlistOffCanvas();
+
+// Disable direct wishlist page access — redirect to shop (Task: 86ewnj5v5)
+add_action( 'template_redirect', function () {
+	$wishlist_page_id = get_option( 'yith_wcwl_wishlist_page_id' );
+	if ( $wishlist_page_id && is_page( $wishlist_page_id ) ) {
+		$redirect = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
+		wp_safe_redirect( $redirect ?: home_url( '/' ), 302 );
+		exit;
+	}
+} );

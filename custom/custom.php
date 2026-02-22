@@ -420,6 +420,9 @@ add_action( 'wp_footer', function () {
 	if ( ! has_nav_menu( 'header_info_dropdown' ) ) {
 		return;
 	}
+	// Detect wishlist page URL to intercept clicks and open offcanvas (Task: 86ewnj5v5)
+	$wishlist_page_id = get_option( 'yith_wcwl_wishlist_page_id' );
+	$wishlist_url     = $wishlist_page_id ? untrailingslashit( get_permalink( $wishlist_page_id ) ) : '';
 	// Render the menu links
 	$menu_html = wp_nav_menu( array(
 		'theme_location'  => 'header_info_dropdown',
@@ -428,9 +431,20 @@ add_action( 'wp_footer', function () {
 		'depth'           => 1,
 		'echo'            => false,
 		'fallback_cb'     => false,
-		'walker'          => new class extends Walker_Nav_Menu {
+		'walker'          => new class( $wishlist_url ) extends Walker_Nav_Menu {
+			private $wishlist_url;
+			public function __construct( $wishlist_url ) {
+				$this->wishlist_url = $wishlist_url;
+			}
 			public function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
-				$output .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';
+				$is_wishlist = $this->wishlist_url
+					&& untrailingslashit( $item->url ) === $this->wishlist_url;
+				if ( $is_wishlist ) {
+					$output .= '<a href="#wishlist-offcanvas" data-shortcut="wishlist" class="ct-offcanvas-trigger">'
+						. esc_html( $item->title ) . '</a>';
+				} else {
+					$output .= '<a href="' . esc_url( $item->url ) . '">' . esc_html( $item->title ) . '</a>';
+				}
 			}
 			public function end_el( &$output, $item, $depth = 0, $args = null ) {}
 			public function start_lvl( &$output, $depth = 0, $args = null ) {}
@@ -451,6 +465,13 @@ add_action( 'wp_footer', function () {
 		if (panel && !panel.innerHTML.trim()) {
 			panel.innerHTML = <?php echo $menu_json; ?>;
 		}
+		// Close info dropdown when wishlist off-canvas link is triggered (capture phase
+		// ensures it runs before stopPropagation in wishlist-offcanvas.js)
+		document.addEventListener('click', function(e) {
+			if (e.target.closest('[data-shortcut="wishlist"]')) {
+				wrap.classList.remove('info-open');
+			}
+		}, true);
 		// Click-only toggle (not hover)
 		var link = wrap.querySelector('.header-icon-info');
 		if (!link) return;
