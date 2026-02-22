@@ -78,7 +78,7 @@ class BlocksyChildWishlistHelper {
 	 * @return bool True if off-canvas mode is enabled.
 	 */
 	public static function is_offcanvas_enabled() {
-		return self::get_theme_mod( 'wishlist_display_mode', 'page' ) === 'offcanvas';
+		return self::get_theme_mod( 'wishlist_display_mode', 'offcanvas' ) === 'offcanvas';
 	}
 
 	/**
