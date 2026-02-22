@@ -57,6 +57,10 @@ class CalculateShipping {
 		add_action( 'wp_ajax_nopriv_blaze_blocksy_get_states', array( $this, 'ajax_get_states' ) );
 		add_action( 'wp_ajax_calculate_shipping_methods', array( $this, 'ajax_calculate_shipping_methods' ) );
 		add_action( 'wp_ajax_nopriv_calculate_shipping_methods', array( $this, 'ajax_calculate_shipping_methods' ) );
+		add_action( 'wp_ajax_calculate_cart_shipping', array( $this, 'ajax_calculate_cart_shipping' ) );
+		add_action( 'wp_ajax_nopriv_calculate_cart_shipping', array( $this, 'ajax_calculate_cart_shipping' ) );
+		add_action( 'wp_ajax_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
+		add_action( 'wp_ajax_nopriv_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
 		add_action( 'wp_ajax_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
 		add_action( 'wp_ajax_nopriv_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
 	}
@@ -225,6 +229,63 @@ class CalculateShipping {
 	}
 
 	/**
+	 * AJAX handler for calculating shipping for current cart contents
+	 */
+	function ajax_calculate_cart_shipping() {
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
+
+		$country = isset( $_POST['country'] ) ? sanitize_text_field( $_POST['country'] ) : '';
+		$state = isset( $_POST['state'] ) ? sanitize_text_field( $_POST['state'] ) : '';
+		$postcode = isset( $_POST['postcode'] ) ? sanitize_text_field( $_POST['postcode'] ) : '';
+
+		if ( empty( $country ) || empty( $state ) ) {
+			wp_send_json_error( array( 'message' => 'Country and State are required' ) );
+			return;
+		}
+
+		if ( ! WC()->cart || WC()->cart->is_empty() ) {
+			wp_send_json_error( array( 'message' => 'Cart is empty' ) );
+			return;
+		}
+
+		try {
+			// Set shipping destination on customer
+			WC()->customer->set_shipping_country( $country );
+			WC()->customer->set_shipping_state( $state );
+			WC()->customer->set_shipping_postcode( $postcode );
+
+			// Calculate shipping using current cart
+			WC()->cart->calculate_shipping();
+			WC()->cart->calculate_totals();
+
+			$packages = WC()->shipping()->get_packages();
+			$shipping_methods = array();
+
+			if ( ! empty( $packages ) ) {
+				foreach ( $packages[0]['rates'] as $rate ) {
+					$cost_display = 'Free';
+					if ( $rate->cost > 0 ) {
+						$cost_display = wc_price( $rate->cost );
+					}
+					$shipping_methods[] = array(
+						'id' => $rate->id,
+						'title' => $rate->label,
+						'cost' => $cost_display,
+						'raw_cost' => floatval( $rate->cost ),
+					);
+				}
+			}
+
+			wp_send_json_success( $shipping_methods );
+		} catch (\Exception $e) {
+			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+		}
+	}
+
+	/**
 	 * AJAX handler for calculating shipping methods
 	 */
 	function ajax_calculate_shipping_methods() {
@@ -372,9 +433,9 @@ class CalculateShipping {
 					}
 
 					$shipping_methods[] = array(
-						'id'    => $rate->id,
+						'id' => $rate->id,
 						'title' => $rate->label,
-						'cost'  => $cost_display,
+						'cost' => $cost_display,
 					);
 				}
 			}
@@ -386,7 +447,7 @@ class CalculateShipping {
 
 			wp_send_json_success( $shipping_methods );
 
-		} catch ( \Exception $e ) {
+		} catch (\Exception $e) {
 			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
 		}
 	}
