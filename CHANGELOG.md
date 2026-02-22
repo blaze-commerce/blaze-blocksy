@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.2] - 2026-02-22
+
+### Fixed
+- free shipping progress bar skips coupon-only methods (min_amount=0) (#226)
+
 ## [1.75.1] - 2026-02-22
 
 ### Fixed
@@ -4330,7 +4335,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...HEAD
+[1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4345,5 +4351,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...HEAD
+[1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...HEAD
 >>>>>>> main
