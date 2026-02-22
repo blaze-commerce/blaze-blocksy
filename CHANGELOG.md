@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.0] - 2026-02-22
+
+### Added
+- add smart add-to-cart for recommendation cards with per-type AJAX/redirect logic (#224)
+
 ## [1.74.0] - 2026-02-17
 
 ### Added
