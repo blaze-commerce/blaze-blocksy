@@ -365,25 +365,122 @@ jQuery(document).ready(function ($) {
   });
 
   /**
-   * Handle recommended product clicks
+   * Open Blocksy cart panel by triggering its native anchor click
    */
-  $(document).on(
-    "click",
-    ".recommended-product-item .product-link",
-    function (e) {
-      // Allow normal navigation - no special handling needed
-      // This is just a placeholder for future enhancements
+  function openCartPanel() {
+    var cartTrigger = document.querySelector('a[href="#woo-cart-panel"]');
+    if (cartTrigger) {
+      cartTrigger.click();
     }
-  );
+  }
 
   /**
-   * Add smooth animations for mini cart interactions
+   * Open cart panel after AJAX add-to-cart on archive/shop pages
    */
-  $(document)
-    .on("mouseenter", ".recommended-product-item", function () {
-      $(this).addClass("hover-effect");
-    })
-    .on("mouseleave", ".recommended-product-item", function () {
-      $(this).removeClass("hover-effect");
+  $(document.body).on("added_to_cart", function () {
+    openCartPanel();
+  });
+
+  /**
+   * Preserve variation state across Blocksy's AJAX add-to-cart.
+   *
+   * On single product pages Blocksy's add-to-cart-single.js intercepts the
+   * form submit via its own handler (bound directly on the form element) and
+   * POSTs to ?blocksy_add_to_cart=yes using fetch(). After success it triggers
+   * added_to_cart → WC processes fragments → wc_fragments_refreshed fires →
+   * WC's variation-form.js resets all attribute selects to "" and clears
+   * variation_id, making the second "Add to cart" click fail with
+   * "Please choose product options".
+   *
+   * Fix: snapshot variation state just before the submit (selects still hold
+   * the user's choices at that point) and restore directly after
+   * wc_fragments_refreshed. No e.preventDefault() — Blocksy owns the AJAX.
+   */
+  $(document).on("submit", ".ct-ajax-add-to-cart form.cart", function () {
+    var $form = $(this);
+    var state = {};
+    $form.find('select[name^="attribute_"]').each(function () {
+      state[this.name] = this.value;
     });
+    var varId = $form.find('input[name="variation_id"]').val() || "";
+    if (Object.keys(state).length > 0 || varId) {
+      $form.data("_varState", state);
+      $form.data("_varId", varId);
+    }
+  });
+
+  $(document.body).on("wc_fragments_refreshed.varrestore", function () {
+    $(".ct-ajax-add-to-cart form.cart").each(function () {
+      var $form = $(this);
+      var state = $form.data("_varState");
+      var varId = $form.data("_varId");
+      if (!state || !Object.keys(state).length) {
+        return;
+      }
+      // setTimeout(0) ensures this runs after WC's variation-form.js reset
+      // (which also fires on wc_fragments_refreshed synchronously).
+      setTimeout(function () {
+        Object.keys(state).forEach(function (name) {
+          $form.find('select[name="' + name + '"]').val(state[name]);
+        });
+        if (varId) {
+          $form.find('input[name="variation_id"]').val(varId);
+        }
+      }, 0);
+    });
+  });
+
+  /**
+   * Recommendation card "Add" button handler.
+   *
+   * PHP sets data-redirect-url on variable products with multiple variations
+   * (user must choose on the product page). For products with exactly one
+   * variation or no variations, PHP passes the correct product/variation ID
+   * so WC_Cart can add it directly via AJAX.
+   */
+  $(document).on("click", ".rec-add-to-cart-btn", function (e) {
+    e.preventDefault();
+
+    var $btn = $(this);
+    var productId = $btn.data("product-id");
+    var redirectUrl = $btn.data("redirect-url");
+
+    // Products requiring variation selection → send to product page
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    if (!productId || $btn.hasClass("loading")) {
+      return;
+    }
+
+    $btn.addClass("loading").prop("disabled", true);
+
+    var ajaxUrl =
+      (typeof wc_add_to_cart_params !== "undefined" &&
+        wc_add_to_cart_params.wc_ajax_url) ||
+      blazeBlocksyMiniCart.ajax_url;
+
+    $.ajax({
+      url: ajaxUrl.replace("%%endpoint%%", "add_to_cart"),
+      type: "POST",
+      data: {
+        product_id: productId,
+        quantity: 1,
+      },
+      success: function (response) {
+        if (response && response.fragments) {
+          $.each(response.fragments, function (key, value) {
+            $(key).replaceWith(value);
+          });
+          $(document.body).trigger("wc_fragments_refreshed");
+        }
+        $btn.removeClass("loading").prop("disabled", false);
+      },
+      error: function () {
+        $btn.removeClass("loading").prop("disabled", false);
+      },
+    });
+  });
 });
