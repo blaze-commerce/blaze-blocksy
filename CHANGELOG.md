@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.75.0] - 2026-02-22
 
 ### Added
+- add smart add-to-cart for recommendation cards with per-type AJAX/redirect logic (#225)
+
+## [1.75.0] - 2026-02-22
+
+### Added
 - add smart add-to-cart for recommendation cards with per-type AJAX/redirect logic (#224)
 
 ## [1.74.0] - 2026-02-17
@@ -4319,7 +4324,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
+[1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4333,5 +4339,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
+[1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...HEAD
 >>>>>>> main
