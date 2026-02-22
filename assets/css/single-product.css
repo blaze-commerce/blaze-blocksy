@@ -762,6 +762,73 @@
 }
 
 /* ========================================
+   REVIEW FORM VALIDATION ERRORS
+   ======================================== */
+
+.blaze-field-invalid input,
+.blaze-field-invalid textarea,
+.blaze-field-invalid select {
+  border-color: #ef4444 !important;
+}
+
+.blaze-field-invalid .stars {
+  outline: 2px solid #ef4444;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.blaze-field-error {
+  display: block;
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ========================================
+   REVIEW SUBMISSION SUCCESS NOTICE
+   ======================================== */
+
+.blaze-review-success-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.blaze-review-success-notice.is-approved {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.blaze-review-success-notice.is-hold {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.blaze-review-success-notice .blaze-review-success-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.blaze-review-success-notice .blaze-review-success-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.blaze-review-success-notice p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+/* ========================================
    RECENTLY VIEWED PRODUCTS STYLES
    ======================================== */
 
