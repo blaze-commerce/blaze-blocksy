@@ -34,7 +34,7 @@ $available_countries = $countries->get_shipping_countries();
 		<input type="text" id="postcode" placeholder="Enter postcode/zip">
 	</div>
 
-	<button class="calculate-btn" id="calculate-shipping-btn">CALCULATE SHIPPING</button>
+	<button class="calculate-btn" id="calculate-shipping-btn">Calculate Shipping</button>
 
 	<!-- Shipping Results Area -->
 	<div id="shipping-results" class="shipping-results" style="display: none;">
@@ -288,7 +288,7 @@ $available_countries = $countries->get_shipping_countries();
 				},
 				complete: function () {
 					// Reset button state
-					$button.prop('disabled', false).text('CALCULATE SHIPPING');
+					$button.prop('disabled', false).text('Calculate Shipping');
 				}
 			});
 		});
