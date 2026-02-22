@@ -421,8 +421,15 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	// Detect wishlist page URL to intercept clicks and open offcanvas (Task: 86ewnj5v5)
-	$wishlist_page_id = get_option( 'yith_wcwl_wishlist_page_id' );
-	$wishlist_url     = $wishlist_page_id ? untrailingslashit( get_permalink( $wishlist_page_id ) ) : '';
+	// Try Blocksy's theme mod first, fall back to page slug lookup
+	$wishlist_page_id = function_exists( 'blocksy_get_theme_mod' )
+		? (int) blocksy_get_theme_mod( 'woocommerce_wish_list_page', 0 )
+		: 0;
+	if ( ! $wishlist_page_id ) {
+		$wishlist_page    = get_page_by_path( 'wishlist' );
+		$wishlist_page_id = $wishlist_page ? $wishlist_page->ID : 0;
+	}
+	$wishlist_url = $wishlist_page_id ? untrailingslashit( get_permalink( $wishlist_page_id ) ) : '';
 	// Render the menu links
 	$menu_html = wp_nav_menu( array(
 		'theme_location'  => 'header_info_dropdown',
@@ -437,8 +444,11 @@ add_action( 'wp_footer', function () {
 				$this->wishlist_url = $wishlist_url;
 			}
 			public function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
-				$is_wishlist = $this->wishlist_url
-					&& untrailingslashit( $item->url ) === $this->wishlist_url;
+				$item_path    = untrailingslashit( wp_parse_url( $item->url, PHP_URL_PATH ) ?? $item->url );
+				$wishlist_path = $this->wishlist_url
+					? untrailingslashit( wp_parse_url( $this->wishlist_url, PHP_URL_PATH ) ?? '' )
+					: '';
+				$is_wishlist = $wishlist_path && $item_path === $wishlist_path;
 				if ( $is_wishlist ) {
 					$output .= '<a href="#wishlist-offcanvas" data-shortcut="wishlist" class="ct-offcanvas-trigger">'
 						. esc_html( $item->title ) . '</a>';
