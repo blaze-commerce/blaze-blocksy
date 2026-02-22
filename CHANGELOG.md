@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.1] - 2026-02-22
+
+### Fixed
+- fix free shipping progress bar not rendering when a coupon-only free_shipping method (min_amount=0) appears before an amount-threshold method in WC shipping zones loop
+
 ## [1.75.0] - 2026-02-22
 
 ### Added
