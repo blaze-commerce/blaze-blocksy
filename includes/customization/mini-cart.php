@@ -197,6 +197,73 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 }, -1 );
 */
 
+/**
+ * Add free shipping progress bar before cart items list.
+ * Skips methods with min_amount = 0 (coupon-only methods) to avoid showing a bar
+ * with no meaningful threshold.
+ */
+add_action( 'woocommerce_before_mini_cart_contents', function () {
+	if ( ! WC()->cart ) {
+		return;
+	}
+
+	// Get free shipping threshold — skip methods with min_amount = 0 (coupon-only).
+	$free_shipping_min = 0;
+	$shipping_zones    = WC_Shipping_Zones::get_zones();
+	foreach ( $shipping_zones as $zone ) {
+		foreach ( $zone['shipping_methods'] as $method ) {
+			if ( $method->id === 'free_shipping' && $method->is_enabled() ) {
+				$amount = floatval( $method->get_option( 'min_amount', 0 ) );
+				if ( $amount > 0 ) {
+					$free_shipping_min = $amount;
+					break 2;
+				}
+			}
+		}
+	}
+
+	// Also check zone 0 (rest of world).
+	if ( ! $free_shipping_min ) {
+		$zone_0 = new WC_Shipping_Zone( 0 );
+		foreach ( $zone_0->get_shipping_methods() as $method ) {
+			if ( $method->id === 'free_shipping' && $method->is_enabled() ) {
+				$amount = floatval( $method->get_option( 'min_amount', 0 ) );
+				if ( $amount > 0 ) {
+					$free_shipping_min = $amount;
+					break;
+				}
+			}
+		}
+	}
+
+	if ( $free_shipping_min <= 0 ) {
+		return;
+	}
+
+	$cart_total = WC()->cart->get_cart_contents_total() + WC()->cart->get_cart_contents_tax();
+	$remaining  = max( 0, $free_shipping_min - $cart_total );
+	$progress   = min( 100, ( $cart_total / $free_shipping_min ) * 100 );
+
+	?>
+	<li class="mini-cart-shipping-progress" style="list-style: none;">
+		<div class="shipping-progress-text">
+			<?php if ( $remaining > 0 ) : ?>
+				<?php printf(
+					/* translators: %s: formatted price amount */
+					esc_html__( 'Add %s to cart and get free shipping!', 'blaze-blocksy' ),
+					'<strong>' . wc_price( $remaining ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				); ?>
+			<?php else : ?>
+				<?php esc_html_e( 'You qualify for free shipping!', 'blaze-blocksy' ); ?>
+			<?php endif; ?>
+		</div>
+		<div class="shipping-progress-bar">
+			<div class="shipping-progress-fill" style="width: <?php echo esc_attr( $progress ); ?>%;"></div>
+		</div>
+	</li>
+	<?php
+}, 5 );
+
 add_action( 'woocommerce_mini_cart_contents', function () {
 	?>
 	<li class="mini-cart-recommendations">
