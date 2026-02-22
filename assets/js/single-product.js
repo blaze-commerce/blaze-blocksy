@@ -5,6 +5,51 @@
 (function ($) {
   "use strict";
 
+  // Sync wishlist button state from Blocksy localized data or cookie
+  function syncWishlistButtonState() {
+    var btn = document.querySelector(
+      ".ct-wishlist-button-single[data-product-id]",
+    );
+    if (!btn) return;
+
+    var productId = parseInt(btn.dataset.productId);
+    if (!productId) return;
+
+    var items = [];
+
+    try {
+      // Try ct_localizations first (works for logged-in users and guests when no page cache)
+      if (
+        typeof ct_localizations !== "undefined" &&
+        ct_localizations.blc_ext_wish_list &&
+        ct_localizations.blc_ext_wish_list.list &&
+        ct_localizations.blc_ext_wish_list.list.items
+      ) {
+        items = ct_localizations.blc_ext_wish_list.list.items;
+      }
+
+      // Fallback to cookie (for guests, especially with page caching)
+      if (!items.length) {
+        var cookie = document.cookie.split("; ").find(function (c) {
+          return c.startsWith("blc_products_wish_list=");
+        });
+        if (cookie) {
+          var data = JSON.parse(decodeURIComponent(cookie.split("=")[1]));
+          if (data && data.items) {
+            items = data.items;
+          }
+        }
+      }
+
+      for (var i = 0; i < items.length; i++) {
+        if (parseInt(items[i].id) === productId) {
+          btn.dataset.buttonState = "active";
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
   // Storage key for recently viewed products
   const STORAGE_KEY = "recently_viewed_products";
   const COOKIE_NAME = "recently_viewed_products";
@@ -181,6 +226,9 @@
 
   // Initialize when document is ready
   $(document).ready(function () {
+    // Sync wishlist button state (needs document ready so ct_localizations is available)
+    syncWishlistButtonState();
+
     // Only run on single product pages
     if (
       blazeBlocksySingleProduct.recently_viewed &&
@@ -199,16 +247,16 @@
     }
 
     $(
-      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading"
+      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading",
     ).on("click", function () {
       $(this).hide();
       $(this).next(".cwginstock-panel-body").slideToggle();
     });
 
     $(
-      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading h4"
+      ".cwginstock-subscribe-form.cwginstock-0outofstock .cwginstock-panel-heading h4",
     ).prepend(
-      '<svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.834 2.33301H5.16732C3.16732 2.33301 1.83398 3.33301 1.83398 5.66634V10.333C1.83398 12.6663 3.16732 13.6663 5.16732 13.6663H11.834C13.834 13.6663 15.1673 12.6663 15.1673 10.333V5.66634C15.1673 3.33301 13.834 2.33301 11.834 2.33301ZM12.1473 6.39301L10.0607 8.05967C9.62065 8.41301 9.06065 8.58634 8.50065 8.58634C7.94065 8.58634 7.37398 8.41301 6.94065 8.05967L4.85398 6.39301C4.64065 6.21967 4.60732 5.89967 4.77398 5.68634C4.94732 5.47301 5.26065 5.43301 5.47398 5.60634L7.56065 7.27301C8.06732 7.67967 8.92732 7.67967 9.43398 7.27301L11.5207 5.60634C11.734 5.43301 12.054 5.46634 12.2207 5.68634C12.394 5.89967 12.3607 6.21967 12.1473 6.39301Z" fill="#121212"/></svg>'
+      '<svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.834 2.33301H5.16732C3.16732 2.33301 1.83398 3.33301 1.83398 5.66634V10.333C1.83398 12.6663 3.16732 13.6663 5.16732 13.6663H11.834C13.834 13.6663 15.1673 12.6663 15.1673 10.333V5.66634C15.1673 3.33301 13.834 2.33301 11.834 2.33301ZM12.1473 6.39301L10.0607 8.05967C9.62065 8.41301 9.06065 8.58634 8.50065 8.58634C7.94065 8.58634 7.37398 8.41301 6.94065 8.05967L4.85398 6.39301C4.64065 6.21967 4.60732 5.89967 4.77398 5.68634C4.94732 5.47301 5.26065 5.43301 5.47398 5.60634L7.56065 7.27301C8.06732 7.67967 8.92732 7.67967 9.43398 7.27301L11.5207 5.60634C11.734 5.43301 12.054 5.46634 12.2207 5.68634C12.394 5.89967 12.3607 6.21967 12.1473 6.39301Z" fill="#121212"/></svg>',
     );
 
     $(document.body).on(
@@ -220,10 +268,10 @@
           {
             scrollTop: jQuery("#reviews").offset().top,
           },
-          100
+          100,
         );
         jQuery('[data-target="#tab-reviews"]').trigger("click");
-      }
+      },
     );
 
     $(document.body).on("click", ".cr-reviews-link", function (e) {
@@ -234,9 +282,274 @@
       jQuery('[data-target="#tab-cr_qna"]').trigger("click");
     });
 
+    // Handle review submission success notice
+    handleReviewSubmissionSuccess();
+
+    // Auto-open reviews tab when URL has #comment-{id} hash
+    handleReviewCommentHash();
+
+    // Client-side review form validation (WordPress adds novalidate to comment forms)
+    initReviewFormValidation();
+
     // Watch for WooCommerce notices and scroll to them
     initNoticesObserver();
   });
+
+  /**
+   * Client-side validation for the WooCommerce product review form.
+   * WordPress adds `novalidate` to comment forms, disabling browser HTML5
+   * validation — so we enforce required-field checks manually.
+   */
+  function initReviewFormValidation() {
+    // Find the review comment form — try #commentform first, fallback to
+    // any form inside #review_form or #respond (covers Blocksy/WooCommerce variants)
+    var form =
+      document.getElementById("commentform") ||
+      document.querySelector("#review_form form, #respond form");
+    if (!form) {
+      return;
+    }
+
+    var submitBtn = form.querySelector(
+      'button[type="submit"], input[type="submit"]',
+    );
+    if (!submitBtn) {
+      return;
+    }
+
+    // Use click on submit button instead of form submit event, because
+    // form.submit() (called by some plugins) bypasses submit event listeners.
+    submitBtn.addEventListener("click", function (e) {
+      // Clear previous errors
+      var oldErrors = form.querySelectorAll(".blaze-field-error");
+      oldErrors.forEach(function (el) {
+        el.remove();
+      });
+      form
+        .querySelectorAll(".blaze-field-invalid")
+        .forEach(function (el) {
+          el.classList.remove("blaze-field-invalid");
+        });
+
+      var errors = [];
+
+      // Rating (hidden <select> behind star UI)
+      var rating = form.querySelector('select[name="rating"]');
+      if (rating && rating.hasAttribute("required") && !rating.value) {
+        errors.push({
+          field: rating.closest(".comment-form-rating") || rating,
+          message: "Please select a rating.",
+        });
+      }
+
+      // Author name
+      var author = form.querySelector('input[name="author"]');
+      if (
+        author &&
+        author.hasAttribute("required") &&
+        !author.value.trim()
+      ) {
+        errors.push({ field: author, message: "Please enter your name." });
+      }
+
+      // Email
+      var email = form.querySelector('input[name="email"]');
+      if (
+        email &&
+        email.hasAttribute("required") &&
+        !email.value.trim()
+      ) {
+        errors.push({
+          field: email,
+          message: "Please enter your email address.",
+        });
+      } else if (email && email.value.trim() && !isValidEmail(email.value)) {
+        errors.push({
+          field: email,
+          message: "Please enter a valid email address.",
+        });
+      }
+
+      // Comment text
+      var comment = form.querySelector('textarea[name="comment"]');
+      if (
+        comment &&
+        comment.hasAttribute("required") &&
+        !comment.value.trim()
+      ) {
+        errors.push({
+          field: comment,
+          message: "Please write your review.",
+        });
+      }
+
+      if (errors.length > 0) {
+        e.preventDefault();
+
+        errors.forEach(function (err) {
+          var wrapper = err.field.closest("p, div") || err.field;
+          wrapper.classList.add("blaze-field-invalid");
+
+          var msg = document.createElement("span");
+          msg.className = "blaze-field-error";
+          msg.textContent = err.message;
+          wrapper.appendChild(msg);
+        });
+
+        // Scroll to first error
+        var firstError = form.querySelector(".blaze-field-invalid");
+        if (firstError) {
+          var header = document.querySelector(
+            "header.site-header, .site-header, #header, [data-sticky]",
+          );
+          var headerHeight = header ? header.offsetHeight : 0;
+          var top =
+            firstError.getBoundingClientRect().top +
+            window.pageYOffset -
+            headerHeight -
+            30;
+          window.scrollTo({ top: top, behavior: "smooth" });
+        }
+      }
+    });
+
+    // Clear error on field input
+    form.addEventListener("input", function (e) {
+      var wrapper = e.target.closest(".blaze-field-invalid");
+      if (wrapper) {
+        wrapper.classList.remove("blaze-field-invalid");
+        var err = wrapper.querySelector(".blaze-field-error");
+        if (err) err.remove();
+      }
+    });
+
+    // Clear rating error on star click
+    var ratingContainer = form.querySelector(".comment-form-rating");
+    if (ratingContainer) {
+      ratingContainer.addEventListener("click", function () {
+        ratingContainer.classList.remove("blaze-field-invalid");
+        var err = ratingContainer.querySelector(".blaze-field-error");
+        if (err) err.remove();
+      });
+    }
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  /**
+   * Auto-open reviews tab when URL contains a #comment-{id} hash.
+   * Blocksy renders product tabs as accordions — the reviews panel stays
+   * collapsed unless explicitly clicked.
+   */
+  function handleReviewCommentHash() {
+    var hash = window.location.hash;
+    if (!hash || !/^#(comment-\d+|reviews)$/.test(hash)) {
+      return;
+    }
+
+    var reviewsTab = document.querySelector(
+      '[data-target="#tab-reviews"]',
+    );
+    if (reviewsTab) {
+      reviewsTab.click();
+    }
+
+    // Scroll to the specific comment after the accordion opens
+    setTimeout(function () {
+      var commentEl = document.querySelector(hash);
+      if (commentEl) {
+        var header = document.querySelector(
+          "header.site-header, .site-header, #header, [data-sticky]",
+        );
+        var headerHeight = header ? header.offsetHeight : 0;
+        var top =
+          commentEl.getBoundingClientRect().top +
+          window.pageYOffset -
+          headerHeight -
+          30;
+        window.scrollTo({ top: top, behavior: "smooth" });
+      }
+    }, 400);
+  }
+
+  /**
+   * Show a success notice after a product review is submitted.
+   * The status (approved | hold) is passed via blazeBlocksySingleProduct.reviewSubmitted.
+   */
+  function handleReviewSubmissionSuccess() {
+    if (
+      typeof blazeBlocksySingleProduct === "undefined" ||
+      !blazeBlocksySingleProduct.reviewSubmitted
+    ) {
+      return;
+    }
+
+    var status = blazeBlocksySingleProduct.reviewSubmitted;
+    var isApproved = status === "approved";
+
+    var message = isApproved
+      ? "Thank you! Your review has been posted successfully."
+      : "Thank you! Your review has been submitted and is awaiting moderation.";
+
+    var icon = isApproved
+      ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z" fill="currentColor"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm1 15H9v-2h2v2zm0-4H9V5h2v6z" fill="currentColor"/></svg>';
+
+    // Open reviews tab
+    var reviewsTab = document.querySelector(
+      '[data-target="#tab-reviews"]',
+    );
+    if (reviewsTab) {
+      reviewsTab.click();
+    }
+
+    // Create the notice element
+    var notice = document.createElement("div");
+    notice.className =
+      "blaze-review-success-notice" +
+      (isApproved ? " is-approved" : " is-hold");
+    notice.innerHTML =
+      '<span class="blaze-review-success-icon">' +
+      icon +
+      "</span>" +
+      "<p>" +
+      message +
+      "</p>";
+
+    // Insert into the reviews tab content area
+    var reviewsPanel = document.querySelector("#tab-reviews");
+    if (reviewsPanel) {
+      // Look for the expandable content wrapper inside the accordion tab
+      var content = reviewsPanel.querySelector(".ct-expandable-content");
+      var target = content || reviewsPanel;
+      target.insertBefore(notice, target.firstChild);
+    }
+
+    // Scroll to the notice
+    setTimeout(function () {
+      var header = document.querySelector(
+        "header.site-header, .site-header, #header, [data-sticky]",
+      );
+      var headerHeight = header ? header.offsetHeight : 0;
+      var top =
+        notice.getBoundingClientRect().top +
+        window.pageYOffset -
+        headerHeight -
+        30;
+      window.scrollTo({ top: top, behavior: "smooth" });
+    }, 400);
+
+    // Clean query params from URL
+    if (window.history && window.history.replaceState) {
+      var url = new URL(window.location.href);
+      url.searchParams.delete("review_submitted");
+      url.searchParams.delete("unapproved");
+      url.searchParams.delete("moderation-hash");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
 
   /**
    * Initialize MutationObserver to watch for WooCommerce notices
@@ -244,7 +557,7 @@
    */
   function initNoticesObserver() {
     const noticesWrapper = document.querySelector(
-      ".woocommerce-notices-wrapper"
+      ".woocommerce-notices-wrapper",
     );
 
     if (!noticesWrapper) {
@@ -290,7 +603,7 @@
     setTimeout(function () {
       // Get actual header height dynamically
       const header = document.querySelector(
-        "header.site-header, .site-header, #header, [data-sticky]"
+        "header.site-header, .site-header, #header, [data-sticky]",
       );
       const headerHeight = header ? header.offsetHeight : 0;
 
@@ -318,10 +631,10 @@
    */
   function initProductInformationOffcanvas() {
     var ctProductInformationOffCanvas = document.getElementById(
-      "ct-product-information-offcanvas"
+      "ct-product-information-offcanvas",
     );
     var ctProductInformationOffCanvasOverlay = document.getElementById(
-      "ct-product-information-offcanvas-overlay"
+      "ct-product-information-offcanvas-overlay",
     );
 
     // Skip if elements don't exist

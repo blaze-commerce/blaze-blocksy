@@ -24,6 +24,7 @@
       resultCount: ".woocommerce-result-count",
       categoryCount: ".ct-product-category-count",
       loadMore: ".ct-load-more",
+      showResultsButton: ".mobile-filters-show-results",
     },
     timing: {
       observerDebounce: 10,
@@ -250,6 +251,130 @@
   };
 
   /**
+   * Get total product count from the result count element.
+   *
+   * Handles all WooCommerce result count formats:
+   * - "Showing 1–24 of 123 results"
+   * - "Showing all 123 results"
+   * - "Showing the single result"
+   *
+   * @returns {number} Total product count
+   */
+  const getTotalFromResultCount = function () {
+    try {
+      const resultCountEl = document.querySelector(
+        CONFIG.selectors.resultCount
+      );
+      if (!resultCountEl) {
+        return 0;
+      }
+
+      const text = resultCountEl.textContent || "";
+
+      // "Showing 1–24 of 123 results"
+      const ofMatch = text.match(/of\s+(\d+)/i);
+      if (ofMatch) {
+        return parseInt(ofMatch[1], 10);
+      }
+
+      // "Showing all 123 results"
+      const allMatch = text.match(/all\s+(\d+)/i);
+      if (allMatch) {
+        return parseInt(allMatch[1], 10);
+      }
+
+      // "Showing the single result"
+      if (text.indexOf("single") !== -1) {
+        return 1;
+      }
+
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  /**
+   * Restore the "Show X results" button if removed by AJAX filtering.
+   * Similar to restoreSidebarHeader() approach.
+   */
+  const restoreShowResultsButton = function () {
+    try {
+      if (
+        typeof blazeArchive === "undefined" ||
+        !blazeArchive.showResultsButtonHTML
+      ) {
+        return;
+      }
+
+      // Find the offcanvas filter panel
+      const panel = document.getElementById("woo-filters-panel");
+      if (!panel) {
+        return;
+      }
+
+      const buttonExists = panel.querySelector(
+        CONFIG.selectors.showResultsButton
+      );
+      if (!buttonExists) {
+        // Find the content container and append button at the end
+        const contentInner = panel.querySelector(".ct-panel-content-inner");
+        if (contentInner) {
+          requestAnimationFrame(function () {
+            if (!contentInner.querySelector(CONFIG.selectors.showResultsButton)) {
+              contentInner.insertAdjacentHTML(
+                "beforeend",
+                blazeArchive.showResultsButtonHTML
+              );
+            }
+          });
+        }
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  };
+
+  /**
+   * Update the "Show X results" button text in offcanvas filter.
+   * Restores the button first if it was removed by AJAX.
+   */
+  const updateShowResultsButton = function () {
+    try {
+      restoreShowResultsButton();
+
+      // Use requestAnimationFrame to ensure DOM is updated after restore
+      requestAnimationFrame(function () {
+        const button = document.querySelector(
+          CONFIG.selectors.showResultsButton
+        );
+        if (!button) {
+          return;
+        }
+
+        const total = getTotalFromResultCount();
+        button.textContent =
+          "Show " + total + " result" + (total !== 1 ? "s" : "");
+
+        // Show the button and trigger fadeInUp animation
+        const wrapper = button.closest(".mobile-filters-bottom-actions");
+        if (wrapper) {
+          const wasHidden = wrapper.classList.contains("hidden");
+          wrapper.classList.remove("hidden");
+          wrapper.classList.remove("fade-in-up");
+          // Force reflow to restart animation
+          void wrapper.offsetWidth;
+          if (wasHidden) {
+            wrapper.classList.add("fade-in-up");
+          }
+        }
+      });
+    } catch (e) {
+      // Silently fail
+    }
+  };
+
+  /**
    * Debounce utility function
    *
    * @param {Function} func - Function to debounce
@@ -274,13 +399,24 @@
     CONFIG.timing.counterDebounce
   );
 
+  // Track whether user has interacted with a filter widget
+  let filterInteracted = false;
+
   /**
-   * Handle AJAX filter completion
+   * Handle AJAX filter completion.
+   * Always restores button to DOM (hidden).
+   * Only shows button if user has interacted with a filter.
    */
   const onFilterComplete = function () {
     restoreSidebarHeader();
     displayProductCount();
     debouncedUpdateCounters();
+
+    if (filterInteracted) {
+      updateShowResultsButton();
+    } else {
+      restoreShowResultsButton();
+    }
   };
 
   /**
@@ -296,6 +432,43 @@
 
       // Initialize product count display
       displayProductCount();
+
+      // Close offcanvas when show results button is clicked
+      $(document).on("click", CONFIG.selectors.showResultsButton, function (e) {
+        e.preventDefault();
+        var panel = $(this).closest(".ct-panel");
+        if (panel.length) {
+          var closeBtn = panel.find(".ct-toggle-close");
+          if (closeBtn.length) {
+            closeBtn[0].click();
+          }
+        }
+      });
+
+      // Track user interaction with filter widgets inside offcanvas panel
+      $(document).on(
+        "click",
+        "#woo-filters-panel .ct-widget a, #woo-filters-panel .ct-widget label",
+        function () {
+          filterInteracted = true;
+        }
+      );
+      $(document).on(
+        "change",
+        "#woo-filters-panel .ct-widget input, #woo-filters-panel .ct-widget select",
+        function () {
+          filterInteracted = true;
+        }
+      );
+
+      // Reset flag when offcanvas panel is closed
+      $(document).on(
+        "click",
+        "#woo-filters-panel .ct-toggle-close",
+        function () {
+          filterInteracted = false;
+        }
+      );
 
       // Listen for Blocksy theme events
       if (window.ctEvents) {

@@ -1,8 +1,8 @@
 <?php
 $countries = new WC_Countries();
 
-// get all available countries
-$available_countries = $countries->get_countries();
+// get shipping countries based on WooCommerce settings
+$available_countries = $countries->get_shipping_countries();
 ?>
 
 <div id="shipping-calculator-container" class="shipping-calculator-container">
@@ -13,7 +13,7 @@ $available_countries = $countries->get_countries();
 	?>
 
 	<div class="form-group">
-		<label for="country">Country</label>
+		<label for="country-options">Country</label>
 		<select id="country-options">
 			<option value="">Country</option>
 			<?php foreach ( $available_countries as $country_code => $country_name ) { ?>
@@ -23,7 +23,7 @@ $available_countries = $countries->get_countries();
 	</div>
 
 	<div class="form-group">
-		<label for="state">State/Province</label>
+		<label for="state-options">State/Province</label>
 		<select id="state-options">
 			<option value="">Select State</option>
 		</select>
@@ -34,7 +34,7 @@ $available_countries = $countries->get_countries();
 		<input type="text" id="postcode" placeholder="Enter postcode/zip">
 	</div>
 
-	<button class="calculate-btn" id="calculate-shipping-btn">CALCULATE SHIPPING</button>
+	<button class="calculate-btn" id="calculate-shipping-btn">Calculate Shipping</button>
 
 	<!-- Shipping Results Area -->
 	<div id="shipping-results" class="shipping-results" style="display: none;">
@@ -46,6 +46,27 @@ $available_countries = $countries->get_countries();
 </div> <!-- End shipping-calculator-container -->
 <script>
 	jQuery(document).ready(function ($) {
+
+		// === SELECTWOO INITIALIZATION ===
+		var selectWooAvailable = typeof $.fn.selectWoo !== 'undefined';
+
+		function initSelectWoo($el) {
+			if (!selectWooAvailable) return;
+			// Destroy existing instance before re-init
+			if ($el.data('select2')) {
+				$el.selectWoo('destroy');
+			}
+
+			//find parent element
+			$el.selectWoo({
+				width: '100%',
+				placeholder: $el.find('option:first').text()
+			});
+		}
+
+		// Init selectWoo on country and state dropdowns
+		initSelectWoo($('#country-options'));
+		initSelectWoo($('#state-options'));
 
 		// Check if blockUI is available (from WooCommerce)
 		var hasBlockUI = typeof $.blockUI !== 'undefined';
@@ -90,6 +111,26 @@ $available_countries = $countries->get_countries();
 				$('#shipping-calculator-container .shipping-loading-overlay').remove();
 			}
 		}
+		// Save state to localStorage on change
+		$('#state-options').on('change', function () {
+			var state = $(this).val();
+			if (state) {
+				localStorage.setItem('blaze_shipping_state', state);
+			} else {
+				localStorage.removeItem('blaze_shipping_state');
+			}
+		});
+
+		// Save postcode to localStorage on change
+		$('#postcode').on('input', function () {
+			var postcode = $(this).val();
+			if (postcode) {
+				localStorage.setItem('blaze_shipping_postcode', postcode);
+			} else {
+				localStorage.removeItem('blaze_shipping_postcode');
+			}
+		});
+
 		$('#country-options').change(function () {
 			var selectedCountry = $(this).val();
 			var statesSelect = $('#state-options');
@@ -99,8 +140,14 @@ $available_countries = $countries->get_countries();
 
 			// If no country selected, return
 			if (!selectedCountry) {
+				localStorage.removeItem('blaze_shipping_country');
+				localStorage.removeItem('blaze_shipping_state');
+				localStorage.removeItem('blaze_shipping_postcode');
+				initSelectWoo(statesSelect);
 				return;
 			}
+
+			localStorage.setItem('blaze_shipping_country', selectedCountry);
 
 			// Block UI while loading states
 			blockShippingCalculator('Loading states...');
@@ -139,6 +186,15 @@ $available_countries = $countries->get_countries();
 						statesSelect.append('<option value="">Error loading states</option>');
 						console.error('Error loading states:', response.data ? response.data.message : 'Unknown error');
 					}
+
+					// Re-init selectWoo after options are populated
+					initSelectWoo(statesSelect);
+
+					// Restore saved state if available
+					var savedState = localStorage.getItem('blaze_shipping_state');
+					if (savedState && statesSelect.find('option[value="' + savedState + '"]').length) {
+						statesSelect.val(savedState).trigger('change.select2');
+					}
 				},
 				error: function (xhr, status, error) {
 					// Unblock UI
@@ -148,6 +204,9 @@ $available_countries = $countries->get_countries();
 					statesSelect.empty().append('<option value="">Select State</option>');
 					statesSelect.append('<option value="">Error loading states</option>');
 					console.error('AJAX Error:', error);
+
+					// Re-init selectWoo after error state
+					initSelectWoo(statesSelect);
 				}
 			});
 		});
@@ -175,7 +234,7 @@ $available_countries = $countries->get_countries();
 			}
 
 			// Show loading state
-			$button.prop('disabled', true).text('CALCULATING...');
+			$button.prop('disabled', true).text('Calculating...');
 			$results.hide();
 			$methodsList.empty();
 
@@ -229,10 +288,29 @@ $available_countries = $countries->get_countries();
 				},
 				complete: function () {
 					// Reset button state
-					$button.prop('disabled', false).text('CALCULATE SHIPPING');
+					$button.prop('disabled', false).text('Calculate Shipping');
 				}
 			});
 		});
+
+		// Restore saved country → triggers change → loads states → restores state
+		// Must be after change handler is bound so AJAX fires
+		var savedCountry = localStorage.getItem('blaze_shipping_country');
+		if (savedCountry && $('#country-options').find('option[value="' + savedCountry + '"]').length) {
+			$('#country-options').val(savedCountry).trigger('change');
+		} else {
+			// Auto-select if only one shipping country is available
+			var $countryOptions = $('#country-options option[value!=""]');
+			if ($countryOptions.length === 1) {
+				$('#country-options').val($countryOptions.first().val()).trigger('change');
+			}
+		}
+
+		// Restore saved postcode
+		var savedPostcode = localStorage.getItem('blaze_shipping_postcode');
+		if (savedPostcode) {
+			$('#postcode').val(savedPostcode);
+		}
 
 		// Function to display shipping methods
 		function displayShippingMethods(methods) {

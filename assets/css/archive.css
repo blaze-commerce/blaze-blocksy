@@ -4,6 +4,11 @@
   --sidebar-gap: 18px;
 }
 
+.hero-section {
+  padding-top: var(--theme-content-vertical-spacing);
+  --theme-block-max-width: var(--theme-normal-container-max-width);
+}
+
 
 .hero-section[data-type=type-2] {
   margin-bottom: 50px;
@@ -15,11 +20,13 @@
 
 /* Sidebar header - reserve space to prevent flicker during AJAX filtering */
 .shop-sidebar-active .ct-sidebar:not(.ct-panel-content-inner) {
-  min-height: 80px; /* Reserve space for header */
+  min-height: 80px;
+  /* Reserve space for header */
 }
 
 .shop-sidebar-active .woo-sidebar-header {
-  min-height: 57px; /* Fixed height to prevent layout shift */
+  min-height: 57px;
+  /* Fixed height to prevent layout shift */
 }
 
 .shop-sidebar-active .woo-sidebar-header .woo-sidebar-title {
@@ -149,4 +156,45 @@
 
 .ct-product-category-description-wrapper .ct-product-category-description {
   margin-top: 24px;
+}
+
+/* Offcanvas filter bottom actions - sticky "Show X results" button */
+.mobile-filters-bottom-actions.hidden {
+  display: none;
+}
+
+.mobile-filters-bottom-actions {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  padding: 16px;
+  background: transparent;
+  border-top: 1px solid var(--offcanvas-border-color, #e5e7eb);
+  z-index: 1;
+}
+
+.mobile-filters-show-results {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-filters-bottom-actions.fade-in-up {
+  animation: fadeInUp 0.25s ease-out;
 }
