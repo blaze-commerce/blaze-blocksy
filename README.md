@@ -181,6 +181,19 @@ The theme follows WordPress coding standards and includes:
 - ZIP distribution for easy installation
 - Rollback mechanisms for failed releases
 
+## Claude Code Governance
+
+AI-assisted development in this repo is governed by rules enforced before every push:
+
+- **`.claude/recommended/`** — shared enforcement rules for all Claude Code sessions:
+  - `character-limits.md` — hard char limits on all `.claude/` governance files
+  - `pre-push-gate.md` — blocking checklist before every push or PR
+  - `update-docs.md` — doc-currency rule (README + CLAUDE.md must be current before push)
+- **Character limits** are enforced on all governance files (`wc -c` before and after edits)
+- **README.md + CLAUDE.md** must be updated to reflect current state before every push — stale docs block the push
+
+See `CLAUDE.md` → "Documentation Gate" for the full enforcement rules.
+
 ## Version History
 
 All releases and changes are tracked in the [GitHub Releases](../../releases) section with auto-generated changelogs.
