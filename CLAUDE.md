@@ -110,3 +110,30 @@ custom/
 - Conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
 - Do NOT add Claude as co-author or Co-Authored-By header
 - Present tense, imperative mood, first line under 72 chars
+
+## Context Budget Enforcement (BLOCKING)
+
+BEFORE AND AFTER modifying ANY `.claude/` or governance file, run:
+```bash
+wc -c CLAUDE.md README.md && wc -c .claude/recommended/*.md .claude/commands/*.md
+```
+
+Hard limits (exceeding any = CRITICAL FAILURE):
+| File | Max Chars |
+|------|-----------|
+| CLAUDE.md | 8,000 |
+| .claude/recommended/*.md | 3,000 each |
+| .claude/commands/*.md | 2,000 each |
+
+Over limit? Consolidate/merge/move to referenced external files. NEVER just delete rules.
+
+## Documentation Gate (BLOCKING — STRICT — BEFORE ANY PUSH)
+
+BEFORE every `git push`, `gh pr create`, or PR update — NO EXCEPTIONS:
+1. README.md reflects current features, structure, and any new capabilities added
+2. CLAUDE.md rules are current and accurate
+3. `.claude/recommended/` files are up to date
+4. Character limits pass: `wc -c CLAUDE.md README.md .claude/recommended/*.md`
+5. If any file changed this session → update it before pushing
+
+Failure to update = BLOCKED. Do NOT push stale documentation.

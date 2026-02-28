@@ -82,6 +82,7 @@ Files that define UI behavior or components:
 Files that do NOT trigger documentation requirements:
 - `docs/**` - Documentation files (but must follow structure rules)
 - `.augment/**` - Augment configuration files
+- `.claude/**` - Claude Code configuration files
 - `**/node_modules/**` - Node.js dependencies
 - `**/dist/**` - Distribution/build files
 - `**/build/**` - Build output
