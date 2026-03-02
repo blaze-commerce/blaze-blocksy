@@ -20,11 +20,26 @@ test.describe('Product Page', () => {
     await page.waitForTimeout(2000);
 
     // 2. Handle age gate (if present)
-    const ageGate = page.locator('#agl_yes_button');
-    if (await ageGate.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await ageGate.click();
-      await page.waitForTimeout(1000);
+    // Wait for the age gate to exist in the DOM — it may load asynchronously
+    const ageGateOverlay = page.locator('#agl_wrapper');
+    try {
+      await ageGateOverlay.waitFor({ state: 'attached', timeout: 5000 });
+      // Click confirm button via evaluate to bypass pointer interception issues
+      await page.evaluate(() => {
+        const btn = document.querySelector('#agl_yes_button') as HTMLElement;
+        if (btn) { btn.click(); return; }
+        const link = document.querySelector('#agl_wrapper a') as HTMLElement;
+        if (link) link.click();
+      });
+      await page.waitForTimeout(2000);
+    } catch {
+      // No age gate on this site, continue
     }
+
+    // Always remove the age gate wrapper if still present
+    await page.evaluate(() => {
+      document.querySelector('#agl_wrapper')?.remove();
+    });
 
     // 3. Dismiss any popups
     await page.keyboard.press('Escape');
