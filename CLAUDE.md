@@ -1,3 +1,6 @@
+@.claude/rules/anti-false-fix.md
+@.claude/rules/code-safety.md
+
 # Blaze Blocksy — Child Theme
 
 Parent: **Blocksy**. Portable child theme deployed across multiple sites.
@@ -104,6 +107,30 @@ custom/
 - Asset versioning: `filemtime()` for cache busting — not hardcoded versions
 - Function prefix: `blaze_blocksy_` (generic), `blaze_custom_` (site-specific)
 - New generic modules: add path to `$required_files` array in `functions.php`
+
+## Git Workflow
+
+- Branch naming: `feat/`, `fix/`, `chore/`, `docs/` + kebab-case (e.g. `feat/mini-cart-extras`)
+- **ALWAYS work in a git worktree** — never edit files in the main checkout directly
+  - Create: `git worktree add .worktrees/<branch-name> -b <branch-name>`
+  - Claude will be blocked from editing files in the main checkout
+- Never push directly to `main` — always open a PR
+- Sync with main before starting: `git fetch origin && git merge origin/main`
+
+## Testing
+
+Run before every commit:
+
+| Suite | Command |
+|-------|---------|
+| PHP lint (PHPCS) | `./vendor/bin/phpcs --standard=WordPress .` |
+| PHP unit tests | `./vendor/bin/phpunit` |
+| E2E (all sites) | `npm run test:e2e` |
+| E2E (specific site) | `npm run test:<sitename>` (e.g. `test:cannaclear`) |
+| E2E with video | `npm run test:e2e:video` |
+| Playwright UI mode | `npm run test:e2e:ui` |
+
+PHP setup: `composer install` then `composer run install-wp-tests` (requires local WP test DB).
 
 ## Commits
 
