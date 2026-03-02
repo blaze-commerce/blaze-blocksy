@@ -110,27 +110,15 @@ custom/
 
 ## Git Workflow
 
-- Branch naming: `feat/`, `fix/`, `chore/`, `docs/` + kebab-case (e.g. `feat/mini-cart-extras`)
-- **ALWAYS work in a git worktree** — never edit files in the main checkout directly
-  - Create: `git worktree add .worktrees/<branch-name> -b <branch-name>`
-  - Claude will be blocked from editing files in the main checkout
+- Branch naming: `feat/`, `fix/`, `chore/`, `docs/` + kebab-case
+- **ALWAYS work in a git worktree**: `git worktree add .worktrees/<name> -b <name>`
 - Never push directly to `main` — always open a PR
-- Sync with main before starting: `git fetch origin && git merge origin/main`
+- Sync first: `git fetch origin && git merge origin/main`
 
 ## Testing
 
-Run before every commit:
-
-| Suite | Command |
-|-------|---------|
-| PHP lint (PHPCS) | `./vendor/bin/phpcs --standard=WordPress .` |
-| PHP unit tests | `./vendor/bin/phpunit` |
-| E2E (all sites) | `npm run test:e2e` |
-| E2E (specific site) | `npm run test:<sitename>` (e.g. `test:cannaclear`) |
-| E2E with video | `npm run test:e2e:video` |
-| Playwright UI mode | `npm run test:e2e:ui` |
-
-PHP setup: `composer install` then `composer run install-wp-tests` (requires local WP test DB).
+Run `/test` before every commit — auto-detects PHP (PHPCS + PHPUnit) vs E2E (Playwright).
+PHP setup: `composer install` then `composer run install-wp-tests` (local WP test DB required).
 
 ## Commits
 
