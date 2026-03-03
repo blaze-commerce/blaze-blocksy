@@ -1,0 +1,60 @@
+{
+  "$schema": "https://claude.ai/schema/settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(rm -rf*)",
+      "Bash(sudo *)",
+      "Bash(eval *)",
+      "Bash(node -e *)",
+      "Bash(php -r *)",
+      "Bash(base64 *)",
+      "Read(.env*)",
+      "Read(*credentials*)",
+      "Write(.env*)"
+    ],
+    "ask": [
+      "Bash(git reset *)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-worktree.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-commit-test-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-force-push.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "chmod +x .claude/hooks/*.sh 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -185,10 +185,19 @@ The theme follows WordPress coding standards and includes:
 
 AI-assisted development in this repo is governed by rules enforced before every push:
 
+- **`.claude/settings.json`** — team-wide deny rules (force push, `rm -rf`, `sudo`, credential reads) and ask rules for main branch pushes; wires project hooks automatically
+- **`.claude/hooks/`** — safety hooks applied to all Claude Code sessions:
+  - `enforce-worktree.sh` — blocks file edits in the main checkout; requires a worktree
+  - `pre-commit-test-gate.sh` — reminds to run tests before `git commit`
+  - `block-force-push.sh` — blocks `git push --force` / `-f` at hook level
+- **`.claude/rules/`** — project-scoped rule imports:
+  - `anti-false-fix.md` — never claim "fixed" without showing evidence
+  - `code-safety.md` — `custom/` append-only enforcement, git workflow rules
 - **`.claude/recommended/`** — shared enforcement rules for all Claude Code sessions:
   - `character-limits.md` — hard char limits on all `.claude/` governance files
   - `pre-push-gate.md` — blocking checklist before every push or PR
   - `update-docs.md` — doc-currency rule (README + CLAUDE.md must be current before push)
+- **`.claude/commands/`** — slash commands: `/commit`, `/commitpush`, `/commitpr`, `/test`
 - **Character limits** are enforced on all governance files (`wc -c` before and after edits)
 - **README.md + CLAUDE.md** must be updated to reflect current state before every push — stale docs block the push
 

@@ -1,3 +1,6 @@
+@.claude/rules/anti-false-fix.md
+@.claude/rules/code-safety.md
+
 # Blaze Blocksy — Child Theme
 
 Parent: **Blocksy**. Portable child theme deployed across multiple sites.
@@ -104,6 +107,18 @@ custom/
 - Asset versioning: `filemtime()` for cache busting — not hardcoded versions
 - Function prefix: `blaze_blocksy_` (generic), `blaze_custom_` (site-specific)
 - New generic modules: add path to `$required_files` array in `functions.php`
+
+## Git Workflow
+
+- Branch naming: `feat/`, `fix/`, `chore/`, `docs/` + kebab-case
+- **ALWAYS work in a git worktree**: `git worktree add .worktrees/<name> -b <name>`
+- Never push directly to `main` — always open a PR
+- Sync first: `git fetch origin && git merge origin/main`
+
+## Testing
+
+Run `/test` before every commit — auto-detects PHP (PHPCS + PHPUnit) vs E2E (Playwright).
+PHP setup: `composer install` then `composer run install-wp-tests` (local WP test DB required).
 
 ## Commits
 
