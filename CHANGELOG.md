@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.3] - 2026-03-03
+
+### Changed
+- add Claude CLI team safety setup (#230)
+
+### Documentation
+- add .claude/recommended governance + pre-push gate (#229)
+- harden custom.php/css/js write-prohibition in CLAUDE.md (#228)
+
 ## [1.75.2] - 2026-02-22
 
 ### Fixed
@@ -4336,7 +4345,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
 [1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...HEAD
+[1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4352,5 +4362,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
 [1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...HEAD
+[1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
 >>>>>>> main
