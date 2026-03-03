@@ -769,9 +769,11 @@ class BlocksyChildWishlistOffCanvas {
 	 * AJAX handler for loading wishlist content.
 	 */
 	public function ajax_load_wishlist_content() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'wishlist_offcanvas_nonce' ) ) {
-			wp_die( 'Security check failed' );
+		// Verify nonce exists and is valid
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wishlist_offcanvas_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ), 403 );
 		}
 
 		$content = $this->renderer->get_wishlist_content();
