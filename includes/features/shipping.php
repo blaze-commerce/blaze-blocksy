@@ -388,6 +388,48 @@ class CalculateShipping {
 	}
 
 	/**
+	 * AJAX handler for selecting a shipping method in the mini cart.
+	 * Sets the chosen method on the WC session and returns updated totals.
+	 */
+	function ajax_select_shipping_method() {
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'blaze_blocksy_mini_cart_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
+
+		$method_id = isset( $_POST['method_id'] ) ? sanitize_text_field( $_POST['method_id'] ) : '';
+
+		if ( empty( $method_id ) ) {
+			wp_send_json_error( array( 'message' => 'Shipping method is required' ) );
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart || ! WC()->session ) {
+			wp_send_json_error( array( 'message' => 'WooCommerce is not available' ) );
+			return;
+		}
+
+		try {
+			// Set chosen shipping method in the WC session
+			WC()->session->set( 'chosen_shipping_methods', array( $method_id ) );
+
+			// Recalculate cart totals with the new shipping method
+			WC()->cart->calculate_totals();
+
+			wp_send_json_success( array(
+				'subtotal'     => WC()->cart->get_cart_subtotal(),
+				'shipping'     => wc_price( WC()->cart->get_shipping_total() ),
+				'tax'          => wc_price( WC()->cart->get_total_tax() ),
+				'discount'     => WC()->cart->get_cart_discount_total() > 0 ? wc_price( WC()->cart->get_cart_discount_total() ) : '',
+				'discount_raw' => floatval( WC()->cart->get_cart_discount_total() ),
+				'total'        => WC()->cart->get_total(),
+			) );
+		} catch ( \Exception $e ) {
+			wp_send_json_error( array( 'message' => 'Error selecting shipping method: ' . $e->getMessage() ) );
+		}
+	}
+
+	/**
 	 * AJAX handler for calculating shipping methods from the minicart.
 	 * Uses the actual WC cart session instead of creating a mock cart.
 	 */

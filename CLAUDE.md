@@ -1,3 +1,6 @@
+@.claude/rules/anti-false-fix.md
+@.claude/rules/code-safety.md
+
 # Blaze Blocksy — Child Theme
 
 Parent: **Blocksy**. Portable child theme deployed across multiple sites.
@@ -36,9 +39,9 @@ functions.php              ← Entry point, loads all modules
 3. **`custom/custom.php` is the ONLY entry point** — `functions.php` loads it (line 160). All other custom PHP files MUST be `require_once`d from `custom.php`
 4. **Never add custom/ paths to `$required_files`** in `functions.php` — that array is for generic includes only
 
-### Modular files — NEVER inline into custom.php/css/js (STRICT)
+### Modular files — STRICTLY PROHIBITED from code changes (CRITICAL — BLOCKING)
 
-`custom.php`, `custom.css`, and `custom.js` are **thin loaders only**. They require/enqueue separate files — never contain feature code directly. This prevents conflicts when multiple developers work on different features in `custom/` simultaneously. Each feature gets its own file; the loader just appends a `require_once` or `wp_enqueue_*` line.
+`custom.php`, `custom.css`, and `custom.js` are **append-only loaders**. Writing any feature code, styles, or logic directly into these files is **STRICTLY PROHIBITED** — no exceptions, including "quick one-offs". The only permitted modification is appending a `require_once` or `wp_enqueue_*` line to load a new dedicated file.
 
 **PHP — create a dedicated file, then require it in custom.php:**
 ```php
@@ -68,8 +71,8 @@ wp_enqueue_script( 'blaze-custom-header', "$uri/js/header.js", [ 'jquery' ], fil
 ```
 custom/
 ├── custom.php               ← Loader: require_once + enqueue lines (tracked)
-├── custom.css               ← Quick one-off CSS overrides (tracked — empty placeholder)
-├── custom.js                ← Quick one-off JS (tracked — empty placeholder)
+├── custom.css               ← Append-only loader: enqueue lines only (tracked)
+├── custom.js                ← Append-only loader: enqueue lines only (tracked)
 ├── index.php                ← Silence is golden (tracked)
 ├── header-tweaks.php        ← Feature module (untracked — site-specific)
 ├── currency-visibility.php  ← Feature module (untracked — site-specific)
@@ -88,7 +91,8 @@ custom/
 | Site-specific PHP feature | `custom/<feature>.php` → require in `custom.php` | `currency-visibility.php`, `header-tweaks.php` |
 | Site-specific CSS feature | `custom/css/<feature>.css` → enqueue in `custom.php` | `css/header.css`, `css/checkout-upsell.css` |
 | Site-specific JS feature | `custom/js/<feature>.js` → enqueue in `custom.php` | `js/header.js`, `js/mini-cart-extras.js` |
-| Quick one-off overrides | `custom/custom.css` or `custom/custom.js` | Minor CSS tweaks, small scripts |
+| Any CSS change (even minor) | `custom/css/<feature>.css` → enqueue in `custom.php` | `css/tweak.css` |
+| Any JS change (even minor) | `custom/js/<feature>.js` → enqueue in `custom.php` | `js/tweak.js` |
 | Generic theme features | `includes/features/` | Offcanvas module, shipping calc |
 | Plugin-specific customizations | `includes/customization/` | Fluid Checkout tweaks, Judge.me |
 | Generic CSS/JS assets | `assets/css/`, `assets/js/` | Product card styles, mini-cart JS |
@@ -104,8 +108,47 @@ custom/
 - Function prefix: `blaze_blocksy_` (generic), `blaze_custom_` (site-specific)
 - New generic modules: add path to `$required_files` array in `functions.php`
 
+## Git Workflow
+
+- Branch naming: `feat/`, `fix/`, `chore/`, `docs/` + kebab-case
+- **ALWAYS work in a git worktree**: `git worktree add .worktrees/<name> -b <name>`
+- Never push directly to `main` — always open a PR
+- Sync first: `git fetch origin && git merge origin/main`
+
+## Testing
+
+Run `/test` before every commit — auto-detects PHP (PHPCS + PHPUnit) vs E2E (Playwright).
+PHP setup: `composer install` then `composer run install-wp-tests` (local WP test DB required).
+
 ## Commits
 
 - Conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`
 - Do NOT add Claude as co-author or Co-Authored-By header
 - Present tense, imperative mood, first line under 72 chars
+
+## Context Budget Enforcement (BLOCKING)
+
+BEFORE AND AFTER modifying ANY `.claude/` or governance file, run:
+```bash
+wc -c CLAUDE.md README.md && wc -c .claude/recommended/*.md .claude/commands/*.md
+```
+
+Hard limits (exceeding any = CRITICAL FAILURE):
+| File | Max Chars |
+|------|-----------|
+| CLAUDE.md | 8,000 |
+| .claude/recommended/*.md | 3,000 each |
+| .claude/commands/*.md | 2,000 each |
+
+Over limit? Consolidate/merge/move to referenced external files. NEVER just delete rules.
+
+## Documentation Gate (BLOCKING — STRICT — BEFORE ANY PUSH)
+
+BEFORE every `git push`, `gh pr create`, or PR update — NO EXCEPTIONS:
+1. README.md reflects current features, structure, and any new capabilities added
+2. CLAUDE.md rules are current and accurate
+3. `.claude/recommended/` files are up to date
+4. Character limits pass: `wc -c CLAUDE.md README.md .claude/recommended/*.md`
+5. If any file changed this session → update it before pushing
+
+Failure to update = BLOCKED. Do NOT push stale documentation.

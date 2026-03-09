@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.3] - 2026-03-03
+
+### Changed
+- add Claude CLI team safety setup (#230)
+
+### Documentation
+- add .claude/recommended governance + pre-push gate (#229)
+- harden custom.php/css/js write-prohibition in CLAUDE.md (#228)
+
+## [1.75.2] - 2026-02-22
+
+### Fixed
+- free shipping progress bar skips coupon-only methods (min_amount=0) (#226)
+
+## [1.75.1] - 2026-02-22
+
+### Fixed
+- fix free shipping progress bar not rendering when a coupon-only free_shipping method (min_amount=0) appears before an amount-threshold method in WC shipping zones loop
+
+## [1.75.0] - 2026-02-22
+
+### Added
+- add smart add-to-cart for recommendation cards with per-type AJAX/redirect logic (#225)
+
+## [1.75.0] - 2026-02-22
+
+### Added
+- add smart add-to-cart for recommendation cards with per-type AJAX/redirect logic (#224)
+
 ## [1.74.0] - 2026-02-17
 
 ### Added
@@ -4314,7 +4343,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
+[1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
+[1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
+[1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4328,5 +4360,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.71.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.1...v1.71.2
 [1.72.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.71.2...v1.72.0
 [1.74.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.72.0...v1.74.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...HEAD
+[1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
+[1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
+[1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
 >>>>>>> main

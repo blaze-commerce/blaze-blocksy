@@ -193,6 +193,50 @@ jQuery(document).ready(function ($) {
   }
 
   /**
+   * Escape a string for safe insertion into HTML.
+   */
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(String(str)));
+    return div.innerHTML;
+  }
+
+  /**
+   * Build shipping methods radio list HTML.
+   * @param {Array}  methods       - Array of {id, title, cost, raw_cost}
+   * @param {string} preselectedId - Method ID to pre-check (optional)
+   * @returns {string} HTML string
+   */
+  function renderShippingMethods(methods, preselectedId) {
+    var html = '<div class="shipping-methods">';
+    $.each(methods, function (i, method) {
+      var checked =
+        preselectedId !== undefined
+          ? method.id === preselectedId
+            ? " checked"
+            : ""
+          : i === 0
+            ? " checked"
+            : "";
+      html += '<label class="shipping-method-radio">';
+      html +=
+        '<input type="radio" name="mini_cart_shipping_method" value="' +
+        escapeHtml(method.id) +
+        '" data-raw-cost="' +
+        escapeHtml(method.raw_cost) +
+        '"' +
+        checked +
+        ">";
+      html +=
+        '<span class="method-title">' + escapeHtml(method.title) + "</span>";
+      html += '<span class="method-cost">' + method.cost + "</span>";
+      html += "</label>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  /**
    * Shipping Calculator in Mini Cart
    */
   var selectWooAvailable = typeof $.fn.selectWoo !== "undefined";
@@ -245,12 +289,6 @@ jQuery(document).ready(function ($) {
     } else {
       localStorage.removeItem("blaze_shipping_state");
     }
-    var $wrapper = $(this).siblings(".coupon-form-wrapper");
-
-    $wrapper.slideToggle(300);
-
-    // Toggle arrow rotation via CSS class
-    $(this).toggleClass("open");
   });
 
   // Save postcode to localStorage on change
@@ -329,7 +367,10 @@ jQuery(document).ready(function ($) {
     var $methodsList = $(".mini-cart-shipping-methods-list");
 
     if (!country || !state) {
-      alert("Please select a country and state/province");
+      $methodsList.html(
+        '<div class="shipping-error">Please select a country and state/province.</div>',
+      );
+      $results.show();
       return;
     }
 
@@ -355,24 +396,7 @@ jQuery(document).ready(function ($) {
               '<div class="no-shipping">No shipping methods available for this location.</div>',
             );
           } else {
-            var html = '<div class="shipping-methods">';
-            $.each(methods, function (i, method) {
-              var checked = i === 0 ? " checked" : "";
-              html += '<label class="shipping-method-radio">';
-              html +=
-                '<input type="radio" name="mini_cart_shipping_method" value="' +
-                method.id +
-                '" data-raw-cost="' +
-                method.raw_cost +
-                '"' +
-                checked +
-                ">";
-              html += '<span class="method-title">' + method.title + "</span>";
-              html += '<span class="method-cost">' + method.cost + "</span>";
-              html += "</label>";
-            });
-            html += "</div>";
-            $methodsList.html(html);
+            $methodsList.html(renderShippingMethods(methods));
 
             // Auto-select first shipping method
             $methodsList
@@ -707,24 +731,7 @@ jQuery(document).ready(function ($) {
               '<div class="no-shipping">No shipping methods available for this location.</div>',
             );
           } else {
-            var html = '<div class="shipping-methods">';
-            $.each(methods, function (i, method) {
-              var checked = method.id === savedMethod ? " checked" : "";
-              html += '<label class="shipping-method-radio">';
-              html +=
-                '<input type="radio" name="mini_cart_shipping_method" value="' +
-                method.id +
-                '" data-raw-cost="' +
-                method.raw_cost +
-                '"' +
-                checked +
-                ">";
-              html += '<span class="method-title">' + method.title + "</span>";
-              html += '<span class="method-cost">' + method.cost + "</span>";
-              html += "</label>";
-            });
-            html += "</div>";
-            $methodsList.html(html);
+            $methodsList.html(renderShippingMethods(methods, savedMethod));
 
             // Select saved method, or fallback to first if saved method no longer available
             var $savedRadio = $methodsList.find(
@@ -756,25 +763,29 @@ jQuery(document).ready(function ($) {
     if (panel && !panel.hasAttribute("inert")) {
       initShippingSelectWoo();
 
-      // Auto-recalculate shipping if a method was previously selected
-      // Wait for initShippingSelectWoo to finish restoring country/state via AJAX
+      // Auto-recalculate shipping if a method was previously selected.
+      // After initShippingSelectWoo(), the country change triggers an AJAX call
+      // that populates the state <select>. We use a MutationObserver to detect
+      // when the state options are restored, then recalculate shipping.
       var savedMethod = localStorage.getItem("blaze_shipping_method");
       if (savedMethod) {
-        // Use a polling approach to wait for state select to be restored
-        var attempts = 0;
-        var maxAttempts = 20;
-        var checkInterval = setInterval(function () {
-          attempts++;
-          var country = $("#mini-cart-shipping-country").val();
-          var state = $("#mini-cart-shipping-state").val();
-
-          if ((country && state) || attempts >= maxAttempts) {
-            clearInterval(checkInterval);
+        var stateEl = document.getElementById("mini-cart-shipping-state");
+        if (stateEl) {
+          var stateObserver = new MutationObserver(function () {
+            var country = $("#mini-cart-shipping-country").val();
+            var state = $("#mini-cart-shipping-state").val();
             if (country && state) {
+              stateObserver.disconnect();
               autoRecalculateShipping();
             }
-          }
-        }, 200);
+          });
+          stateObserver.observe(stateEl, { childList: true });
+
+          // Fallback: disconnect after 5s to avoid leaking observers
+          setTimeout(function () {
+            stateObserver.disconnect();
+          }, 5000);
+        }
       }
     }
 
@@ -786,25 +797,122 @@ jQuery(document).ready(function ($) {
   });
 
   /**
-   * Handle recommended product clicks
+   * Open Blocksy cart panel by triggering its native anchor click
    */
-  $(document).on(
-    "click",
-    ".recommended-product-item .product-link",
-    function (e) {
-      // Allow normal navigation - no special handling needed
-      // This is just a placeholder for future enhancements
-    },
-  );
+  function openCartPanel() {
+    var cartTrigger = document.querySelector('a[href="#woo-cart-panel"]');
+    if (cartTrigger) {
+      cartTrigger.click();
+    }
+  }
 
   /**
-   * Add smooth animations for mini cart interactions
+   * Open cart panel after AJAX add-to-cart on archive/shop pages
    */
-  $(document)
-    .on("mouseenter", ".recommended-product-item", function () {
-      $(this).addClass("hover-effect");
-    })
-    .on("mouseleave", ".recommended-product-item", function () {
-      $(this).removeClass("hover-effect");
+  $(document.body).on("added_to_cart", function () {
+    openCartPanel();
+  });
+
+  /**
+   * Preserve variation state across Blocksy's AJAX add-to-cart.
+   *
+   * On single product pages Blocksy's add-to-cart-single.js intercepts the
+   * form submit via its own handler (bound directly on the form element) and
+   * POSTs to ?blocksy_add_to_cart=yes using fetch(). After success it triggers
+   * added_to_cart → WC processes fragments → wc_fragments_refreshed fires →
+   * WC's variation-form.js resets all attribute selects to "" and clears
+   * variation_id, making the second "Add to cart" click fail with
+   * "Please choose product options".
+   *
+   * Fix: snapshot variation state just before the submit (selects still hold
+   * the user's choices at that point) and restore directly after
+   * wc_fragments_refreshed. No e.preventDefault() — Blocksy owns the AJAX.
+   */
+  $(document).on("submit", ".ct-ajax-add-to-cart form.cart", function () {
+    var $form = $(this);
+    var state = {};
+    $form.find('select[name^="attribute_"]').each(function () {
+      state[this.name] = this.value;
     });
+    var varId = $form.find('input[name="variation_id"]').val() || "";
+    if (Object.keys(state).length > 0 || varId) {
+      $form.data("_varState", state);
+      $form.data("_varId", varId);
+    }
+  });
+
+  $(document.body).on("wc_fragments_refreshed.varrestore", function () {
+    $(".ct-ajax-add-to-cart form.cart").each(function () {
+      var $form = $(this);
+      var state = $form.data("_varState");
+      var varId = $form.data("_varId");
+      if (!state || !Object.keys(state).length) {
+        return;
+      }
+      // setTimeout(0) ensures this runs after WC's variation-form.js reset
+      // (which also fires on wc_fragments_refreshed synchronously).
+      setTimeout(function () {
+        Object.keys(state).forEach(function (name) {
+          $form.find('select[name="' + name + '"]').val(state[name]);
+        });
+        if (varId) {
+          $form.find('input[name="variation_id"]').val(varId);
+        }
+      }, 0);
+    });
+  });
+
+  /**
+   * Recommendation card "Add" button handler.
+   *
+   * PHP sets data-redirect-url on variable products with multiple variations
+   * (user must choose on the product page). For products with exactly one
+   * variation or no variations, PHP passes the correct product/variation ID
+   * so WC_Cart can add it directly via AJAX.
+   */
+  $(document).on("click", ".rec-add-to-cart-btn", function (e) {
+    e.preventDefault();
+
+    var $btn = $(this);
+    var productId = $btn.data("product-id");
+    var redirectUrl = $btn.data("redirect-url");
+
+    // Products requiring variation selection → send to product page
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    if (!productId || $btn.hasClass("loading")) {
+      return;
+    }
+
+    $btn.addClass("loading").prop("disabled", true);
+
+    var ajaxUrl =
+      (typeof wc_add_to_cart_params !== "undefined" &&
+        wc_add_to_cart_params.wc_ajax_url) ||
+      blazeBlocksyMiniCart.ajax_url;
+
+    $.ajax({
+      url: ajaxUrl.replace("%%endpoint%%", "add_to_cart"),
+      type: "POST",
+      data: {
+        product_id: productId,
+        quantity: 1,
+      },
+      success: function (response) {
+        if (response && response.fragments) {
+          $.each(response.fragments, function (key, value) {
+            $(key).replaceWith(value);
+          });
+          $(document.body).trigger("wc_fragments_refreshed");
+        }
+        $btn.removeClass("loading").prop("disabled", false);
+      },
+      error: function () {
+        $btn.removeClass("loading").prop("disabled", false);
+      },
+    });
+  });
 });

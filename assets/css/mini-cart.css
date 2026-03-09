@@ -343,11 +343,9 @@
 
 .mini-cart-form-wrapper .select2.select2-container * {
   font-size: 14px !important;
-  /* --theme-form-field-border-width: 0px; */
 }
 
 .mini-cart-form-wrapper .span.select2-container .select2-selection {
-  /* --theme-form-field-border-width: 0px !important; */
   --theme-form-field-border-radius: 8px !important;
 }
 
@@ -408,7 +406,6 @@
 }
 
 .mini-cart-shipping-results h4 {
-  font-family: var(--theme-font-family);
   font-family: var(--theme-font-family);
   margin-bottom: 12px !important;
   line-height: 1;
@@ -786,19 +783,19 @@ body>.select2-container--open .select2-dropdown {
 }
 
 /* Proceed to Checkout Button */
-.proceed-checkout-btn {
-  border: none !important;
-  padding: 14px 16px !important;
-  border-radius: var(--checkout-button-radius, 4px) !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  line-height: 28px !important;
-  text-decoration: none !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  transition: background-color 0.3s ease !important;
+#woo-cart-panel .proceed-checkout-btn {
+  border: none;
+  padding: 14px 16px;
+  border-radius: var(--checkout-button-radius, 4px);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  transition: background-color 0.3s ease;
 }
 
 /* SSL Badge */
