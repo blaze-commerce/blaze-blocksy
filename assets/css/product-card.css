@@ -8,7 +8,7 @@
   --product-card-badge-border-radius: 999px;
   --product-card-add-to-cart-border-color: var(--theme-button-text-initial-color);
   --product-card-add-to-cart-hover-border-color: var(--theme-button-text-hover-color);
-  --product-card-add-to-cart-border-radius: 999px;
+  --product-card-add-to-cart-border-radius: var(--theme-button-border-radius, 3px);
 }
 
 .products .product {
@@ -48,6 +48,18 @@
 
 .products .product figure .ct-media-container {
   border-radius: 0 !important;
+}
+
+[data-products] .product .wcsatt-sub-options,
+[data-products] .product .price small,
+[data-products] .product .price .sale-price small,
+[data-products] .product .price .sale-price del {
+  font-size: 100%;
+  opacity: 1;
+}
+
+[data-products] .product .price .sale-price ins {
+  color: red;
 }
 
 @media screen and (max-width: 768px) {
