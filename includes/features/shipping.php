@@ -236,7 +236,7 @@ class CalculateShipping {
 	 * AJAX handler for calculating shipping for current cart contents
 	 */
 	function ajax_calculate_cart_shipping() {
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'blaze_blocksy_mini_cart_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Security check failed' ) );
 			return;
 		}
@@ -295,7 +295,7 @@ class CalculateShipping {
 	 */
 	function ajax_calculate_shipping_methods() {
 		// Verify nonce for security
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'shipping_calculator_nonce' ) ) {
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'shipping_calculator_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Security check failed' ) );
 			return;
 		}
