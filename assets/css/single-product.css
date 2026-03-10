@@ -791,24 +791,177 @@
 }
 
 /* ========================================
-   WCSATT
+   WCSATT — Subscription Options Cards
    ======================================== */
 
-.entry-summary-items .wcsatt-sub-options {
-  font-size: 100%;
-  font-weight: normal;
+.wcsatt-options-wrapper .wcsatt-subscription-header {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px;
 }
 
-.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product.wcsatt-options-product-- {
+.wcsatt-options-product.wcsatt-options-product-- {
+  list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
-  flex-flow: row;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li {}
+/* Card base */
+.wcsatt-option-card {
+  list-style: none;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
 
-.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label {}
+/* Selected card — using :has() for modern browsers */
+.wcsatt-option-card:has(input[type="radio"]:checked) {
+  border-color: #222;
+}
 
-.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label span {}
+/* Subscription card background */
+.wcsatt-option-card.subscription-option {
+  background-color: #f5f5f5;
+  border-color: transparent;
+}
 
-.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label span .price.subscription-price {}
+.wcsatt-option-card.subscription-option:has(input[type="radio"]:checked) {
+  border-color: #222;
+}
+
+/* Hide native radio — use custom */
+.wcsatt-option-card label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.wcsatt-option-card input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  margin: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.wcsatt-option-card input[type="radio"]:checked {
+  border-color: #222;
+  border-width: 6px;
+}
+
+/* Card content layout */
+.wcsatt-option-card-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Card header — label + badge */
+.wcsatt-option-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wcsatt-option-card-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+  white-space: nowrap;
+}
+
+/* "Most Popular" badge */
+.wcsatt-option-card-badge {
+  display: inline-block;
+  background-color: var(--theme-button-background-initial-color, #3d5a1e);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Price on right */
+.wcsatt-option-card-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+  white-space: nowrap;
+  text-align: right;
+  transition: opacity 0.15s ease;
+}
+
+/* Subscription price in red */
+.wcsatt-option-card-price.subscription-option-price {
+  color: #d32f2f;
+}
+
+.wcsatt-option-card-price .wcsatt-sub-discount {
+  display: none;
+}
+
+/* Strip inner price styling from WCSATT description used as price */
+.wcsatt-option-card-price .subscription-price,
+.wcsatt-option-card-price .one-time-price {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.wcsatt-option-card-price del {
+  font-size: 14px;
+  font-weight: 400;
+  color: #999;
+  opacity: 1;
+}
+
+.wcsatt-option-card-price ins {
+  text-decoration: none;
+  color: #d32f2f;
+}
+
+/* Terms text below subscription card */
+.wcsatt-option-card-terms {
+  width: 100%;
+  margin: 4px 0 0 34px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .wcsatt-option-card-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .wcsatt-option-card-price {
+    text-align: left;
+  }
+
+  .wcsatt-option-card-terms {
+    margin-left: 34px;
+  }
+}

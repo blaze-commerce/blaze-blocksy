@@ -728,9 +728,150 @@
     });
   }
 
+  /**
+   * WCSATT Subscription Card Helpers
+   *
+   * WCSATT replaces the entire .wcsatt-options-wrapper HTML on variation change,
+   * so MutationObservers on child elements get destroyed. Instead we use
+   * WooCommerce variation events + a parent-level observer to re-run cleanup.
+   */
+
+  /**
+   * Format a numeric price into WooCommerce-style HTML.
+   * Reads the currency symbol from existing price elements on the page.
+   */
+  function formatWcPrice(price) {
+    var symbol = "$";
+    var $existing = $(".woocommerce-Price-currencySymbol").first();
+    if ($existing.length) {
+      symbol = $existing.text();
+    }
+    return (
+      '<span class="woocommerce-Price-amount amount"><bdi>' +
+      '<span class="woocommerce-Price-currencySymbol">' +
+      symbol +
+      "</span>" +
+      parseFloat(price).toFixed(2) +
+      "</bdi></span>"
+    );
+  }
+
+  /**
+   * Strip "— save X%" discount text from subscription card prices.
+   */
+  function cleanWcsattCardPrices() {
+    $(".wcsatt-option-card .subscription-price").each(function () {
+      var el = this;
+      // Walk child nodes and strip "— save" text
+      Array.prototype.slice.call(el.childNodes).forEach(function (node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          node.textContent = node.textContent.replace(
+            /\s*\u2014\s*save\s*/g,
+            "",
+          );
+          // Also handle the HTML entity version
+          node.textContent = node.textContent.replace(
+            /\s*—\s*save\s*/g,
+            "",
+          );
+        }
+      });
+      $(el).find(".wcsatt-sub-discount").remove();
+    });
+  }
+
+  /**
+   * Update one-time card price from WooCommerce variation data.
+   */
+  function updateOneTimeCardPrice(variation) {
+    if (!variation || variation.display_price === undefined) {
+      return;
+    }
+
+    var $oneTimePrice = $(
+      ".wcsatt-option-card.one-time-option .price.one-time-price",
+    );
+    if (!$oneTimePrice.length) {
+      return;
+    }
+
+    $oneTimePrice.html(formatWcPrice(variation.display_price));
+  }
+
+  /**
+   * Restore one-time card price to the initial range HTML.
+   */
+  function resetOneTimeCardPrice() {
+    var $oneTimePrice = $(
+      ".wcsatt-option-card.one-time-option .price.one-time-price",
+    );
+    if (!$oneTimePrice.length) {
+      return;
+    }
+    var initialHtml = $oneTimePrice.data("initial-html");
+    if (initialHtml) {
+      $oneTimePrice.html(initialHtml);
+    }
+  }
+
+  /**
+   * Initialize WCSATT card price handlers.
+   * - Stores initial range HTML for reset
+   * - Listens for variation events
+   * - Observes wrapper parent for DOM replacement (WCSATT swaps the wrapper)
+   */
+  function initWcsattCardPrices() {
+    // Store initial one-time price HTML for reset
+    $(".wcsatt-option-card.one-time-option .price.one-time-price").each(
+      function () {
+        if (!$(this).data("initial-html")) {
+          $(this).data("initial-html", $(this).html());
+        }
+      },
+    );
+
+    // Clean subscription prices on page load
+    cleanWcsattCardPrices();
+
+    // Listen for WooCommerce variation events
+    $(".variations_form")
+      .off("show_variation.wcsattCard reset_data.wcsattCard")
+      .on("show_variation.wcsattCard", function (e, variation) {
+        // Hide prices immediately to avoid flash of stale range prices
+        $(".wcsatt-option-card-price").css("opacity", "0");
+
+        // WCSATT may replace wrapper HTML; wait for it to finish
+        setTimeout(function () {
+          cleanWcsattCardPrices();
+          updateOneTimeCardPrice(variation);
+          $(".wcsatt-option-card-price").css("opacity", "");
+        }, 120);
+      })
+      .on("reset_data.wcsattCard", function () {
+        $(".wcsatt-option-card-price").css("opacity", "0");
+
+        setTimeout(function () {
+          cleanWcsattCardPrices();
+          resetOneTimeCardPrice();
+          $(".wcsatt-option-card-price").css("opacity", "");
+        }, 120);
+      });
+
+    // Observe the wrapper's parent for child replacements (WCSATT swaps the wrapper).
+    var $wrapperParent = $(".wcsatt-options-wrapper").parent();
+    if ($wrapperParent.length) {
+      new MutationObserver(function () {
+        cleanWcsattCardPrices();
+      }).observe($wrapperParent[0], { childList: true, subtree: false });
+    }
+  }
+
   // Initialize Product Full Description toggle and Product Information Offcanvas on document ready
   $(document).ready(function () {
     initProductFullDescriptionToggle();
     initProductInformationOffcanvas();
+
+    // Initialize WCSATT subscription card price handlers
+    initWcsattCardPrices();
   });
 })(jQuery);
