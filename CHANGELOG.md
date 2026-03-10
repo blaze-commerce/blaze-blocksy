@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.75.4] - 2026-03-10
+
+### Fixed
+- stack "Haven't received the email yet?" text above RESEND EMAIL button on thank-you page (#231)
+
 ## [1.75.3] - 2026-03-03
 
 ### Changed
@@ -4346,7 +4351,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
 [1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
 [1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
+[1.75.4]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...v1.75.4
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4363,5 +4369,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.75.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.74.0...v1.75.0
 [1.75.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.0...v1.75.2
 [1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...HEAD
+[1.75.4]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...v1.75.4
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...HEAD
 >>>>>>> main
