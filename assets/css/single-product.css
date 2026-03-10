@@ -801,4 +801,14 @@
 
 .entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product.wcsatt-options-product-- {
   padding: 0;
+  display: flex;
+  flex-flow: row;
 }
+
+.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li {}
+
+.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label {}
+
+.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label span {}
+
+.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product li label span .price.subscription-price {}
