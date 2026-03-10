@@ -497,10 +497,6 @@
   }
 }
 
-/* selectWoo dropdown inside offcanvas */
-.select2-container--open {
-  z-index: 999999 !important;
-}
 
 /* ========================================
    SHIPPING CALCULATOR STYLES

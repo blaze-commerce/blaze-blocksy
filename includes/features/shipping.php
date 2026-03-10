@@ -192,11 +192,14 @@ class CalculateShipping {
 	}
 
 	function ajax_get_states() {
-		// Verify nonce for security (optional but recommended)
-		// if ( ! wp_verify_nonce( $_POST['nonce'], 'shipping_calculator_nonce' ) ) {
-		//     wp_send_json_error( array( 'message' => 'Security check failed' ) );
-		//     return;
-		// }
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( $_POST['nonce'] ) : '';
+		$valid = wp_verify_nonce( $nonce, 'blaze_blocksy_mini_cart_nonce' )
+			|| wp_verify_nonce( $nonce, 'shipping_calculator_nonce' );
+
+		if ( ! $valid ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
 
 		// Get country code from POST data
 		$country_code = isset( $_POST['country_code'] ) ? sanitize_text_field( $_POST['country_code'] ) : '';
@@ -224,7 +227,8 @@ class CalculateShipping {
 
 			wp_send_json_success( $states );
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error retrieving states: ' . $e->getMessage() ) );
+			error_log( 'Blaze Blocksy: Error retrieving states — ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -281,7 +285,8 @@ class CalculateShipping {
 
 			wp_send_json_success( $shipping_methods );
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -383,7 +388,8 @@ class CalculateShipping {
 			}
 
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -425,7 +431,8 @@ class CalculateShipping {
 				'total'        => WC()->cart->get_total(),
 			) );
 		} catch ( \Exception $e ) {
-			wp_send_json_error( array( 'message' => 'Error selecting shipping method: ' . $e->getMessage() ) );
+			error_log( 'Blaze Blocksy: Shipping method selection error — ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -490,7 +497,8 @@ class CalculateShipping {
 			wp_send_json_success( $shipping_methods );
 
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 }

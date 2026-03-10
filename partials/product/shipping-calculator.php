@@ -160,7 +160,8 @@ $available_countries = $countries->get_shipping_countries();
 				type: 'POST',
 				data: {
 					action: 'blaze_blocksy_get_states',
-					country_code: selectedCountry
+					country_code: selectedCountry,
+					nonce: '<?php echo wp_create_nonce( 'shipping_calculator_nonce' ); ?>'
 				},
 				success: function (response) {
 					// Unblock UI
@@ -175,7 +176,7 @@ $available_countries = $countries->get_shipping_countries();
 						// Check if states object has any properties
 						if (Object.keys(states).length > 0) {
 							$.each(states, function (key, value) {
-								statesSelect.append('<option value="' + key + '">' + value + '</option>');
+								statesSelect.append($('<option>', { value: key, text: value }));
 							});
 						} else {
 							// No states available for this country

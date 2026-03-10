@@ -324,6 +324,7 @@ jQuery(document).ready(function ($) {
       data: {
         action: "blaze_blocksy_get_states",
         country_code: country,
+        nonce: blazeBlocksyMiniCart.nonce,
       },
       success: function (response) {
         $state.empty().append('<option value="">Select State</option>');
@@ -331,9 +332,7 @@ jQuery(document).ready(function ($) {
           var states = response.data;
           if (Object.keys(states).length > 0) {
             $.each(states, function (key, value) {
-              $state.append(
-                '<option value="' + key + '">' + value + "</option>",
-              );
+              $state.append($("<option>", { value: key, text: value }));
             });
           }
         }
@@ -524,17 +523,17 @@ jQuery(document).ready(function ($) {
       data: {
         action: "blaze_blocksy_get_states",
         country_code: countryCode,
+        nonce: blazeBlocksyMiniCart.nonce,
       },
       success: function (response) {
         if (response.success && response.data) {
           var states = response.data;
-          var options = '<option value="">City</option>';
-
           if (Object.keys(states).length > 0) {
+            $stateSelect.empty().append('<option value="">City</option>');
             $.each(states, function (code, name) {
-              options += '<option value="' + code + '">' + name + "</option>";
+              $stateSelect.append($("<option>", { value: code, text: name }));
             });
-            $stateSelect.html(options).prop("disabled", false);
+            $stateSelect.prop("disabled", false);
           } else {
             $stateSelect
               .html('<option value="">City</option>')

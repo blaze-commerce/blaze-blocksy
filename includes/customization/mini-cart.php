@@ -126,7 +126,7 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	}
 
 	$cart = WC()->cart;
-	$subtotal = $cart->get_subtotal() + $cart->get_subtotal_tax();
+	$subtotal = $cart->get_displayed_subtotal();
 	$shipping_total = $cart->get_shipping_total();
 	$shipping_tax = $cart->get_shipping_tax();
 	$tax_total = $cart->get_total_tax();
