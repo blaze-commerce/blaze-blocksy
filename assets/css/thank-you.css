@@ -1070,14 +1070,6 @@
 	border-bottom: 1px solid var(--bc-ty-border-color);
 }
 
-/* Desktop flexbox layout (≥1024px) */
-@media (min-width: 1024px) {
-	.resend-email-container {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-}
 
 /* Transparent button styling - improved specificity */
 .blaze-commerce-thank-you-wrapper #resend-email-btn {
