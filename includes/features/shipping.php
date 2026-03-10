@@ -227,7 +227,7 @@ class CalculateShipping {
 
 			wp_send_json_success( $states );
 		} catch (\Exception $e) {
-			error_log( 'Blaze Blocksy: Error retrieving states — ' . $e->getMessage() );
+			wc_get_logger()->error( 'Error retrieving states: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
 			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
@@ -285,7 +285,7 @@ class CalculateShipping {
 
 			wp_send_json_success( $shipping_methods );
 		} catch (\Exception $e) {
-			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
 			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
@@ -388,7 +388,7 @@ class CalculateShipping {
 			}
 
 		} catch (\Exception $e) {
-			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
 			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
@@ -431,7 +431,7 @@ class CalculateShipping {
 				'total'        => WC()->cart->get_total(),
 			) );
 		} catch ( \Exception $e ) {
-			error_log( 'Blaze Blocksy: Shipping method selection error — ' . $e->getMessage() );
+			wc_get_logger()->error( 'Shipping method selection error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
 			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
@@ -497,7 +497,7 @@ class CalculateShipping {
 			wp_send_json_success( $shipping_methods );
 
 		} catch (\Exception $e) {
-			error_log( 'Blaze Blocksy: Shipping calculation error — ' . $e->getMessage() );
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
 			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
