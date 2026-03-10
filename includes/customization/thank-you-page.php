@@ -261,7 +261,7 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
 						</p>
 						<div class="resend-email-container">
 							<p>
-								Still not working?
+								Haven't received the email yet?
 							</p>
 							<button type="button" class="button wp-element-button" id="resend-email-btn" data-order-id="<?php echo esc_attr( $order_id ); ?>" data-order-key="<?php echo esc_attr( $order->get_order_key() ); ?>">
 								Resend Email
