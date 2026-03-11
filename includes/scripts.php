@@ -12,38 +12,43 @@ add_action( 'wp_enqueue_scripts', 'blaze_blocksy_enqueue_assets' );
 
 function blaze_blocksy_enqueue_assets() {
 	$template_uri = get_stylesheet_directory_uri();
+	$theme_version = wp_get_theme()->get( 'Version' );
 
 	// === GLOBAL STYLES ===
-	wp_enqueue_style( 'parent-style', $template_uri . '/style.css' );
+	wp_enqueue_style( 'parent-style', $template_uri . '/style.css', array(), $theme_version );
 
 	// Enqueue child styles
 	wp_enqueue_style(
 		'blocksy-child-search-style',
 		$template_uri . '/assets/css/search.css',
-		array( 'parent-style' )
+		array( 'parent-style' ),
+		$theme_version
 	);
 
 	wp_enqueue_style(
 		'blocksy-child-footer-style',
 		$template_uri . '/assets/css/footer.css',
-		array( 'parent-style' )
+		array( 'parent-style' ),
+		$theme_version
 	);
 
 	wp_enqueue_style(
 		'blocksy-child-header-style',
 		$template_uri . '/assets/css/header.css',
-		array( 'parent-style' )
+		array( 'parent-style' ),
+		$theme_version
 	);
 
 	wp_enqueue_style(
 		'blocksy-child-product-card-style',
 		$template_uri . '/assets/css/product-card.css',
-		array( 'parent-style' )
+		array( 'parent-style' ),
+		$theme_version
 	);
 
 	// === MINI CART ASSETS ===
-	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css' );
-	wp_enqueue_script( 'blaze-blocksy-mini-cart-js', BLAZE_BLOCKSY_URL . '/assets/js/mini-cart.js', array( 'jquery' ), '1.0.0', true );
+	wp_enqueue_style( 'blaze-blocksy-mini-cart', BLAZE_BLOCKSY_URL . '/assets/css/mini-cart.css', array(), $theme_version );
+	wp_enqueue_script( 'blaze-blocksy-mini-cart-js', BLAZE_BLOCKSY_URL . '/assets/js/mini-cart.js', array( 'jquery' ), $theme_version, true );
 
 	// === BLOCKUI LIBRARY ===
 	// Use WooCommerce's bundled blockUI if available, fallback to local file
@@ -71,17 +76,23 @@ function blaze_blocksy_enqueue_assets() {
 		wp_enqueue_script( 'owl-carousel', $template_uri . '/assets/vendor/owlcarousel/owl.carousel.min.js', array( 'jquery' ), '2.3.4', true );
 	}
 
+	// === SELECTWOO FOR SHIPPING CALCULATOR (mini-cart + product page) ===
+	if ( wp_script_is( 'selectWoo', 'registered' ) ) {
+		wp_enqueue_script( 'selectWoo' );
+		wp_enqueue_style( 'select2' );
+	}
+
 	// === SINGLE PRODUCT PAGE ASSETS ===
 	if ( is_product() ) {
 		// Single product styles
-		wp_enqueue_style( 'blaze-blocksy-single-product', BLAZE_BLOCKSY_URL . '/assets/css/single-product.css' );
+		wp_enqueue_style( 'blaze-blocksy-single-product', BLAZE_BLOCKSY_URL . '/assets/css/single-product.css', array(), $theme_version );
 
 		// Single product JavaScript
 		wp_enqueue_script(
 			'blaze-blocksy-single-product',
 			BLAZE_BLOCKSY_URL . '/assets/js/single-product.js',
 			array( 'jquery' ),
-			'1.0.0',
+			$theme_version,
 			true
 		);
 	}
@@ -89,18 +100,18 @@ function blaze_blocksy_enqueue_assets() {
 	// === CHECKOUT PAGE ASSETS ===
 	if ( is_checkout() ) {
 		// Checkout page styles - error message layout fixes
-		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css', array(), '1.2.0' );
+		wp_enqueue_style( 'blaze-blocksy-checkout', BLAZE_BLOCKSY_URL . '/assets/css/checkout.css', array(), $theme_version );
 
 		// Upsell order bump AJAX toggle
-		wp_enqueue_script( 'blaze-blocksy-checkout-upsell', BLAZE_BLOCKSY_URL . '/assets/js/checkout-upsell.js', array( 'jquery' ), '1.0.0', true );
+		wp_enqueue_script( 'blaze-blocksy-checkout-upsell', BLAZE_BLOCKSY_URL . '/assets/js/checkout-upsell.js', array( 'jquery' ), $theme_version, true );
 		wp_localize_script( 'blaze-blocksy-checkout-upsell', 'blazeUpsell', array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 		) );
 	}
 
 	// === WISHLIST OVERLAY ASSETS ===
-	wp_enqueue_style( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/css/wishlist-overlay.css', array(), '1.0.2' );
-	wp_enqueue_script( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/js/wishlist-overlay.js', array(), '1.0.2', true );
+	wp_enqueue_style( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/css/wishlist-overlay.css', array(), $theme_version );
+	wp_enqueue_script( 'blaze-blocksy-wishlist-overlay', BLAZE_BLOCKSY_URL . '/assets/js/wishlist-overlay.js', array(), $theme_version, true );
 
 	// === LOCALIZE SCRIPTS ===
 	blaze_blocksy_localize_scripts();
@@ -123,7 +134,7 @@ function blaze_blocksy_localize_scripts() {
 	// Single Product localization (only on product pages)
 	if ( is_product() ) {
 		$single_product_data = apply_filters( 'blaze_blocksy_single_product_localize_data', array(
-			'ajax_url'            => admin_url( 'admin-ajax.php' ),
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'scrollOffsetPadding' => -60, // Extra padding for scroll-to-notice calculations
 		) );
 
@@ -136,13 +147,14 @@ function blaze_blocksy_localize_scripts() {
  */
 add_action( 'customize_preview_init', function () {
 	$template_uri = get_stylesheet_directory_uri();
+	$theme_version = wp_get_theme()->get( 'Version' );
 
 	// Enqueue the main sync handler
 	wp_enqueue_script(
 		'wishlist-offcanvas-sync',
 		$template_uri . '/assets/js/wishlist-offcanvas-sync.js',
 		array( 'jquery', 'customize-preview' ),
-		'1.0.0',
+		$theme_version,
 		true
 	);
 
@@ -151,7 +163,7 @@ add_action( 'customize_preview_init', function () {
 		'wishlist-offcanvas-variables',
 		$template_uri . '/assets/js/wishlist-offcanvas-variables.js',
 		array( 'jquery', 'customize-preview', 'wishlist-offcanvas-sync' ),
-		'1.0.0',
+		$theme_version,
 		true
 	);
 } );
