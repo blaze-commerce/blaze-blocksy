@@ -107,6 +107,7 @@ custom/
 - Asset versioning: `filemtime()` for cache busting — not hardcoded versions
 - Function prefix: `blaze_blocksy_` (generic), `blaze_custom_` (site-specific)
 - New generic modules: add path to `$required_files` array in `functions.php`
+- **BLOCKING:** Feature logic in `functions.php` or `scripts.php` is PROHIBITED — add to `includes/features/` instead
 
 ## Git Workflow
 
