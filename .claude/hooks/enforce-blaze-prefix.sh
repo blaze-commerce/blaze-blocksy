@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # BLAZE PREFIX GATE — Blocks top-level functions without blaze_blocksy_ or blaze_custom_ prefix
-# Applies to Write/Edit on .php files under includes/
+# Applies to Write/Edit on .php files under includes/ or custom/ (excluding the 3 loaders)
 set -euo pipefail
 
 INPUT=$(cat)
@@ -12,9 +12,11 @@ TOOL=$(echo "$INPUT" | jq -r '.tool_name // empty')
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 [ -z "$FILE_PATH" ] && exit 0
 
-# Must be a PHP file under includes/
+# Must be a PHP file under includes/ or custom/ — but not the loader files themselves
 echo "$FILE_PATH" | grep -qE '\.php$' || exit 0
-echo "$FILE_PATH" | grep -qE '/includes/' || exit 0
+echo "$FILE_PATH" | grep -qE '/(includes|custom)/' || exit 0
+# Exclude the append-only loaders (governed by enforce-loader-append-only.sh)
+echo "$FILE_PATH" | grep -qE '/custom/custom\.php$' && exit 0
 
 # Get content to check (Write → content; Edit → new_string)
 CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string // empty')
@@ -31,7 +33,7 @@ BAD=$(echo "$CONTENT" | grep -nE '^function [a-zA-Z_]' \
 [ -z "$BAD" ] && exit 0
 
 echo "" >&2
-echo "BLOCKED: Top-level functions in includes/ must use blaze_blocksy_ or blaze_custom_ prefix." >&2
+echo "BLOCKED: Top-level functions in includes/ and custom/ must use blaze_blocksy_ or blaze_custom_ prefix." >&2
 echo "" >&2
 echo "  Unprefixed functions found:" >&2
 while IFS= read -r fn; do

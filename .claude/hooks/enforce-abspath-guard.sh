@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABSPATH GUARD GATE — Blocks Write of PHP modules without ABSPATH check
-# Applies to .php files under includes/ or woocommerce/
+# Applies to .php files under includes/, woocommerce/, or custom/ (excluding the 3 loaders)
 set -euo pipefail
 
 INPUT=$(cat)
@@ -15,8 +15,10 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 # Must be a PHP file
 echo "$FILE_PATH" | grep -qE '\.php$' || exit 0
 
-# Must be under includes/ or woocommerce/
-echo "$FILE_PATH" | grep -qE '/(includes|woocommerce)/' || exit 0
+# Must be under includes/, woocommerce/, or custom/ — but not the loader files themselves
+echo "$FILE_PATH" | grep -qE '/(includes|woocommerce|custom)/' || exit 0
+# Exclude the 3 append-only loaders (governed by enforce-loader-append-only.sh)
+echo "$FILE_PATH" | grep -qE '/custom/custom\.(php|css|js)$' && exit 0
 
 CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty')
 
