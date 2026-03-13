@@ -11,14 +11,14 @@
       "Bash(node -e *)",
       "Bash(php -r *)",
       "Bash(base64 *)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)",
       "Read(.env*)",
       "Read(*credentials*)",
       "Write(.env*)"
     ],
     "ask": [
-      "Bash(git reset *)",
-      "Bash(git push origin main*)",
-      "Bash(git push origin master*)"
+      "Bash(git reset *)"
     ]
   },
   "hooks": {
@@ -26,33 +26,43 @@
       {
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/enforce-worktree.sh"
-          }
+          { "type": "command", "command": ".claude/hooks/enforce-worktree.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-loader-append-only.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-char-limit-claude-md.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-abspath-guard.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-blaze-prefix.sh" }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/block-credential-reads.sh" }
         ]
       },
       {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/pre-commit-test-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/block-force-push.sh"
-          }
+          { "type": "command", "command": ".claude/hooks/pre-commit-test-gate.sh" },
+          { "type": "command", "command": ".claude/hooks/block-force-push.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-docs-gate.sh" },
+          { "type": "command", "command": ".claude/hooks/validate-conventional-commit.sh" },
+          { "type": "command", "command": ".claude/hooks/block-credential-reads.sh" },
+          { "type": "command", "command": ".claude/hooks/validate-dev-logging.sh" },
+          { "type": "command", "command": ".claude/hooks/pre-commit-php-lint.sh" }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/enforce-branch-naming.sh" }
         ]
       }
     ],
     "SessionStart": [
       {
         "hooks": [
-          {
-            "type": "command",
-            "command": "chmod +x .claude/hooks/*.sh 2>/dev/null || true"
-          }
+          { "type": "command", "command": "chmod +x .claude/hooks/*.sh 2>/dev/null || true" }
         ]
       }
     ]
