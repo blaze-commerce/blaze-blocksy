@@ -1,8 +1,8 @@
 #!/bin/bash
 set -eo pipefail
-# pre-commit-test-gate.sh - Remind to run tests before git commit
+# pre-commit-test-gate.sh - Block commit until tests have been run
 # Only activates when a test runner is detected in the project
-# Non-blocking: outputs a reminder, does not prevent commit
+# Blocking: exit 2 prevents commit until tests pass
 
 INPUT=$(cat)
 TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
@@ -27,5 +27,5 @@ if [ "$HAS_TESTS" = false ]; then
   exit 0
 fi
 
-echo "REMINDER: This project has tests. Ensure tests pass before committing. Run the test suite if you haven't already this session."
-exit 0
+echo "BLOCKED: Tests must pass before commit. Run the test suite first (/test), then retry." >&2
+exit 2

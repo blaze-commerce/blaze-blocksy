@@ -1,0 +1,29 @@
+# Dependencies — large, not useful for code tasks
+node_modules/
+vendor/
+
+# Build artifacts
+assets/dist/
+assets/build/
+*.map
+
+# Test artifacts
+playwright-report/
+test-results/
+coverage/
+playwright-results.json
+
+# Git internals
+.worktrees/
+.git/
+
+# Large documentation tree (57 subdirs) — reference via path if needed
+docs/
+
+# IDE / other AI assistant config
+.augment/
+.vscode/
+
+# OS noise
+.DS_Store
+Thumbs.db
