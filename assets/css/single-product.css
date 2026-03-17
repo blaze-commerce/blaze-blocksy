@@ -791,13 +791,26 @@
 }
 
 /* ========================================
+   WCSATT
+   ======================================== */
+
+.entry-summary-items .wcsatt-sub-options {
+  font-size: 100%;
+  font-weight: normal;
+}
+
+.entry-summary-items .wcsatt-options-product-wrapper .wcsatt-options-product.wcsatt-options-product-- {
+  padding: 0;
+}
+
+/* ========================================
    WCSATT — Subscription Options Cards
    ======================================== */
 
 .wcsatt-options-wrapper .wcsatt-subscription-header {
   font-size: 20px;
   font-weight: 700;
-  margin: 0 0 12px;
+  margin: 0 0 var(--product-element-spacing, 10px);
 }
 
 .wcsatt-options-product.wcsatt-options-product-- {
@@ -806,7 +819,11 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--product-element-spacing, 10px);
+}
+
+.wcsatt-options-wrapper.wcsatt-options-wrapper-flat.wcsatt-options-wrapper-text.open {
+  margin-bottom: var(--product-element-spacing, 10px);
 }
 
 /* Card base */

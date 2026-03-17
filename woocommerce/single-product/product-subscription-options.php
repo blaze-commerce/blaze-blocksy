@@ -18,8 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="wcsatt-options-wrapper <?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>"
 	data-sign_up_text="<?php echo esc_attr( $sign_up_text ); ?>" <?php echo $hide_wrapper ? 'style="display:none;"' : ''; ?>>
-	<div class="wcsatt-options-product-prompt <?php echo esc_attr( implode( ' ', $prompt_classes ) ); ?>" style="display:none;"
-		data-prompt_type="<?php echo esc_attr( $prompt_type ); ?>">
+	<div class="wcsatt-options-product-prompt <?php echo esc_attr( implode( ' ', $prompt_classes ) ); ?>"
+		style="display:none;" data-prompt_type="<?php echo esc_attr( $prompt_type ); ?>">
 		<?php
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $prompt;
@@ -70,7 +70,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$_product = wc_get_product( $product_id );
 
 			foreach ( $options as $option ) {
-				$is_one_time     = 'one-time-option' === $option['class'];
+				$is_one_time = 'one-time-option' === $option['class'];
 				$is_subscription = 'subscription-option' === $option['class'];
 
 				// Extract data for card display.
@@ -78,7 +78,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$card_price = '';
 				$card_terms = '';
 				$card_badge = '';
-				$discount   = 0;
+				$discount = 0;
 
 				if ( $is_one_time ) {
 					$card_label = __( 'One Time Purchase', 'woocommerce-all-products-for-subscriptions' );
@@ -95,7 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$card_price = '<span class="price one-time-price">' . $raw_price . '</span>';
 
 				} elseif ( $is_subscription && ! empty( $option['data']['subscription_scheme'] ) ) {
-					$scheme   = $option['data']['subscription_scheme'];
+					$scheme = $option['data']['subscription_scheme'];
 					$discount = ! empty( $scheme['discount'] ) ? floatval( $scheme['discount'] ) : 0;
 
 					if ( $discount > 0 ) {
@@ -109,6 +109,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					// WCSATT JS targets: scheme.$el.find('.subscription-price')
 					// This allows the plugin's own JS to update the price on variation change.
 					$card_price = $option['description'];
+
+					// Remove " — save XX%" text (already shown in card label).
+					$card_price = preg_replace( '/ — save <span class="wcsatt-sub-discount">[^<]*<\/span>/', '', $card_price );
 
 					// Build terms text from scheme data.
 					$min_periods = ! empty( $scheme['length'] ) ? intval( $scheme['length'] ) : 0;
@@ -135,10 +138,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<span class="wcsatt-option-card-badge"><?php echo esc_html( $card_badge ); ?></span>
 								<?php endif; ?>
 							</div>
-							<span class="wcsatt-option-card-price <?php echo esc_attr( $option['class'] ); ?>-price <?php echo esc_attr( $option['class'] ); ?>-details"><?php
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								echo $card_price;
-							?></span>
+							<span
+								class="wcsatt-option-card-price <?php echo esc_attr( $option['class'] ); ?>-price <?php echo esc_attr( $option['class'] ); ?>-details"><?php
+										  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									  	echo $card_price;
+										  ?></span>
 						</div>
 						<?php if ( $card_terms ) : ?>
 							<p class="wcsatt-option-card-terms"><?php echo esc_html( $card_terms ); ?></p>
@@ -159,3 +163,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	do_action( 'wcsatt_after_product_subscription_options' );
 	?>
 </div>
+<?php
