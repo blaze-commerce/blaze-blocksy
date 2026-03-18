@@ -10,6 +10,17 @@ Only permitted change: append a path to `$required_files` in `functions.php`, or
 All generic features must be dedicated files in `includes/features/`, `includes/customization/`, etc.
 All generic PHP functions MUST use the `blaze_blocksy_` prefix.
 CSS/JS: one asset file per feature — no monolithic assets.
+## Modular Files Are Freely Editable
+All files NOT in the 5 protected loaders can be freely edited (full edits, replacements, rewrites allowed):
+- `custom/css/*.css`, `custom/js/*.js`, `custom/*.php` (feature modules)
+- `includes/features/*.php`, `includes/customization/*.php`, `includes/blocks/**/*`
+- `assets/css/*.css`, `assets/js/*.js`
+- `woocommerce/**/*`, `partials/**/*`
+
+## Comment-Out Allowed in PHP Loaders
+`custom.php` and `functions.php` allow commenting out existing `require_once` / `wp_enqueue_*` lines with `//`.
+Appending new loader lines is also allowed. Full removal or replacement of non-require/enqueue lines is blocked.
+
 ## Git Rules (BLOCKING)
 - NEVER commit directly to `main` — always work in a branch and open a PR
 - ALWAYS work in a git worktree — never edit files in the main checkout
