@@ -48,6 +48,32 @@ if [ "$TOOL" = "Edit" ]; then
 
   # Block if new does not contain old (content was removed or replaced)
   if ! echo "$NEW" | grep -qF "$OLD"; then
+    # Exception: allow comment-out of require/enqueue lines in PHP loaders only
+    if [[ "$BASENAME" == "custom.php" || "$BASENAME" == "functions.php" ]]; then
+      if python3 - "$OLD" "$NEW" << 'PYEOF'
+import sys
+old_lines = sys.argv[1].splitlines()
+new_lines = sys.argv[2].splitlines()
+PREFIXES = ('require', 'include', 'wp_enqueue', 'wp_dequeue', 'wp_register', 'wp_deregister', 'add_action')
+if len(new_lines) < len(old_lines):
+    sys.exit(1)
+for old_line, new_line in zip(old_lines, new_lines):
+    if old_line == new_line:
+        continue
+    o = old_line.lstrip()
+    n = new_line.lstrip()
+    uncommented = n.lstrip('/').lstrip('*').strip()
+    if (n.startswith('//') or n.startswith('/*')) and \
+       uncommented in (o, o.rstrip()) and \
+       any(o.startswith(p) for p in PREFIXES):
+        continue
+    sys.exit(1)
+sys.exit(0)
+PYEOF
+      then
+        exit 0  # comment-out of require/enqueue line — allowed
+      fi
+    fi
     BLOCK_MSG
   fi
 fi
