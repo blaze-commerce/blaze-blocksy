@@ -234,6 +234,7 @@ $RECYCLE.BIN/
 # Backup Files
 *.bak
 *.backup
+*.backup-*
 *.old
 *.orig
 *.rej

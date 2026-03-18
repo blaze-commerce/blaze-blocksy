@@ -27,6 +27,8 @@
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
           { "type": "command", "command": ".claude/hooks/enforce-worktree.sh" },
+          { "type": "command", "command": ".claude/hooks/protect-custom-files.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-read-before-edit.sh" },
           { "type": "command", "command": ".claude/hooks/enforce-loader-append-only.sh" },
           { "type": "command", "command": ".claude/hooks/enforce-char-limit-claude-md.sh" },
           { "type": "command", "command": ".claude/hooks/enforce-abspath-guard.sh" },
