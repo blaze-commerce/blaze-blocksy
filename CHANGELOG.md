@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.76.1] - 2026-03-18
+
+### Changed
+- sync child theme gate hooks and modular rules with global .claude (#234)
+
 ## [1.76.0] - 2026-03-13
 
 ### Added
@@ -4361,7 +4366,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
 [1.75.4]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...v1.75.4
 [1.76.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...v1.76.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...HEAD
+[1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4380,5 +4386,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.75.3]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.2...v1.75.3
 [1.75.4]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.3...v1.75.4
 [1.76.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...v1.76.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...HEAD
+[1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...HEAD
 >>>>>>> main
