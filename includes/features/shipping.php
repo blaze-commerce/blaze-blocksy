@@ -57,6 +57,10 @@ class CalculateShipping {
 		add_action( 'wp_ajax_nopriv_blaze_blocksy_get_states', array( $this, 'ajax_get_states' ) );
 		add_action( 'wp_ajax_calculate_shipping_methods', array( $this, 'ajax_calculate_shipping_methods' ) );
 		add_action( 'wp_ajax_nopriv_calculate_shipping_methods', array( $this, 'ajax_calculate_shipping_methods' ) );
+		add_action( 'wp_ajax_calculate_cart_shipping', array( $this, 'ajax_calculate_cart_shipping' ) );
+		add_action( 'wp_ajax_nopriv_calculate_cart_shipping', array( $this, 'ajax_calculate_cart_shipping' ) );
+		add_action( 'wp_ajax_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
+		add_action( 'wp_ajax_nopriv_select_mini_cart_shipping_method', array( $this, 'ajax_select_shipping_method' ) );
 		add_action( 'wp_ajax_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
 		add_action( 'wp_ajax_nopriv_calculate_minicart_shipping', array( $this, 'ajax_calculate_minicart_shipping' ) );
 	}
@@ -188,11 +192,14 @@ class CalculateShipping {
 	}
 
 	function ajax_get_states() {
-		// Verify nonce for security (optional but recommended)
-		// if ( ! wp_verify_nonce( $_POST['nonce'], 'shipping_calculator_nonce' ) ) {
-		//     wp_send_json_error( array( 'message' => 'Security check failed' ) );
-		//     return;
-		// }
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( $_POST['nonce'] ) : '';
+		$valid = wp_verify_nonce( $nonce, 'blaze_blocksy_mini_cart_nonce' )
+			|| wp_verify_nonce( $nonce, 'shipping_calculator_nonce' );
+
+		if ( ! $valid ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
 
 		// Get country code from POST data
 		$country_code = isset( $_POST['country_code'] ) ? sanitize_text_field( $_POST['country_code'] ) : '';
@@ -220,7 +227,66 @@ class CalculateShipping {
 
 			wp_send_json_success( $states );
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error retrieving states: ' . $e->getMessage() ) );
+			wc_get_logger()->error( 'Error retrieving states: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
+		}
+	}
+
+	/**
+	 * AJAX handler for calculating shipping for current cart contents
+	 */
+	function ajax_calculate_cart_shipping() {
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'blaze_blocksy_mini_cart_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
+
+		$country = isset( $_POST['country'] ) ? sanitize_text_field( $_POST['country'] ) : '';
+		$state = isset( $_POST['state'] ) ? sanitize_text_field( $_POST['state'] ) : '';
+		$postcode = isset( $_POST['postcode'] ) ? sanitize_text_field( $_POST['postcode'] ) : '';
+
+		if ( empty( $country ) || empty( $state ) ) {
+			wp_send_json_error( array( 'message' => 'Country and State are required' ) );
+			return;
+		}
+
+		if ( ! WC()->cart || WC()->cart->is_empty() ) {
+			wp_send_json_error( array( 'message' => 'Cart is empty' ) );
+			return;
+		}
+
+		try {
+			// Set shipping destination on customer
+			WC()->customer->set_shipping_country( $country );
+			WC()->customer->set_shipping_state( $state );
+			WC()->customer->set_shipping_postcode( $postcode );
+
+			// Calculate shipping using current cart
+			WC()->cart->calculate_shipping();
+			WC()->cart->calculate_totals();
+
+			$packages = WC()->shipping()->get_packages();
+			$shipping_methods = array();
+
+			if ( ! empty( $packages ) ) {
+				foreach ( $packages[0]['rates'] as $rate ) {
+					$cost_display = 'Free';
+					if ( $rate->cost > 0 ) {
+						$cost_display = wc_price( $rate->cost );
+					}
+					$shipping_methods[] = array(
+						'id' => $rate->id,
+						'title' => $rate->label,
+						'cost' => $cost_display,
+						'raw_cost' => floatval( $rate->cost ),
+					);
+				}
+			}
+
+			wp_send_json_success( $shipping_methods );
+		} catch (\Exception $e) {
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -322,7 +388,51 @@ class CalculateShipping {
 			}
 
 		} catch (\Exception $e) {
-			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
+		}
+	}
+
+	/**
+	 * AJAX handler for selecting a shipping method in the mini cart.
+	 * Sets the chosen method on the WC session and returns updated totals.
+	 */
+	function ajax_select_shipping_method() {
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'blaze_blocksy_mini_cart_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
+		}
+
+		$method_id = isset( $_POST['method_id'] ) ? sanitize_text_field( $_POST['method_id'] ) : '';
+
+		if ( empty( $method_id ) ) {
+			wp_send_json_error( array( 'message' => 'Shipping method is required' ) );
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) || ! WC()->cart || ! WC()->session ) {
+			wp_send_json_error( array( 'message' => 'WooCommerce is not available' ) );
+			return;
+		}
+
+		try {
+			// Set chosen shipping method in the WC session
+			WC()->session->set( 'chosen_shipping_methods', array( $method_id ) );
+
+			// Recalculate cart totals with the new shipping method
+			WC()->cart->calculate_totals();
+
+			wp_send_json_success( array(
+				'subtotal' => WC()->cart->get_cart_subtotal(),
+				'shipping' => wc_price( WC()->cart->get_shipping_total() ),
+				'tax' => wc_price( WC()->cart->get_total_tax() ),
+				'discount' => WC()->cart->get_cart_discount_total() > 0 ? wc_price( WC()->cart->get_cart_discount_total() ) : '',
+				'discount_raw' => floatval( WC()->cart->get_cart_discount_total() ),
+				'total' => WC()->cart->get_total(),
+			) );
+		} catch (\Exception $e) {
+			wc_get_logger()->error( 'Shipping method selection error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 
@@ -372,9 +482,9 @@ class CalculateShipping {
 					}
 
 					$shipping_methods[] = array(
-						'id'    => $rate->id,
+						'id' => $rate->id,
 						'title' => $rate->label,
-						'cost'  => $cost_display,
+						'cost' => $cost_display,
 					);
 				}
 			}
@@ -386,8 +496,9 @@ class CalculateShipping {
 
 			wp_send_json_success( $shipping_methods );
 
-		} catch ( \Exception $e ) {
-			wp_send_json_error( array( 'message' => 'Error calculating shipping: ' . $e->getMessage() ) );
+		} catch (\Exception $e) {
+			wc_get_logger()->error( 'Shipping calculation error: ' . $e->getMessage(), array( 'source' => 'blaze-blocksy-shipping' ) );
+			wp_send_json_error( array( 'message' => 'An error occurred. Please try again.' ) );
 		}
 	}
 }

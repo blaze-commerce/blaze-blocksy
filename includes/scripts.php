@@ -71,6 +71,12 @@ function blaze_blocksy_enqueue_assets() {
 		wp_enqueue_script( 'owl-carousel', $template_uri . '/assets/vendor/owlcarousel/owl.carousel.min.js', array( 'jquery' ), '2.3.4', true );
 	}
 
+	// === SELECTWOO FOR SHIPPING CALCULATOR (mini-cart + product page) ===
+	if ( wp_script_is( 'selectWoo', 'registered' ) ) {
+		wp_enqueue_script( 'selectWoo' );
+		wp_enqueue_style( 'select2' );
+	}
+
 	// === SINGLE PRODUCT PAGE ASSETS ===
 	if ( is_product() ) {
 		// Single product styles
@@ -123,7 +129,7 @@ function blaze_blocksy_localize_scripts() {
 	// Single Product localization (only on product pages)
 	if ( is_product() ) {
 		$single_product_data = apply_filters( 'blaze_blocksy_single_product_localize_data', array(
-			'ajax_url'            => admin_url( 'admin-ajax.php' ),
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'scrollOffsetPadding' => -60, // Extra padding for scroll-to-notice calculations
 		) );
 
