@@ -203,20 +203,58 @@
     }
 
     /**
-     * Listen for wishlist changes and handle off-canvas refresh/auto-show
+     * Listen for wishlist changes and handle off-canvas refresh/auto-show.
+     *
+     * Blocksy fires two events during wishlist operations:
+     * 1. `blocksy:woocommerce:wish-list-change` — fires immediately (before server sync)
+     * 2. `blocksy:wishlist:sync` — fires after server sync completes (inside cb callback)
+     *
+     * We use wish-list-change for immediate loading feedback, and wishlist:sync
+     * for the actual content refresh (when server data is guaranteed fresh).
      */
     function listenForWishlistChanges() {
-        if (typeof ctEvents !== 'undefined') {
-            ctEvents.on('blocksy:wishlist:sync', function () {
-                // Check if off-canvas panel exists for auto-show
-                const panel = document.querySelector(SELECTORS.PANEL);
-                const shouldAutoShow = panel !== null;
+        var listenersRegistered = false;
 
-                // Add a small delay to ensure wishlist data is fully updated before fetching content
-                setTimeout(function () {
-                    refreshOffCanvasContent(shouldAutoShow);
-                }, DELAYS.DATA_SYNC);
+        function registerListeners() {
+            if (listenersRegistered) {
+                return true;
+            }
+
+            if (typeof ctEvents === 'undefined') {
+                return false;
+            }
+
+            listenersRegistered = true;
+
+            // Primary: fires after server sync completes — data is reliable
+            ctEvents.on('blocksy:wishlist:sync', function () {
+                var panel = document.querySelector(SELECTORS.PANEL);
+                var shouldAutoShow = panel !== null;
+
+                refreshOffCanvasContent(shouldAutoShow);
             });
+
+            // Secondary: fires immediately — show loading state as early feedback
+            ctEvents.on('blocksy:woocommerce:wish-list-change', function () {
+                var $panel = $(SELECTORS.PANEL);
+                var $content = $panel.find(SELECTORS.CONTENT);
+
+                if ($content.length > 0) {
+                    $content.addClass('loading');
+                }
+            });
+
+            return true;
+        }
+
+        // Try immediately, then poll if ctEvents isn't available yet
+        if (!registerListeners()) {
+            var attempts = 0;
+            var interval = setInterval(function () {
+                if (registerListeners() || ++attempts >= 20) {
+                    clearInterval(interval);
+                }
+            }, 200);
         }
     }
 
@@ -235,11 +273,47 @@
     }
 
     /**
-     * Refresh the off-canvas wishlist content
+     * Get client-side wishlist product IDs from Blocksy's localized data.
+     * This is always up-to-date since Blocksy updates it synchronously.
      */
-    function refreshOffCanvasContent(showAfterRefresh = false) {
-        const $panel = $(SELECTORS.PANEL);
-        const $content = $panel.find(SELECTORS.CONTENT);
+    function getClientWishlistIds() {
+        try {
+            var items = window.ct_localizations &&
+                window.ct_localizations.blc_ext_wish_list &&
+                window.ct_localizations.blc_ext_wish_list.list &&
+                window.ct_localizations.blc_ext_wish_list.list.items;
+
+            if (!items) {
+                return [];
+            }
+
+            var itemsArray = Array.isArray(items) ? items : Object.values(items);
+
+            return itemsArray.map(function (item) {
+                if (typeof item === 'object' && item !== null && item.id) {
+                    return item.id;
+                }
+                if (typeof item === 'number' || typeof item === 'string') {
+                    return item;
+                }
+                return null;
+            }).filter(function (id) {
+                return id !== null;
+            });
+        } catch (e) {
+            return [];
+        }
+    }
+
+    /**
+     * Refresh the off-canvas wishlist content.
+     * Passes client-side wishlist IDs as fallback for when server data is stale.
+     */
+    function refreshOffCanvasContent(showAfterRefresh) {
+        showAfterRefresh = showAfterRefresh || false;
+
+        var $panel = $(SELECTORS.PANEL);
+        var $content = $panel.find(SELECTORS.CONTENT);
 
         if ($content.length === 0) {
             return;
@@ -248,19 +322,26 @@
         // Show loading state
         $content.addClass('loading');
 
-        const { ajaxUrl, nonce } = getAjaxConfig();
+        var config = getAjaxConfig();
+        var clientIds = getClientWishlistIds();
 
-        // Load fresh content via AJAX
-        $.post(ajaxUrl, {
+        // Load fresh content via AJAX, include client-side IDs as fallback
+        var postData = {
             action: 'load_wishlist_offcanvas',
-            nonce: nonce
-        })
+            nonce: config.nonce
+        };
+
+        if (clientIds.length > 0) {
+            postData.wishlist_ids = JSON.stringify(clientIds);
+        }
+
+        $.post(config.ajaxUrl, postData)
             .done(function (response) {
                 if (response.success) {
                     $content.html(response.data.content);
 
                     // Update wishlist count in heading
-                    const count = response.data.count || 0;
+                    var count = response.data.count || 0;
                     $panel.find(SELECTORS.WISHLIST_COUNT).text('(' + count + ')');
 
                     // Show off-canvas if requested
