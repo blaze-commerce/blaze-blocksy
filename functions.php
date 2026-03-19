@@ -175,6 +175,7 @@ $required_files = [
 	'/includes/customization/recently-viewed-products.php',
 	'/includes/customization/wishlist/wishlist.php',
 	'/includes/customization/single-product.php',
+	'/includes/customization/review-submission.php',
 	'/includes/customization/mix-and-match-products.php',
 	'/includes/customization/product-tabs.php',
 	'/includes/customization/product-stock.php',
