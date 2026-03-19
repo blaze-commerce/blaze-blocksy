@@ -163,14 +163,18 @@
   display: none;
 }
 
+.ct-panel-content {
+  position: relative;
+}
+
 .mobile-filters-bottom-actions {
-  position: absolute;
+  position: sticky;
   width: 100%;
   left: 0;
   bottom: 0;
   padding: 16px;
-  background: transparent;
-  border-top: 1px solid var(--offcanvas-border-color, #e5e7eb);
+  background: var(--offcanvas-background, transparent);
+  border-top: 1px solid var(--offcanvas-border-color, transparent);
   z-index: 1;
 }
 

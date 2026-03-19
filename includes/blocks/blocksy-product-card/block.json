@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "custom/blocksy-product-card",
+  "title": "Blocksy Product Card",
+  "category": "woocommerce",
+  "parent": ["woocommerce/product-template"],
+  "description": "Renders a product card using Blocksy's native card rendering system with full Customizer support including image hover effects, toolbar, and layout ordering.",
+  "keywords": ["woocommerce", "blocksy", "product", "card"],
+  "textdomain": "blaze-blocksy",
+  "usesContext": ["woocommerce/product-id", "postId"],
+  "supports": {
+    "html": false,
+    "align": false,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "attributes": {},
+  "editorScript": "file:./assets/editor.js",
+  "style": "file:./assets/style.css",
+  "editorStyle": "file:./assets/editor.css"
+}

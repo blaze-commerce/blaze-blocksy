@@ -190,6 +190,7 @@ $required_files = [
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',
 	'/includes/blocks/variation-swatches/index.php',
+	'/includes/blocks/blocksy-product-card/index.php',
 ];
 
 // Conditionally load Fluid Checkout files only if Fluid Checkout is active

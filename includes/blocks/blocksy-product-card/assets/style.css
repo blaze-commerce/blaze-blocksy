@@ -1,0 +1,7 @@
+/**
+ * Blocksy Product Card Block - Frontend Styles
+ *
+ * Minimal styles — card content renders directly into the existing
+ * WooCommerce <li> element. Blocksy's data-products/data-hover attributes
+ * are injected onto the parent <ul> via render_block filter.
+ */

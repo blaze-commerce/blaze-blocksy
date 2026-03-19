@@ -296,7 +296,10 @@
 
   /**
    * Restore the "Show X results" button if removed by AJAX filtering.
-   * Similar to restoreSidebarHeader() approach.
+   *
+   * Inserts into .ct-panel-content (NOT .ct-panel-content-inner) so the
+   * button lives outside the zone that Blocksy's patchCurrentPageWith()
+   * replaces during AJAX filtering.
    */
   const restoreShowResultsButton = function () {
     try {
@@ -307,28 +310,22 @@
         return;
       }
 
-      // Find the offcanvas filter panel
-      const panel = document.getElementById("woo-filters-panel");
+      var panel = document.getElementById("woo-filters-panel");
       if (!panel) {
         return;
       }
 
-      const buttonExists = panel.querySelector(
-        CONFIG.selectors.showResultsButton
-      );
-      if (!buttonExists) {
-        // Find the content container and append button at the end
-        const contentInner = panel.querySelector(".ct-panel-content-inner");
-        if (contentInner) {
-          requestAnimationFrame(function () {
-            if (!contentInner.querySelector(CONFIG.selectors.showResultsButton)) {
-              contentInner.insertAdjacentHTML(
-                "beforeend",
-                blazeArchive.showResultsButtonHTML
-              );
-            }
-          });
-        }
+      if (panel.querySelector(CONFIG.selectors.showResultsButton)) {
+        return;
+      }
+
+      // Insert into .ct-panel-content (parent of the replaced inner zone)
+      var contentWrapper = panel.querySelector(".ct-panel-content");
+      if (contentWrapper) {
+        contentWrapper.insertAdjacentHTML(
+          "beforeend",
+          blazeArchive.showResultsButtonHTML
+        );
       }
     } catch (e) {
       // Silently fail
@@ -343,23 +340,23 @@
     try {
       restoreShowResultsButton();
 
-      // Use requestAnimationFrame to ensure DOM is updated after restore
-      requestAnimationFrame(function () {
-        const button = document.querySelector(
+      // Small delay to ensure DOM insertion from restore is complete
+      setTimeout(function () {
+        var button = document.querySelector(
           CONFIG.selectors.showResultsButton
         );
         if (!button) {
           return;
         }
 
-        const total = getTotalFromResultCount();
+        var total = getTotalFromResultCount();
         button.textContent =
           "Show " + total + " result" + (total !== 1 ? "s" : "");
 
         // Show the button and trigger fadeInUp animation
-        const wrapper = button.closest(".mobile-filters-bottom-actions");
+        var wrapper = button.closest(".mobile-filters-bottom-actions");
         if (wrapper) {
-          const wasHidden = wrapper.classList.contains("hidden");
+          var wasHidden = wrapper.classList.contains("hidden");
           wrapper.classList.remove("hidden");
           wrapper.classList.remove("fade-in-up");
           // Force reflow to restart animation
@@ -368,7 +365,7 @@
             wrapper.classList.add("fade-in-up");
           }
         }
-      });
+      }, 50);
     } catch (e) {
       // Silently fail
     }
@@ -420,6 +417,47 @@
   };
 
   /**
+   * Observe the offcanvas panel inner content for child mutations.
+   * When Blocksy's patchCurrentPageWith replaces widget children,
+   * the button inside ct-panel-content-inner gets removed.
+   * This observer detects that and triggers restoration.
+   */
+  const initPanelObserver = function () {
+    try {
+      var panel = document.getElementById("woo-filters-panel");
+      if (!panel) {
+        return;
+      }
+
+      var contentInner = panel.querySelector(".ct-panel-content-inner");
+      if (!contentInner) {
+        return;
+      }
+
+      var panelDebounce = null;
+
+      var panelObserver = new MutationObserver(function () {
+        if (panelDebounce) {
+          clearTimeout(panelDebounce);
+        }
+        panelDebounce = setTimeout(function () {
+          if (filterInteracted) {
+            updateShowResultsButton();
+          } else {
+            restoreShowResultsButton();
+          }
+        }, 100);
+      });
+
+      panelObserver.observe(contentInner, {
+        childList: true,
+      });
+    } catch (e) {
+      // Silently fail
+    }
+  };
+
+  /**
    * Initialize all functionality
    */
   const init = function () {
@@ -444,6 +482,9 @@
           }
         }
       });
+
+      // Observe offcanvas panel content for button removal by Blocksy AJAX
+      initPanelObserver();
 
       // Track user interaction with filter widgets inside offcanvas panel
       $(document).on(
