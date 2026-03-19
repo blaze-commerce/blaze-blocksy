@@ -47,6 +47,12 @@ $available_countries = $countries->get_shipping_countries();
 <script>
 	jQuery(document).ready(function ($) {
 
+		function escapeHtml(str) {
+			var div = document.createElement('div');
+			div.appendChild(document.createTextNode(String(str)));
+			return div.innerHTML;
+		}
+
 		// === SELECTWOO INITIALIZATION ===
 		var selectWooAvailable = typeof $.fn.selectWoo !== 'undefined';
 
@@ -331,9 +337,9 @@ $available_countries = $countries->get_shipping_countries();
 
 				methodsHtml += '<div class="shipping-method">';
 				methodsHtml += '<div class="method-info">';
-				methodsHtml += '<span class="method-title">' + method.title + '</span>';
+				methodsHtml += '<span class="method-title">' + escapeHtml(method.title) + '</span>';
 				if (description) {
-					methodsHtml += '<span class="method-description">' + description + '</span>';
+					methodsHtml += '<span class="method-description">' + escapeHtml(description) + '</span>';
 				}
 				methodsHtml += '</div>';
 				methodsHtml += '<div class="method-cost">' + cost + '</div>';

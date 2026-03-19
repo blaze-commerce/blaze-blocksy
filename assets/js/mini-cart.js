@@ -408,7 +408,7 @@ jQuery(document).ready(function ($) {
             response.data && response.data.message
               ? response.data.message
               : "Unable to calculate shipping";
-          $methodsList.html('<div class="shipping-error">' + msg + "</div>");
+          $methodsList.html('<div class="shipping-error">' + escapeHtml(msg) + "</div>");
           $results.show();
         }
       },
@@ -592,7 +592,7 @@ jQuery(document).ready(function ($) {
               ? response.data.message
               : "No shipping methods available.";
           $methodsList.html(
-            '<div class="shipping-no-methods">' + msg + "</div>",
+            '<div class="shipping-no-methods">' + escapeHtml(msg) + "</div>",
           );
           $results.slideDown(300);
         }
