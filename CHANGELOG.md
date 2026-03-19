@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.77.0] - 2026-03-19
+
+### Added
+- adjust
+- set country options to any available country
+- hide filter button on first load, show it after filtering
+- set zipcode value to localStorage
+- display show results button on filter canvas
+- implement shipping calculation form on the mini-cart
+- use selectWoo for dropdown
+
+### Changed
+- use wc_get_logger instead of error_log
+- add animation when updating the show result button
+- update heading style
+
+### Fixed
+- address PR #224 review round 3
+- address PR #224 review round 2
+- capitalize the strings
+- add theme version to style and script enqueue
+- issue with wishlist after added
+- fix review success state and validation
+- set header gap and fix mobile filter issue style
+- change text
+
 ## [1.76.2] - 2026-03-18
 
 ### Changed
@@ -4373,7 +4399,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.76.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...v1.76.0
 [1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
 [1.76.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...v1.76.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...HEAD
+[1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4394,5 +4421,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.76.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.75.4...v1.76.0
 [1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
 [1.76.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...v1.76.2
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...HEAD
+[1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...HEAD
 >>>>>>> main
