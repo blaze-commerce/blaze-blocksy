@@ -249,10 +249,14 @@ add_action( 'woocommerce_mini_cart_contents', function () {
 	if ( 'yes' !== $show ) {
 		return;
 	}
+
+	$rec_title = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_recommendations_title', $cart_options, 'You May Also Like' )
+		: 'You May Also Like';
 	?>
 	<li class="mini-cart-recommendations">
 		<div class="recommendations-header">
-			<h4><?php esc_html_e( 'You May Also Like', 'blaze-blocksy' ); ?></h4>
+			<h4><?php echo esc_html( $rec_title ); ?></h4>
 		</div>
 		<div class="recommendations-products">
 			<?php blaze_blocksy_get_recommended_products_for_mini_cart(); ?>
@@ -480,156 +484,6 @@ function blaze_blocksy_render_empty_cart_category_recommendations( $cart_options
 		<?php
 	}
 }
-
-/**
- * Get frequently bought together products (cross-sells from cart items).
- *
- * @param array $cart_product_ids Product IDs currently in cart.
- * @param array $cart_options     Customizer cart options.
- * @return array Product IDs for FBT.
- */
-function blaze_blocksy_get_frequently_bought_together( $cart_product_ids, $cart_options ) {
-	if ( empty( $cart_product_ids ) ) {
-		return array();
-	}
-
-	$limit = function_exists( 'blocksy_akg' )
-		? absint( blocksy_akg( 'mini_cart_fbt_limit', $cart_options, 2 ) )
-		: 2;
-
-	if ( $limit < 1 ) {
-		$limit = 2;
-	}
-
-	// Check transient cache
-	$cache_key = 'blaze_fbt_' . md5( implode( '_', $cart_product_ids ) );
-	$cached = get_transient( $cache_key );
-	if ( false !== $cached ) {
-		return array_slice( $cached, 0, $limit );
-	}
-
-	$fbt_ids = array();
-
-	// Aggregate cross-sells from all cart products
-	foreach ( $cart_product_ids as $product_id ) {
-		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
-			continue;
-		}
-		$cross_sells = $product->get_cross_sell_ids();
-		$fbt_ids = array_merge( $fbt_ids, $cross_sells );
-	}
-
-	// Deduplicate and exclude products already in cart
-	$fbt_ids = array_diff( array_unique( $fbt_ids ), $cart_product_ids );
-
-	// Fallback to upsells if no cross-sells
-	if ( empty( $fbt_ids ) ) {
-		foreach ( $cart_product_ids as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( ! $product ) {
-				continue;
-			}
-			$upsells = $product->get_upsell_ids();
-			$fbt_ids = array_merge( $fbt_ids, $upsells );
-		}
-		$fbt_ids = array_diff( array_unique( $fbt_ids ), $cart_product_ids );
-	}
-
-	// Fallback to favorites/wishlist if still empty
-	if ( empty( $fbt_ids ) && function_exists( 'blc_get_ext' ) ) {
-		try {
-			$woocommerce_extra = blc_get_ext( 'woocommerce-extra' );
-			if ( $woocommerce_extra ) {
-				$wishlist_instance = $woocommerce_extra->get_wish_list();
-				if ( $wishlist_instance ) {
-					$wishlist_items = $wishlist_instance->get_current_wish_list();
-					if ( ! empty( $wishlist_items ) ) {
-						$wishlist_ids = array_map( function ( $item ) {
-							return $item['id'];
-						}, $wishlist_items );
-						// Exclude products already in cart
-						$fbt_ids = array_diff( $wishlist_ids, $cart_product_ids );
-					}
-				}
-			}
-		} catch ( Exception $e ) {
-			// Silently fail — wishlist not available
-		}
-	}
-
-	// Filter to only visible, published products
-	$valid_ids = array();
-	foreach ( $fbt_ids as $pid ) {
-		$product = wc_get_product( $pid );
-		if ( $product && $product->is_visible() && $product->is_purchasable() ) {
-			$valid_ids[] = $pid;
-		}
-	}
-
-	// Cache for 1 hour
-	set_transient( $cache_key, $valid_ids, HOUR_IN_SECONDS );
-
-	return array_slice( $valid_ids, 0, $limit );
-}
-
-/**
- * Render Frequently Bought Together section in mini cart
- */
-add_action( 'woocommerce_mini_cart_contents', function () {
-	$cart_options = blaze_blocksy_get_cart_options();
-	$show = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_show_fbt', $cart_options, 'no' )
-		: 'no';
-	if ( 'yes' !== $show ) {
-		return;
-	}
-
-	if ( ! WC()->cart || WC()->cart->is_empty() ) {
-		return;
-	}
-
-	$title = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_fbt_title', $cart_options, 'Frequently Bought Together' )
-		: 'Frequently Bought Together';
-
-	$layout = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
-		: 'stacked';
-
-	$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
-	$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
-
-	$cart_product_ids = array_map( function ( $item ) {
-		return $item['product_id'];
-	}, WC()->cart->get_cart() );
-
-	$fbt_ids = blaze_blocksy_get_frequently_bought_together( $cart_product_ids, $cart_options );
-	if ( empty( $fbt_ids ) ) {
-		return;
-	}
-
-	$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
-	?>
-	<li class="mini-cart-fbt-section">
-		<div class="recommendations-header">
-			<h4><?php echo esc_html( $title ); ?></h4>
-		</div>
-		<div class="<?php echo esc_attr( $wrapper_class ); ?>">
-			<?php
-			foreach ( $fbt_ids as $pid ) {
-				$product = wc_get_product( $pid );
-				if ( $product ) {
-					$GLOBALS['product'] = $product;
-					wc_get_template_part( $template_name );
-				}
-			}
-			?>
-		</div>
-	</li>
-	<?php
-	$GLOBALS['product'] = $original_product;
-}, 25 );
 
 /**
  * Handle AJAX coupon application in mini cart
@@ -932,30 +786,16 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			'desc' => __( 'Display the coupon code form accordion.', 'blaze-blocksy' ),
 		),
 
-		'mini_cart_show_fbt' => array(
-			'label' => __( 'Show Frequently Bought Together', 'blaze-blocksy' ),
-			'type' => 'ct-switch',
-			'value' => 'no',
-			'desc' => __( 'Display cross-sell products frequently bought with items in cart.', 'blaze-blocksy' ),
-		),
-
-		'bmcu_fbt_condition' => array(
+		'bmcu_recommendations_condition' => array(
 			'type' => 'ct-condition',
-			'condition' => array( 'mini_cart_show_fbt' => 'yes' ),
+			'condition' => array( 'mini_cart_show_recommendations' => 'yes' ),
 			'options' => array(
-				'mini_cart_fbt_title' => array(
-					'label' => __( 'FBT Section Title', 'blaze-blocksy' ),
+				'mini_cart_recommendations_title' => array(
+					'label' => __( 'Section Title', 'blaze-blocksy' ),
 					'type' => 'text',
-					'value' => 'Frequently Bought Together',
+					'value' => 'You May Also Like',
 					'design' => 'block',
-					'setting' => array( 'transport' => 'postMessage' ),
-				),
-				'mini_cart_fbt_limit' => array(
-					'label' => __( 'Max Products', 'blaze-blocksy' ),
-					'type' => 'text',
-					'value' => '2',
-					'design' => 'block',
-					'desc' => __( 'Maximum number of FBT products to display.', 'blaze-blocksy' ),
+					'desc' => __( 'Custom title for the recommendations section.', 'blaze-blocksy' ),
 					'setting' => array( 'transport' => 'postMessage' ),
 				),
 			),
