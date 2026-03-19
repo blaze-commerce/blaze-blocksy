@@ -44,6 +44,14 @@ add_filter( 'wc_get_template', function ( $template, $template_name, $args ) {
  * Add shipping calculator toggle to mini cart (before coupon section)
  */
 add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$show = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_show_shipping_calculator', $cart_options, 'yes' )
+		: 'yes';
+	if ( 'yes' !== $show ) {
+		return;
+	}
+
 	$countries = new \WC_Countries();
 	$available_countries = $countries->get_shipping_countries();
 	?>
@@ -59,9 +67,9 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 		<div class="shipping-form-wrapper" style="display: none;">
 			<form class="mini-cart-shipping-form">
 				<div class="shipping-field">
-					<label for="minicart-shipping-country"><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></label>
+					<label for="mini-cart-shipping-country"><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></label>
 					<div class="shipping-select-wrapper">
-						<select id="minicart-shipping-country" class="shipping-country-select">
+						<select id="mini-cart-shipping-country" class="shipping-country-select">
 							<option value=""><?php esc_html_e( 'Country', 'blaze-blocksy' ); ?></option>
 							<?php foreach ( $available_countries as $code => $name ) : ?>
 								<option value="<?php echo esc_attr( $code ); ?>"><?php echo esc_html( $name ); ?></option>
@@ -70,16 +78,17 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 					</div>
 				</div>
 				<div class="shipping-field">
-					<label for="minicart-shipping-state"><?php esc_html_e( 'Town/City', 'blaze-blocksy' ); ?></label>
+					<label for="mini-cart-shipping-state"><?php esc_html_e( 'Town/City', 'blaze-blocksy' ); ?></label>
 					<div class="shipping-select-wrapper">
-						<select id="minicart-shipping-state" class="shipping-state-select">
+						<select id="mini-cart-shipping-state" class="shipping-state-select">
 							<option value=""><?php esc_html_e( 'City', 'blaze-blocksy' ); ?></option>
 						</select>
 					</div>
 				</div>
 				<div class="shipping-field">
-					<label for="minicart-shipping-postcode"><?php esc_html_e( 'Postcode/Zip', 'blaze-blocksy' ); ?></label>
-					<input type="text" id="minicart-shipping-postcode" class="shipping-postcode-input" placeholder="3800" />
+					<label for="mini-cart-shipping-postcode"><?php esc_html_e( 'Postcode/Zip', 'blaze-blocksy' ); ?></label>
+					<input type="text" id="mini-cart-shipping-postcode" class="shipping-postcode-input"
+						placeholder="3800" />
 				</div>
 				<button type="submit"
 					class="calculate-shipping-btn"><?php esc_html_e( 'CALCULATE SHIPPING', 'blaze-blocksy' ); ?></button>
@@ -96,11 +105,23 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
  * Add coupon form to mini cart before buttons
  */
 add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$show = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_show_coupon_form', $cart_options, 'yes' )
+		: 'yes';
+	if ( 'yes' !== $show ) {
+		return;
+	}
 	?>
 	<div class="mini-cart-coupon-section mini-cart-form-section">
 		<div class="mini-cart-toggle coupon-toggle">
 			<span class="mini-cart-label coupon-label"><?php esc_html_e( 'Coupon Code', 'blaze-blocksy' ); ?></span>
-			<span class="mini-cart-arrow coupon-arrow">&#9660;</span>
+			<span class="mini-cart-arrow coupon-arrow">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+						stroke-linejoin="round" />
+				</svg>
+			</span>
 		</div>
 		<div class="mini-cart-form-wrapper coupon-form-wrapper" style="display: none;">
 			<form class="mini-cart-coupon-form" method="post">
@@ -219,74 +240,15 @@ add_action( 'woocommerce_widget_shopping_cart_before_total', function () {
 }, -1 );
 */
 
-/**
- * Add free shipping progress bar before cart items list.
- * Skips methods with min_amount = 0 (coupon-only methods) to avoid showing a bar
- * with no meaningful threshold.
- */
-add_action( 'woocommerce_before_mini_cart_contents', function () {
-	if ( ! WC()->cart ) {
-		return;
-	}
-
-	// Get free shipping threshold — skip methods with min_amount = 0 (coupon-only).
-	$free_shipping_min = 0;
-	$shipping_zones    = WC_Shipping_Zones::get_zones();
-	foreach ( $shipping_zones as $zone ) {
-		foreach ( $zone['shipping_methods'] as $method ) {
-			if ( $method->id === 'free_shipping' && $method->is_enabled() ) {
-				$amount = floatval( $method->get_option( 'min_amount', 0 ) );
-				if ( $amount > 0 ) {
-					$free_shipping_min = $amount;
-					break 2;
-				}
-			}
-		}
-	}
-
-	// Also check zone 0 (rest of world).
-	if ( ! $free_shipping_min ) {
-		$zone_0 = new WC_Shipping_Zone( 0 );
-		foreach ( $zone_0->get_shipping_methods() as $method ) {
-			if ( $method->id === 'free_shipping' && $method->is_enabled() ) {
-				$amount = floatval( $method->get_option( 'min_amount', 0 ) );
-				if ( $amount > 0 ) {
-					$free_shipping_min = $amount;
-					break;
-				}
-			}
-		}
-	}
-
-	if ( $free_shipping_min <= 0 ) {
-		return;
-	}
-
-	$cart_total = WC()->cart->get_cart_contents_total() + WC()->cart->get_cart_contents_tax();
-	$remaining  = max( 0, $free_shipping_min - $cart_total );
-	$progress   = min( 100, ( $cart_total / $free_shipping_min ) * 100 );
-
-	?>
-	<li class="mini-cart-shipping-progress" style="list-style: none;">
-		<div class="shipping-progress-text">
-			<?php if ( $remaining > 0 ) : ?>
-				<?php printf(
-					/* translators: %s: formatted price amount */
-					esc_html__( 'Add %s to cart and get free shipping!', 'blaze-blocksy' ),
-					'<strong>' . wc_price( $remaining ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				); ?>
-			<?php else : ?>
-				<?php esc_html_e( 'You qualify for free shipping!', 'blaze-blocksy' ); ?>
-			<?php endif; ?>
-		</div>
-		<div class="shipping-progress-bar">
-			<div class="shipping-progress-fill" style="width: <?php echo esc_attr( $progress ); ?>%;"></div>
-		</div>
-	</li>
-	<?php
-}, 5 );
 
 add_action( 'woocommerce_mini_cart_contents', function () {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$show = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_show_recommendations', $cart_options, 'yes' )
+		: 'yes';
+	if ( 'yes' !== $show ) {
+		return;
+	}
 	?>
 	<li class="mini-cart-recommendations">
 		<div class="recommendations-header">
@@ -390,6 +352,284 @@ function blaze_blocksy_get_recommended_products_for_mini_cart() {
 		$GLOBALS['product'] = $original_product;
 	}
 }
+
+/**
+ * Render product recommendations for empty cart state.
+ * Gets cross-sells/upsells from recently viewed products, fallback to random.
+ *
+ * @param array  $cart_options  Customizer cart options.
+ * @param string $template_name Template part name for product card.
+ */
+function blaze_blocksy_render_empty_cart_product_recommendations( $cart_options, $template_name ) {
+	$recommended_ids = array();
+	$exclude_ids = array();
+
+	// Get recently viewed IDs to use as seed for recommendations
+	if ( function_exists( 'get_recently_viewed_products_from_cookie' ) ) {
+		$recently_viewed_ids = get_recently_viewed_products_from_cookie();
+		$exclude_ids = $recently_viewed_ids;
+
+		// Get cross-sells and upsells from recently viewed products
+		foreach ( array_slice( $recently_viewed_ids, 0, 5 ) as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				continue;
+			}
+			$cross_sells = $product->get_cross_sell_ids();
+			$upsells = $product->get_upsell_ids();
+			$recommended_ids = array_merge( $recommended_ids, $cross_sells, $upsells );
+		}
+
+		// Remove duplicates and already-shown products
+		$recommended_ids = array_diff( array_unique( $recommended_ids ), $exclude_ids );
+	}
+
+	// Fallback to random products if no cross-sells/upsells
+	if ( empty( $recommended_ids ) ) {
+		$random_products = wc_get_products( array(
+			'limit' => 2,
+			'orderby' => 'rand',
+			'status' => 'publish',
+			'exclude' => $exclude_ids,
+			'return' => 'ids',
+		) );
+		$recommended_ids = $random_products;
+	}
+
+	if ( empty( $recommended_ids ) ) {
+		return;
+	}
+
+	$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+
+	foreach ( array_slice( $recommended_ids, 0, 2 ) as $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( $product && $product->is_visible() ) {
+			$GLOBALS['product'] = $product;
+			wc_get_template_part( $template_name );
+		}
+	}
+
+	$GLOBALS['product'] = $original_product;
+}
+
+/**
+ * Render category recommendations for empty cart state.
+ *
+ * @param array $cart_options Customizer cart options.
+ */
+function blaze_blocksy_render_empty_cart_category_recommendations( $cart_options ) {
+	$orderby = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_empty_recommendations_category_orderby', $cart_options, 'name' )
+		: 'name';
+	$order = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_empty_recommendations_category_order', $cart_options, 'asc' )
+		: 'asc';
+	$limit = function_exists( 'blocksy_akg' )
+		? absint( blocksy_akg( 'mini_cart_empty_recommendations_category_limit', $cart_options, 4 ) )
+		: 4;
+	$exclude_str = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_empty_recommendations_category_exclude', $cart_options, '' )
+		: '';
+
+	$exclude_ids = ! empty( $exclude_str )
+		? array_map( 'absint', array_filter( explode( ',', $exclude_str ) ) )
+		: array();
+
+	if ( $limit < 1 ) {
+		$limit = 4;
+	}
+
+	$term_args = array(
+		'taxonomy' => 'product_cat',
+		'orderby' => $orderby,
+		'order' => strtoupper( $order ),
+		'number' => $limit,
+		'hide_empty' => true,
+	);
+
+	if ( ! empty( $exclude_ids ) ) {
+		$term_args['exclude'] = $exclude_ids;
+	}
+
+	$categories = get_terms( $term_args );
+
+	if ( empty( $categories ) || is_wp_error( $categories ) ) {
+		return;
+	}
+
+	foreach ( $categories as $category ) {
+		$thumbnail_id = get_term_meta( $category->term_id, 'thumbnail_id', true );
+		$link = get_term_link( $category );
+
+		if ( is_wp_error( $link ) ) {
+			continue;
+		}
+		?>
+		<a href="<?php echo esc_url( $link ); ?>" class="recommendation-category-item">
+			<div class="recommendation-category-image">
+				<?php if ( $thumbnail_id ) : ?>
+					<?php echo wp_get_attachment_image( $thumbnail_id, 'medium', false, array( 'alt' => esc_attr( $category->name ) ) ); ?>
+				<?php else : ?>
+					<img src="<?php echo esc_url( wc_placeholder_img_src( 'medium' ) ); ?>"
+						alt="<?php echo esc_attr( $category->name ); ?>" />
+				<?php endif; ?>
+			</div>
+			<h4 class="recommendation-category-title"><?php echo esc_html( $category->name ); ?></h4>
+		</a>
+		<?php
+	}
+}
+
+/**
+ * Get frequently bought together products (cross-sells from cart items).
+ *
+ * @param array $cart_product_ids Product IDs currently in cart.
+ * @param array $cart_options     Customizer cart options.
+ * @return array Product IDs for FBT.
+ */
+function blaze_blocksy_get_frequently_bought_together( $cart_product_ids, $cart_options ) {
+	if ( empty( $cart_product_ids ) ) {
+		return array();
+	}
+
+	$limit = function_exists( 'blocksy_akg' )
+		? absint( blocksy_akg( 'mini_cart_fbt_limit', $cart_options, 2 ) )
+		: 2;
+
+	if ( $limit < 1 ) {
+		$limit = 2;
+	}
+
+	// Check transient cache
+	$cache_key = 'blaze_fbt_' . md5( implode( '_', $cart_product_ids ) );
+	$cached = get_transient( $cache_key );
+	if ( false !== $cached ) {
+		return array_slice( $cached, 0, $limit );
+	}
+
+	$fbt_ids = array();
+
+	// Aggregate cross-sells from all cart products
+	foreach ( $cart_product_ids as $product_id ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			continue;
+		}
+		$cross_sells = $product->get_cross_sell_ids();
+		$fbt_ids = array_merge( $fbt_ids, $cross_sells );
+	}
+
+	// Deduplicate and exclude products already in cart
+	$fbt_ids = array_diff( array_unique( $fbt_ids ), $cart_product_ids );
+
+	// Fallback to upsells if no cross-sells
+	if ( empty( $fbt_ids ) ) {
+		foreach ( $cart_product_ids as $product_id ) {
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				continue;
+			}
+			$upsells = $product->get_upsell_ids();
+			$fbt_ids = array_merge( $fbt_ids, $upsells );
+		}
+		$fbt_ids = array_diff( array_unique( $fbt_ids ), $cart_product_ids );
+	}
+
+	// Fallback to favorites/wishlist if still empty
+	if ( empty( $fbt_ids ) && function_exists( 'blc_get_ext' ) ) {
+		try {
+			$woocommerce_extra = blc_get_ext( 'woocommerce-extra' );
+			if ( $woocommerce_extra ) {
+				$wishlist_instance = $woocommerce_extra->get_wish_list();
+				if ( $wishlist_instance ) {
+					$wishlist_items = $wishlist_instance->get_current_wish_list();
+					if ( ! empty( $wishlist_items ) ) {
+						$wishlist_ids = array_map( function ( $item ) {
+							return $item['id'];
+						}, $wishlist_items );
+						// Exclude products already in cart
+						$fbt_ids = array_diff( $wishlist_ids, $cart_product_ids );
+					}
+				}
+			}
+		} catch ( Exception $e ) {
+			// Silently fail — wishlist not available
+		}
+	}
+
+	// Filter to only visible, published products
+	$valid_ids = array();
+	foreach ( $fbt_ids as $pid ) {
+		$product = wc_get_product( $pid );
+		if ( $product && $product->is_visible() && $product->is_purchasable() ) {
+			$valid_ids[] = $pid;
+		}
+	}
+
+	// Cache for 1 hour
+	set_transient( $cache_key, $valid_ids, HOUR_IN_SECONDS );
+
+	return array_slice( $valid_ids, 0, $limit );
+}
+
+/**
+ * Render Frequently Bought Together section in mini cart
+ */
+add_action( 'woocommerce_mini_cart_contents', function () {
+	$cart_options = blaze_blocksy_get_cart_options();
+	$show = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_show_fbt', $cart_options, 'no' )
+		: 'no';
+	if ( 'yes' !== $show ) {
+		return;
+	}
+
+	if ( ! WC()->cart || WC()->cart->is_empty() ) {
+		return;
+	}
+
+	$title = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_fbt_title', $cart_options, 'Frequently Bought Together' )
+		: 'Frequently Bought Together';
+
+	$layout = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_recommendation_layout', $cart_options, 'stacked' )
+		: 'stacked';
+
+	$wrapper_class = ( 'stacked' === $layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
+	$template_name = ( 'stacked' === $layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+
+	$cart_product_ids = array_map( function ( $item ) {
+		return $item['product_id'];
+	}, WC()->cart->get_cart() );
+
+	$fbt_ids = blaze_blocksy_get_frequently_bought_together( $cart_product_ids, $cart_options );
+	if ( empty( $fbt_ids ) ) {
+		return;
+	}
+
+	$original_product = isset( $GLOBALS['product'] ) ? $GLOBALS['product'] : null;
+	?>
+	<li class="mini-cart-fbt-section">
+		<div class="recommendations-header">
+			<h4><?php echo esc_html( $title ); ?></h4>
+		</div>
+		<div class="<?php echo esc_attr( $wrapper_class ); ?>">
+			<?php
+			foreach ( $fbt_ids as $pid ) {
+				$product = wc_get_product( $pid );
+				if ( $product ) {
+					$GLOBALS['product'] = $product;
+					wc_get_template_part( $template_name );
+				}
+			}
+			?>
+		</div>
+	</li>
+	<?php
+	$GLOBALS['product'] = $original_product;
+}, 25 );
 
 /**
  * Handle AJAX coupon application in mini cart
@@ -659,6 +899,182 @@ add_filter( 'blocksy:options:retrieve', function ( $options, $path, $pass_inside
 			),
 			'desc' => __( 'Choose how recommendation products are displayed in mini cart.', 'blaze-blocksy' ),
 			'setting' => array( 'transport' => 'postMessage' ),
+		),
+
+		// ── Cart Has Items — Section Visibility ──
+		'bmcu_cart_visibility_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_cart_visibility_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Section Visibility (Cart Has Items)', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_show_recommendations' => array(
+			'label' => __( 'Show "You May Also Like"', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display product recommendations when cart has items.', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_show_shipping_calculator' => array(
+			'label' => __( 'Show Shipping Calculator', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display the shipping calculator accordion.', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_show_coupon_form' => array(
+			'label' => __( 'Show Coupon Code', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display the coupon code form accordion.', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_show_fbt' => array(
+			'label' => __( 'Show Frequently Bought Together', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'no',
+			'desc' => __( 'Display cross-sell products frequently bought with items in cart.', 'blaze-blocksy' ),
+		),
+
+		'bmcu_fbt_condition' => array(
+			'type' => 'ct-condition',
+			'condition' => array( 'mini_cart_show_fbt' => 'yes' ),
+			'options' => array(
+				'mini_cart_fbt_title' => array(
+					'label' => __( 'FBT Section Title', 'blaze-blocksy' ),
+					'type' => 'text',
+					'value' => 'Frequently Bought Together',
+					'design' => 'block',
+					'setting' => array( 'transport' => 'postMessage' ),
+				),
+				'mini_cart_fbt_limit' => array(
+					'label' => __( 'Max Products', 'blaze-blocksy' ),
+					'type' => 'text',
+					'value' => '2',
+					'design' => 'block',
+					'desc' => __( 'Maximum number of FBT products to display.', 'blaze-blocksy' ),
+					'setting' => array( 'transport' => 'postMessage' ),
+				),
+			),
+		),
+
+		// ── Empty Cart — Section Visibility ──
+		'bmcu_empty_visibility_divider' => array(
+			'type' => 'ct-divider',
+		),
+
+		'bmcu_empty_visibility_title' => array(
+			'type' => 'ct-title',
+			'label' => __( 'Section Visibility (Empty Cart)', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_empty_show_recently_viewed' => array(
+			'label' => __( 'Show Recently Viewed Items', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display recently viewed products when cart is empty.', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_empty_show_favorites' => array(
+			'label' => __( 'Show Favorites', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display wishlist/favorite products when cart is empty.', 'blaze-blocksy' ),
+		),
+
+		'mini_cart_empty_show_recommendations' => array(
+			'label' => __( 'Show "You May Also Like"', 'blaze-blocksy' ),
+			'type' => 'ct-switch',
+			'value' => 'yes',
+			'desc' => __( 'Display product/category recommendations when cart is empty.', 'blaze-blocksy' ),
+		),
+
+		'bmcu_empty_recs_condition' => array(
+			'type' => 'ct-condition',
+			'condition' => array( 'mini_cart_empty_show_recommendations' => 'yes' ),
+			'options' => array(
+				'mini_cart_empty_recommendations_title' => array(
+					'label' => __( 'Section Title', 'blaze-blocksy' ),
+					'type' => 'text',
+					'value' => 'You May Also Like',
+					'design' => 'block',
+					'setting' => array( 'transport' => 'postMessage' ),
+				),
+				'mini_cart_empty_recommendations_type' => array(
+					'label' => __( 'Recommendation Type', 'blaze-blocksy' ),
+					'type' => 'ct-radio',
+					'value' => 'products',
+					'view' => 'text',
+					'design' => 'block',
+					'choices' => array(
+						'products' => __( 'Products', 'blaze-blocksy' ),
+						'categories' => __( 'Categories', 'blaze-blocksy' ),
+					),
+				),
+				'bmcu_empty_recs_products_condition' => array(
+					'type' => 'ct-condition',
+					'condition' => array( 'mini_cart_empty_recommendations_type' => 'products' ),
+					'options' => array(
+						'mini_cart_empty_recommendations_show_image' => array(
+							'label' => __( 'Show Product Image', 'blaze-blocksy' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+						),
+						'mini_cart_empty_recommendations_show_price' => array(
+							'label' => __( 'Show Product Price', 'blaze-blocksy' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+						),
+						'mini_cart_empty_recommendations_show_add_to_cart' => array(
+							'label' => __( 'Show Add to Cart Button', 'blaze-blocksy' ),
+							'type' => 'ct-switch',
+							'value' => 'yes',
+						),
+					),
+				),
+				'bmcu_empty_recs_categories_condition' => array(
+					'type' => 'ct-condition',
+					'condition' => array( 'mini_cart_empty_recommendations_type' => 'categories' ),
+					'options' => array(
+						'mini_cart_empty_recommendations_category_orderby' => array(
+							'label' => __( 'Sort Categories By', 'blaze-blocksy' ),
+							'type' => 'ct-select',
+							'value' => 'name',
+							'choices' => blocksy_ordered_keys( array(
+								'name' => __( 'Title', 'blaze-blocksy' ),
+								'date' => __( 'Date', 'blaze-blocksy' ),
+								'menu_order' => __( 'Menu Order', 'blaze-blocksy' ),
+								'count' => __( 'Product Count', 'blaze-blocksy' ),
+								'id' => __( 'ID', 'blaze-blocksy' ),
+							) ),
+						),
+						'mini_cart_empty_recommendations_category_order' => array(
+							'label' => __( 'Sort Order', 'blaze-blocksy' ),
+							'type' => 'ct-radio',
+							'value' => 'asc',
+							'choices' => array(
+								'asc' => __( 'ASC', 'blaze-blocksy' ),
+								'desc' => __( 'DESC', 'blaze-blocksy' ),
+							),
+						),
+						'mini_cart_empty_recommendations_category_limit' => array(
+							'label' => __( 'Total Categories', 'blaze-blocksy' ),
+							'type' => 'text',
+							'value' => '4',
+							'desc' => __( 'Number of categories to display.', 'blaze-blocksy' ),
+						),
+						'mini_cart_empty_recommendations_category_exclude' => array(
+							'label' => __( 'Exclude Category IDs', 'blaze-blocksy' ),
+							'type' => 'text',
+							'value' => '',
+							'desc' => __( 'Comma-separated category IDs to exclude.', 'blaze-blocksy' ),
+						),
+					),
+				),
+			),
 		),
 	);
 

@@ -208,7 +208,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 
 			<!-- Continue Shopping Button -->
 			<div class="continue-shopping-wrapper">
-				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="continue-shopping-btn">
+				<a href="<?php echo esc_url( $continue_shopping_url ); ?>" class="button continue-shopping-btn">
 					<?php echo esc_html( $continue_shopping_text ); ?>
 					<span class="arrow">→</span>
 				</a>
@@ -223,10 +223,21 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 
 			$wrapper_class = ( 'stacked' === $recommendation_layout ) ? 'recommended-products-stacked' : 'recommended-products-grid';
 			$template_name = ( 'stacked' === $recommendation_layout ) ? 'product/recommend-product-card-stacked' : 'product/recommend-product-card';
+
+			// Get empty cart visibility toggles
+			$show_recently_viewed = function_exists( 'blocksy_akg' )
+				? blocksy_akg( 'mini_cart_empty_show_recently_viewed', $cart_options, 'yes' )
+				: 'yes';
+			$show_favorites = function_exists( 'blocksy_akg' )
+				? blocksy_akg( 'mini_cart_empty_show_favorites', $cart_options, 'yes' )
+				: 'yes';
+			$show_empty_recommendations = function_exists( 'blocksy_akg' )
+				? blocksy_akg( 'mini_cart_empty_show_recommendations', $cart_options, 'yes' )
+				: 'yes';
 			?>
 
 			<!-- Recently Viewed Items Section -->
-			<?php if ( ! empty( $recently_viewed_products ) ) : ?>
+			<?php if ( 'yes' === $show_recently_viewed && ! empty( $recently_viewed_products ) ) : ?>
 				<div class="recommendations-section recently-viewed-section">
 					<div class="recommendations-header">
 						<h4><?php esc_html_e( 'Recently Viewed Items', 'blaze-blocksy' ); ?></h4>
@@ -242,7 +253,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 			<?php endif; ?>
 
 			<!-- Favorite Items Section -->
-			<?php if ( ! empty( $wishlist_products ) ) : ?>
+			<?php if ( 'yes' === $show_favorites && ! empty( $wishlist_products ) ) : ?>
 				<div class="recommendations-section favorite-section">
 					<div class="recommendations-header">
 						<h4><?php esc_html_e( 'Favorite', 'blaze-blocksy' ); ?></h4>
@@ -252,6 +263,35 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 							$GLOBALS['product'] = $product;
 							wc_get_template_part( $template_name );
 						endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- You May Also Like Section (Empty Cart) -->
+			<?php if ( 'yes' === $show_empty_recommendations ) :
+				$rec_title = function_exists( 'blocksy_akg' )
+					? blocksy_akg( 'mini_cart_empty_recommendations_title', $cart_options, 'You May Also Like' )
+					: 'You May Also Like';
+				$rec_type = function_exists( 'blocksy_akg' )
+					? blocksy_akg( 'mini_cart_empty_recommendations_type', $cart_options, 'products' )
+					: 'products';
+			?>
+				<div class="recommendations-section empty-cart-recommendations-section">
+					<div class="recommendations-header">
+						<h4><?php echo esc_html( $rec_title ); ?></h4>
+					</div>
+					<div class="<?php echo esc_attr( $wrapper_class ); ?>">
+						<?php
+						if ( 'categories' === $rec_type ) {
+							if ( function_exists( 'blaze_blocksy_render_empty_cart_category_recommendations' ) ) {
+								blaze_blocksy_render_empty_cart_category_recommendations( $cart_options );
+							}
+						} else {
+							if ( function_exists( 'blaze_blocksy_render_empty_cart_product_recommendations' ) ) {
+								blaze_blocksy_render_empty_cart_product_recommendations( $cart_options, $template_name );
+							}
+						}
+						?>
 					</div>
 				</div>
 			<?php endif; ?>
