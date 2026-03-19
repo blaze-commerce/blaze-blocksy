@@ -32,4 +32,7 @@ $product_price = $product->get_price_html();
 			<div class="product-price"><?php echo $product_price; ?></div>
 		</div>
 	</a>
+	<a href="<?php echo esc_url( $product_url ); ?>" class="recommended-product-btn">
+		+ <?php esc_html_e( 'Add Product', 'blaze-blocksy' ); ?>
+	</a>
 </div>

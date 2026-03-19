@@ -129,9 +129,25 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 								<?php echo wp_kses_post( $product_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</a>
 						<?php endif; ?>
+
+						<?php
+
+						// display product weight if available
+						if ( $_product->has_weight() ) {
+							?>
+							<div class="product-weight">
+								<?php echo esc_html( wc_format_weight( $_product->get_weight() ) ); ?>
+							</div>
+							<?php
+						}
+						?>
+
 						<?php echo wc_get_formatted_cart_item_data( $cart_item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<div class="product-price-quantity">
-							<span class="product-price"><?php echo $product_price; ?></span>
+							<span class="product-price">
+								<?php echo $product_price; ?>
+								<span class="each">each</span>
+							</span>
 						</div>
 						<?php echo apply_filters( 'woocommerce_widget_cart_item_quantity', '<span class="quantity">' . sprintf( '%s', $cart_item['quantity'] ) . '</span>', $cart_item, $cart_item_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<div class="product-subtotal">
@@ -275,7 +291,7 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 				$rec_type = function_exists( 'blocksy_akg' )
 					? blocksy_akg( 'mini_cart_empty_recommendations_type', $cart_options, 'products' )
 					: 'products';
-			?>
+				?>
 				<div class="recommendations-section empty-cart-recommendations-section">
 					<div class="recommendations-header">
 						<h4><?php echo esc_html( $rec_title ); ?></h4>
