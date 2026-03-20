@@ -104,7 +104,7 @@ add_filter( 'woocommerce_catalog_orderby', function ( $options ) {
 /**
  * Handle "Best Seller" sorting query args.
  *
- * Uses a meta_query with OR relation so all products appear,
+ * Uses posts_clauses with LEFT JOIN so ALL products appear,
  * with best sellers sorted first.
  */
 add_filter( 'woocommerce_get_catalog_ordering_args', function ( $args ) {
@@ -112,26 +112,33 @@ add_filter( 'woocommerce_get_catalog_ordering_args', function ( $args ) {
 		return $args;
 	}
 
-	$args['orderby']  = 'meta_value';
-	$args['order']    = 'DESC';
-	$args['meta_key'] = '_best_seller';
+	// Override default ordering — actual sort handled by posts_clauses filter.
+	$args['orderby'] = 'date';
+	$args['order']   = 'DESC';
 
-	// Include products without _best_seller meta (they appear after best sellers).
-	$args['meta_query'] = [
-		'relation' => 'OR',
-		[
-			'key'     => '_best_seller',
-			'value'   => 'yes',
-			'compare' => '=',
-		],
-		[
-			'key'     => '_best_seller',
-			'compare' => 'NOT EXISTS',
-		],
-	];
+	add_filter( 'posts_clauses', 'blaze_blocksy_best_seller_sort_clauses', 10, 2 );
 
 	return $args;
 } );
+
+/**
+ * Modify SQL clauses to sort best sellers first via LEFT JOIN.
+ *
+ * @param array    $clauses SQL clauses.
+ * @param WP_Query $query   Current query.
+ * @return array Modified clauses.
+ */
+function blaze_blocksy_best_seller_sort_clauses( $clauses, $query ) {
+	global $wpdb;
+
+	// Only apply once.
+	remove_filter( 'posts_clauses', 'blaze_blocksy_best_seller_sort_clauses', 10 );
+
+	$clauses['join']    .= " LEFT JOIN {$wpdb->postmeta} AS bs_meta ON ({$wpdb->posts}.ID = bs_meta.post_id AND bs_meta.meta_key = '_best_seller') ";
+	$clauses['orderby']  = "CASE WHEN bs_meta.meta_value = 'yes' THEN 0 ELSE 1 END ASC, {$wpdb->posts}.post_date DESC";
+
+	return $clauses;
+}
 
 /**
  * Add "Best Seller" select to bulk edit form.
@@ -177,9 +184,8 @@ add_action( 'woocommerce_product_quick_edit_end', function () {
 		<span class="title"><?php esc_html_e( 'Best Seller?', 'blaze-blocksy' ); ?></span>
 		<span class="input-text-wrap">
 			<select class="best_seller" name="_best_seller_quick">
-				<option value=""><?php esc_html_e( '— No change —', 'blaze-blocksy' ); ?></option>
-				<option value="yes"><?php esc_html_e( 'Yes', 'blaze-blocksy' ); ?></option>
 				<option value="no"><?php esc_html_e( 'No', 'blaze-blocksy' ); ?></option>
+				<option value="yes"><?php esc_html_e( 'Yes', 'blaze-blocksy' ); ?></option>
 			</select>
 		</span>
 	</label>
@@ -190,7 +196,7 @@ add_action( 'woocommerce_product_quick_edit_end', function () {
  * Save "Best Seller" meta from quick edit.
  */
 add_action( 'woocommerce_product_quick_edit_save', function ( $product ) {
-	if ( ! isset( $_REQUEST['_best_seller_quick'] ) || $_REQUEST['_best_seller_quick'] === '' ) {
+	if ( ! isset( $_REQUEST['_best_seller_quick'] ) ) {
 		return;
 	}
 
@@ -201,6 +207,40 @@ add_action( 'woocommerce_product_quick_edit_save', function ( $product ) {
 	} else {
 		delete_post_meta( $post_id, '_best_seller' );
 	}
+} );
+
+/**
+ * Append best seller value to WooCommerce inline data for quick edit.
+ */
+add_action( 'manage_product_posts_custom_column', function ( $column, $post_id ) {
+	if ( $column === 'name' ) {
+		$value = get_post_meta( $post_id, '_best_seller', true ) === 'yes' ? 'yes' : 'no';
+		echo '<div class="hidden best_seller_inline_data" data-best-seller="' . esc_attr( $value ) . '"></div>';
+	}
+}, 99, 2 );
+
+/**
+ * Enqueue admin JS to populate quick edit best seller field.
+ */
+add_action( 'admin_enqueue_scripts', function ( $hook ) {
+	if ( $hook !== 'edit.php' ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || $screen->post_type !== 'product' ) {
+		return;
+	}
+
+	wp_add_inline_script( 'wc-admin-product-quick-edit', "
+		jQuery(function($) {
+			$('#the-list').on('click', '.editinline', function() {
+				var post_id = $(this).closest('tr').attr('id').replace('post-', '');
+				var best_seller = $('#post-' + post_id + ' .best_seller_inline_data').data('best-seller') || 'no';
+				$('select[name=\"_best_seller_quick\"]', '.inline-edit-row').val(best_seller);
+			});
+		});
+	" );
 } );
 
 /**
