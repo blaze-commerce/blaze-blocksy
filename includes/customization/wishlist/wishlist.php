@@ -1186,7 +1186,13 @@ class BlocksyChildWishlistRenderer {
 	 */
 	public function get_guest_notice_html() {
 		$custom_signup_url  = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_url', '' );
-		$signup_url         = ! empty( $custom_signup_url ) ? $custom_signup_url : wp_registration_url();
+		if ( ! empty( $custom_signup_url ) ) {
+			$signup_url = $custom_signup_url;
+		} elseif ( function_exists( 'wc_get_page_permalink' ) ) {
+			$signup_url = wc_get_page_permalink( 'myaccount' );
+		} else {
+			$signup_url = wp_registration_url();
+		}
 		$signup_button_text = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_text', __( 'Sign Up', 'blocksy-companion' ) );
 
 		return '<div class="wishlist-guest-notice">'

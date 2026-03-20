@@ -43,6 +43,9 @@
         // Handle wishlist item actions within off-canvas
         handleOffCanvasWishlistActions();
 
+        // Ensure sign-up button navigates properly inside offcanvas
+        handleSignUpButtonClick();
+
         // Listen for wishlist changes to refresh and auto-show off-canvas
         listenForWishlistChanges();
     }
@@ -117,6 +120,22 @@
             $(panel).addClass('active');
             $('body').addClass('wishlist-offcanvas-open');
         }
+    }
+
+    /**
+     * Handle sign-up button click inside offcanvas panel.
+     * Blocksy's overlay system intercepts link clicks, so we force navigation explicitly.
+     */
+    function handleSignUpButtonClick() {
+        $(document).on('click', '#wishlist-offcanvas-panel .notice-signup', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var href = $(this).attr('href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
     }
 
     /**

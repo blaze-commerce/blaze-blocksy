@@ -76,6 +76,14 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 		<?php
 		do_action( 'woocommerce_before_mini_cart_contents' );
 
+		$remove_text = apply_filters( 'woocommerce_cart_item_remove_link_text', '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 5.98047C17.67 5.65047 14.32 5.48047 10.98 5.48047C9 5.48047 7.02 5.58047 5.04 5.78047L3 5.98047" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M18.8504 9.13965L18.2004 19.2096C18.0904 20.7796 18.0004 21.9996 15.2104 21.9996H8.79039C6.00039 21.9996 5.91039 20.7796 5.80039 19.2096L5.15039 9.13965" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.3301 16.5H13.6601" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9.5 12.5H14.5" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>' );
+
 		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 			$_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -95,17 +103,13 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 				<li
 					class="woocommerce-mini-cart-item <?php echo esc_attr( apply_filters( 'woocommerce_mini_cart_item_class', 'mini_cart_item', $cart_item, $cart_item_key ) ); ?>">
 					<?php
+
+
+
 					echo apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						'woocommerce_cart_item_remove_link',
 						sprintf(
-							'<a role="button" href="%s" class="remove remove_from_cart_button" aria-label="%s" data-product_id="%s" data-cart_item_key="%s" data-product_sku="%s" data-success_message="%s"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M21 5.98047C17.67 5.65047 14.32 5.48047 10.98 5.48047C9 5.48047 7.02 5.58047 5.04 5.78047L3 5.98047" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M18.8504 9.13965L18.2004 19.2096C18.0904 20.7796 18.0004 21.9996 15.2104 21.9996H8.79039C6.00039 21.9996 5.91039 20.7796 5.80039 19.2096L5.15039 9.13965" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10.3301 16.5H13.6601" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9.5 12.5H14.5" stroke="#242424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-</a>',
+							'<a role="button" href="%s" class="remove remove_from_cart_button" aria-label="%s" data-product_id="%s" data-cart_item_key="%s" data-product_sku="%s" data-success_message="%s">%s</a>',
 							esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
 							/* translators: %s is the product name */
 							esc_attr( sprintf( __( 'Remove %s from cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),
@@ -113,7 +117,8 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 							esc_attr( $cart_item_key ),
 							esc_attr( $_product->get_sku() ),
 							/* translators: %s is the product name */
-							esc_attr( sprintf( __( '&ldquo;%s&rdquo; has been removed from your cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) )
+							esc_attr( sprintf( __( '&ldquo;%s&rdquo; has been removed from your cart', 'woocommerce' ), wp_strip_all_tags( $product_name ) ) ),
+							$remove_text
 						),
 						$cart_item_key
 					);
@@ -195,8 +200,8 @@ do_action( 'woocommerce_before_mini_cart' ); ?>
 
 	// Get empty cart message
 	$empty_message = function_exists( 'blocksy_akg' )
-		? blocksy_akg( 'mini_cart_empty_message', $cart_options, 'Your cart is empty, continue to shopping to add item' )
-		: 'Your cart is empty, continue to shopping to add item';
+		? blocksy_akg( 'mini_cart_empty_message', $cart_options, 'Your cart is empty, continue shopping to add item' )
+		: 'Your cart is empty, continue shopping to add item';
 
 	// Get continue shopping button text
 	$continue_shopping_text = function_exists( 'blocksy_akg' )

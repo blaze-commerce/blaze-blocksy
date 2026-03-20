@@ -21,7 +21,7 @@
   gap: var(--carousel-margin, 24px);
 }
 
-.blaze-product-carousel:not(.owl-loaded) > .product {
+.blaze-product-carousel:not(.owl-loaded)>.product {
   flex: 0 0 var(--carousel-desktop-flex, calc(25% - 18px));
   max-width: var(--carousel-desktop-flex, calc(25% - 18px));
   min-width: 0;
@@ -29,7 +29,7 @@
 
 /* Tablet: matches carousel responsive settings */
 @media (max-width: 999px) {
-  .blaze-product-carousel:not(.owl-loaded) > .product {
+  .blaze-product-carousel:not(.owl-loaded)>.product {
     flex: 0 0 var(--carousel-tablet-flex, calc(50% - 12px));
     max-width: var(--carousel-tablet-flex, calc(50% - 12px));
   }
@@ -37,7 +37,7 @@
 
 /* Mobile: matches carousel responsive settings */
 @media (max-width: 767px) {
-  .blaze-product-carousel:not(.owl-loaded) > .product {
+  .blaze-product-carousel:not(.owl-loaded)>.product {
     flex: 0 0 var(--carousel-mobile-flex, calc(50% - 12px));
     max-width: var(--carousel-mobile-flex, calc(50% - 12px));
   }
@@ -266,9 +266,9 @@
 
 /* Hover effect on add-to-cart when product card is hovered */
 .blaze-product-carousel .product:hover .ct-woo-card-actions a {
-  background-color: var(--theme-palette-color-1, #007cba);
-  color: #fff;
-  border-color: var(--theme-palette-color-1, #007cba);
+  background-color: var(--theme-button-background-hover-color);
+  color: var(--theme-button-text-hover-color);
+  border-color: var(--theme-button-border-hover-color);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

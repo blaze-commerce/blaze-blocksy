@@ -18,7 +18,7 @@ if ( ! $product || ! method_exists( $product, 'get_name' ) ) {
 	return;
 }
 
-$product_url  = $product->get_permalink();
+$product_url = $product->get_permalink();
 $product_name = $product->get_name();
 $product_price = $product->get_price_html();
 
@@ -32,9 +32,9 @@ $product_price = $product->get_price_html();
  *   the product page so the user can choose a variation.
  * - Any other type (grouped, bundle, composite …): redirect to product page.
  */
-$btn_product_id  = $product->get_id();
+$btn_product_id = $product->get_id();
 $btn_redirect_url = null;
-$variable_types  = array( 'variable', 'variable-subscription' );
+$variable_types = array( 'variable', 'variable-subscription' );
 
 if ( in_array( $product->get_type(), $variable_types, true ) ) {
 	$children = $product->get_children(); // array of variation post IDs
@@ -71,23 +71,21 @@ if ( in_array( $product->get_type(), $variable_types, true ) ) {
 			<span class="product-title"><?php echo esc_html( $product_name ); ?></span>
 		</a>
 		<div class="product-price-quantity">
-			<span class="product-price"><?php echo $product_price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+			<span
+				class="product-price"><?php echo $product_price; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 		</div>
-		<?php if ( $product->is_purchasable() && $product->is_in_stock() && WC()->cart && ! WC()->cart->is_empty() ) : ?>
-		<button type="button"
-			class="rec-add-to-cart-btn"
-			data-product-id="<?php echo esc_attr( $btn_product_id ); ?>"
-			data-product-type="<?php echo esc_attr( $product->get_type() ); ?>"
-			<?php if ( $btn_redirect_url ) : ?>
-			data-redirect-url="<?php echo esc_url( $btn_redirect_url ); ?>"
-			<?php endif; ?>
-			aria-label="<?php echo esc_attr( sprintf( __( 'Add %s to cart', 'woocommerce' ), $product_name ) ); ?>">
+	</div>
+	<?php if ( $product->is_purchasable() && $product->is_in_stock() && WC()->cart && ! WC()->cart->is_empty() ) : ?>
+		<button type="button" class="rec-add-to-cart-btn" data-product-id="<?php echo esc_attr( $btn_product_id ); ?>"
+			data-product-type="<?php echo esc_attr( $product->get_type() ); ?>" <?php if ( $btn_redirect_url ) : ?>
+				data-redirect-url="
+		<?php echo esc_url( $btn_redirect_url ); ?>" <?php endif; ?> aria-label="
+		<?php echo esc_attr( sprintf( __( 'Add %s to cart', 'woocommerce' ), $product_name ) ); ?>">
 			<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-				<path d="M4 8H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M8 4V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M4 8H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+				<path d="M8 4V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 			</svg>
 			<?php esc_html_e( 'Add', 'woocommerce' ); ?>
 		</button>
-		<?php endif; ?>
-	</div>
+	<?php endif; ?>
 </div>
