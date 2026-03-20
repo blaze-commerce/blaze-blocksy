@@ -186,6 +186,7 @@ $required_files = [
 	'/includes/customization/results-count-placement.php',
 	'/includes/speed-optimization.php',
 	'/includes/features/hide-cart-page.php',
+	'/includes/features/best-seller.php',
 
 	// Gutenberg Blocks
 	'/includes/gutenberg/product-slider.php',

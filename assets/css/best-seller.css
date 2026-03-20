@@ -1,0 +1,11 @@
+/* Best Seller Badge */
+.ct-woo-badge-best-seller {
+	--badge-background-color: #D4A853;
+	--badge-text-color: #ffffff;
+}
+
+/* Stack badges vertically when multiple exist (e.g. sale + best seller) */
+.product > figure > .ct-woo-badge-best-seller:not(:first-child),
+.ct-product-gallery-container > .ct-woo-badge-best-seller:not(:first-child) {
+	top: calc(var(--badge-top, 15px) + var(--badge-height, 28px) + 6px);
+}
