@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.78.0] - 2026-04-03
+
+### Added
+- enforce filemtime() version in wp_enqueue_style/script gate (#236)
+
 ## [1.77.0] - 2026-03-19
 
 ### Added
@@ -4400,7 +4405,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
 [1.76.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...v1.76.2
 [1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...HEAD
+[1.78.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...v1.78.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.0...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4422,5 +4428,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.76.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.0...v1.76.1
 [1.76.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.1...v1.76.2
 [1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...HEAD
+[1.78.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...v1.78.0
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.0...HEAD
 >>>>>>> main
