@@ -32,7 +32,8 @@
           { "type": "command", "command": ".claude/hooks/enforce-loader-append-only.sh" },
           { "type": "command", "command": ".claude/hooks/enforce-char-limit-claude-md.sh" },
           { "type": "command", "command": ".claude/hooks/enforce-abspath-guard.sh" },
-          { "type": "command", "command": ".claude/hooks/enforce-blaze-prefix.sh" }
+          { "type": "command", "command": ".claude/hooks/enforce-blaze-prefix.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-enqueue-filemtime.sh" }
         ]
       },
       {
