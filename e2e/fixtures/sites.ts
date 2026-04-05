@@ -87,6 +87,22 @@ export const siteConfigs = {
       main: '/product-category/picture-rails/',
     },
   },
+  dancewear: {
+    production: 'https://dancewear.co.uk',
+    staging: 'https://dancewearoptimize.blz.onl',
+    features: {
+      hasWooCommerce: true,
+      hasFluidCheckout: true,
+      hasContactForm: true,
+      hasSearch: true,
+    },
+    testProducts: {
+      simple: '/product/ballerina-mouse-keyring-bag-charm/',
+    },
+    testCategories: {
+      main: '/product-category/women/dance-pants/',
+    },
+  },
 } as const satisfies Record<string, SiteConfig>;
 
 export type SiteName = keyof typeof siteConfigs;
