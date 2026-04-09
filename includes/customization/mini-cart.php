@@ -154,6 +154,11 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 	$discount_total = $cart->get_discount_total();
 	$total = $cart->get_total( 'edit' );
 
+	$cart_options = blaze_blocksy_get_cart_options();
+	$show_shipping = function_exists( 'blocksy_akg' )
+		? blocksy_akg( 'mini_cart_show_shipping_calculator', $cart_options, 'yes' )
+		: 'yes';
+
 	$chosen_methods = WC()->session ? WC()->session->get( 'chosen_shipping_methods' ) : array();
 	$has_chosen_shipping = ! empty( $chosen_methods ) && is_array( $chosen_methods ) && ! empty( array_filter( $chosen_methods ) );
 	$has_shipping = floatval( $shipping_total ) > 0 || $has_chosen_shipping;
@@ -166,10 +171,12 @@ add_action( 'woocommerce_widget_shopping_cart_total', function ( $total_html ) {
 			<span class="total-amount"><?php echo wc_price( $subtotal ); ?></span>
 		</div>
 
-		<div class="total-line shipping-line" <?php echo ! $has_shipping ? 'style="display:none;"' : ''; ?>>
-			<span class="total-label"><?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?></span>
-			<span class="total-amount"><?php echo $has_shipping ? $shipping_display : ''; ?></span>
-		</div>
+		<?php if ( 'yes' === $show_shipping ) : ?>
+			<div class="total-line shipping-line" <?php echo ! $has_shipping ? 'style="display:none;"' : ''; ?>>
+				<span class="total-label"><?php esc_html_e( 'Shipping', 'blaze-blocksy' ); ?></span>
+				<span class="total-amount"><?php echo $has_shipping ? $shipping_display : ''; ?></span>
+			</div>
+		<?php endif; ?>
 
 		<div class="total-line tax-line">
 			<span class="total-label"><?php esc_html_e( 'Tax', 'blaze-blocksy' ); ?></span>

@@ -19,3 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 	wp_enqueue_style( 'custom-minicart', BLAZE_BLOCKSY_URL . '/custom/minicart.css', array( 'blaze-blocksy-mini-cart' ), '1.0.0' );
 
 // } );
+
+require_once __DIR__ . '/default-sorting.php';
+require_once __DIR__ . '/floating-cart-buy-now.php';
+require_once __DIR__ . '/auto-select-variant.php';
+require_once __DIR__ . '/variation-gallery-images.php';
+
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! is_product() ) {
+		return;
+	}
+
+	$dir = get_stylesheet_directory() . '/custom';
+	$uri = get_stylesheet_directory_uri() . '/custom';
+
+	wp_enqueue_script( 'blaze-custom-product-info-tabs', "$uri/js/product-info-tabs.js", [], filemtime( "$dir/js/product-info-tabs.js" ), true );
+	wp_enqueue_script( 'blaze-custom-variation-gallery', "$uri/js/variation-gallery-images.js", [ 'jquery' ], filemtime( "$dir/js/variation-gallery-images.js" ), true );
+} );

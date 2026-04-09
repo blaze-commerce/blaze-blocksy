@@ -43,8 +43,8 @@
         // Handle wishlist item actions within off-canvas
         handleOffCanvasWishlistActions();
 
-        // Ensure sign-up button navigates properly inside offcanvas
-        handleSignUpButtonClick();
+        // Force navigation for all links inside offcanvas panel
+        handlePanelLinkClicks();
 
         // Listen for wishlist changes to refresh and auto-show off-canvas
         listenForWishlistChanges();
@@ -104,6 +104,11 @@
             return;
         }
 
+        // Remove inert before opening — Blocksy's overlay.js removes it async
+        // after lazy-loading, but there's a race window where the panel is
+        // visible yet still inert, blocking all interaction.
+        panel.inert = false;
+
         // Use Blocksy's overlay system if available
         if (typeof ctEvents !== 'undefined') {
             ctEvents.trigger('ct:overlay:handle-click', {
@@ -123,18 +128,22 @@
     }
 
     /**
-     * Handle sign-up button click inside offcanvas panel.
-     * Blocksy's overlay system intercepts link clicks, so we force navigation explicitly.
+     * Handle link clicks inside offcanvas panel.
+     * Blocksy's overlay system can intercept link clicks within panels,
+     * so we force navigation explicitly for product links and sign-up buttons.
      */
-    function handleSignUpButtonClick() {
-        $(document).on('click', '#wishlist-offcanvas-panel .notice-signup', function (e) {
+    function handlePanelLinkClicks() {
+        $(document).on('click', '#wishlist-offcanvas-panel a[href]', function (e) {
+            var href = $(this).attr('href');
+
+            // Skip non-navigable links (anchors, javascript:, buttons acting as links)
+            if (!href || href === '#' || href.startsWith('javascript:')) {
+                return;
+            }
+
             e.preventDefault();
             e.stopPropagation();
-
-            var href = $(this).attr('href');
-            if (href) {
-                window.location.href = href;
-            }
+            window.location.href = href;
         });
     }
 

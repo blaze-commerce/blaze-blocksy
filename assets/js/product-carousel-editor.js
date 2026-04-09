@@ -136,6 +136,7 @@
     const {
       saleAttribute,
       orderBy,
+      bestSellerOnly,
       productsPerSlide,
       showNavigation,
       showDots,
@@ -232,8 +233,24 @@
                 value: "most_popular",
                 label: __("Most Popular (by reviews)", "blaze-blocksy"),
               },
+              {
+                value: "menu_order_asc",
+                label: __("Menu Order (ASC)", "blaze-blocksy"),
+              },
+              {
+                value: "menu_order_desc",
+                label: __("Menu Order (DESC)", "blaze-blocksy"),
+              },
             ],
             onChange: (value) => setAttributes({ orderBy: value }),
+          }),
+
+          // Best Seller Filter
+          el(ToggleControl, {
+            label: __("Best Seller Only", "blaze-blocksy"),
+            help: __("Show only products marked as Best Seller", "blaze-blocksy"),
+            checked: bestSellerOnly,
+            onChange: (value) => setAttributes({ bestSellerOnly: value }),
           }),
 
           // Products Limit
@@ -403,6 +420,10 @@
       orderBy: {
         type: "string",
         default: "date",
+      },
+      bestSellerOnly: {
+        type: "boolean",
+        default: false,
       },
       productsPerSlide: {
         type: "object",

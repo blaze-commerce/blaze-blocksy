@@ -67,7 +67,8 @@
       "mcp__plugin_playwright_playwright__browser_navigate",
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__plugin_playwright_playwright__browser_evaluate",
-      "mcp__plugin_playwright_playwright__browser_close"
+      "mcp__plugin_playwright_playwright__browser_close",
+      "mcp__claude_ai_BC_skill__run_ssh_command"
     ],
     "deny": []
   }

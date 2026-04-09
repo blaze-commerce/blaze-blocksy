@@ -796,23 +796,6 @@ jQuery(document).ready(function ($) {
   });
 
   /**
-   * Open Blocksy cart panel by triggering its native anchor click
-   */
-  function openCartPanel() {
-    var cartTrigger = document.querySelector('a[href="#woo-cart-panel"]');
-    if (cartTrigger) {
-      cartTrigger.click();
-    }
-  }
-
-  /**
-   * Open cart panel after AJAX add-to-cart on archive/shop pages
-   */
-  $(document.body).on("added_to_cart", function () {
-    openCartPanel();
-  });
-
-  /**
    * Preserve variation state across Blocksy's AJAX add-to-cart.
    *
    * On single product pages Blocksy's add-to-cart-single.js intercepts the
