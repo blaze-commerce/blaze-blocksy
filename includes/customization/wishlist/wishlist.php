@@ -919,70 +919,12 @@ class BlocksyChildWishlistRenderer {
 		}
 		$html .= '</div>';
 
-		$html .= $this->get_category_cards_html();
+		// Add recommendations section
+		$recommendations = new BlocksyChildWishlistRecommendations();
+		$html .= $recommendations->get_recommendations_section( array( 'include_guest_notice' => false ) );
 
 		$html .= '</div>';
 		return $html;
-	}
-
-	/**
-	 * Get category cards HTML for empty wishlist state.
-	 *
-	 * Pulls top-level WooCommerce product categories that have a thumbnail,
-	 * ordered by menu_order. Admin controls via WooCommerce > Products > Categories.
-	 *
-	 * @return string HTML content.
-	 */
-	private function get_category_cards_html(): string {
-		$terms = get_terms( array(
-			'taxonomy'   => 'product_cat',
-			'parent'     => 0,
-			'hide_empty' => true,
-			'orderby'    => 'menu_order',
-			'order'      => 'ASC',
-			'number'     => 4,
-			'meta_query' => array(
-				array(
-					'key'     => 'thumbnail_id',
-					'value'   => array( '', '0' ),
-					'compare' => 'NOT IN',
-				),
-			),
-		) );
-
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return '';
-		}
-
-		$cards_html = '';
-		foreach ( $terms as $term ) {
-			$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
-			if ( ! $thumbnail_id ) {
-				continue;
-			}
-
-			$img_url = wp_get_attachment_image_url( $thumbnail_id, 'large' );
-			$link    = get_term_link( $term );
-
-			if ( ! $img_url || is_wp_error( $link ) ) {
-				continue;
-			}
-
-			$cards_html .= '<a href="' . esc_url( $link ) . '" class="wishlist-category-card"'
-				. ' style="background-image: url(' . esc_url( $img_url ) . ');"'
-				. ' onclick="window.location.href=\'' . esc_js( $link ) . '\';return false;">'
-				. '<span class="wishlist-category-card__label">' . esc_html( $term->name ) . '</span>'
-				. '</a>';
-		}
-
-		if ( empty( $cards_html ) ) {
-			return '';
-		}
-
-		return '<div class="wishlist-category-cards-section">'
-			. '<p class="wishlist-category-cards-section__heading">' . esc_html__( 'You May Also Like', 'blocksy-companion' ) . '</p>'
-			. '<div class="wishlist-category-cards">' . $cards_html . '</div>'
-			. '</div>';
 	}
 
 	/**
