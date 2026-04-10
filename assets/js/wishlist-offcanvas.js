@@ -58,6 +58,11 @@
 
         // Override any wishlist header clicks when off-canvas is available
         $(document).on('click', '.ct-header-wishlist a, .ct-header-wishlist', function (e) {
+            // Skip links inside the off-canvas panel (product links, recommendations, etc.)
+            if ($(this).closest(SELECTORS.PANEL).length) {
+                return;
+            }
+
             const $this = $(this);
             const href = $this.attr('href') || '';
             const hasOffcanvasClass = $this.hasClass('ct-offcanvas-trigger');
@@ -82,6 +87,11 @@
 
         // Add a more aggressive click handler that catches all wishlist clicks
         $(document).on('click', SELECTORS.HEADER_WISHLIST, function (e) {
+            // Skip links inside the off-canvas panel (product links, recommendations, etc.)
+            if ($(this).closest(SELECTORS.PANEL).length) {
+                return;
+            }
+
             // Always prevent default and open off-canvas when panel exists
             e.preventDefault();
             e.stopPropagation();
@@ -123,37 +133,90 @@
      * Handle actions within the off-canvas wishlist
      */
     function handleOffCanvasWishlistActions() {
-        // Handle remove from wishlist
-        $(document).on('click', '.ct-offcanvas-wishlist .ct-wishlist-remove', function (e) {
-            e.preventDefault();
+        // Handle remove from wishlist — capture phase to preempt Blocksy's jQuery handler
+        document.addEventListener('click', function (e) {
+            var button = e.target.closest('.ct-offcanvas-wishlist .ct-wishlist-remove');
+            if (!button) { return; }
 
-            const $button = $(this);
-            const productId = $button.data('product-id');
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            var $button = $(button);
+            var productId = parseInt($button.data('product-id'), 10);
 
             if (!productId) {
                 return;
             }
 
-            // Add loading state
             $button.addClass('loading').prop('disabled', true);
 
-            // Remove item from wishlist (this will trigger the existing wishlist system)
-            if (typeof ctEvents !== 'undefined') {
-                ctEvents.trigger('blocksy:woocommerce:wish-list-remove', {
-                    productId: productId
-                });
+            // Build updated items list by removing this product
+            var currentList = (window.ct_localizations &&
+                               window.ct_localizations.blc_ext_wish_list &&
+                               window.ct_localizations.blc_ext_wish_list.list) || { v: 2, items: [] };
+
+            var currentItems = Object.values(currentList.items || []);
+            var newItems = currentItems.filter(function (item) {
+                return parseInt(item.id, 10) !== productId;
+            });
+
+            var newListPayload = Object.assign({}, currentList, { items: newItems });
+
+            // Update local state immediately so subsequent actions see the change
+            if (window.ct_localizations && window.ct_localizations.blc_ext_wish_list) {
+                window.ct_localizations.blc_ext_wish_list.list.items = newItems;
             }
 
-            // Remove the item from the off-canvas display
-            $button.closest('.wishlist-item').fadeOut(300, function () {
-                $(this).remove();
+            var isLoggedIn = window.ct_localizations &&
+                             window.ct_localizations.blc_ext_wish_list &&
+                             window.ct_localizations.blc_ext_wish_list.user_logged_in === 'yes';
 
-                // Check if wishlist is now empty
-                if ($('.ct-offcanvas-wishlist .wishlist-item').length === 0) {
-                    refreshOffCanvasContent();
+            var ajaxUrl = (typeof ct_localizations !== 'undefined' && ct_localizations.ajax_url) ?
+                          ct_localizations.ajax_url : '/wp-admin/admin-ajax.php';
+
+            function afterPersist() {
+                // Notify rest of page about wishlist change (updates header counter etc.)
+                if (typeof ctEvents !== 'undefined') {
+                    ctEvents.trigger('blocksy:woocommerce:wish-list-change', {
+                        operation: 'remove',
+                        productId: productId,
+                    });
                 }
-            });
-        });
+                // Reload panel content from server (reflects the saved state)
+                refreshOffCanvasContent();
+            }
+
+            if (isLoggedIn) {
+                // Persist to server via Blocksy's own sync endpoint
+                fetch(ajaxUrl + '?action=blc_ext_wish_list_sync_likes', {
+                    method: 'POST',
+                    body: JSON.stringify(newListPayload),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (response) {
+                    if (response.success) {
+                        afterPersist();
+                    } else {
+                        $button.removeClass('loading').prop('disabled', false);
+                    }
+                })
+                .catch(function () {
+                    $button.removeClass('loading').prop('disabled', false);
+                });
+            } else {
+                // Guest: update cookie to match Blocksy's format
+                var d = new Date();
+                d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
+                document.cookie = 'blc_products_wish_list=' + JSON.stringify(newListPayload) +
+                                  '; expires=' + d.toGMTString() + '; path=/';
+                afterPersist();
+            }
+        }, true);
 
         // Handle add to cart from off-canvas
         $(document).on('click', '.ct-offcanvas-wishlist .add_to_cart_button', function (e) {

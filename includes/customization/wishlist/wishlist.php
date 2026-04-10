@@ -31,7 +31,7 @@ class BlocksyChildWishlistHelper {
 	);
 
 	const DEFAULT_ICON_SIZE = '18';
-	const DEFAULT_CLOSE_ICON_SIZE = '32';
+	const DEFAULT_CLOSE_ICON_SIZE = '24';
 	const DEFAULT_COLUMNS = '2';
 	const DEFAULT_POSITION = 'right-side';
 	const DEFAULT_ICON_TYPE = 'type-1';
@@ -735,14 +735,14 @@ class BlocksyChildWishlistOffCanvas {
 			return;
 		}
 
-		$theme_version = wp_get_theme()->get( 'Version' );
+		$css_version = filemtime( get_stylesheet_directory() . '/assets/css/wishlist-offcanvas.css' );
 
 		// Enqueue CSS
 		wp_enqueue_style(
 			'wishlist-offcanvas',
 			get_stylesheet_directory_uri() . '/assets/css/wishlist-offcanvas.css',
 			array(),
-			$theme_version
+			$css_version
 		);
 
 		// Enqueue JavaScript
@@ -870,11 +870,6 @@ class BlocksyChildWishlistRenderer {
 	 * @return string HTML content.
 	 */
 	public function get_wishlist_content() {
-		$wishlist_ext = BlocksyChildWishlistHelper::get_wishlist_extension();
-		if ( ! $wishlist_ext ) {
-			return '<div class="ct-offcanvas-wishlist"><p>' . esc_html__( 'Wishlist functionality is not available.', 'blocksy-companion' ) . '</p></div>';
-		}
-
 		$wishlist = BlocksyChildWishlistHelper::get_current_wishlist();
 
 		if ( empty( $wishlist ) ) {
@@ -890,7 +885,7 @@ class BlocksyChildWishlistRenderer {
 	 * @return string SVG markup.
 	 */
 	private function get_close_icon_svg() {
-		return '<svg class="ct-icon" width="12" height="12" viewBox="0 0 15 15"><path d="M1 15a1 1 0 01-.71-.29 1 1 0 010-1.41l5.8-5.8-5.8-5.8A1 1 0 011.7.29l5.8 5.8 5.8-5.8a1 1 0 011.41 1.41l-5.8 5.8 5.8 5.8a1 1 0 01-1.41 1.41l-5.8-5.8-5.8 5.8A1 1 0 011 15z"/></svg>';
+		return '<svg class="ct-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5364 6.2636C7.18492 5.91213 6.61508 5.91213 6.2636 6.2636C5.91213 6.61508 5.91213 7.18492 6.2636 7.5364L10.7272 12L6.2636 16.4636C5.91213 16.8151 5.91213 17.3849 6.2636 17.7364C6.61508 18.0879 7.18492 18.0879 7.5364 17.7364L12 13.2728L16.4636 17.7364C16.8151 18.0879 17.3849 18.0879 17.7364 17.7364C18.0879 17.3849 18.0879 16.8151 17.7364 16.4636L13.2728 12L17.7364 7.5364C18.0879 7.18492 18.0879 6.61508 17.7364 6.2636C17.3849 5.91213 16.8151 5.91213 16.4636 6.2636L12 10.7272L7.5364 6.2636Z" fill="currentColor"/></svg>';
 	}
 
 	/**
@@ -905,7 +900,7 @@ class BlocksyChildWishlistRenderer {
 		$html = '<div class="ct-offcanvas-wishlist">';
 		$html .= '<div class="wishlist-empty">';
 
-		// Add empty state image if configured
+		// Add empty state image if configured (custom upload via Customizer)
 		if ( ! empty( $empty_state_image['attachment_id'] ) ) {
 			$image_url = wp_get_attachment_url( $empty_state_image['attachment_id'] );
 			$image_alt = get_post_meta( $empty_state_image['attachment_id'], '_wp_attachment_image_alt', true );
@@ -915,13 +910,6 @@ class BlocksyChildWishlistRenderer {
 				$html .= '<img src="' . esc_url( $image_url ) . '" alt="' . esc_attr( $image_alt ?: __( 'Empty wishlist', 'blocksy-companion' ) ) . '" />';
 				$html .= '</div>';
 			}
-		} else {
-			// Default cart icon
-			$html .= '<div class="wishlist-empty-icon">';
-			$html .= '<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">';
-			$html .= '<path d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>';
-			$html .= '</svg>';
-			$html .= '</div>';
 		}
 
 		$html .= '<p>' . esc_html__( 'Your Wishlist is Empty', 'blocksy-companion' ) . '</p>';
@@ -931,12 +919,70 @@ class BlocksyChildWishlistRenderer {
 		}
 		$html .= '</div>';
 
-		// Add recommendations section
-		$recommendations = new BlocksyChildWishlistRecommendations();
-		$html .= $recommendations->get_recommendations_section( array( 'include_guest_notice' => false ) );
+		$html .= $this->get_category_cards_html();
 
 		$html .= '</div>';
 		return $html;
+	}
+
+	/**
+	 * Get category cards HTML for empty wishlist state.
+	 *
+	 * Pulls top-level WooCommerce product categories that have a thumbnail,
+	 * ordered by menu_order. Admin controls via WooCommerce > Products > Categories.
+	 *
+	 * @return string HTML content.
+	 */
+	private function get_category_cards_html(): string {
+		$terms = get_terms( array(
+			'taxonomy'   => 'product_cat',
+			'parent'     => 0,
+			'hide_empty' => true,
+			'orderby'    => 'menu_order',
+			'order'      => 'ASC',
+			'number'     => 4,
+			'meta_query' => array(
+				array(
+					'key'     => 'thumbnail_id',
+					'value'   => array( '', '0' ),
+					'compare' => 'NOT IN',
+				),
+			),
+		) );
+
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return '';
+		}
+
+		$cards_html = '';
+		foreach ( $terms as $term ) {
+			$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
+			if ( ! $thumbnail_id ) {
+				continue;
+			}
+
+			$img_url = wp_get_attachment_image_url( $thumbnail_id, 'large' );
+			$link    = get_term_link( $term );
+
+			if ( ! $img_url || is_wp_error( $link ) ) {
+				continue;
+			}
+
+			$cards_html .= '<a href="' . esc_url( $link ) . '" class="wishlist-category-card"'
+				. ' style="background-image: url(' . esc_url( $img_url ) . ');"'
+				. ' onclick="window.location.href=\'' . esc_js( $link ) . '\';return false;">'
+				. '<span class="wishlist-category-card__label">' . esc_html( $term->name ) . '</span>'
+				. '</a>';
+		}
+
+		if ( empty( $cards_html ) ) {
+			return '';
+		}
+
+		return '<div class="wishlist-category-cards-section">'
+			. '<p class="wishlist-category-cards-section__heading">' . esc_html__( 'You May Also Like', 'blocksy-companion' ) . '</p>'
+			. '<div class="wishlist-category-cards">' . $cards_html . '</div>'
+			. '</div>';
 	}
 
 	/**
@@ -1032,8 +1078,11 @@ class BlocksyChildWishlistRenderer {
 			$html .= '<div class="wishlist-item-image">
 				<a href="' . esc_url( $product->get_permalink() ) . '">
 					' . $product->get_image( 'woocommerce_thumbnail' ) . '
-				</a>
-			</div>';
+				</a>';
+			if ( $product->is_on_sale() ) {
+				$html .= '<span class="wishlist-sale-badge">' . esc_html__( 'SALE!', 'woocommerce' ) . '</span>';
+			}
+			$html .= '</div>';
 		}
 
 		$html .= '<div class="wishlist-item-details">
@@ -1071,6 +1120,31 @@ class BlocksyChildWishlistRenderer {
 	 * @return string Price HTML.
 	 */
 	private function get_product_price_html( $product ) {
+		// Variable products on sale: build del/ins HTML showing regular range → sale range.
+		if ( $product->is_type( 'variable' ) && $product->is_on_sale() ) {
+			$prices = $product->get_variation_prices( true );
+
+			if ( ! empty( $prices['price'] ) && ! empty( $prices['regular_price'] ) ) {
+				$min_price   = current( $prices['price'] );
+				$max_price   = end( $prices['price'] );
+				$min_regular = current( $prices['regular_price'] );
+				$max_regular = end( $prices['regular_price'] );
+
+				if ( (float) $min_regular !== (float) $min_price || (float) $max_regular !== (float) $max_price ) {
+					$regular_html = ( (float) $min_regular === (float) $max_regular )
+						? wc_price( $min_regular )
+						: wc_format_price_range( $min_regular, $max_regular );
+
+					$sale_html = ( (float) $min_price === (float) $max_price )
+						? wc_price( $min_price )
+						: wc_format_price_range( $min_price, $max_price );
+
+					return '<span class="price"><del aria-hidden="true">' . $regular_html . '</del>'
+						. '<ins>' . $sale_html . '</ins></span>';
+				}
+			}
+		}
+
 		$price_html = $product->get_price_html();
 
 		if ( empty( $price_html ) ) {
@@ -1079,11 +1153,8 @@ class BlocksyChildWishlistRenderer {
 
 			if ( '' !== $sale_price && '' !== $regular_price ) {
 				$price_html = wc_format_sale_price( wc_price( $regular_price ), wc_price( $sale_price ) );
-			} else {
-				$display_price = wc_get_price_to_display( $product );
-				if ( '' !== $display_price && null !== $display_price ) {
-					$price_html = wc_price( $display_price );
-				}
+			} elseif ( '' !== $regular_price ) {
+				$price_html = wc_price( $regular_price );
 			}
 		}
 
@@ -1097,13 +1168,13 @@ class BlocksyChildWishlistRenderer {
 	 */
 	public function get_guest_notice_html() {
 		$custom_signup_url  = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_url', '' );
-		$signup_url         = ! empty( $custom_signup_url ) ? $custom_signup_url : wp_registration_url();
+		$signup_url         = ! empty( $custom_signup_url ) ? $custom_signup_url : get_permalink( wc_get_page_id( 'myaccount' ) );
 		$signup_button_text = BlocksyChildWishlistHelper::get_theme_mod( 'wishlist_signup_button_text', __( 'Sign Up', 'blocksy-companion' ) );
 
 		return '<div class="wishlist-guest-notice">'
 			. '<p class="notice-text">' . esc_html__( 'Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.', 'blocksy-companion' ) . '</p>'
 			. '<div class="notice-actions">'
-			. '<a href="' . esc_url( $signup_url ) . '" class="button notice-signup">' . esc_html( $signup_button_text ) . '</a>'
+			. '<a href="' . esc_url( $signup_url ) . '" class="notice-signup" onclick="window.location.href=this.href;return false;">' . esc_html( $signup_button_text ) . '</a>'
 			. '</div>'
 			. '</div>';
 	}
@@ -1195,9 +1266,9 @@ class BlocksyChildWishlistRenderer {
 	 */
 	private function get_default_wishlist_icon( $type = 'type-1' ) {
 		$icons = array(
-			'type-1' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
-			'type-2' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
-			'type-3' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></svg>',
+			'type-1' => '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.445 27.0639L15.4364 27.0594L15.4068 27.0439C15.3817 27.0306 15.3458 27.0115 15.3 26.9868C15.2084 26.9374 15.0767 26.8652 14.9107 26.7712C14.5788 26.5834 14.1089 26.3081 13.5468 25.953C12.4251 25.2444 10.9239 24.2103 9.41681 22.9115C6.47135 20.3731 3.2002 16.5637 3.2002 12C3.2002 8.0236 6.42374 4.80005 10.4002 4.80005C12.6632 4.80005 14.6809 5.84385 16.0002 7.47457C17.3195 5.84385 19.3372 4.80005 21.6002 4.80005C25.5766 4.80005 28.8002 8.0236 28.8002 12C28.8002 16.5637 25.529 20.3731 22.5836 22.9115C21.0765 24.2103 19.5753 25.2444 18.4536 25.953C17.8915 26.3081 17.4216 26.5834 17.0897 26.7712C16.9237 26.8652 16.792 26.9374 16.7004 26.9868C16.6546 27.0115 16.6187 27.0306 16.5936 27.0439L16.564 27.0594L16.5554 27.0639L16.5527 27.0653C16.2082 27.248 15.7922 27.248 15.4487 27.0658L15.445 27.0639Z" stroke="currentColor" stroke-width="2"/></svg>',
+			'type-2' => '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.445 27.0639L15.4364 27.0594L15.4068 27.0439C15.3817 27.0306 15.3458 27.0115 15.3 26.9868C15.2084 26.9374 15.0767 26.8652 14.9107 26.7712C14.5788 26.5834 14.1089 26.3081 13.5468 25.953C12.4251 25.2444 10.9239 24.2103 9.41681 22.9115C6.47135 20.3731 3.2002 16.5637 3.2002 12C3.2002 8.0236 6.42374 4.80005 10.4002 4.80005C12.6632 4.80005 14.6809 5.84385 16.0002 7.47457C17.3195 5.84385 19.3372 4.80005 21.6002 4.80005C25.5766 4.80005 28.8002 8.0236 28.8002 12C28.8002 16.5637 25.529 20.3731 22.5836 22.9115C21.0765 24.2103 19.5753 25.2444 18.4536 25.953C17.8915 26.3081 17.4216 26.5834 17.0897 26.7712C16.9237 26.8652 16.792 26.9374 16.7004 26.9868C16.6546 27.0115 16.6187 27.0306 16.5936 27.0439L16.564 27.0594L16.5554 27.0639L16.5527 27.0653C16.2082 27.248 15.7922 27.248 15.4487 27.0658L15.445 27.0639Z" fill="currentColor"/></svg>',
+			'type-3' => '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.445 27.0639L15.4364 27.0594L15.4068 27.0439C15.3817 27.0306 15.3458 27.0115 15.3 26.9868C15.2084 26.9374 15.0767 26.8652 14.9107 26.7712C14.5788 26.5834 14.1089 26.3081 13.5468 25.953C12.4251 25.2444 10.9239 24.2103 9.41681 22.9115C6.47135 20.3731 3.2002 16.5637 3.2002 12C3.2002 8.0236 6.42374 4.80005 10.4002 4.80005C12.6632 4.80005 14.6809 5.84385 16.0002 7.47457C17.3195 5.84385 19.3372 4.80005 21.6002 4.80005C25.5766 4.80005 28.8002 8.0236 28.8002 12C28.8002 16.5637 25.529 20.3731 22.5836 22.9115C21.0765 24.2103 19.5753 25.2444 18.4536 25.953C17.8915 26.3081 17.4216 26.5834 17.0897 26.7712C16.9237 26.8652 16.792 26.9374 16.7004 26.9868C16.6546 27.0115 16.6187 27.0306 16.5936 27.0439L16.564 27.0594L16.5554 27.0639L16.5527 27.0653C16.2082 27.248 15.7922 27.248 15.4487 27.0658L15.445 27.0639Z" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></svg>',
 		);
 
 		return isset( $icons[ $type ] ) ? $icons[ $type ] : $icons['type-1'];
@@ -1442,8 +1513,11 @@ class BlocksyChildWishlistRecommendations {
 			$html .= '<div class="recommendation-item-image">
 				<a href="' . esc_url( $product->get_permalink() ) . '">
 					' . $product->get_image( 'woocommerce_thumbnail' ) . '
-				</a>
-			</div>';
+				</a>';
+			if ( $product->is_on_sale() ) {
+				$html .= '<span class="wishlist-sale-badge">' . esc_html__( 'SALE!', 'woocommerce' ) . '</span>';
+			}
+			$html .= '</div>';
 		}
 
 		// Product details
@@ -1454,7 +1528,7 @@ class BlocksyChildWishlistRecommendations {
 
 		// Price
 		if ( $show_price ) {
-			$html .= '<div class="recommendation-item-price">' . $product->get_price_html() . '</div>';
+			$html .= '<div class="recommendation-item-price">' . $this->get_product_price_html( $product ) . '</div>';
 		}
 
 		// Add to cart button
@@ -1473,6 +1547,48 @@ class BlocksyChildWishlistRecommendations {
 
 		$html .= '</div></div>';
 		return $html;
+	}
+
+	private function get_product_price_html( $product ) {
+		// Variable products on sale: build del/ins HTML showing regular range → sale range.
+		if ( $product->is_type( 'variable' ) && $product->is_on_sale() ) {
+			$prices = $product->get_variation_prices( true );
+
+			if ( ! empty( $prices['price'] ) && ! empty( $prices['regular_price'] ) ) {
+				$min_price   = current( $prices['price'] );
+				$max_price   = end( $prices['price'] );
+				$min_regular = current( $prices['regular_price'] );
+				$max_regular = end( $prices['regular_price'] );
+
+				if ( (float) $min_regular !== (float) $min_price || (float) $max_regular !== (float) $max_price ) {
+					$regular_html = ( (float) $min_regular === (float) $max_regular )
+						? wc_price( $min_regular )
+						: wc_format_price_range( $min_regular, $max_regular );
+
+					$sale_html = ( (float) $min_price === (float) $max_price )
+						? wc_price( $min_price )
+						: wc_format_price_range( $min_price, $max_price );
+
+					return '<span class="price"><del aria-hidden="true">' . $regular_html . '</del>'
+						. '<ins>' . $sale_html . '</ins></span>';
+				}
+			}
+		}
+
+		$price_html = $product->get_price_html();
+
+		if ( empty( $price_html ) ) {
+			$regular_price = $product->get_regular_price();
+			$sale_price    = $product->get_sale_price();
+
+			if ( '' !== $sale_price && '' !== $regular_price ) {
+				$price_html = wc_format_sale_price( wc_price( $regular_price ), wc_price( $sale_price ) );
+			} elseif ( '' !== $regular_price ) {
+				$price_html = wc_price( $regular_price );
+			}
+		}
+
+		return $price_html;
 	}
 }
 
