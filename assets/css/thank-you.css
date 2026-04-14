@@ -1071,32 +1071,37 @@
 }
 
 
-/* Transparent button styling - improved specificity */
+/* Resend email — inline text link */
 .blaze-commerce-thank-you-wrapper #resend-email-btn {
-	background: transparent;
-	color: var(--bc-ty-color);
-	border: 1px solid currentColor;
-	border-radius: 9999px;
-	box-shadow: none;
-	text-decoration: none;
+	background: none !important;
+	border: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	box-shadow: none !important;
 	font-family: var(--bc-ty-font-family);
-	font-weight: 600;
-	font-size: 16px;
-	line-height: 1.75em;
-	padding: 8px 24px;
-	margin-block-end: var(--theme-content-spacing);
+	font-weight: 400;
+	font-size: inherit;
+	line-height: inherit;
+	color: var(--bc-ty-color);
+	text-decoration: underline !important;
 	cursor: pointer;
-	transition: all 0.2s ease;
-	text-transform: uppercase;
+	display: inline !important;
+	text-transform: none !important;
+	text-align: left !important;
+	vertical-align: baseline;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	width: auto !important;
 }
 
 .blaze-commerce-thank-you-wrapper #resend-email-btn:hover {
-	background: var(--bc-ty-color);
-	color: var(--bc-ty-btn-text);
+	background: none;
+	color: var(--bc-ty-color);
+	opacity: 0.7;
 }
 
 .blaze-commerce-thank-you-wrapper #resend-email-btn:disabled {
-	opacity: 0.6;
+	opacity: 0.5;
 	cursor: not-allowed;
 }
 
