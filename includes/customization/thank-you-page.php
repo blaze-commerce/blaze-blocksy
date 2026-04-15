@@ -260,12 +260,7 @@ function blocksy_child_blaze_commerce_thank_you_content( $order_id ) {
 							You will receive your confirmation email to <strong><?php echo esc_html( $order->get_billing_email() ); ?></strong> within 5 minutes. If you do not see the email in your inbox, please check your spam or junk folder
 						</p>
 						<div class="resend-email-container">
-							<p>
-								Haven't received the email yet?
-							</p>
-							<button type="button" class="button wp-element-button" id="resend-email-btn" data-order-id="<?php echo esc_attr( $order_id ); ?>" data-order-key="<?php echo esc_attr( $order->get_order_key() ); ?>">
-								Resend Email
-							</button>
+							<p>Haven't received the email yet? <button type="button" class="button wp-element-button" id="resend-email-btn" data-order-id="<?php echo esc_attr( $order_id ); ?>" data-order-key="<?php echo esc_attr( $order->get_order_key() ); ?>">Resend Email</button></p>
 						</div>
 						<div id="resend-feedback" class="resend-feedback" style="display: none;"></div>
 						<p>
