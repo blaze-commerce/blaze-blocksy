@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.78.2] - 2026-04-17
+
+### Fixed
+- thank-you account creation — existing email, redirect, hook (#239)
+
 ## [1.78.1] - 2026-04-15
 
 ### Fixed
@@ -4412,7 +4417,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
 [1.78.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...v1.78.0
 [1.78.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.0...v1.78.1
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.1...HEAD
+[1.78.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.1...v1.78.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.2...HEAD
 =======
 [1.66.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.66.1
 [1.68.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.66.0...v1.68.0
@@ -4436,5 +4442,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.77.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.76.2...v1.77.0
 [1.78.0]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.77.0...v1.78.0
 [1.78.1]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.0...v1.78.1
-[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.1...HEAD
+[1.78.2]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.1...v1.78.2
+[unreleased]: https://github.com/blaze-commerce/blaze-blocksy/compare/v1.78.2...HEAD
 >>>>>>> main
