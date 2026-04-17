@@ -424,6 +424,25 @@ function blocksy_child_blaze_commerce_account_creation( $order ) {
 		return;
 	}
 
+	// If billing email already has a WP account, show login prompt instead
+	$email = $order->get_billing_email();
+	if ( email_exists( $email ) ) {
+		?>
+		<div class="blaze-commerce-account-creation">
+			<h3 class="blaze-commerce-account-title">You already have an account</h3>
+			<p>An account with <strong><?php echo esc_html( $email ); ?></strong> already exists. Log in to view your order.</p>
+			<?php
+			wp_login_form( array(
+				'redirect'       => esc_url( $order->get_checkout_order_received_url() ),
+				'label_username' => 'Email address',
+				'label_log_in'   => 'Log in',
+			) );
+			?>
+		</div>
+		<?php
+		return;
+	}
+
 	?>
 	<div class="blaze-commerce-account-creation">
 		<h3 class="blaze-commerce-account-title">Create an account from this order & checkout faster next time</h3>
@@ -435,7 +454,7 @@ function blocksy_child_blaze_commerce_account_creation( $order ) {
 			<li>Access Order Receipts</li>
 		</ul>
 
-		<form class="blaze-commerce-account-form" method="post" action="<?php echo esc_url( wc_get_endpoint_url( 'order-received', $order->get_id(), wc_get_checkout_url() ) ); ?>">
+		<form class="blaze-commerce-account-form" method="post" action="<?php echo esc_url( $order->get_checkout_order_received_url() ); ?>">
 			<div class="blaze-commerce-form-field">
 				<label for="account_first_name">First name *</label>
 				<input type="text" id="account_first_name" name="account_first_name" value="<?php echo esc_attr( $order->get_billing_first_name() ); ?>" required>
@@ -560,10 +579,12 @@ function blocksy_child_handle_account_creation_from_order() {
 	$password   = $_POST['account_password'];
 	$email      = $order->get_billing_email();
 
-	// Check if user already exists
+	// Check if user already exists — redirect back so notice renders on the GET page
 	if ( email_exists( $email ) ) {
-		wc_add_notice( 'An account with this email address already exists.', 'error' );
-		return;
+		wc_add_notice( 'An account with this email already exists. Please log in below.', 'error' );
+		ob_end_clean();
+		wp_redirect( $order->get_checkout_order_received_url() );
+		exit;
 	}
 
 	// Create the user account
@@ -571,7 +592,9 @@ function blocksy_child_handle_account_creation_from_order() {
 
 	if ( is_wp_error( $user_id ) ) {
 		wc_add_notice( 'Account creation failed. Please try again.', 'error' );
-		return;
+		ob_end_clean();
+		wp_redirect( $order->get_checkout_order_received_url() );
+		exit;
 	}
 
 	// Update user meta
@@ -593,8 +616,13 @@ function blocksy_child_handle_account_creation_from_order() {
 	wp_set_auth_cookie( $user_id );
 
 	wc_add_notice( 'Account created successfully! You are now logged in.', 'success' );
+
+	// Redirect back to order-received page (includes ?key= so WC can render the order)
+	ob_end_clean();
+	wp_redirect( $order->get_checkout_order_received_url() );
+	exit;
 }
-add_action( 'init', 'blocksy_child_handle_account_creation_from_order' );
+add_action( 'template_redirect', 'blocksy_child_handle_account_creation_from_order', 5 );
 
 /**
  * Hide default WooCommerce order details table on thank you page
