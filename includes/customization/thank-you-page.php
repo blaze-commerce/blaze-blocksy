@@ -427,17 +427,16 @@ function blocksy_child_blaze_commerce_account_creation( $order ) {
 	// If billing email already has a WP account, show login prompt instead
 	$email = $order->get_billing_email();
 	if ( email_exists( $email ) ) {
+		$login_url = add_query_arg(
+			'redirect_to',
+			rawurlencode( $order->get_checkout_order_received_url() ),
+			wc_get_page_permalink( 'myaccount' )
+		);
 		?>
 		<div class="blaze-commerce-account-creation">
 			<h3 class="blaze-commerce-account-title">You already have an account</h3>
-			<p>An account with <strong><?php echo esc_html( $email ); ?></strong> already exists. Log in to view your order.</p>
-			<?php
-			wp_login_form( array(
-				'redirect'       => esc_url( $order->get_checkout_order_received_url() ),
-				'label_username' => 'Email address',
-				'label_log_in'   => 'Log in',
-			) );
-			?>
+			<p>An account with <strong><?php echo esc_html( $email ); ?></strong> already exists.</p>
+			<a href="<?php echo esc_url( $login_url ); ?>" class="blaze-commerce-create-account-btn">LOG IN TO VIEW ORDER</a>
 		</div>
 		<?php
 		return;
