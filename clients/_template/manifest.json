@@ -1,0 +1,17 @@
+{
+  "name": "Client Name",
+  "slug": "client-slug",
+  "version": "1.0.0",
+  "active": false,
+  "css": "client-slug.css",
+  "js": null,
+  "php": "client-slug.php",
+  "features": [
+    "wishlist-offcanvas",
+    "product-tabs",
+    "product-information",
+    "recently-viewed",
+    "mini-cart-empty",
+    "product-slider"
+  ]
+}

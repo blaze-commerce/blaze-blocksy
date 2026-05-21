@@ -1,0 +1,134 @@
+/**
+ * Checkout Trust Section — "Checkout Features" card
+ *
+ * Loaded on is_checkout() only via custom/checkout-trust-badges.php.
+ * Renders twice with variant classes:
+ *   .bc-checkout-trust--sidebar — visible at >=1000px (desktop sidebar slot)
+ *   .bc-checkout-trust--mobile  — visible at <1000px (bottom of mobile layout)
+ *
+ * Figma: Byron Bay Candles node 6054-109813, Section 8
+ * Container: 12px radius, bg var(--fc-bg-pale, #f7fbfc), padding 24px
+ * Payment logos + "Secure Payments" text + contact info
+ *
+ * @package Blocksy_Child
+ * @date    2026-04-23
+ * @updated 2026-04-25 (CU-86exc6wjz: mobile rendering)
+ */
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+.bc-checkout-trust {
+	background: var(--fc-bg-pale, #f7fbfc);
+	border-radius: 12px;
+	padding: 24px;
+	margin-top: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	transition: none;
+}
+
+/* ==========================================================================
+   Payment Logos
+   WHY: Logos must stay on a single row. When the row is wider than the
+   container (notably on narrow mobile widths), the scroller wrapper allows
+   horizontal scrolling instead of wrapping to a second line.
+   @date 2026-04-25
+   ========================================================================== */
+.bc-checkout-trust__logos-scroller {
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none; /* Firefox */
+}
+
+.bc-checkout-trust__logos-scroller::-webkit-scrollbar {
+	display: none; /* Chrome/Safari/Edge */
+}
+
+.bc-checkout-trust__logos {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+	min-width: 100%;
+}
+
+.bc-checkout-trust__logo {
+	display: inline-flex;
+	align-items: center;
+	height: 24px;
+	flex-shrink: 0;
+}
+
+.bc-checkout-trust__logo svg {
+	height: 24px;
+	width: auto;
+}
+
+/* ==========================================================================
+   Content Blocks
+   ========================================================================== */
+.bc-checkout-trust__block {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.bc-checkout-trust__heading {
+	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 26px;
+	color: var(--fc-text-strong, #393939);
+	margin: 0;
+}
+
+.bc-checkout-trust__body {
+	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 26px;
+	color: var(--fc-text-strong, #393939);
+	margin: 0;
+}
+
+/* ==========================================================================
+   Checkmark + Link Styles
+   ========================================================================== */
+.bc-checkout-trust__checkmark {
+	color: #2e7d32;
+	margin-left: 4px;
+}
+
+.bc-checkout-trust__body a {
+	color: var(--fc-text-strong, #393939);
+	text-decoration: underline;
+}
+
+.bc-checkout-trust__body a:hover {
+	color: #000;
+}
+
+/* ==========================================================================
+   Responsive — variant visibility
+   FC Pro desktop breakpoint is 1000px. Render hooks emit both variants;
+   show only the one that matches the viewport.
+   @date 2026-04-25 (CU-86exc6wjz)
+   ========================================================================== */
+@media (min-width: 1000px) {
+	.bc-checkout-trust--mobile {
+		display: none !important;
+	}
+}
+
+@media (max-width: 999px) {
+	.bc-checkout-trust--sidebar {
+		display: none !important;
+	}
+	.bc-checkout-trust--mobile {
+		margin-top: 16px;
+		margin-bottom: 24px;
+	}
+}

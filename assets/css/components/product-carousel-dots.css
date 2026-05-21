@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Product Carousel Dots — Related Products & Recently Viewed (PDP)
+   --------------------------------------------------------------------------
+   Pairs Blocksy's side arrow buttons with bottom dot pagination on the two
+   PDP product carousels. Reusable component (works for any client using this
+   child theme — Flexy arrow overlap is a generic Blocksy issue).
+
+   Companion JS: assets/js/product-carousel-dots.js — injects `.bc-carousel-dots`
+   markup, handles dot clicks by programmatically clicking the Flexy arrows
+   N times, syncs active dot via `blocksy:frontend:flexy:slide-change`.
+
+   We deliberately do NOT use Flexy's `.flexy-pills` mechanism here: it
+   assumes 1 pill per slide-item which is correct for galleries but wrong
+   for multi-column product carousels. See block comment on `.bc-carousel-dots`
+   below for the full crash story.
+
+   QA reference: ClickUp 86exbzf96
+   ========================================================================== */
+
+/* Reposition Flexy's side arrows OUTSIDE the card column area so they no
+   longer cover the first/last product card (covering image, badges, wishlist
+   icon, hover state). Default Blocksy positions them at left/right: 20px
+   inside the carousel viewport — we push them into the page gutter instead
+   with negative offsets, and override the `(any-hover: hover)` rule that
+   normally hides arrows when not hovering (`flexy.scss:193-201`). The arrows
+   are visible at all times so users always see a navigation affordance.
+   Container is widened to 48px (vs. Blocksy default 40px) to fit the larger
+   32px chevron icon comfortably.
+   @date 2026-04-30 */
+.related.products.is-layout-slider .flexy > .flexy-arrow-prev,
+.related.products.is-layout-slider .flexy > .flexy-arrow-next,
+.bc-recently-viewed .flexy > .flexy-arrow-prev,
+.bc-recently-viewed .flexy > .flexy-arrow-next {
+	width: 48px;
+	height: 48px;
+	opacity: 1;
+	transform: none;
+	top: var(--flexy-nav-arrow-top-offset, calc(50% - 24px));
+}
+
+.related.products.is-layout-slider .flexy > .flexy-arrow-prev,
+.bc-recently-viewed .flexy > .flexy-arrow-prev {
+	left: -56px;
+	right: auto;
+}
+
+.related.products.is-layout-slider .flexy > .flexy-arrow-next,
+.bc-recently-viewed .flexy > .flexy-arrow-next {
+	right: -56px;
+	left: auto;
+}
+
+/* Replace Blocksy's long-arrow glyph with a 32px chevron. The original SVG
+   inside the button is hidden and the chevron is drawn via a CSS mask on
+   `::before` so it picks up `currentColor` from the button (and therefore
+   the theme's `--flexy-nav-arrow-color` / hover-color tokens that Blocksy
+   already sets at `flexy.scss:184,198`).
+   White-stroked source SVG chosen because CSS `mask-image` defaults to
+   luminance mode in some browsers — white = visible in luminance, and
+   opaque-white is also fully visible in alpha mode, so it works
+   consistently across Safari/Chrome/Firefox.
+   @date 2026-04-30 */
+.related.products.is-layout-slider .flexy > .flexy-arrow-prev > svg,
+.related.products.is-layout-slider .flexy > .flexy-arrow-next > svg,
+.bc-recently-viewed .flexy > .flexy-arrow-prev > svg,
+.bc-recently-viewed .flexy > .flexy-arrow-next > svg {
+	display: none;
+}
+
+.related.products.is-layout-slider .flexy > .flexy-arrow-prev::before,
+.related.products.is-layout-slider .flexy > .flexy-arrow-next::before,
+.bc-recently-viewed .flexy > .flexy-arrow-prev::before,
+.bc-recently-viewed .flexy > .flexy-arrow-next::before {
+	content: '';
+	display: block;
+	width: 32px;
+	height: 32px;
+	background-color: currentColor;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	mask-position: center;
+	-webkit-mask-size: 32px 32px;
+	mask-size: 32px 32px;
+}
+
+.related.products.is-layout-slider .flexy > .flexy-arrow-prev::before,
+.bc-recently-viewed .flexy > .flexy-arrow-prev::before {
+	-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='15 18 9 12 15 6'/></svg>");
+	mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='15 18 9 12 15 6'/></svg>");
+}
+
+.related.products.is-layout-slider .flexy > .flexy-arrow-next::before,
+.bc-recently-viewed .flexy > .flexy-arrow-next::before {
+	-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 6 15 12 9 18'/></svg>");
+	mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 6 15 12 9 18'/></svg>");
+}
+
+/* The .flexy-container is the positioning context for the arrows. By default
+   Blocksy doesn't clip it (only the inner .flexy-view[data-flexy-view="boxed"]
+   has overflow:hidden), so negative offsets above already render correctly —
+   but we also defend against any client/page-builder rule that might add
+   overflow:hidden to the container, which would clip our offset arrows.
+   @date 2026-04-30 */
+.related.products.is-layout-slider .flexy-container,
+.bc-recently-viewed .flexy-container {
+	overflow: visible;
+}
+
+/* On narrow viewports there is no gutter to offset arrows into (they would
+   sit off-screen or overlap the page header), so hide them and rely on
+   native swipe + the dot row for navigation.
+   @date 2026-04-30 */
+@media (max-width: 767px) {
+	.related.products.is-layout-slider .flexy > .flexy-arrow-prev,
+	.related.products.is-layout-slider .flexy > .flexy-arrow-next,
+	.bc-recently-viewed .flexy > .flexy-arrow-prev,
+	.bc-recently-viewed .flexy > .flexy-arrow-next {
+		display: none;
+	}
+}
+
+/* Bottom dot pagination. Rendered as `.bc-carousel-dots` (NOT `.flexy-pills`)
+   so Flexy's bundled library does NOT try to manage them — Flexy's pill
+   mechanism assumes 1 pill per slide-item (like a gallery thumbs row), but
+   our multi-column product carousel needs `total - cols + 1` pills (one per
+   valid leading-item position). Letting Flexy own the pills with our custom
+   count caused it to crash with "Cannot read properties of undefined" when
+   navigating, because Flexy reached for children[previousCurrentIndex] using
+   item indices >= our pill count.
+   @date 2026-04-29 */
+.bc-carousel-dots {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	margin: 24px auto 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Inactive dot — small circle. Color uses theme palette token so each client
+   inherits its brand neutral; transition covers width + border-radius so the
+   active-state morph (circle → pill) animates smoothly.
+   @date 2026-04-30 */
+.bc-carousel-dots li {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--theme-palette-color-4, rgba(44, 62, 80, 0.3));
+	cursor: pointer;
+	transition: width 0.25s ease, border-radius 0.25s ease, background 0.25s ease;
+}
+
+.bc-carousel-dots li:hover {
+	background: var(--theme-palette-color-3, rgba(44, 62, 80, 0.6));
+}
+
+/* Active dot — elongated pill: same 8px height, 4× width (32px), rounded.
+   This is the QA-specified shape: "khusus dot yang aktif dia bentuknya
+   memanjang, dengan lebar 4x dari dot biasa. namun tingginya tetap sama".
+   @date 2026-04-30 */
+.bc-carousel-dots li.active {
+	width: 32px;
+	border-radius: 4px;
+	background: var(--theme-palette-color-3, rgba(44, 62, 80, 0.9));
+}
+
+/* Hide dot row when there is only one slide position (no navigation needed —
+   all items already visible). JS sets `data-bc-empty="1"` in this case so we
+   don't render an empty 24px-tall gap.
+   @date 2026-04-29 */
+.bc-carousel-dots[data-bc-empty="1"] {
+	display: none;
+}
+
+/* GPU hint for smoother slide animation. Without this, the browser repaints
+   every product card (image, badges, wishlist button, price, button) on
+   every animation frame as the row translates, which on a card-heavy
+   WooCommerce row produces visible jank. Promoting the items wrapper to its
+   own compositing layer makes the transform a GPU-only operation.
+   Note: only applied to .flexy-items (the parent that gets transformed),
+   not individual product cards — fewer compositing layers = less overhead.
+   @date 2026-04-29 */
+.related.products.is-layout-slider .flexy-items,
+.bc-recently-viewed .flexy-items {
+	will-change: transform;
+}
+
+/* Prevent the .flexy-view height transition (flexy.scss:71-73) from
+   compounding with the items' translate animation. Product cards in a row
+   should already be uniform height, so animating height adds no value but
+   does add another animated property the browser must reconcile per frame.
+   @date 2026-04-29 */
+.related.products.is-layout-slider .flexy-view,
+.bc-recently-viewed .flexy-view {
+	transition: none;
+}

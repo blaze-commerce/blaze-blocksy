@@ -1,0 +1,501 @@
+/**
+ * FiboSearch Dropdown — Section-Based Layout
+ *
+ * Styles the FiboSearch (DGWT AJAX Search) dropdown with a two-column
+ * grid layout: categories/blog/pages on the left, product grid on the right.
+ * Adapted from Austin Natural Mattress reference with Byron Bay Candles branding.
+ *
+ * The dropdown HTML is restructured by JavaScript (search-dropdown.js) into
+ * section-based wrappers (.dgwt-wcas-section-categories, .dgwt-wcas-section-blog,
+ * .dgwt-wcas-section-pages, .dgwt-wcas-section-products) with a search-popup-header.
+ *
+ * ============================================================================
+ * !important USAGE — INTENTIONAL (audit P1 F3 reclassified 2026-05-08)
+ * ============================================================================
+ * This file uses ~60 `!important` declarations.  An automated audit flagged
+ * the count as a "specificity war" code smell.  On verification, the count
+ * is appropriate for the file s job: overriding a third-party plugin
+ * (FiboSearch / DGWT AJAX Search) whose bundled CSS we cannot edit.
+ *
+ * Categories of !important here, all warranted:
+ *   1. Container geometry overrides — width/left/right/max-height force the
+ *      dropdown to span the page grid instead of FiboSearch s narrow default.
+ *   2. Product-card sizing — height:180px, max-width:none etc. fight
+ *      FiboSearch s small-thumbnail defaults to give us a 4-column grid.
+ *   3. Mobile @media overrides — must !important to beat the desktop
+ *      !important rules above (cascade-only bump from same-specificity
+ *      selector won t win against an !important earlier in the file).
+ *   4. View-all button — fights FiboSearch s own button paint.
+ *
+ * Removing !important here without raising selector specificity (e.g. with
+ * a parent class like `body.search-active`) would silently regress on the
+ * next FiboSearch update.  Don t touch unless you ve verified the specific
+ * rule isn t fighting anything — most are.
+ *
+ * If FiboSearch ever exposes CSS custom properties for these knobs (it
+ * doesn t today), consider migrating to var-based overrides.
+ *
+ * @package Blocksy_Child
+ * @since   1.0.0
+ * @date    2026-04-15
+ * @updated 2026-05-08 — added !important rationale (audit P1 F3 reclass).
+ */
+
+/* ==========================================================================
+   1. CONTAINER — Full-width grid with left sidebar + right product area
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp {
+    max-width: 1664px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto auto;
+    gap: 0;
+    box-shadow: rgba(0, 0, 0, 0.12) 8px 8px 16px;
+    background: #fff;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px) !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 0 16px 16px !important;
+    border-radius: 12px !important;
+    /* Audit P0 fix 2026-05-08: removed duplicate `max-height: 80vh` on
+       this rule — the !important on line above always won, making the
+       second declaration dead code (browsers process top-to-bottom, but
+       within a single rule the same property collapses to the last
+       NON-!important value if the !important value precedes it… in
+       practice the !important wins so the second was always dead). */
+}
+
+.dgwt-wcas-suggestions-wrapp.has-search-header {
+    grid-template-rows: auto auto auto auto;
+}
+
+/* ==========================================================================
+   2. SEARCH POPUP HEADER — Title + close button spanning full width
+   ========================================================================== */
+
+.dgwt-wcas-suggestions-wrapp .search-popup-header {
+    grid-area: 1 / 1 / auto / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid #E1E3E5;
+}
+
+.search-popup-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: #888;
+    margin: 0;
+    line-height: 24px;
+}
+
+.search-popup-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #1d1d1f;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+}
+
+.search-popup-close:hover {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   3. GRID ROW ADJUSTMENTS — When header is present, shift rows down
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-categories {
+    grid-area: 2 / 1;
+}
+
+body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-blog {
+    grid-area: 3 / 1;
+}
+
+body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-pages {
+    grid-area: 4 / 1;
+}
+
+body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-products {
+    grid-area: 2 / 2 / span 3;
+}
+
+/* ==========================================================================
+   4. SECTION POSITIONING — Left column sections + right product area
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories {
+    grid-area: 1 / 1;
+    padding: 0 24px 0 0;
+    box-sizing: border-box;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog {
+    grid-area: 2 / 1;
+    padding: 20px 24px 0 0;
+    border-top: 1px solid #E4E5E7;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-pages {
+    grid-area: 3 / 1;
+    padding: 20px 24px 0 0;
+    border-top: 1px solid #E4E5E7;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products {
+    grid-area: 1 / 2 / span 3;
+    min-width: 0;
+    padding-left: 24px;
+    border-left: 1px solid #E4E5E7;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: visible;
+    
+}
+
+/* ==========================================================================
+   5. SECTION TITLES — Byron Bay Candles palette
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-title {
+    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--theme-palette-color-4, #888);
+    line-height: 40px;
+    margin: 0;
+    padding: 0;
+}
+
+/* ==========================================================================
+   6. CATEGORY / BLOG / PAGE ITEMS
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion {
+    line-height: 24px;
+    padding: 6px 0;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion:hover {
+    text-decoration: none !important;
+}
+/* Disable FiboSearch JS-managed hover — it tracks element indices which break
+   after our DOM restructure. Use pure CSS :hover instead. */
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-selected {
+    background-color: transparent !important;
+}
+
+/* Category/post/page items — highlight on actual mouse hover */
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories .dgwt-wcas-suggestion:hover .dgwt-wcas-st,
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog .dgwt-wcas-suggestion:hover .dgwt-wcas-st,
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-pages .dgwt-wcas-suggestion:hover .dgwt-wcas-st {
+    color: var(--theme-palette-color-1, #111) !important;
+    text-decoration: underline;
+}
+
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories .dgwt-wcas-suggestion .dgwt-wcas-st {
+    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--theme-palette-color-2, #393939);
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog .dgwt-wcas-suggestion .dgwt-wcas-st {
+    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--theme-palette-color-2, #393939);
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories .dgwt-wcas-st-breadcrumbs {
+    display: none;
+}
+
+/* ==========================================================================
+   7. PRODUCT GRID — 4 columns
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-section-content {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* ==========================================================================
+   8. PRODUCT CARDS — Vertical layout with image + content
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    background: #fff;
+    overflow: hidden !important;
+    resize: none !important;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product .dgwt-wcas-si {
+    width: 100% !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    overflow: hidden !important;
+    max-width: none !important;
+    flex-shrink: 0 !important;
+    border-radius: 5px;
+    background: #fff;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product .dgwt-wcas-si img {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 180px !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 5px !important;
+    transition: transform 0.3s ease;
+}
+/* Product card hover — scale image matching homepage Favourite Buys effect */
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product:hover .dgwt-wcas-si img {
+    transform: scale(1.05);
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product .dgwt-wcas-content-wrapp {
+    flex-direction: column;
+    padding: 4px 0;
+    row-gap: 2px;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product .dgwt-wcas-content-wrapp .dgwt-wcas-sp {
+    padding-left: 0;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sd {
+    display: none;
+}
+
+/* ==========================================================================
+   9. PRODUCT TITLE & PRICE — Byron Bay Candles palette
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-st {
+    /* @date 2026-04-28 — switched to Quicksand 400 to match live + Figma 684:85958.
+       Live's /fonts/Museo-Sans-500.otf is 404 and paints Quicksand via Next.js
+       __font_77bc62 fallback; staging body customizer also loads Quicksand 400.
+       Prior Museo Sans 700 was the only override forcing inconsistent weight. */
+    font-family: 'Quicksand', var(--theme-body-font-family), sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 24px;
+    color: var(--theme-palette-color-3, #746a5f);
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp .woocommerce-Price-amount {
+    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--theme-palette-color-2, #393939);
+    line-height: 24px;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion.dgwt-wcas-suggestion-product .dgwt-wcas-sp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp > span {
+    display: inline !important;
+}
+
+/* ==========================================================================
+   10. VIEW ALL BUTTON — Byron Bay brown accent
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-all {
+    background-color: var(--theme-palette-color-3, #746A5F);
+    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 30px;
+    transition: background-color 0.15s;
+    color: #fff !important;
+    text-decoration: none !important;
+    text-transform: uppercase !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: flex-start !important;
+    width: auto !important;
+    gap: 6px !important;
+    height: 30px !important;
+    padding: 0 16px !important;
+    border-radius: 6px !important;
+    margin-top: 0 !important;
+}
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-all:hover {
+    background-color: var(--theme-palette-color-1, #111);
+}
+
+/* ==========================================================================
+   11. RESET FIBOSEARCH DEFAULTS
+   ========================================================================== */
+
+body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp ins {
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   12. MOBILE — Tablet and below (max-width: 999px)
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+    body .dgwt-wcas-suggestions-wrapp {
+        overflow: visible;
+        
+        grid-template-columns: 1fr !important;
+        padding: 24px !important;
+        border-radius: 12px !important;
+        box-shadow: rgba(0, 0, 0, 0.12) 0 8px 40px !important;
+        background: #fff !important;
+    }
+
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-section {
+        margin-bottom: 16px;
+    }
+
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-section + .dgwt-wcas-suggestion-section {
+        border-top: 1px solid #ededed;
+        padding-top: 16px;
+    }
+
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-pages {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-section-content,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-layout-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 13px !important;
+    }
+
+    .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .search-popup-header {
+        display: none;
+    }
+
+    .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories,
+    .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog,
+    .dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products {
+        grid-column: 1;
+        border-right: none;
+        padding-right: 0;
+    }
+
+    /* Reset child grid placements so the stacked layout (parent's
+       `grid-template-columns: 1fr`) actually takes effect. Without this,
+       sections retain their desktop `grid-area: X / 2 / span 3` placement
+       which forces the grid to auto-create column 2 — producing the
+       cramped 2-col layout Vita reported in CU-86exbd0gr V2.
+       Applies regardless of `.dgwt-wcas-overlay-mobile-on` body class
+       (FiboSearch only adds that class in true mobile-overlay mode, not
+       in tablet inline-dropdown mode). */
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-pages,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products,
+    body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-categories,
+    body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-blog,
+    body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-pages,
+    body .dgwt-wcas-suggestions-wrapp.has-search-header .dgwt-wcas-section-products {
+        grid-area: auto !important;
+        grid-column: 1 !important;
+        grid-row: auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+}
+
+/* ==========================================================================
+   13. MOBILE SMALL — Phone (max-width: 689px) and narrow (max-width: 425px)
+   ========================================================================== */
+
+@media (max-width: 689px) {
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-section-content,
+    body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-layout-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 425px) {
+    body .dgwt-wcas-suggestions-wrapp {
+        padding: 20px 16px 16px !important;
+    }
+}
+
+/* ==========================================================================
+   14. MOBILE OVERLAY — Lock background page scroll while dropdown is open
+   ========================================================================== */
+
+html.dgwt-wcas-overlay-mobile-on,
+html.dgwt-wcas-overlay-mobile-on body {
+    overflow: hidden !important;
+    overscroll-behavior: contain;
+    touch-action: none;
+}
+
+/* Re-enable scroll inside the dropdown wrapper itself */
+html.dgwt-wcas-overlay-mobile-on .dgwt-wcas-suggestions-wrapp {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+
+}
+
+/* FiboSearch input left padding — desktop override (all viewports).
+   WHY: byronbay.css ([data-id="search"] ... specificity 0,4,1) sets padding-left: 10px
+   and loads at sheetIdx 41 — AFTER header.css (31) where our previous 16px rule sat.
+   This file loads at sheetIdx 42, after byronbay.css, so same selector wins by cascade.
+   QA 86exfx68w requires 16px at ALL 7 breakpoints (320–2560px).
+   @date 2026-05-05 (CU-86exfx68w) */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+	padding-left: 16px;
+}
