@@ -1,0 +1,388 @@
+/**
+ * WooCommerce Checkout — Component CSS
+ *
+ * Loaded on is_checkout() pages only via inc/enqueue.php.
+ * Fluid Checkout integration — reusable across clients.
+ *
+ * Color tokens default to Blocksy palette but can be overridden per client
+ * via CSS variables in clients/{client}/{client}.css:
+ *   --fc-btn-primary-bg, --fc-btn-primary-text, --fc-btn-primary-bg-hover
+ *   --fc-progress-bar-bg, --fc-progress-bar-fill
+ *
+ * !important USAGE — INTENTIONAL (audit P1 F4 reclassified 2026-05-08).
+ * ~58 `!important` declarations override Fluid Checkout s deeply-nested,
+ * plugin-bundled CSS (the .fc-checkout-*, .fc-step__*, .fc-progress-bar
+ * selectors).  We can t edit Fluid s CSS, and a parent-class specificity
+ * bump (`body.fc-checkout ...`) would have to wrap nearly every rule —
+ * not cleaner than !important here.  The CSS-var pattern above is the
+ * preferred extension point for client overrides; !important is for the
+ * structural rules that have no var counterpart.
+ *
+ * @package Blocksy_Child
+ */
+
+/* ==========================================================================
+   CHK #3 — Checkout Button Styling (structural + tokens)
+   WHY: Fluid Checkout outputs Place Order / Next / Previous step buttons with
+   plugin-specific classes (.fc-step__*) that don't inherit Blocksy's global
+   button token. Structure aligns to Blocksy Customizer buttonPadding / buttonRadius
+   / buttonMinHeight. Colors use local CSS vars so client CSS can override.
+   @date 2026-03-11 @updated 2026-04-17
+   ========================================================================== */
+#place_order,
+body .fc-wrapper [data-step-complete] .fc-step__substep-save,
+.fc-step__actions .button,
+.fc-step__actions .fc-step__next-btn {
+	background-color: var(--fc-btn-primary-bg, var(--theme-palette-color-1, #000));
+	color: var(--fc-btn-primary-text, var(--theme-palette-color-5, #fff));
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 400;
+	padding: 14px 24px;
+	min-height: 40px;
+	width: 100%;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	transition: background-color 0.2s;
+}
+
+#place_order:hover,
+.fc-step__actions .button:hover,
+.fc-step__actions .fc-step__next-btn:hover {
+	background-color: var(--fc-btn-primary-bg-hover, var(--theme-palette-color-2, #333));
+	color: var(--fc-btn-primary-text, var(--theme-palette-color-5, #fff));
+}
+
+.fc-step__actions .fc-step__prev-btn {
+	background: transparent;
+	color: var(--theme-palette-color-3, #333);
+	border: 1px solid var(--theme-palette-color-12, #E0DCD7);
+	border-radius: 4px;
+	font-weight: 400;
+	padding: 14px 24px;
+	min-height: 40px;
+}
+
+/* ==========================================================================
+   CHK #3b — Custom Progress Bar (Phase 2.5 — Figma 6054:66809)
+   WHY: Figma shows a single thin progress bar (6px, rounded) with a
+   "STEP X OF N" counter above it, instead of Fluid's default segmented bars.
+   Rules below hide Fluid's step-label text (keeping the segment bars as the
+   fill track) and restyle the container. Counter uses FC's built-in
+   .fc-progress-bar__count element.
+   FC plugin uses .fc-progress-bar--bars with 4-class selectors and its own
+   CSS vars (--fluidcheckout--checkout-progress--bar-color--complete etc.).
+   We override both the vars and match the specificity.
+   @date 2026-04-17 @updated 2026-04-23
+   ========================================================================== */
+
+/* Override FC's own CSS variables for progress bar colors */
+body .fc-inside .fc-progress-bar.fc-progress-bar--bars {
+	--fluidcheckout--checkout-progress--bar-color: var(--fc-progress-bar-bg, #CFCFCF);
+	--fluidcheckout--checkout-progress--bar-color--complete: var(--fc-progress-bar-fill, #C1B19E);
+	--fluidcheckout--checkout-progress--bar-color--current: var(--fc-progress-bar-fill, #C1B19E);
+	padding: 0;
+	margin: 0 0 24px 0;
+	width: 100%;
+	float: none;
+}
+
+body .fc-progress-bar .fc-progress-bar__inner {
+	padding: 10px 0;
+	background: transparent;
+}
+
+body .fc-progress-bar--bars .fc-progress-bar__steps {
+	background-color: var(--fc-progress-bar-bg, #CFCFCF);
+	border-radius: 10px;
+	height: 6px;
+	overflow: hidden;
+	display: flex;
+	gap: 0;
+}
+
+body .fc-progress-bar--bars .fc-progress-bar__steps .fc-progress-bar__step {
+	flex: 1 1 0;
+	float: none;
+	width: auto;
+	background: transparent;
+	position: relative;
+	height: 6px;
+	font-size: 0;
+	color: transparent;
+}
+
+body .fc-progress-bar--bars .fc-progress-bar__steps .fc-progress-bar__step.is-complete {
+	background-color: var(--fc-progress-bar-fill, #C1B19E);
+	border-radius: 0;
+}
+
+/* Current step: rounded right edge only — left is flush with completed steps.
+   Parent .fc-progress-bar__steps has overflow:hidden + border-radius:10px
+   which clips the leftmost fill to match the track's rounding. */
+body .fc-progress-bar--bars .fc-progress-bar__steps .fc-progress-bar__step.is-current {
+	background-color: var(--fc-progress-bar-fill, #C1B19E);
+	border-radius: 0 17px 17px 0;
+}
+
+/* STEP X OF N — FC's built-in counter element */
+body .fc-progress-bar .fc-progress-bar__count {
+	display: block;
+	font-family: inherit;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 24px;
+	color: var(--theme-palette-color-3, #393939);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+/* Place Order button arrow icon */
+#place_order::after {
+	content: ' \2192';
+	margin-left: 8px;
+}
+
+body #createaccount,
+body #kl_newsletter_checkbox {
+	margin-bottom: 8px;
+}
+
+body .has-checkout-layout--multi-step.woocommerce-checkout {
+	--fluidcheckout--color--grey: #393939;
+}
+
+body .has-checkout-layout--multi-step.woocommerce-checkout form .fc-wrapper .fc-checkout-step[data-step-complete] .fc-step__substep .fc-step__substep-title:before {
+	transform: translateY(0) !important;
+	background-color: #393939 !important;
+
+}
+
+body .select2-selection.select2-selection--single .select2-selection__rendered {
+	line-height: normal !important;
+    height: auto !important;
+    display: flex;
+    align-items: center;
+    height: auto !important;
+}
+
+
+body .woocommerce-privacy-policy-text {
+	display: none;
+}
+
+body.woocommerce-checkout .fc-content.fc-container {
+	padding-top: 1rem !important;
+}
+
+body.woocommerce-checkout .woocommerce-notices-wrapper {
+	float: none !important;
+	width: 100% !important;
+}
+
+body.woocommerce-checkout .woocommerce-notices-wrapper .woocommerce-info {
+	gap: 4px;
+}
+
+body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table td {
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+}
+
+body .wt_sc_pagination {
+	display: none !important;
+}
+
+body .fc-wrapper .fc-checkout-steps {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+body div.woocommerce .fc-wrapper .fc-checkout-order-review .fc-checkout-order-review__inner {
+	margin-top: 0rem !important;
+	max-width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+body div.woocommerce #billing_same_as_shipping {
+	margin-bottom: 6px;
+}
+
+body div.woocommerce .fc-wrapper .fc-step__substep:first-of-type,
+body div.woocommerce .fc-step__substep[data-substep-id="shipping_address"]{
+	border-top-left-radius: 0 !important;
+	border-top-right-radius: 0 !important;
+}
+
+body div.woocommerce .fc-wrapper .fc-step__substep[data-substep-id="billing_address"] {
+	border-bottom-left-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+	border-bottom-right-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+}
+
+body div.woocommerce #fc-substep__fields--payment {
+	padding: 1rem 0 0 0 !important;
+}
+
+body div.woocommerce .fc-checkout-step.fc-checkout-step--next-step-incomplete .fc-step__substep[data-substep-id="billing_address"],
+body div.woocommerce .fc-checkout-step.fc-checkout-step--next-step-incomplete .fc-step__substep[data-substep-id="shipping_address"] {
+	border-top-left-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+	border-top-right-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+
+}
+
+body div.woocommerce .fc-checkout-step.fc-checkout-step--next-step-incomplete .fc-step__substep[data-substep-id="billing_address"] {
+	border-bottom-left-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;
+	margin-bottom: 1rem;
+}
+
+body div.woocommerce .fc-checkout-step.fc-checkout-step--prev-step-complete.fc-checkout-step--next-step-incomplete  .fc-step__substep[data-substep-id="billing_address"] {
+	border-top-left-radius: 0 !important;
+	border-top-right-radius: 0 !important;
+	border-bottom-left-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+	border-bottom-right-radius: var(--fluidcheckout--section--border-radius,8px) !important;
+	margin-bottom: 0;;
+}
+
+
+@media screen and (max-width:992px) {
+	body .wt_coupon_wrapper {
+		margin-bottom: 0 !important;
+	}	
+	html .has-checkout-layout--multi-step.woocommerce-checkout form .fc-wrapper .fc-checkout-step[data-step-complete] .fc-step__substep .fc-step__substep-title {
+		padding-top: 0 !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	body .fc-wrapper .fc-checkout-steps .fc-checkout-step:first-child {
+		border-top-left-radius: 12px;
+		border-top-right-radius: 12px;
+	}
+
+	body .fc-wrapper .fc-checkout-steps .fc-checkout-step:last-child {
+		border-bottom-left-radius: 12px;
+		border-bottom-right-radius: 12px;
+	}
+
+	html body div.woocommerce .fc-wrapper #order_review .fc-coupon_code__collapsible .expansible-section__toggle-plus, .fc-coupon_code__collapsible .expansible-section__toggle-plus,
+	body div.woocommerce .fc-expansible-form-section .expansible-section__toggle-plus {
+		font-size: 14px !important
+	}
+
+
+	html div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table {
+		margin: 0!important;
+	}
+
+	html div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .cart-item__element.cart-item__name {
+		font-size: 14px !important;
+	}
+
+	html .fc-checkout-order-review .fc-cart-item-actions, 
+	html .fc-wrapper .cart_item .fc-cart-item-actions {
+		right: -30px !important;
+	}
+
+	html body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total {
+		padding-bottom: 12px !important;
+		margin-bottom: 12px !important;
+	}
+
+	html .fc-checkout-order-review .fc-cart-item-actions, .fc-wrapper .cart_item .fc-cart-item-actions {
+		right: 0 !important;
+	}
+
+	html body .fc-coupon_code__collapsible .fc-expansible-form-section__toggle .collapsible-content__inner {
+		padding: 0 !important;
+	}
+
+	html body .fc-coupon_code__collapsible .fc-expansible-form-section__toggle .collapsible-content__inner,
+	html .woocommerce-terms-and-conditions-checkbox-text,
+	html body.woocommerce-checkout .fc-wrapper .form-row > label, 
+	html body.woocommerce-checkout div.woocommerce .fc-wrapper .form-row > label,
+	html .p-LinkOptIn-checkbox .p-LinkOptIn-labelText, 
+	html .p-LinkOptIn-multiLineCheckbox .p-LinkOptIn-firstLabelText, 
+	html .p-LinkOptIn-multiLineCheckbox .p-LinkOptIn-labelContainer {
+		font-size: 14px !important;
+	}
+
+	html .order-total {
+		border-bottom: 0 !important;
+	}
+
+	html div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-details:not(.attachment-woocommerce_thumbnail + .product-details) {
+		width: 100% !important;
+	}
+
+
+}
+
+@media screen and (max-width:480px) {
+	body div.woocommerce .fc-wrapper .fc-checkout-order-review .fc-checkout-order-review__inner {
+		margin-top: 2rem !important;
+	}
+	body .fc-wrapper .fc-review-order-totals-table tfoot td,
+	body .fc-wrapper .fc-review-order-totals-table tfoot th {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-details {
+		padding-left: 12px !important;
+	}
+
+	body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table td, 
+	body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table th {
+		padding-left: 4px !important;
+	}
+
+	html div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name>img {
+		--fluidcheckout--order-summary--image-width: 80px;
+	}
+
+	body.woocommerce-checkout div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .bc-wt-coupon-row td {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	html .wt_coupon_wrapper .wt-single-coupon, 
+	html .wt_coupon_wrapper .wt-sc-hidden-coupon-box {
+		min-width: 100% !important;
+	}
+}
+
+/* ==========================================================================
+   CHK FIX (CU-86exc9evf): FC Pro coupon notice toast
+   WHY: FC Pro sets padding:0 !important on .fc-coupon-code-messages
+   .woocommerce-error/-message, stripping the padding-left:46px Blocksy's
+   legacy-notice.scss reserved for its absolute-positioned bell icon
+   (::before content '\e901', font-family 'woo'). Result: bell icon
+   overlaps the message text on the duplicate-coupon error toast.
+   Hide the redundant icon (red background already conveys error state)
+   and restore comfortable padding so multi-line messages don't touch
+   the Dismiss button.
+   @date 2026-04-25
+   ========================================================================== */
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-error,
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-message,
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-info {
+	padding: 12px 16px !important;
+	min-height: 0;
+}
+
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-error::before,
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-message::before,
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-info::before {
+	display: none !important;
+	content: none !important;
+}
+
+body.woocommerce-checkout .fc-coupon-code-messages .woocommerce-error li {
+	padding-right: 70px !important;
+	line-height: 1.4;
+}

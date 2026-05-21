@@ -1,0 +1,99 @@
+/**
+ * Qty Stepper — Horizontal Layout (Layer 1, reusable across clients)
+ *
+ * Renders Blocksy's `.quantity[data-type="type-2"]` as a flat horizontal
+ * stepper [ − | 1 | + ] with dividers, instead of Blocksy's default
+ * absolute-positioned overlay buttons.
+ *
+ * Why this file exists: the same structural pattern was previously
+ * duplicated in TWO places — `clients/byronbay/byronbay.css`
+ * (.ct-cart-actions, the PDP add-to-cart row) and
+ * `assets/css/components/offcanvas.css` (.ct-product-actions, the mini
+ * cart drawer).  When Blocksy updated its qty stepper or the Customizer
+ * setting changed, BOTH blocks had to stay in sync — easy to forget.
+ *
+ * Now: structural rules live here once.  Each context overrides only the
+ * size and color knobs via CSS custom properties:
+ *
+ *   --bc-qty-btn-width        Default 36px  (PDP)   →  28px (mini cart)
+ *   --bc-qty-btn-height       Default --theme-button-min-height (40px)  →  28px
+ *   --bc-qty-input-width      Default 45px  (PDP)   →  36px (mini cart)
+ *   --bc-qty-border           Default --theme-border-color  →  --theme-form-field-border-initial-color
+ *   --bc-qty-radius           Default --theme-form-field-border-radius  →  inherit
+ *
+ * The !important density here mirrors the previous duplicates — Blocksy's
+ * type-2 default uses absolute positioning and fixed dimensions, so each
+ * structural rule has to override.  See also: docs/patterns/qty-stepper.md.
+ *
+ * @package Blocksy_Child
+ * @date    2026-05-08
+ * @audit   P1 follow-up — drawer/qty refactor (#54)
+ */
+
+/* ── Wrapper: convert to flex-row with no gap ─────────────────────────── */
+.quantity[data-type="type-2"] {
+	display: flex !important;
+	align-items: center !important;
+	flex: 0 0 auto;
+	gap: 0;
+	position: relative;
+	width: auto !important;
+	height: auto !important;
+}
+
+/* ── −/+ buttons: flat squares with dividers ───────────────────────────── */
+.quantity[data-type="type-2"] .ct-decrease,
+.quantity[data-type="type-2"] .ct-increase {
+	position: static !important;
+	inset: auto !important;
+	top: auto !important;
+	flex: 0 0 auto;
+	width: var(--bc-qty-btn-width, 36px);
+	height: var(--bc-qty-btn-height, var(--theme-button-min-height, 40px));
+	min-width: 0;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--bc-qty-border, var(--theme-border-color, #c0c0c0));
+	border-radius: 0;
+	background: transparent;
+	color: var(--theme-text-color, #333);
+	cursor: pointer;
+	user-select: none;
+	padding: 0;
+}
+
+.quantity[data-type="type-2"] .ct-decrease {
+	order: 0;
+	border-right: 0;
+	border-top-left-radius: var(--bc-qty-radius, var(--theme-form-field-border-radius, 3px));
+	border-bottom-left-radius: var(--bc-qty-radius, var(--theme-form-field-border-radius, 3px));
+}
+
+.quantity[data-type="type-2"] .ct-increase {
+	order: 2;
+	border-left: 0;
+	border-top-right-radius: var(--bc-qty-radius, var(--theme-form-field-border-radius, 3px));
+	border-bottom-right-radius: var(--bc-qty-radius, var(--theme-form-field-border-radius, 3px));
+}
+
+/* ── Input: middle of stepper, top/bottom borders only ──────────────────── */
+.quantity[data-type="type-2"] .input-text.qty {
+	width: var(--bc-qty-input-width, 45px) !important;
+	height: var(--bc-qty-btn-height, var(--theme-button-min-height, 40px)) !important;
+	text-align: center;
+	padding: 0 !important;
+	order: 1;
+	border: 1px solid var(--bc-qty-border, var(--theme-border-color, #c0c0c0)) !important;
+	border-radius: 0 !important;
+	background: transparent;
+	-moz-appearance: textfield;
+	min-width: 0;
+}
+
+.quantity[data-type="type-2"] .input-text.qty::-webkit-inner-spin-button,
+.quantity[data-type="type-2"] .input-text.qty::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
+}

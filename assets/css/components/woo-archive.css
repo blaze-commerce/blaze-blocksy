@@ -1,0 +1,88 @@
+/**
+ * WooCommerce Archive / Category — Component CSS
+ *
+ * Loaded on is_shop(), is_product_category(), is_product_tag() pages.
+ * Reusable styles — not client-specific.
+ *
+ * @package Blocksy_Child
+ */
+
+
+/* ==========================================================================
+   CAT #2 — Price Typography Separation (Price vs GST Label)
+   WHY: WooCommerce outputs the price and tax suffix (e.g., "inc. GST") in
+   the same element. The suffix needs smaller/lighter styling to create
+   visual separation between the actual price and the tax info.
+   @date 2026-03-11
+   ========================================================================== */
+.products .product .price .woocommerce-price-suffix {
+	font-size: 14px;
+	font-weight: 400;
+	opacity: 0.65;
+	display: inline-block;
+	margin-left: 2px;
+}
+
+
+/* ==========================================================================
+   CAT #3 — Mobile Heading/Breadcrumb Overlap Fix
+   WHY: On mobile viewports, the hero section breadcrumbs can overlap with
+   the filter bar and product listing below due to insufficient bottom
+   margin. The hero-section has minimal spacing on small screens.
+   @date 2026-03-11
+   ========================================================================== */
+@media (max-width: 689px) {
+	.hero-section[data-type="type-1"] {
+		margin-bottom: 12px;
+	}
+
+	.hero-section .ct-breadcrumbs {
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.woo-listing-top {
+		padding-top: 4px;
+		gap: 8px;
+	}
+}
+
+
+
+/* CAT #1 — Full-width ATC on product cards (targets Blocksy wrapper). */
+.products .product .ct-woo-card-actions {
+	display: flex;
+	width: 100%;
+}
+
+.products .product .ct-woo-card-actions .button {
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+/* Add bottom padding to product cards on archive for consistent spacing.
+   WHY: ATC buttons sit flush against the bottom of product cards without
+   enough breathing room. Consistent padding improves click target area.
+   @date 2026-03-19 */
+/* .products .product .ct-woo-card-actions {
+	padding-bottom: 8px;
+} */
+
+#woo-filters-panel .ct-panel-actions .ct-panel-heading{
+	font-size: 20px;
+}
+
+#woo-filters-panel .widget-title {
+	--theme-font-size: 18px;
+	--wp--preset--font-size--medium: 18px;
+}
+
+/* ==========================================================================
+   Product card wishlist heart — REVERTED (CU-86exggfgq) 2026-05-07
+   ==========================================================================
+   First attempt set `fill: #fff` on the heart outline in default state.
+   Result: heart was invisible against the light/cream product-card background.
+   Pulled until we have a Figma reference or design clarification.
+   See ClickUp comment thread for next-step options (drop-shadow, circular
+   backdrop, etc.) once design intent is confirmed. */

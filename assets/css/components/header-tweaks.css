@@ -1,0 +1,66 @@
+/**
+ * Header tweaks — Cam request 2026-04-29 (after contentEdgeSpacing fix).
+ *
+ * Two minor visual adjustments at mobile breakpoints, both surface-level CSS
+ * (no Customizer setting available for either):
+ *
+ *   1. ANNOUNCEMENT BAR full-width at mobile.
+ *      With contentEdgeSpacing: 3 (3vw gutter ≈ 13px at 430 viewport), the
+ *      "FREE delivery over $75..." text wraps to 2 lines on iPhone-sized
+ *      viewports. Stretching this single row's container to viewport edges
+ *      gives the text +26px of horizontal room, often enough to fit on
+ *      1 line. Background color is uniform light-blue so the edge-to-edge
+ *      look is visually clean.
+ *
+ *   2. SEARCH INPUT padding-left reset.
+ *      FiboSearch ships `.dgwt-wcas-search-input` with `padding-left: 10px`
+ *      hardcoded. At a 13px gutter, this puts the placeholder text "Search
+ *      for products" at 23px from the viewport edge while the icons above
+ *      it sit at 13px — visible misalignment. Setting padding-left to 0
+ *      pulls the placeholder back to the input's edge, aligning with the
+ *      rest of the layout.
+ *
+ * Why no Customizer fix: Blocksy Header Builder doesn't expose per-row
+ * container-width settings (verified by walking `header_placements` theme
+ * mod — only headerRowHeight/headerRowBackground are per-row, not size).
+ * FiboSearch's input padding is a plugin CSS rule, no admin UI knob.
+ *
+ * Toggle: BC_FEATURE_HEADER_TWEAKS_2026_04 (default true) — set false in
+ * client PHP if either tweak causes visual regression with future content.
+ *
+ * @date 2026-04-29 (Cam request)
+ */
+
+/* -------------------------------------------------------------------------- *
+ * 1. Announcement bar (top row) — edge-to-edge at mobile only.
+ * -------------------------------------------------------------------------- */
+@media (max-width: 689px) {
+	body header [data-row="top"] .ct-container {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	/* The shipping-bar text is centered, but with edge-to-edge the truck
+	   icon now sits right at the viewport edge. Add minimal padding-left
+	   on the actual text wrapper so the icon doesn't kiss the edge. */
+	body header [data-row="top"] .ct-container > div {
+		padding-left: 6px !important;
+		padding-right: 6px !important;
+	}
+}
+
+/* -------------------------------------------------------------------------- *
+ * 2. Search input padding — REMOVED 2026-05-04 (Jayr request).
+ *
+ * The 2026-04-29 override (set padding-left: 0 to align placeholder with the
+ * row's edge gutter) made the placeholder text kiss the input border at
+ * every viewport — visually worse than the alleged "misalignment" with the
+ * icons row above. FiboSearch's default 10px padding-left is correct UX for
+ * an input field and we keep it everywhere now.
+ *
+ * If a future request to align placeholder with the row gutter comes back,
+ * fix the row gutter (Customizer → header row container width) instead of
+ * stripping the input's intrinsic padding.
+ * -------------------------------------------------------------------------- */

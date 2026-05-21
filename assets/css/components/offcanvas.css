@@ -1,0 +1,641 @@
+/**
+ * Off-Canvas Panel — Shared component CSS for all ct-panel drawers.
+ *
+ * Loaded globally (panels can open from any page).
+ * Provides consistent styling across all off-canvas panels:
+ * - Mini Cart (#woo-cart-panel)
+ * - Wishlist (#woo-wishlist-panel)
+ * - Product Information (#product-info-panel)
+ *
+ * Individual panel CSS files only override what's UNIQUE to that panel.
+ * This file is the single source of truth for shared panel styling.
+ *
+ * @package Blocksy_Child
+ * @date 2026-03-19
+ */
+
+/* ==========================================================================
+   Panel Layout — all off-canvas drawers
+   ========================================================================== */
+
+#woo-cart-panel .ct-panel-inner,
+#woo-wishlist-panel .ct-panel-inner,
+#product-info-panel .ct-panel-inner {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+/* ==========================================================================
+   Panel Header — consistent padding, border, close button alignment
+   ========================================================================== */
+
+#woo-cart-panel .ct-panel-actions,
+#woo-wishlist-panel .ct-panel-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 24px;
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	flex-shrink: 0;
+}
+
+/* Product info panel: close-only header (no heading text) */
+#product-info-panel .ct-panel-actions {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding: 10px 16px;
+	flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Panel Heading — consistent font styling across all panels
+   WHY: Blocksy renders cart heading as <span>, wishlist as <h2>.
+   Both should match visually — h2 font variables with fallbacks.
+   ========================================================================== */
+
+/* Drawer heading typography — matches Figma node 16:140 H5 spec exactly:
+   Quicksand Regular 400 / 24px / 28px / #111. Weight, line-height and color
+   are explicitly set (not via theme vars) so the Customizer's heading-2
+   tokens don't override these drawer-specific values. CU-86exbe71m. */
+#woo-cart-panel .ct-panel-heading,
+#woo-wishlist-panel .ct-panel-heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-family: 'Quicksand', var(--theme-heading-2-font-family, var(--theme-headings-font-family, sans-serif));
+	font-size: 24px;
+	font-weight: 400;
+	line-height: 28px;
+	color: #111;
+	text-transform: none;
+	letter-spacing: normal;
+	margin: 0;
+	padding: 0;
+}
+
+/* ==========================================================================
+   Panel Content — consistent inner padding
+   ========================================================================== */
+
+#woo-cart-panel .ct-panel-content-inner,
+#woo-wishlist-panel .ct-panel-content-inner {
+	padding: 0 24px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+#product-info-panel .ct-panel-content-inner {
+	flex: 1;
+	padding: 0 24px 24px;
+}
+
+#product-info-panel .ct-panel-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================================================
+   Panel Icons — each panel gets its own icon
+   ========================================================================== */
+
+/* Cart shopping-bag icon — same custom-uploaded SVG used by the header cart trigger
+   (solid fill, currentColor). Rendered via PHP gettext filter inline. CU-86exbe71m. */
+.ct-cart-panel-icon {
+	width: 24px;
+	height: 24px;
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+/* Wishlist heart icon — rendered via PHP (inline SVG in heading).
+   Size set here for consistency with cart icon. */
+.ct-wishlist-panel-icon {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+}
+
+/* Cart drawer count span — matches the wishlist count pattern */
+.ct-cart-panel-count,
+.ct-wishlist-panel-count {
+	color: inherit;
+	font-weight: inherit;
+}
+
+/* ==========================================================================
+   Responsive — mobile panel adjustments
+   ========================================================================== */
+
+@media (max-width: 767px) {
+	#woo-cart-panel .ct-panel-actions,
+	#woo-wishlist-panel .ct-panel-actions {
+		padding: 16px;
+	}
+
+	#woo-cart-panel .ct-panel-content-inner,
+	#woo-wishlist-panel .ct-panel-content-inner {
+		padding: 0 16px;
+	}
+
+	#product-info-panel .ct-panel-actions {
+		padding: 8px 12px;
+	}
+
+	#product-info-panel .ct-panel-content-inner {
+		padding: 0 16px 16px;
+	}
+}
+
+/* ==========================================================================
+   Mini Cart — Checkout button full width + bottom padding.
+   WHY: Consistency with all other buttons on the site (ATC, submit, etc.)
+   Blocksy's default checkout button is not full width in the cart panel.
+   @date 2026-03-19
+   ========================================================================== */
+
+
+
+/* Add padding above the first item in mini cart */
+#woo-cart-panel .ct-panel-content {
+	padding-top: 8px;
+}
+
+/* ==========================================================================
+   Mini Cart unified scroll — items + suggested products share one scroll
+   region; footer (totals/buttons/secure badge) stays pinned at the bottom.
+
+   Problem (Cam, 2026-04-30): Blocksy renders <ul.woocommerce-mini-cart>
+   with its own intrinsic overflow + tight max-height. On short viewports
+   only ONE cart row is visible inside a cramped inner scroll-box, while
+   the suggested-products carousel sits below at full height. UX is
+   confusing and items appear cut off.
+
+   Fix: cart-offcanvas.js wraps <ul> + .ct-suggested-products--mini-cart in
+   <div.bc-cart-scroll> after each fragment refresh. The CSS below makes
+   that wrapper the single scroll region inside the drawer body, while
+   .woocommerce-mini-cart__total / .ct-shipping-progress-mini-cart /
+   .bc-mini-cart-totals / .woocommerce-mini-cart__buttons / .bc-mini-cart-secure
+   stay pinned via flex-shrink:0. CU-86exbd8kg V3.
+   ========================================================================== */
+
+#woo-cart-panel .ct-panel-content-inner {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+#woo-cart-panel .bc-cart-scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	display: flex;
+	flex-direction: column;
+}
+
+/* When the cart has only 1–2 items, push the suggested-products carousel
+   to the bottom of the scroll region (against the totals footer) instead
+   of leaving a big empty gap underneath it. With no slack (cart overflows),
+   margin-top:auto contributes 0 and the carousel sits directly below the
+   <ul> as a natural sibling. */
+#woo-cart-panel .bc-cart-scroll .ct-suggested-products--mini-cart {
+	margin-top: auto;
+}
+
+/* Reset Blocksy's intrinsic scroll on the <ul> — bc-cart-scroll above is
+   now the single scroll container. */
+#woo-cart-panel .woocommerce-mini-cart {
+	overflow: visible !important;
+	max-height: none !important;
+}
+
+#woo-cart-panel .woocommerce-mini-cart__total,
+#woo-cart-panel .ct-shipping-progress-mini-cart,
+#woo-cart-panel .bc-mini-cart-totals,
+#woo-cart-panel .woocommerce-mini-cart__buttons,
+#woo-cart-panel .bc-mini-cart-secure {
+	flex-shrink: 0;
+}
+
+/* Mini cart buttons — full width, stacked */
+#woo-cart-panel .woocommerce-mini-cart__buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 0 24px 24px;
+}
+
+#woo-cart-panel .woocommerce-mini-cart__buttons .button {
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+/* ==========================================================================
+
+
+/* Wishlist empty state (logged in + guest) */
+
+/* ==========================================================================
+   Empty State Buttons — full width across all panels.
+   WHY: Consistency with checkout button and all other full-width buttons.
+   @date 2026-03-19
+   ========================================================================== */
+
+.return-to-shop .button,
+.return-to-shop a {
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+	display: block;
+}
+
+/* ==========================================================================
+   Mini Cart Empty State — Recently Viewed + Favourites grids.
+   WHY: When cart is empty, show useful product suggestions instead of
+   just a blank panel. Matches suggested products styling.
+   @date 2026-03-19
+   ========================================================================== */
+
+.bc-empty-cart-state {
+	padding: 0;
+}
+
+.bc-empty-cart-section {
+	margin-top: 24px;
+	padding-top: 16px;
+	border-top: 1px solid var(--theme-border-color, #e0e0e0);
+}
+
+.bc-empty-cart-section-title {
+	font-family: var(--theme-body-font-family, inherit);
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--theme-palette-color-4, #888);
+	margin: 0 0 12px 0;
+}
+
+.bc-mini-product-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.bc-mini-product-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 0;
+	text-decoration: none;
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	transition: opacity 0.2s;
+}
+
+.bc-mini-product-item:last-child {
+	border-bottom: none;
+}
+
+.bc-mini-product-item:hover {
+	opacity: 0.75;
+}
+
+.bc-mini-product-image {
+	width: 50px;
+	min-width: 50px;
+	border-radius: var(--theme-border-radius, 3px);
+	overflow: hidden;
+}
+
+.bc-mini-product-image img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+.bc-mini-product-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.bc-mini-product-title {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--theme-palette-color-3, #746A5F);
+	line-height: 1.3;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.bc-mini-product-price {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--theme-palette-color-2, #393939);
+}
+
+.bc-mini-product-price .woocommerce-price-suffix {
+	display: none;
+}
+
+/* ==========================================================================
+   Mini cart line-item — horizontal qty stepper [-] [1] [+] × $price.
+
+   Image #11 is the target layout (compact horizontal row). Image #10 is
+   the broken state we're fixing — Blocksy's default mini cart renders the
+   stepper as an overlay inside the input, and the global "Qty:" label
+   from `inc/woocommerce.php` (BC_FEATURE_QTY_LABEL) leaks into the mini
+   cart since `woocommerce_before_quantity_input_field` fires on every
+   qty input, including ones inside cart fragments.
+
+   This block:
+     1. Hides `.bc-qty-label` inside the mini cart (the label only makes
+        sense beside the main product-page Add to Cart form).
+     2. Forces a flat horizontal stepper (mirrors the existing
+        `.ct-cart-actions > .quantity[data-type="type-2"]` styling on the
+        product page so cart and mini-cart match visually).
+
+   When extending, also update the matching rules in
+   `clients/byronbay/byronbay.css` (see `.ct-cart-actions > .quantity[...]`)
+   and document any divergence in `docs/patterns/mini-cart-qty-stepper.md`
+   (TODO).
+
+   @date 2026-04-28
+   ========================================================================== */
+
+#woo-cart-panel .bc-qty-label,
+.woocommerce-mini-cart .bc-qty-label {
+	display: none;
+}
+
+/* Mini cart — override the qty-stepper knobs for compact sizing.
+   Structural rules live in assets/css/components/qty-stepper.css.
+   Refactored 2026-05-08 (#54). */
+#woo-cart-panel .ct-product-actions > .quantity[data-type="type-2"],
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type="type-2"] {
+	--bc-qty-btn-width: 28px;
+	--bc-qty-btn-height: 28px;
+	--bc-qty-input-width: 36px;
+	--bc-qty-border: var(--theme-form-field-border-initial-color, #d4d4d4);
+}
+
+#woo-cart-panel .ct-product-actions > .quantity[data-type="type-2"] .input-text.qty,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type="type-2"] .input-text.qty {
+	font-size: 14px;
+}
+
+/* Visible -/+ glyphs on the buttons (Blocksy uses a `woo` icon font,
+   but in the mini cart context we want simple typographic minus/plus
+   to match Image #11). */
+#woo-cart-panel .ct-product-actions > .quantity .ct-decrease::before,
+.woocommerce-mini-cart .ct-product-actions > .quantity .ct-decrease::before {
+	content: "−";
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1;
+}
+
+#woo-cart-panel .ct-product-actions > .quantity .ct-increase::before,
+.woocommerce-mini-cart .ct-product-actions > .quantity .ct-increase::before {
+	content: "+";
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1;
+}
+
+/* ==========================================================================
+   Mini cart Checkout button — full width — CU-86exbd8en (2026-04-28).
+
+   Native Blocksy ships .woocommerce-mini-cart__buttons with padding
+   0 24px 24px AND a `display: flex; gap: 8px` row layout. The wrap
+   already sits inside .ct-panel-content-inner which has its own 24px
+   horizontal padding — so the button gets double-padded and renders at
+   ~80% of drawer width instead of full width.
+
+   Fix: remove the wrap's horizontal padding and force the visible button
+   to width: 100%. We also stack the two buttons vertically (View Cart +
+   Checkout) so when both are visible neither shrinks below readable
+   width on narrow drawers.
+
+   Selectors target both #woo-cart-panel (drawer) and .woocommerce-mini-cart
+   (cart-fragments rendered subtree) to survive AJAX cart updates.
+   ========================================================================== */
+
+#woo-cart-panel .woocommerce-mini-cart__buttons,
+.woocommerce-mini-cart .woocommerce-mini-cart__buttons {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	flex-direction: column;
+	gap: 8px;
+}
+
+#woo-cart-panel .woocommerce-mini-cart__buttons .button,
+.woocommerce-mini-cart .woocommerce-mini-cart__buttons .button {
+	width: 100%;
+	display: block;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Mini cart Order Total section — CU-86exbd8gx (2026-04-28).
+
+   Renders inside .widget_shopping_cart_content (cart-fragments-safe),
+   between the native Subtotal row and the Checkout button. Auto-updates
+   on qty change because cart-fragments AJAX re-renders the whole
+   widget_shopping_cart_content subtree.
+
+   Layout (Figma 684:85959 typography tokens — Quicksand):
+     - Shipping row (when cart needs shipping): label + "Calculated at
+       checkout", 14px, secondary text color
+     - Order Total row: label + amount, 16px, semibold, divider above
+   ========================================================================== */
+
+.bc-mini-cart-totals {
+	padding: 12px 0 0;
+	border-top: 1px solid var(--theme-border-color, rgba(0, 0, 0, 0.07));
+	margin-top: 12px;
+}
+
+.bc-mini-cart-totals__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 6px 0;
+	gap: 12px;
+}
+
+.bc-mini-cart-totals__shipping {
+	font-size: 14px;
+	color: var(--theme-text-color-3, #746a5f);
+}
+
+.bc-mini-cart-totals__shipping .bc-mini-cart-totals__value {
+	color: var(--theme-text-color-3, #888);
+	font-weight: 400;
+}
+
+.bc-mini-cart-totals__total {
+	font-size: 16px;
+	font-weight: 600;
+	border-top: 1px solid var(--theme-border-color, rgba(0, 0, 0, 0.07));
+	margin-top: 6px;
+	padding-top: 12px;
+	color: var(--theme-text-color, #111);
+}
+
+.bc-mini-cart-totals__total .bc-mini-cart-totals__value {
+	font-weight: 600;
+}
+
+/* WooCommerce wraps the price in <span class="woocommerce-Price-amount">
+   which inherits font from the parent — make sure it doesn't shrink. */
+.bc-mini-cart-totals__total .woocommerce-Price-amount {
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+/* ==========================================================================
+   Suggested Products carousel — compact card sizing in drawer panels.
+
+   QA flagged the carousel as visually too large, making the drawer feel
+   bottom-heavy. Reduces image height (capped via max-height while keeping
+   1/1 aspect-ratio so the image still cover-fills), tightens title to a
+   2-line clamp, and shrinks the title/price font so the in-cart product
+   row remains the focal point.
+
+   Targets `[class*="ct-suggested-products"]` so the rules cover BOTH
+   render paths in one block:
+     - State 1 (mini cart with items) — Blocksy native
+       `.ct-suggested-products--mini-cart`
+     - States 2–7 (mini cart empty + all wishlist states) — our renamed
+       wrappers carry both `bc-*-suggested-grid` AND `ct-suggested-products`
+       classes (see drawer-suggested-products.md for why two classes).
+
+   Scoped to `#woo-cart-panel` and `#woo-wishlist-panel` so the rules don't
+   leak into archive pages where Blocksy reuses the same `.ct-product-title`
+   / `.ct-media-container` classes.
+
+   @ticket CU-86exbd8kg
+   @date  2026-04-29
+   ========================================================================== */
+
+/* Image fills full column width, square aspect ratio, `contain` so the
+   product photo never crops (cover would clip top/bottom on tall product
+   shots). The visual-weight reduction comes from the tighter title +
+   price typography below, not from shrinking the image. */
+#woo-cart-panel [class*="ct-suggested-products"] [data-products="block"] .ct-media-container,
+#woo-wishlist-panel [class*="ct-suggested-products"] [data-products="block"] .ct-media-container {
+	aspect-ratio: 1 / 1;
+	margin-bottom: 8px;
+	overflow: hidden;
+}
+
+#woo-cart-panel [class*="ct-suggested-products"] [data-products="block"] .ct-media-container img,
+#woo-wishlist-panel [class*="ct-suggested-products"] [data-products="block"] .ct-media-container img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+#woo-cart-panel [class*="ct-suggested-products"] [data-products] .ct-product-title,
+#woo-wishlist-panel [class*="ct-suggested-products"] [data-products] .ct-product-title {
+	font-size: 14px;
+	line-height: 1.35;
+	margin-bottom: 4px;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#woo-cart-panel [class*="ct-suggested-products"] [data-products] .price,
+#woo-wishlist-panel [class*="ct-suggested-products"] [data-products] .price {
+	font-size: 14px;
+	line-height: 1.3;
+}
+
+#woo-cart-panel [class*="ct-suggested-products"] .ct-module-title,
+#woo-wishlist-panel [class*="ct-suggested-products"] .ct-module-title {
+	margin-bottom: 10px;
+}
+
+
+/* ---------------------------------------------------------------- *
+ * Mini cart Secure Checkout trust badge — CU-86exbd8pp
+ *
+ * Hook: woocommerce_widget_shopping_cart_after_buttons (priority 20).
+ * Rendered by bc_render_mini_cart_secure_badge() in inc/woocommerce.php.
+ * Left-aligned, small font, neutral text colour — sits 5px below the
+ * Checkout CTA per QA feedback (CU-86exbd8pp Image #21).
+ * ---------------------------------------------------------------- */
+/* When the secure badge is present, neutralise the WC buttons paragraph's
+   bottom padding so the badge sits exactly 5px below the Checkout CTA.
+   Scoped under #woo-cart-panel to beat Blocksy's panel-content rules. */
+#woo-cart-panel .woocommerce-mini-cart__buttons:has(+ .bc-mini-cart-secure),
+.woocommerce-mini-cart .woocommerce-mini-cart__buttons:has(+ .bc-mini-cart-secure) {
+	padding-bottom: 0 !important;
+	margin-bottom: 0 !important;
+}
+
+.bc-mini-cart-secure {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 6px;
+	margin-top: 5px;
+	padding-bottom: 15px;
+	font-size: 14px;
+	line-height: 1.3;
+	color: var(--theme-text-color, #6b7280);
+	text-align: left;
+}
+
+.bc-mini-cart-secure__icon {
+	flex-shrink: 0;
+	color: currentColor;
+	opacity: 0.85;
+}
+
+.bc-mini-cart-secure__text {
+	font-weight: 500;
+	letter-spacing: 0.01em;
+}
+
+.bc-mini-cart-secure__sep {
+	opacity: 0.6;
+	margin: 0 2px;
+}
+
+@media (max-width: 480px) {
+	.bc-mini-cart-secure {
+		font-size: 14px;
+	}
+}
+
+/* ----------------------------------------------------------------
+ * 86exdygxn — Top-align minicart row: image + trash icon
+ *
+ * Blocksy parent theme sets align-items:center on .product_list_widget li.
+ * For multi-line bundle rows this drifts the product thumbnail and the
+ * remove (×) button to vertical center. Override to start so both
+ * elements anchor to the first line of the bundle details text.
+ * ---------------------------------------------------------------- */
+#woo-cart-panel .woocommerce-mini-cart.product_list_widget li,
+.woocommerce-mini-cart.product_list_widget li {
+	align-items: start;
+}

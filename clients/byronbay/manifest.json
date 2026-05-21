@@ -1,0 +1,24 @@
+{
+  "name": "Byron Bay Candles",
+  "slug": "byronbay",
+  "version": "1.0.0",
+  "active": true,
+  "css": "byronbay.css",
+  "js": null,
+  "php": "byronbay.php",
+  "features": [
+    "checkout-customization",
+    "checkout-order-summary",
+    "checkout-step-form",
+    "checkout-trust-badges",
+    "drawer-offcanvas",
+    "mini-cart-empty",
+    "product-information",
+    "product-slider",
+    "product-tabs",
+    "recently-viewed",
+    "search-restructure",
+    "shop-customizations",
+    "wishlist-offcanvas"
+  ]
+}

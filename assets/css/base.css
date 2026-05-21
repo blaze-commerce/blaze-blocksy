@@ -1,0 +1,202 @@
+/**
+ * Base CSS — Global tweaks that the Blocksy Customizer cannot handle.
+ *
+ * This file is ALWAYS loaded on every page. Keep it minimal.
+ * Only add rules here if they affect every page globally.
+ *
+ * RULES:
+ * - Every var() MUST have a hardcoded fallback: var(--theme-palette-color-N, #hex)
+ * - Every rule MUST have a WHY comment
+ * - No !important — use cascade specificity
+ * - No font-family/font-size — Blocksy Customizer handles typography
+ * - No max-width/container — Blocksy Customizer handles layout
+ *
+ * @package Blocksy_Child
+ */
+
+/* ==========================================================================
+   Content-to-Footer Spacing
+   ========================================================================== */
+
+/* Add 50px bottom margin to the main content area before the footer.
+   WHY: Blocksy's contentAreaSpacing applies symmetrically (top + bottom) and
+   cannot set bottom-only spacing. This ensures breathing room between content
+   and footer across all page types.
+   @date 2026-03-11 */
+.site-main {
+	margin-bottom: 100px;
+}
+
+/* ==========================================================================
+   Hide "View Cart" Button -- Global
+   WHY: Per Baymard UX guidelines, we discourage users from visiting the
+   cart page. After adding to cart, users should go directly to checkout
+   via the mini cart panel. The "View cart" link that WooCommerce appends
+   after successful add-to-cart is hidden across all pages: product pages,
+   archive/category pages, and mini cart.
+   @date 2026-03-16
+   ========================================================================== */
+.added_to_cart.wc-forward {
+	display: none;
+}
+
+/* Hide "View cart" button inside mini cart off-canvas panel.
+   WHY: Same Baymard UX guideline -- skip cart, go to checkout.
+   Blocksy has no Customizer toggle for this. The Checkout button remains.
+   @date 2026-03-16 */
+#woo-cart-panel .woocommerce-mini-cart__buttons .wc-forward:not(.checkout) {
+	display: none;
+}
+
+/* ==========================================================================
+   Hero Section Spacing
+   WHY: Blocksy's contentAreaSpacing (20px) is too tight between the hero
+   (breadcrumb + page title) and page content. Uses calc() to stay dynamic —
+   if contentAreaSpacing changes, this scales with it.
+   Targets author pages only. Add more [data-prefix] selectors as needed.
+   @date 2026-03-20
+   ========================================================================== */
+[data-prefix="author"] .hero-section {
+	margin-bottom: calc(var(--theme-content-vertical-spacing, 20px) * 2);
+}
+
+/* ==========================================================================
+   Hide WooCommerce BOGO/coupon notices on non-shop pages (blog posts, pages).
+   WHY: Smart Coupon Pro's BOGO module shows "Woohoo! Add any product..."
+   notice on every page via wc_add_notice(). This is irrelevant on blog
+   posts and pages — only makes sense on shop/product pages.
+   @date 2026-03-23 */
+.single-post .woocommerce-info,
+.single-post .woocommerce-message,
+.page:not(.woocommerce-page) .woocommerce-info,
+.page:not(.woocommerce-page) .woocommerce-message {
+	display: none;
+}
+
+
+
+/* Decorated heading — horizontal lines left and right of text.
+   WHY: Reusable class for headings with decorative side lines.
+   Uses overflow:hidden + inline-block pseudo-elements technique
+   that works inside WordPress constrained layouts.
+   @date 2026-03-23 */
+h2.bc-decorated-heading,
+h3.bc-decorated-heading {
+	display: block !important;
+	max-width: 100% !important;
+	overflow: hidden !important;
+	text-align: center !important;
+}
+
+h2.bc-decorated-heading::before,
+h2.bc-decorated-heading::after,
+h3.bc-decorated-heading::before,
+h3.bc-decorated-heading::after {
+	content: '' !important;
+	display: inline-block !important;
+	vertical-align: middle !important;
+	position: relative !important;
+	width: 50% !important;
+	height: 1px !important;
+	background: var(--theme-border-color, #E7E7E7) !important;
+}
+
+h2.bc-decorated-heading::before,
+h3.bc-decorated-heading::before {
+	right: 0.5em !important;
+	margin-left: -50% !important;
+}
+
+h2.bc-decorated-heading::after,
+h3.bc-decorated-heading::after {
+	left: 0.5em !important;
+	margin-right: -50% !important;
+}
+
+
+/* PHP warning hack removed — warning stripped from post content 2026-03-31 */
+
+/* ==========================================================================
+   Visual Heading Override — bc-visual-h2
+   Makes any heading match H2 Blocksy Customizer typography.
+   Use when semantic tag differs from visual hierarchy (e.g., H1 styled as H2).
+
+   Values mirror: Customizer > Typography > H2
+   If H2 Customizer settings change, update these values to match.
+
+   Usage: Add "bc-visual-h2" to Additional CSS class(es) in block settings.
+   @since 1.0.0
+   ========================================================================== */
+.bc-visual-h2 {
+	font-family: Quicksand, sans-serif;
+	font-size: 36px !important;
+	font-weight: 600 !important;
+	line-height: 1.2;
+	letter-spacing: 0em;
+	text-transform: none;
+	text-decoration: none;
+}
+
+@media (max-width: 689px) {
+	.bc-visual-h2 {
+		font-size: 20px !important;
+	}
+}
+
+/* BBC 86exbzech — round 7: blog meta + Gutenberg has-small-font-size */
+
+/* Blocksy entry-meta (blog archive + single post): 12px → 14px */
+.entry-meta,
+.entry-meta li,
+.entry-meta a,
+.entry-meta time,
+.ct-meta-element-date,
+.ct-meta-element-author {
+	font-size: 14px !important;
+}
+
+/* Gutenberg has-small-font-size preset (theme.json maps to 13px) */
+.has-small-font-size {
+	font-size: 14px !important;
+}
+/* ==========================================================================
+   Kadence Blocks Pro — palette bridge.
+   WHY: Kadence outputs --global-paletteN CSS vars with its OWN default
+   blue/grey colors, ignoring Blocksy's palette. Map them to Blocksy's
+   theme-palette-color-N vars so all Kadence block colour references
+   (palette1, palette3, palette12, palette24, etc.) flow through Blocksy's
+   Customizer. When Anne Marie changes a palette colour in Customizer,
+   every Kadence block on the page picks up the change automatically.
+   @date 2026-05-15 (Kadence rebuild — task 86exmbydp)
+   PAGE-SCOPED to v1 page 645912 only so global pages are not affected.
+   ========================================================================== */
+body.page-id-645912 {
+	--global-palette1:  var(--theme-palette-color-1,  #111111);
+	--global-palette2:  var(--theme-palette-color-2,  #393939);
+	--global-palette3:  var(--theme-palette-color-3,  #655B51);
+	--global-palette4:  var(--theme-palette-color-4,  #888888);
+	--global-palette5:  var(--theme-palette-color-5,  #FFFFFF);
+	--global-palette6:  var(--theme-palette-color-6,  #FAF6F2);
+	--global-palette7:  var(--theme-palette-color-7,  #FDF7F6);
+	--global-palette8:  var(--theme-palette-color-8,  #F9FAF4);
+	--global-palette9:  var(--theme-palette-color-9,  #F9FAF4);
+	--global-palette10: var(--theme-palette-color-10, #F1F7FA);
+	--global-palette11: var(--theme-palette-color-11, #FBBDAF);
+	--global-palette12: var(--theme-palette-color-12, #DDE2CF);
+	--global-palette13: var(--theme-palette-color-13, #C5CDB4);
+	--global-palette14: var(--theme-palette-color-14, #D7D7D7);
+	--global-palette15: var(--theme-palette-color-15, #EF4444);
+	--global-palette16: var(--theme-palette-color-16, #CFCFCF);
+	--global-palette17: var(--theme-palette-color-17, #FFFFFF);
+	--global-palette18: var(--theme-palette-color-18, #10b981);
+	--global-palette19: var(--theme-palette-color-19, #746A5F);
+	--global-palette20: var(--theme-palette-color-20, #B8A898);
+	--global-palette21: var(--theme-palette-color-21, #B8A898);
+	--global-palette22: var(--theme-palette-color-22, #D9EAF0);
+	--global-palette23: var(--theme-palette-color-23, #DFEDF2);
+	--global-palette24: var(--theme-palette-color-24, #3B3935);
+	--global-palette25: var(--theme-palette-color-25, #5B554F);
+	--global-palette26: var(--theme-palette-color-26, #F7FBFC);
+	--global-palette27: var(--theme-palette-color-27, #2890a8);
+	--global-palette28: var(--theme-palette-color-28, #C1B19E);
+}

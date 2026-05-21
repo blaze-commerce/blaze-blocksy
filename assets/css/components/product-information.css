@@ -1,0 +1,371 @@
+/* ==========================================================================
+   Product Information — item row + off-canvas panel + tabs + calculator
+   PDP #2
+   ========================================================================== */
+
+/* ── Item row (below ATC) ───────────────────────────────────────────────── */
+
+.bc-product-info-items {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	margin: 0;
+	padding: 15px 0;
+	border-top: 1px solid var(--theme-border-color, #e0e0e0);
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	justify-content: center;
+}
+
+.bc-product-info-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 0;
+	color: var(--theme-text-color, #333);
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 500;
+	transition: color 0.2s;
+	cursor: pointer;
+}
+
+.bc-product-info-item:hover {
+	color: var(--theme-palette-color-3, #746A5F);
+}
+
+.bc-product-info-icon {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.bc-product-info-icon svg {
+	width: 18px;
+	height: 18px;
+}
+
+.bc-product-info-divider {
+	width: 1px;
+	height: 20px;
+	flex-shrink: 0;
+	margin: 0 40px;
+	background: var(--theme-border-color, #e0e0e0);
+}
+
+/* ── Off-canvas panel overrides ─────────────────────────────────────────── */
+
+
+
+
+
+/* ── Tabs — full-width, equal distribution ───────────────────────────────── */
+
+.bc-info-tabs {
+	display: flex;
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	margin: 0;
+	padding: 0 24px;
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	background: inherit;
+}
+
+.bc-info-tab {
+	flex: 1;
+	position: relative;
+	padding: 14px 8px;
+	border: none;
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	margin-bottom: -1px;
+	background: none;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--theme-palette-color-4, #888);
+	cursor: pointer;
+	transition: color 0.2s;
+	white-space: nowrap;
+	text-align: center;
+}
+
+.bc-info-tab:hover {
+	color: var(--theme-palette-color-3, #746A5F);
+}
+
+.bc-info-tab.active {
+	color: var(--theme-palette-color-3, #746A5F);
+	border-bottom: 3px solid var(--theme-palette-color-3, #746A5F);
+}
+
+/* ── Tab panes ───────────────────────────────────────────────────────────── */
+
+.bc-tab-pane {
+	display: none;
+	padding: 20px 0;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.bc-tab-pane.active {
+	display: block;
+}
+
+/* ── Page content (Returns / FAQ) ────────────────────────────────────────── */
+
+.bc-page-content {
+	font-size: 14px;
+	line-height: 1.7;
+	color: var(--theme-text-color, #555);
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+.bc-page-content * {
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.bc-page-content img {
+	height: auto;
+}
+
+.bc-page-content table {
+	width: 100%;
+	table-layout: fixed;
+	word-break: break-word;
+}
+
+.bc-page-content iframe,
+.bc-page-content video,
+.bc-page-content embed {
+	max-width: 100%;
+}
+
+.bc-page-content h1,
+.bc-page-content h2,
+.bc-page-content h3,
+.bc-page-content h4 {
+	margin-top: 1.2em;
+	margin-bottom: 0.5em;
+}
+
+.bc-page-content h1:first-child,
+.bc-page-content h2:first-child,
+.bc-page-content h3:first-child {
+	margin-top: 0;
+}
+
+.bc-page-content p {
+	margin-bottom: 0.8em;
+}
+
+.bc-page-content ul,
+.bc-page-content ol {
+	margin-bottom: 0.8em;
+	padding-left: 1.5em;
+}
+
+/* ── Shipping calculator form ────────────────────────────────────────────── */
+
+.bc-shipping-calc {
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.bc-field {
+	margin-bottom: 16px;
+}
+
+.bc-field label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--theme-text-color, #333);
+}
+
+.bc-field select,
+.bc-field input[type="text"] {
+	display: block;
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--theme-border-color, #d1d5db);
+	border-radius: 4px;
+	font-size: 14px;
+	color: var(--theme-text-color, #333);
+	background: #fff;
+	transition: border-color 0.2s;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+}
+
+.bc-field select:focus,
+.bc-field input[type="text"]:focus {
+	outline: none;
+	border-color: var(--theme-palette-color-3, #746A5F);
+	box-shadow: 0 0 0 2px rgba(116, 106, 95, 0.15);
+}
+
+.bc-field select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	padding-right: 32px;
+}
+
+/* Suppress browser autofill icon (globe/emoji) on inputs */
+.bc-field input::-webkit-contacts-auto-fill-button,
+.bc-field input::-webkit-credentials-auto-fill-button {
+	visibility: hidden;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+}
+
+/* Calculate button — inherits theme button styling */
+.bc-calc-submit {
+	display: block;
+	width: 100%;
+	padding: 14px 24px;
+	border: none;
+	border-radius: var(--theme-button-border-radius, 8px);
+	background: var(--theme-button-background-initial-color, var(--theme-palette-color-12, transparent));
+	color: var(--theme-button-text-initial-color, var(--theme-palette-color-1, #111));
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	box-sizing: border-box;
+}
+
+.bc-calc-submit:hover {
+	background: var(--theme-button-background-hover-color, var(--theme-palette-color-13, #DFEDF2));
+	color: var(--theme-button-text-hover-color, var(--theme-palette-color-1, #111));
+}
+
+.bc-calc-submit:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* ── Loading state ───────────────────────────────────────────────────────── */
+
+.bc-shipping-calc.is-loading::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.6);
+	border-radius: 4px;
+	z-index: 1;
+}
+
+.bc-shipping-calc.is-loading .bc-calc-submit::after {
+	content: '';
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin-left: 8px;
+	border: 2px solid rgba(0, 0, 0, 0.2);
+	border-top-color: currentColor;
+	border-radius: 50%;
+	vertical-align: middle;
+	animation: bc-spin 0.6s linear infinite;
+}
+
+@keyframes bc-spin {
+	to { transform: rotate( 360deg ); }
+}
+
+/* ── Shipping results ────────────────────────────────────────────────────── */
+
+.bc-shipping-results {
+	margin-top: 16px;
+}
+
+.bc-shipping-rates {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.bc-shipping-rate {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 14px;
+	margin-bottom: 8px;
+	background: var(--theme-palette-color-6, #FAF6F2);
+	border: 1px solid var(--theme-border-color, #e5e7eb);
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.bc-rate-label {
+	font-weight: 500;
+	color: var(--theme-text-color, #333);
+}
+
+.bc-rate-cost {
+	font-weight: 600;
+	color: var(--theme-palette-color-3, #746A5F);
+	white-space: nowrap;
+}
+
+/* ── Error state ─────────────────────────────────────────────────────────── */
+
+.bc-shipping-error {
+	padding: 12px 14px;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 6px;
+	color: #dc2626;
+	font-size: 14px;
+	margin: 0;
+}
+
+#bc-tab-returns .bc-page-content .is-layout-flex,
+#bc-tab-faqs  .bc-page-content .is-layout-flex {
+	display: block;
+
+}
+
+.ct-cart-actions > .quantity > .bc-qty-label {
+	display: none;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+	.bc-product-info-items {
+		gap: 0;
+	}
+
+	.bc-product-info-item {
+		font-size: 14px;
+	}
+
+	.bc-info-tabs {
+		padding: 0 16px;
+	}
+
+	.bc-info-tab {
+		padding: 12px 6px;
+		font-size: 14px;
+	}
+
+	.ct-cart-actions > .quantity > .bc-qty-label {
+		display: none;
+	}
+
+	.ct-product-add-to-cart .ct-cart-actions > .single_add_to_cart_button {
+		--padding: 0;
+		--theme-button-padding: 5px;
+	}
+
+	.bc-product-info-divider {
+		margin: 0 12px;
+	}
+}
