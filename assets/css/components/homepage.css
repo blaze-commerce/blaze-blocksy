@@ -1,0 +1,535 @@
+/**
+ * Homepage — Component CSS
+ *
+ * Loaded on is_front_page() only.
+ * Hero slider, category navigation, brand story, VIP sections.
+ *
+ * @package Blocksy_Child
+ * @date 2026-03-26
+ */
+
+/* ==========================================================================
+   Hero Slider — CSS-only auto-advancing carousel.
+   WHY: No slider plugin needed. Uses CSS animations for auto-advance
+   with smooth crossfade. Gutenberg Custom HTML block provides the markup.
+   ========================================================================== */
+/* Remove content area top spacing so hero slider is flush with header.
+   WHY: Scoped to .site-main to avoid killing footer row padding.
+   Also zero site-main bottom margin (set to 100px in base.css) so VIP
+   section sits flush against footer. @date 2026-04-07 */
+.home .site-main > .ct-container-full,
+.home .site-main > .ct-container,
+body.page-id-645912 .site-main > .ct-container-full,
+body.page-id-645912 .site-main > .ct-container {
+	padding-top: 0 !important;
+}
+
+.home .ct-container-full[data-vertical-spacing],
+body.page-id-645912 .ct-container-full[data-vertical-spacing] {
+	--content-spacing: 0px;
+}
+
+.home .site-main,
+body.page-id-645912 .site-main {
+	margin-bottom: 0;
+}
+
+
+.home .entry-content.is-layout-constrained > .bc-hero-slider {
+	max-width: none !important;
+	margin-left: calc(-50vw + 50%) !important;
+	margin-right: calc(-50vw + 50%) !important;
+	width: 100vw !important;
+}
+
+.bc-hero-slider {
+	position: relative;
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+	height: 600px;
+	overflow: hidden;
+}
+
+@media (max-width: 689px) {
+	.bc-hero-slider {
+		height: 400px;
+	}
+}
+
+.bc-hero-slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	transition: opacity 1s ease-in-out;
+	display: block;
+	overflow: hidden;
+}
+
+.bc-hero-slide.active {
+	opacity: 1;
+}
+
+/* WCAG 2.3.3 — respect user's OS-level reduced-motion preference.
+   Auto-advance is also disabled in JS (assets/js/hero-slider.js); this
+   CSS rule ensures any residual transition (e.g. user-driven dot click)
+   is instant rather than a 1 s opacity fade. */
+@media (prefers-reduced-motion: reduce) {
+	.bc-hero-slide {
+		transition: none;
+	}
+}
+
+.bc-hero-slide img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+}
+
+.bc-hero-slide-content {
+	text-align: center;
+	color: #fff;
+	max-width: 700px;
+	padding: 0 24px;
+}
+
+.bc-hero-slide-content h2 {
+	font-family: var(--theme-headings-font-family, Quicksand, sans-serif);
+	font-size: 56px;
+	font-weight: 500;
+	line-height: 1.1;
+	color: #fff;
+	margin: 0 0 8px;
+	text-shadow: 0 2px 20px rgba(0,0,0,0.15);
+}
+
+.bc-hero-slide-content p {
+	font-size: 20px;
+	font-weight: 400;
+	color: rgba(255,255,255,0.9);
+	margin: 0 0 24px;
+	text-shadow: 0 1px 10px rgba(0,0,0,0.15);
+}
+
+.bc-hero-slide-content .bc-hero-cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 14px 32px;
+	background: var(--theme-button-background-initial-color, transparent);
+	color: var(--theme-button-text-initial-color, #111);
+	border-radius: var(--theme-button-border-radius, 8px);
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	transition: background 0.2s;
+}
+
+.bc-hero-slide-content .bc-hero-cta:hover {
+	background: var(--theme-button-background-hover-color, #DFEDF2);
+}
+
+/* Hero dots */
+.bc-hero-dots {
+	position: absolute;
+	bottom: 24px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 11px;
+	z-index: 5;
+}
+
+.bc-hero-dot {
+	width: 13px;
+	height: 13px;
+	border-radius: 50%;
+	background: #888888;
+	cursor: pointer;
+	border: none;
+	padding: 0;
+	transition: background 0.3s;
+}
+
+.bc-hero-dot.active {
+	background: #ffffff;
+}
+
+/* Hero arrow navigation */
+.bc-hero-arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 5;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.25);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.2s;
+	padding: 0;
+}
+
+.bc-hero-arrow:hover {
+	background: rgba(0, 0, 0, 0.45);
+}
+
+.bc-hero-arrow svg {
+	width: 20px;
+	height: 20px;
+	fill: none;
+	stroke: #fff;
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.bc-hero-arrow--prev {
+	left: 16px;
+}
+
+.bc-hero-arrow--next {
+	right: 16px;
+}
+
+@media (max-width: 689px) {
+	.bc-hero-arrow {
+		width: 36px;
+		height: 36px;
+	}
+	.bc-hero-arrow svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+@media (max-width: 689px) {
+	.bc-hero-slide-content h2 {
+		font-size: 32px;
+	}
+	.bc-hero-slide-content p {
+		font-size: 16px;
+	}
+}
+
+/* ==========================================================================
+   Section Heading — h2 with ::before/::after horizontal lines
+   WHY: Single h2 element, lines via pseudo-elements. Matches live site pattern.
+   ========================================================================== */
+/* WHY CSS: Gutenberg has no pseudo-element UI. Flex + flex-grow lines
+   auto-fill available space regardless of text length or container width.
+   Padding is managed via the parent Group block's Dimensions panel.
+   Lines stay visible on all breakpoints (matches live site). @date 2026-04-08 */
+.bc-section-heading {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	max-width: none !important;
+	width: 100% !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	text-align: center;
+}
+
+.bc-section-heading::before,
+.bc-section-heading::after {
+	content: '';
+	flex: 1 1 0%;
+	min-width: 20px;
+	height: 1px;
+	background: var(--theme-border-color, #e4e5e7);
+	border-radius: 2px;
+}
+
+@media (max-width: 689px) {
+	.bc-section-heading {
+		gap: 12px;
+	}
+
+	.bc-section-heading::before,
+	.bc-section-heading::after {
+		min-width: 10px;
+	}
+}
+
+/* Section subtitle — responsive font sizing (matches live site text-sm / text-2xl).
+   WHY: Gutenberg paragraph block doesn't support responsive font sizes.
+   Desktop 24px, mobile 14px — matches live site Tailwind classes. @date 2026-04-08 */
+.bc-subtitle {
+	font-size: 24px;
+}
+
+@media (max-width: 689px) {
+	.bc-subtitle {
+		font-size: 14px;
+	}
+}
+
+/* Long section headings — lines only on wide screens where text fits one line */
+.bc-section-heading--long::before,
+.bc-section-heading--long::after {
+	display: none !important;
+}
+
+@media (min-width: 1600px) {
+	.bc-section-heading--long::before,
+	.bc-section-heading--long::after {
+		display: block !important;
+	}
+}
+
+/* ==========================================================================
+   Hero Video — Full-width autoplay background video (matches live site)
+   Silent .mov file, loops, no controls. Below "Creating a Moment For You".
+   ========================================================================== */
+figure.bc-hero-video {
+	margin: 0 !important;
+	max-width: none !important;
+	height: 800px;
+	overflow: hidden;
+}
+
+figure.bc-hero-video video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+}
+
+@media (max-width: 689px) {
+	figure.bc-hero-video {
+		height: 380px;
+	}
+}
+
+/* ==========================================================================
+   Best Sellers / See All — Link styling
+   ========================================================================== */
+.bc-see-all-link a:hover {
+	color: var(--theme-palette-color-3, #655B51) !important;
+}
+
+/* Category grid styling moved to woo-category-grid.css */
+
+/* ==========================================================================
+   Brand Story Section
+   ========================================================================== */
+.bc-brand-story {
+	background: var(--theme-palette-color-6, #FAF6F2);
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+/* ==========================================================================
+   VIP Signup Section
+   ========================================================================== */
+.bc-vip-section {
+	position: relative;
+	background-size: cover;
+	background-position: center;
+	padding: 80px 24px;
+	text-align: center;
+}
+
+.bc-vip-section::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: rgba(244, 240, 236, 0.88);
+	border-radius: 12px;
+}
+
+.bc-vip-content {
+	position: relative;
+	z-index: 1;
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+/* ==========================================================================
+   Fix: Hide PHP warnings on frontend (Kinsta ImageMagick warning)
+   ========================================================================== */
+.php-error, body > br:first-child + b,
+body > b:first-child,
+body > br:first-child {
+	display: none !important;
+}
+
+/* ==========================================================================
+   Hero Cover Block — full-width alignment fix
+   ========================================================================== */
+.home .wp-block-cover.alignfull {
+	margin-left: calc(-50vw + 50%);
+	margin-right: calc(-50vw + 50%);
+	width: 100vw;
+	max-width: 100vw;
+}
+
+/* ==========================================================================
+   Product Grids on Homepage — consistent card styling
+   ========================================================================== */
+.home .woocommerce ul.products {
+	margin: 0 auto;
+	max-width: var(--theme-normal-container-max-width, 1510px);
+	padding: 0 24px;
+}
+
+.home .woocommerce ul.products li.product .button {
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+/* ==========================================================================
+   VIP Section — responsive improvements
+   ========================================================================== */
+.bc-vip-section {
+	border-radius: 12px;
+	margin: 0 24px;
+}
+
+@media (max-width: 689px) {
+	.bc-vip-section {
+		margin: 0;
+		border-radius: 0;
+		padding: 48px 24px;
+	}
+
+	.bc-vip-content h2 {
+		font-size: 28px !important;
+	}
+
+	.bc-category-nav {
+		gap: 12px 16px;
+	}
+
+	.bc-category-nav img {
+		width: 48px;
+		height: 48px;
+	}
+
+	.bc-category-nav a {
+		font-size: 14px;
+	}
+}
+
+/* ==========================================================================
+   Brand Story Section — ensure image fills column
+   WHY: Image inside the 2-column brand story section needs to fill the
+   column height. Scoped to alignfull groups to avoid affecting badges/logos.
+   @date 2026-03-26
+   ========================================================================== */
+.home .wp-block-group.alignfull.has-background .wp-block-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* ==========================================================================
+   "What Inspires Us" section — mobile dead-space fix (CU-86exbe4xb).
+
+   The .bc-inspire-card has a 2-column layout: Column 1 holds a YouTube
+   embed (~315px tall on desktop), Column 2 holds heading + list +
+   SHOP NOW button + a 100px Gutenberg Spacer + 48px column padding-bottom.
+   On desktop the Spacer + padding balance Column 2's height against
+   Column 1's embed so both columns end at the same Y position.
+
+   On mobile the columns stack vertically. The 100px Spacer + 48px column
+   padding-bottom turn into 148px of pure dead space below the SHOP NOW
+   button before the next block (founder image media-text). Reported by
+   Lan/Mitz as excessive vertical whitespace.
+
+   Fix: hide the in-card Spacer and remove the column padding-bottom on
+   mobile only. Desktop column-height balance preserved.
+
+   @date 2026-05-04 (CU-86exbe4xb)
+   ========================================================================== */
+@media (max-width: 689px) {
+	.bc-inspire-card .wp-block-column .wp-block-spacer {
+		display: none !important;
+	}
+
+	.bc-inspire-card .wp-block-column.is-vertically-aligned-top {
+		padding-bottom: 0 !important;
+	}
+}
+
+/* ==========================================================================
+   Adjacent bc-refill-card media-text sections — mobile gap (CU-86exbe41k).
+
+   The Candle Refills (media-on-left) + Reed Diffuser Refills (media-on-right)
+   cards are placed back-to-back with margin:0 set inline in the post block
+   JSON. On desktop the alternating media-left/media-right layout creates
+   visual separation (left video → right video flips the visual rhythm). On
+   mobile both `is-stacked-on-mobile` so media stacks above content, both
+   cards now read as the same vertical block — no separation, sections
+   visually merge (Lan QA report).
+
+   Fix: 30px top margin on the second card on mobile only. Scoped to
+   wp-block-media-text + :not(.bc-inspire-card) so the 2 inspire-card pairs
+   (which already have 30px margin between them) aren't doubled to 60px.
+
+   @date 2026-05-04 (CU-86exbe41k)
+   ========================================================================== */
+@media (max-width: 689px) {
+	.bc-refill-card.wp-block-media-text:not(.bc-inspire-card) + .bc-refill-card.wp-block-media-text:not(.bc-inspire-card) {
+		margin-top: 30px !important;
+	}
+}
+
+/* ==========================================================================
+   "Protect You, Your Loved Ones & Our Planet" — awards / Clean Conscious card
+   Remove 40 px column inline padding at mobile + tablet.
+   ========================================================================== */
+
+/* The text column inside the awards card carries an inline
+   `padding: 0 40px 48px` from the block markup (visible in Gutenberg block
+   styles panel). That works at desktop where the card sits in a 2-column
+   layout, but at mobile/tablet the column already reaches the page gutter
+   so the extra 40 px on each side compresses the bullet list awkwardly.
+   Vita kickback 2026-05-05 — "please remove padding in mobile and tablet
+   version for this section".
+
+   Inline styles win on specificity, so the override needs `!important`.
+   Scoped to homepage + only the columns that carry the matching padding-x:40
+   inline style, so we don't accidentally clobber other 40-padded columns.
+
+   @date 2026-05-05 (CU-86ewn0gwh kickback) */
+@media (max-width: 999px) {
+	body.home .wp-block-column[style*="padding-right:40px"][style*="padding-left:40px"] {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+}
+
+/* ==========================================================================
+   .bc-rounded-video — utility class for rounded video corners with clipping.
+   Apply via wp:video block > Advanced > Additional CSS class(es).
+   Used on Sustainable Choices / Candle Refills card.
+   @date 2026-05-20
+   ========================================================================== */
+.bc-rounded-video {
+	border-radius: 12px;
+	overflow: hidden;
+	height: 100%;
+}
+.bc-rounded-video video,
+.bc-rounded-video iframe,
+.bc-rounded-video .wp-block-embed__wrapper,
+.bc-rounded-video img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}

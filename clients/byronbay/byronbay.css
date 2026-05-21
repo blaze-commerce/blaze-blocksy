@@ -1,0 +1,1671 @@
+/**
+ * Byron Bay Candles — Client-specific CSS overrides.
+ *
+ * Loaded LAST in the cascade for highest priority.
+ * Only styles specific to this client that don't belong in the
+ * shared component CSS.
+ *
+ * RULES:
+ * - Every var() MUST have a hardcoded fallback: var(--theme-palette-color-N, #hex)
+ * - Every rule MUST have a WHY comment
+ * - Every section MUST have a @date tag
+ * - No !important — use cascade specificity
+ * - Use .byronbay- prefix for client-specific classes
+ *
+ * @package Blocksy_Child
+ * @client  Byron Bay Candles
+ */
+
+/* ==========================================================================
+   Announcement Bar — Mobile/Tablet Responsive
+   WHY: The announcement bar text is set via inline styles in the Blocksy
+   HTML element (font-size: 14px, line-height: 16px). Inline styles can't
+   use media queries, so we override here for mobile where Figma specifies
+   larger text (16px/24px) to accommodate wrapping on narrower viewports.
+   @date 2026-02-24
+   ========================================================================== */
+
+/* Tablet: same as desktop (14px/16px) — no override needed, inline styles apply.
+   Row height set to 40px via Customizer. */
+
+/* Mobile: larger text for readability on small screens.
+   Figma: 16px font-size, 24px line-height, 52px row height (set via Customizer). */
+@media (max-width: 689px) {
+	[data-row="top"] [data-id="text"] span {
+		font-size: 16px;
+		line-height: 24px;
+	}
+}
+
+/* ==========================================================================
+   Mega Menu — Heading & Divider Styling
+   WHY: Blocksy's mega menu Customizer has no option to add a divider line
+   under column headings, make full-width heading rows span the grid, or
+   control heading font weight/size independently from sub-items. These are
+   Byron Bay's design choices per the live site layout.
+   @date 2026-02-25
+   ========================================================================== */
+
+/* Full-width heading row (e.g., "Scented Diffusers" above columns).
+   Spans all grid columns with a divider line below. Needs both top
+   corners rounded since it spans the full width of the dropdown. */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu > li:has(> .ct-column-heading) {
+	grid-column: 1 / -1;
+	border-bottom: 1px solid var(--theme-palette-color-12, #E0DCD7);
+	padding-bottom: 12px;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+}
+
+/* Full-width heading text — bold and larger than column headings.
+   Padding matches sub-item hover padding (--menu-item-padding set by
+   Blocksy's "solid" dropdown style) so the heading aligns with items below. */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu > li > .ct-column-heading {
+	font-weight: 700;
+	font-size: 15px;
+	padding: var(--menu-item-padding, 13px);
+}
+
+/* --- Candles mega menu: column headings ARE headings --- */
+/* CSS class .byronbay-mega-candles set on menu item (portable across environments). */
+
+/* Column heading — bold with divider line (Candles pattern). */
+nav > ul > .byronbay-mega-candles > .sub-menu > li.menu-item-has-children > .ct-menu-link {
+	border-bottom: 1px solid var(--theme-palette-color-12, #E0DCD7);
+	padding-bottom: 10px;
+	margin-bottom: 4px;
+	font-weight: 700;
+	font-size: 14px;
+}
+
+/* --- Diffusers mega menu: column headings are NOT headings --- */
+/* CSS class .byronbay-mega-diffusers set on menu item (portable across environments). */
+
+/* Column headings in Diffusers look like regular items — same font as sub-items.
+   Blocksy styles depth-1 sub-menu links differently from depth-2; this forces
+   column headings to match their child items exactly. */
+nav > ul > .byronbay-mega-diffusers > .sub-menu > li.menu-item-has-children > .ct-menu-link {
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 1.4;
+	border-bottom: none;
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+
+/* ==========================================================================
+   B2 — Hide Payment Methods Icons on Bundle Product Pages Only
+   WHY: Bundle product pages show payment method icons (Stripe, PayPal, etc.)
+   that add visual noise to an already complex layout. Hiding them only on
+   bundle pages keeps them visible elsewhere (simple/variable products).
+   @date 2026-03-11
+   ========================================================================== */
+.single-product.postid-635032 .ct-payment-methods,
+body.single-product .product-type-bundle .ct-payment-methods {
+	display: none;
+}
+
+/* ==========================================================================
+   B3 — Hide Candle Label Text on Bundle Page
+   WHY: The Product Addons heading "Candle Label" (h2.wc-pao-addon-heading)
+   on bundle products adds redundant text when the addon options are already
+   self-explanatory. This is Byron-specific — other sites may want it visible.
+   @date 2026-03-11
+   ========================================================================== */
+body.single-product .product-type-bundle h2.wc-pao-addon-heading {
+	display: none;
+}
+
+
+/* ==========================================================================
+   Footer Middle Row — Top Corner Radius
+   WHY: Blocksy Customizer only supports uniform border-radius on footer rows,
+   not per-corner. Design requires 24px radius on top-left and top-right
+   of the middle row only, matching the live site design.
+   @date 2026-03-13
+   ========================================================================== */
+footer [data-row="middle"] {
+	border-top-left-radius: 24px;
+	border-top-right-radius: 24px;
+	position: relative;
+	margin-top: -24px;
+	z-index: 1;
+}
+
+/* ==========================================================================
+   PDP — Live Site Styling Match (Items 1-12)
+   @date 2026-03-26
+   ========================================================================== */
+
+/* ITEM 1: Border around PDP summary — matches live site #F3EADE border.
+   Height depends on content, not image. */
+.entry-summary.entry-summary-items {
+	border: 1px solid #F3EADE;
+	border-radius: 8px;
+	padding: 24px;
+}
+
+@media (max-width: 999px) {
+	.entry-summary.entry-summary-items {
+		border: none;
+		padding: 0;
+	}
+}
+
+/* ITEM 11: Payment icons row */
+.bc-payment-icons {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+	padding: 12px 0 0;
+}
+
+.bc-payment-icons svg {
+	flex-shrink: 0;
+}
+
+/* ITEM 12: Afterpay styling — match live site */
+.single-product .afterpay-paragraph,
+.single-product square-placement {
+	font-size: 14px;
+	color: var(--theme-palette-color-4, #6F6F6F);
+}
+
+/* ==========================================================================
+   Product Addons — input field styling
+   WHY: WooCommerce Product Addons plugin renders unstyled inputs.
+   @date 2026-03-26
+   ========================================================================== */
+.wc-pao-addon-wrap input[type="text"],
+.wc-pao-addon-wrap textarea {
+	width: 100%;
+	border: 1px solid #E7E7E7;
+	border-radius: 2px;
+	box-sizing: border-box;
+}
+
+/* ==========================================================================
+   FIX: Product info links — brownish default, black hover
+   Live: text-brand-font (brownish), hover shows darker
+   @date 2026-03-26
+   ========================================================================== */
+.bc-product-info-item {
+	color: var(--theme-palette-color-3, #655B51) !important;
+	transition: color 0.2s;
+}
+
+.bc-product-info-item:hover {
+	color: var(--theme-palette-color-1, #111) !important;
+}
+
+.bc-product-info-icon {
+	color: inherit;
+}
+
+/* Afterpay text — thin font weight to match live */
+.single-product .afterpay-paragraph {
+	font-weight: 200 !important;
+}
+
+.single-product square-placement {
+	font-weight: 200;
+}
+
+/* ==========================================================================
+   Gift wrap — Isolated styling (won't inherit from other rules)
+   @date 2026-03-26
+   ========================================================================== */
+label.wc-pao-addon-name[data-addon-name=Gift wrap] {
+	all: unset;
+	display: block;
+	font-family: var(--theme-body-font-family, inherit);
+	font-size: 16px;
+	font-weight: 400;
+	font-style: normal;
+	color: var(--theme-palette-color-2, #393939);
+	margin-bottom: 4px;
+}
+
+.wc-pao-addon-description p {
+	all: unset;
+	display: block;
+	font-family: var(--theme-body-font-family, inherit);
+	font-size: clamp(16px, 1.125rem, 18px);
+	font-weight: 400;
+	font-style: normal;
+	color: var(--theme-palette-color-1, #111);
+	margin-bottom: 8px;
+}
+
+/* Product tab content — 18px with 16px fallback (Byron-specific)
+   Targets Description, ACF tabs, Additional Info content.
+   @date 2026-03-26 */
+.woocommerce-tabs .entry-content,
+.woocommerce-tabs .entry-content p,
+.woocommerce-tabs .entry-content li,
+.woocommerce-tabs .bc-acf-tab-content,
+.woocommerce-tabs .bc-acf-tab-content p,
+.woocommerce-tabs .bc-acf-tab-content li {
+	font-size: clamp(16px, 1.125rem, 18px);
+	line-height: 1.75;
+}
+
+/* ==========================================================================
+   Product tabs accordion — chevron icons, hide +, last tab border
+   @date 2026-03-26
+   ========================================================================== */
+
+/* Hide the default + SVG icon inside accordion headings */
+.woocommerce-tabs .ct-accordion-heading svg {
+	display: none !important;
+}
+
+/* Add chevron down (closed state) via ::after */
+.woocommerce-tabs .ct-accordion-heading::after {
+	content: '';
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	margin-left: auto;
+	background: currentColor;
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	-webkit-mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	mask-size: contain;
+	mask-repeat: no-repeat;
+	transition: transform 0.3s ease;
+}
+
+/* Chevron up when tab is open/active */
+.woocommerce-tabs .ct-accordion-heading[aria-expanded="true"]::after,
+.woocommerce-tabs .ct-accordion-heading.active::after {
+	transform: rotate(180deg);
+}
+
+
+/* Horizontal line after the last accordion tab */
+.woocommerce-tabs .ct-accordion-tab:last-child .ct-accordion-heading {
+	border-bottom: 1px solid var(--theme-palette-color-16, #CFCFCF);
+}
+
+
+
+/* Product card "See More" button — match live site exactly.
+   @date 2026-04-28 (CU-86exduk1q): live renders Title Case (the wrapper
+   anchor has Tailwind 'uppercase' but the inner button is text-transform:none,
+   so visible text is "See More" not "SEE MORE"). Mirroring live's actual paint:
+   18px / Quicksand 400 / no letter-spacing / no uppercase. Color stays on the
+   theme palette-3 var so it follows Elneil's customizer (Figma's CONTRAST 3
+   token #746a5f vs staging palette-3 #655B51 is a separate designer call —
+   tracked in the BBC Typography Reference doc). */
+[data-products] .ct-woo-card-actions .button {
+	font-size: 18px;
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+
+
+
+
+/* Reviews spacing */
+.single-product .bc-reviews-bundle {
+	margin-top: 50px;
+}
+
+/* ==========================================================================
+   ATC Row — definitive layout (Qty label + stepper + button + wishlist)
+   WHY: Blocksy type-2 quantity uses absolute-positioned +/- buttons inside
+   a block-level .quantity div. The "Qty:" label (output via
+   woocommerce_before_quantity_input_field) also lives inside .quantity.
+   We override .quantity to flex so that label, decrease, input, increase
+   all sit in one inline row, then the ATC button + wishlist follow.
+   @date 2026-03-27
+   ========================================================================== */
+
+/* Hide B2B pricing table inside cart actions */
+.ct-cart-actions .b2bwhs_shop_table {
+	display: none !important;
+}
+
+/* Main flex row: quantity box | ATC button | wishlist */
+.ct-product-add-to-cart .ct-cart-actions {
+	display: flex !important;
+	flex-wrap: nowrap !important;
+	align-items: center !important;
+	gap: 8px !important;
+}
+
+/* --- Quantity box: make it flex so label + buttons + input sit inline --- */
+.ct-cart-actions > .quantity {
+	display: flex !important;
+	align-items: center !important;
+	flex: 0 0 auto;
+	max-width: none;
+	width: auto !important;
+	gap: 0;
+	position: relative;
+}
+
+/* "Qty:" label inside .quantity */
+.ct-cart-actions > .quantity > .bc-qty-label {
+	flex: 0 0 auto;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--theme-palette-color-1, #111);
+	white-space: nowrap;
+	margin-right: 8px;
+	order: -1;
+}
+
+/* Qty stepper structural rules now live in assets/css/components/qty-stepper.css.
+   PDP add-to-cart uses the default knob values (36px button width,
+   --theme-button-min-height for height, 45px input).  No override needed
+   here — defaults match the previous behavior.  Refactored 2026-05-08 (#54). */
+
+/* --- ATC button fills remaining space --- */
+.ct-cart-actions > .single_add_to_cart_button {
+	flex: 1 1 auto !important;
+	min-width: 0;
+	text-transform: uppercase !important;
+	letter-spacing: 0.05em;
+	font-weight: 600 !important;
+}
+
+.ct-cart-actions > .single_add_to_cart_button::after {
+	content: " \2192";
+	margin-left: 6px;
+}
+
+/* --- Wishlist button fixed size --- */
+.ct-cart-actions > .ct-wishlist-button-single {
+	flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   Homepage: Value Proposition Cards — CSS Grid for equal-height cards
+   WHY: Gutenberg columns don't support equal-height (items-stretch) or the
+   exact breakpoints we need (2-col mobile/tablet, 4-col desktop).
+   Live site uses grid-cols-2 lg:grid-cols-4, fixed 214px height.
+   @date 2026-04-07
+   ========================================================================== */
+.bc-value-cards {
+	display: grid !important;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+}
+
+/* Desktop (>999.98px): 4 columns, wider gap */
+@media (min-width: 999.98px) {
+	.bc-value-cards {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 32px;
+	}
+}
+
+/* Card inner — equal height via stretch + fixed min-height */
+.bc-value-cards > .wp-block-column {
+	width: 100% !important;
+	flex-basis: unset !important;
+}
+
+.bc-value-cards > .wp-block-column > .wp-block-group {
+	height: 100%;
+	min-height: 214px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+
+/* Icon spacing */
+.bc-value-card-icon,
+.bc-icon--verified {
+	margin-bottom: 16px;
+	line-height: 0;
+}
+
+/* ==========================================================================
+   Homepage: Refill Cards (Media & Text blocks) — video/image + text
+   WHY: Media & Text handles responsive stacking natively (media on top on
+   mobile). Video object-fit cover + height need CSS since block settings
+   only control width ratio. Stacking at 999px instead of default 600px.
+   @date 2026-04-08
+   ========================================================================== */
+
+/* Video: object-fit cover, fixed height, border-radius + overflow clip.
+   WHY: Media & Text block has no border-radius or overflow setting on the
+   media figure. Block editor can't do this. @date 2026-04-08 */
+.bc-refill-card .wp-block-media-text__media {
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.bc-refill-card .wp-block-media-text__media video {
+	width: 100%;
+	height: 640px;
+	object-fit: cover;
+	border-radius: 5px;
+}
+
+/* Stack at tablet (999px) instead of default 600px
+   WHY: Media & Text default is 600px, but live site stacks at ~1024px */
+@media (max-width: 999.98px) {
+	.bc-refill-card.wp-block-media-text {
+		grid-template-columns: 100% !important;
+	}
+
+	.bc-refill-card.wp-block-media-text > .wp-block-media-text__media {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.bc-refill-card.wp-block-media-text > .wp-block-media-text__content {
+		grid-column: 1;
+		grid-row: 2;
+		/* WHY: 30px gap between video and text when stacked on mobile.
+		   Media & Text has no block spacing setting for stacked gap. @date 2026-04-08 */
+		padding-top: 30px;
+	}
+
+	.bc-refill-card .wp-block-media-text__media video {
+		height: 351px;
+	}
+}
+
+/* ==========================================================================
+   Homepage: Logo Carousel — partner brand logos
+   WHY: Live site uses Glider.js with edge-to-edge logos, no gap on mobile,
+   ~215px per logo on desktop (7 visible). Logos are square, no grayscale
+   on live site. Carousel dots + swipe via product-slider.js.
+   @date 2026-04-08
+   ========================================================================== */
+.bc-logo-carousel__list {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	gap: 16px;
+	transition: transform 0.3s ease;
+}
+
+/* Desktop: 7 logos visible with gap (account for 6 gaps of 16px) */
+.bc-logo-carousel__item {
+	flex: 0 0 calc((100% - 96px) / 7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bc-logo-carousel__img {
+	width: 100%;
+	height: auto;
+	object-fit: contain;
+	display: block;
+}
+
+/* Tablet: 4 logos with gap */
+@media (max-width: 999.98px) {
+	.bc-logo-carousel__list {
+		gap: 8px;
+	}
+
+	.bc-logo-carousel__item {
+		flex: 0 0 calc((100% - 24px) / 4);
+	}
+}
+
+/* Mobile: 2 logos, no gap, touching */
+@media (max-width: 689px) {
+	.bc-logo-carousel__list {
+		gap: 0;
+	}
+
+	.bc-logo-carousel__item {
+		flex: 0 0 calc(100% / 2);
+	}
+}
+
+/* ==========================================================================
+   Homepage: Badge/Award Grid — certification badges
+   WHY: Badges have different aspect ratios. max-height ensures consistency.
+   Flex wrap handles responsive layout. Not achievable via block settings.
+   @date 2026-04-08
+   ========================================================================== */
+/* Badge sizing now managed via block settings (width + height on each image).
+   No CSS needed for aspect-ratio. */
+
+/* ==========================================================================
+   Homepage: What Inspires Us — text aligned TOP (not centered like refill cards)
+   WHY: Overrides the :not(:has(.bc-refill-video)) centering rule.
+   Also handles YouTube embed + image sizing to match refill video heights.
+   @date 2026-04-08
+   ========================================================================== */
+
+/* YouTube embed — overflow:hidden clips iframe to Column's border-radius
+   (set via block settings). Match refill video height. @date 2026-04-08 */
+.bc-inspire-card .wp-block-column:has(.wp-block-embed) {
+	overflow: hidden;
+}
+
+.bc-inspire-card .wp-block-embed {
+	margin: 0 !important;
+	height: 100%;
+}
+
+/* WHY: WordPress adds padding-top:56.25% for 16:9 aspect ratio on embeds.
+   Override to match refill video heights (640px/351px). @date 2026-04-08 */
+.bc-inspire-card .wp-block-embed__wrapper {
+	height: 640px;
+	padding-top: 0 !important;
+	position: relative;
+}
+
+.bc-inspire-card .wp-block-embed__wrapper iframe {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+@media (max-width: 999.98px) {
+	.bc-inspire-card .wp-block-embed__wrapper {
+		height: 351px;
+	}
+}
+
+/* Behind the Scenes — Media & Text with imageFill.
+   WHY: Match refill video heights (640px/351px) for visual consistency.
+   imageFill uses background-size:cover so fixed height works. @date 2026-04-08 */
+.bc-inspire-card.is-image-fill > .wp-block-media-text__media {
+	height: 640px;
+}
+
+@media (max-width: 999.98px) {
+	.bc-inspire-card.is-image-fill > .wp-block-media-text__media {
+		height: 351px;
+	}
+}
+
+/* ==========================================================================
+   Homepage: Article Carousel — blog post cards
+   WHY: Card styling (image aspect-ratio, text footer, hover scale) not
+   achievable via shortcode block settings alone.
+   @date 2026-04-08
+   ========================================================================== */
+.bc-article-carousel__list {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	gap: 16px;
+}
+
+.bc-article-carousel__item {
+	flex: 0 0 calc((100% - 32px) / 3);
+}
+
+.bc-article-carousel__link {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	text-decoration: none;
+	color: inherit;
+	border-radius: 6px;
+	overflow: hidden;
+	background: var(--theme-palette-color-6, #FAF6F2) !important;
+}
+
+/* WHY CSS: Fixed image height matches live site (392px desktop, 232px mobile).
+   Block editor can't set height on shortcode-rendered images. @date 2026-04-08 */
+.bc-article-carousel__image {
+	overflow: hidden;
+	height: 392px;
+}
+
+.bc-article-carousel__image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 5px;
+	object-position: center;
+	transition: transform 0.3s ease;
+}
+
+.bc-article-carousel__link:hover .bc-article-carousel__image img {
+	transform: scale(1.03);
+}
+
+@media (max-width: 689px) {
+	.bc-article-carousel__image {
+		height: 232px;
+	}
+}
+
+.bc-article-carousel__content {
+	background: var(--theme-palette-color-6, #FAF6F2);
+	padding: 16px 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+}
+
+.bc-article-carousel__date {
+	font-size: 14px;
+	color: var(--theme-palette-color-4, #888888);
+}
+
+.bc-article-carousel__title {
+	font-size: 16px;
+	font-weight: 500;
+	margin: 0;
+	line-height: 1.3;
+}
+
+.bc-article-carousel__title a {
+	color: var(--theme-palette-color-3, #746A5F);
+	text-decoration: none;
+}
+
+.bc-article-carousel__title a:hover {
+	color: var(--theme-palette-color-1, #111111);
+}
+
+.bc-article-carousel__excerpt {
+	font-size: 14px;
+	color: var(--theme-palette-color-4, #888888);
+	margin: 0;
+	line-height: 1.5;
+	flex: 1;
+}
+
+/* WHY CSS: "Read More →" link at bottom of card. Matches live site styling.
+   margin-top:auto pushes it to the bottom of the flex column. @date 2026-04-08 */
+.bc-article-carousel__read-more {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--theme-palette-color-3, #746A5F);
+	text-decoration: none;
+	margin-top: auto;
+	padding-top: 8px;
+}
+
+.bc-article-carousel__read-more:hover {
+	color: var(--theme-palette-color-1, #111111);
+}
+
+@media (max-width: 999.98px) {
+	.bc-article-carousel__item {
+		flex: 0 0 calc((100% - 16px) / 2);
+	}
+}
+
+@media (max-width: 689px) {
+	.bc-article-carousel__item {
+		flex: 0 0 100%;
+	}
+}
+
+/* ==========================================================================
+   FiboSearch Header Search Bar — Desktop, matching live site
+   WHY: FiboSearch renders via child theme template override (icon-flexible layout).
+   Shows full search bar on desktop (>689px), icon on mobile (<689px).
+   Block editor cannot control third-party plugin output styling.
+   Styles matched pixel-for-pixel from live site (byronbaycandles.com):
+   - Layout: Logo + Search in left 1fr column (search fills remaining space)
+   - Input: 16px/400, #888 text, #BFBFBF placeholder, #E7E7E7 border, 6px radius
+   - Icon: 24x24 magnifier, #888 fill
+   Search element moved from middle to start column via Customizer.
+   @date 2026-04-14
+   ========================================================================== */
+
+/* --- LAYOUT: Search fills remaining space in left column --- */
+
+/* Left column gap between logo and search.
+   WHY: Live site has ~24px gap between logo and search input. @date 2026-04-14 */
+[data-row="middle"] [data-column="start"] {
+	gap: 24px;
+}
+
+/* Search element grows to fill remaining space in the left column.
+   WHY: Live site search has flex:1 — takes all space between logo and icons.
+   @date 2026-04-14 */
+[data-row="middle"] [data-id="search"] {
+	flex: 1 1 0%;
+	min-width: 200px;
+}
+
+[data-id="search"] .dgwt-wcas-search-wrapp {
+	max-width: 100%;
+	width: 100%;
+}
+
+/* --- SEARCH INPUT STYLING: match live site --- */
+
+/* Form wrapper — border, radius to match live site.
+   WHY: Live uses 1px solid #E7E7E7, 6px radius. @date 2026-04-14 */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form {
+	border-radius: 6px;
+	border: 1px solid #E7E7E7;
+	height: auto;
+}
+
+/* Input field — font, padding, colors from live site.
+   WHY: Live uses 16px/400 weight, 10px padding with 40px right for icon,
+   text color #888, placeholder #BFBFBF, 6px radius, 24px line-height.
+   Selector must beat FiboSearch specificity (0,4,1). @date 2026-04-14 */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input,
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:hover,
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
+	height: auto;
+	padding: 10px 40px 10px 10px;
+	font-size: 16px;
+	font-weight: 400;
+	color: #888888;
+	line-height: 24px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	box-shadow: none;
+}
+
+/* Placeholder color — live site uses #BFBFBF.
+   WHY: Staging default is darker, live has lighter muted placeholder. @date 2026-04-14 */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input::placeholder {
+	color: #BFBFBF;
+	opacity: 1;
+	font-style: normal;
+}
+
+/* Submit button — 40px wide container, transparent bg, centered icon.
+   WHY: Live icon container is 40px wide, flex-centered. @date 2026-04-14 */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-search-submit {
+	width: 40px;
+	height: 100%;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 0 6px 6px 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Magnifier icon — 24x24, #888 fill, matching live site.
+   WHY: Live uses 24x24 stroke SVG. Staging uses fill SVG.
+   Match size and color. @date 2026-04-14 */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
+	width: 24px;
+	height: 24px;
+	fill: #888888;
+}
+
+/* Phone number — prevent wrapping to two lines.
+   WHY: At narrow widths the phone number breaks into two lines.
+   Not controllable via block editor. @date 2026-04-09 */
+[data-id="contacts"] {
+	white-space: nowrap;
+}
+
+/* Tablet/Mobile: search bar in mobile bottom row — full width, matching live.
+   WHY: Mobile bottom row shows persistent FiboSearch bar (not icon). The bar
+   must span full width with same input styling as desktop. Desktop-specific
+   flex:1 rules are reverted; width comes from parent container instead.
+   @date 2026-04-15 */
+@media (max-width: 999.98px) {
+	/* Revert desktop flex-grow — mobile search width comes from row container */
+	[data-device="mobile"] [data-id="search"] {
+		flex: none;
+		width: 100%;
+	}
+
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp {
+		max-width: 100%;
+		width: 100%;
+	}
+
+	/* Mobile search input — same styling as desktop, full width.
+	   WHY: FiboSearch renders identical markup; just needs full-width container.
+	   @date 2026-04-15 */
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form {
+		border-radius: 6px;
+		border: 1px solid #E7E7E7;
+		height: auto;
+	}
+
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+		height: auto;
+		padding: 10px 40px 10px 16px; /* QA 86exfx68w: align placeholder with icons-row gutter */
+		font-size: 16px;
+		font-weight: 400;
+		color: #888888;
+		line-height: 24px;
+		border: none;
+		border-radius: 6px;
+		background: transparent;
+		box-shadow: none;
+	}
+
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input::placeholder {
+		color: #BFBFBF;
+		opacity: 1;
+	}
+
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-search-submit {
+		width: 40px;
+		height: 100%;
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 0 6px 6px 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
+		width: 24px;
+		height: 24px;
+		fill: #888888;
+	}
+}
+
+/* Collapse empty middle column — now unused after moving search to start.
+   WHY: Blocksy 3-column grid gives equal 1fr to start and end with a
+   middle column in between. With middle empty, force it to 0 width so
+   start and end split the full width. @date 2026-04-14 */
+[data-row="middle"] [data-column="middle"]:empty,
+[data-row="middle"] [data-column="middle"]:has(:empty) {
+	display: none;
+}
+
+#header [data-row="middle"] > .ct-container {
+	grid-template-columns: 1fr auto;
+}
+
+
+/* ==========================================================================
+   Offcanvas Mobile Menu — Light theme to match live site
+   WHY: Blocksy default offcanvas is dark (rgba(18,21,25,0.98)). Live site
+   uses a light/warm background (#FAF6F2) with dark text. Customizer
+   offcanvasBackground key does not reliably override the default. CSS
+   override on .ct-panel-inner is more reliable.
+   @date 2026-04-15
+   ========================================================================== */
+
+/* Panel background — warm off-white matching live site.
+   Selector must beat Blocksy inline CSS: [data-header*="type-1"] #offcanvas .ct-panel-inner */
+[data-header] #offcanvas .ct-panel-inner {
+	background: var(--theme-palette-color-6, #FAF6F2) !important;
+}
+
+/* Menu text color — dark on light bg */
+[data-header] #offcanvas .ct-panel-inner,
+[data-header] #offcanvas .ct-panel-inner a,
+[data-header] #offcanvas .ct-panel-inner .ct-mobile-menu a {
+	color: var(--theme-palette-color-2, #393939) !important;
+}
+
+/* Menu item hover — darker */
+[data-header] #offcanvas .ct-panel-inner a:hover,
+[data-header] #offcanvas .ct-panel-inner .ct-mobile-menu a:hover {
+	color: var(--theme-palette-color-1, #111111);
+}
+
+/* Close button — dark on light bg */
+[data-header] #offcanvas .ct-toggle-close {
+	color: var(--theme-palette-color-4, #888888);
+}
+
+[data-header] #offcanvas .ct-toggle-close:hover {
+	color: var(--theme-palette-color-1, #111111);
+}
+
+/* Close button — circled X matching live site.
+   Live site has a circle border around the X icon.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-toggle-close {
+	border: 1.5px solid rgba(0, 0, 0, 0.2) !important;
+	border-radius: 50% !important;
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+[data-header] #offcanvas .ct-toggle-close svg {
+	width: 12px;
+	height: 12px;
+	fill: var(--theme-palette-color-2, #393939) !important;
+}
+
+/* "Menu" heading — added via CSS ::before on the panel actions bar.
+   Live site shows "Menu" text at the top-left of the offcanvas.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-panel-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 24px 0;
+	border: none !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+/* Remove ALL separators/lines around the Menu header area.
+   Blocksy may generate lines via pseudo-elements, borders, or box-shadows.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-panel-actions::after {
+	display: none !important;
+}
+
+[data-header] #offcanvas .ct-panel-content {
+	border: none !important;
+	box-shadow: none !important;
+}
+
+[data-header] #offcanvas .ct-panel-content::before {
+	display: none !important;
+}
+
+/* Remove top border/line from first menu item and nav container */
+[data-header] #offcanvas nav,
+[data-header] #offcanvas nav > ul,
+[data-header] #offcanvas nav > ul > li:first-child {
+	border-top: none !important;
+}
+
+[data-header] #offcanvas .ct-panel-actions::before {
+	content: "Menu";
+	font-family: Museo Sans, var(--theme-body-font-family, sans-serif);
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--theme-palette-color-2, #393939);
+}
+
+/* Chevron direction — rotate from down-pointing (v) to right-pointing (>).
+   Live site uses right-pointing chevrons for submenu indicators.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-toggle-dropdown-mobile svg {
+	transform: rotate(-90deg);
+}
+
+/* Dropdown chevron icons — dark on light bg.
+   Blocksy inline CSS sets these to white (for dark theme). !important needed.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-toggle-dropdown-mobile {
+	color: var(--theme-palette-color-2, #393939) !important;
+}
+
+[data-header] #offcanvas .ct-toggle-dropdown-mobile svg {
+	fill: var(--theme-palette-color-2, #393939) !important;
+}
+
+/* Menu link font — match live site (16px/500, Museo Sans).
+   Blocksy default is 20px/700 which is too bold for this design.
+   @date 2026-04-15 */
+[data-header] #offcanvas .ct-menu-link {
+	font-size: 16px !important;
+	font-weight: 500 !important;
+	font-family: Museo Sans, var(--theme-body-font-family, sans-serif) !important;
+}
+
+/* Menu item dividers — subtle lines between items.
+   Live site has light dividers between each nav item.
+   @date 2026-04-15 */
+[data-header] #offcanvas nav > ul > li {
+	border-bottom: none;
+	padding: 4px 0;
+}
+
+/* Two horizontal lines only — matching live site.
+   1. After "Shop All" (1st item) — separates shop-all from category nav
+   2. After "Vip sign up" (8th item) — separates primary nav from secondary nav
+   @date 2026-04-15 */
+[data-header] #offcanvas nav > ul > li:nth-child(1) {
+	border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+	padding-top: 8px;
+	margin-top: 4px;
+}
+
+[data-header] #offcanvas nav > ul > li:nth-child(8) {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+	padding-bottom: 12px;
+	margin-bottom: 8px;
+}
+
+/* Secondary nav items (FAQ, About, Contact, Return, Article) — slightly smaller/lighter.
+   Live site differentiates these from the primary shop nav.
+   @date 2026-04-15 */
+[data-header] #offcanvas nav > ul > li:nth-child(n+9):not(:has(svg)) .ct-menu-link {
+	font-size: 15px !important;
+	font-weight: 400 !important;
+	color: var(--theme-palette-color-2, #393939) !important;
+}
+
+/* Social icons in menu — brand brown color matching live site.
+   @date 2026-04-15 */
+[data-header] #offcanvas nav > ul > li svg {
+	fill: var(--theme-palette-color-3, #746A5F) !important;
+}
+
+/* ==========================================================================
+   Checkout — Client-specific color tokens (Phase 2.5 — Figma 6054:66809)
+   WHY: Figma specifies an unusual light-blue primary CTA (#D9EAF0) with dark
+   text on the checkout page — different from Blocksy's global button token
+   (brown). Since this is client-specific, the shared component CSS exposes
+   --fc-btn-primary-* variables and we override them here.
+   Progress bar fill (#C1B19E) is Byron Bay's warm-tan brand accent.
+   @date 2026-04-17
+   ========================================================================== */
+body.woocommerce-checkout {
+	/* Refactored 2026-05-13 (Anne Marie kickback): hex literals replaced with
+	   Blocksy Customizer palette aliases.  Client can change brand colors via
+	   Customizer alone — no CSS edit needed. */
+	--fc-btn-primary-bg:       var(--theme-palette-color-12);   /* Button/Default (sage) */
+	--fc-btn-primary-bg-hover: var(--theme-palette-color-13);   /* Button/Hover (sage hover) */
+	--fc-btn-primary-text:     var(--theme-palette-color-24);   /* Button/Text Dark */
+	--fc-progress-bar-bg:      var(--theme-palette-color-16);   /* Border (#CFCFCF) */
+	--fc-progress-bar-fill:    var(--theme-palette-color-28);   /* Progress Bar Fill */
+}
+
+/* === BC color/font tokens (Layer 2 — refactored 2026-05-13 per Anne Marie kickback)
+ * No hex values here on purpose.  Each token aliases to a Customizer-managed
+ * palette slot so the client can change brand values via Customizer alone.
+ * Per the BC editor-first rule: Gutenberg → Customizer → CSS aliases (never CSS hex).
+ * === */
+:root {
+	/* Fonts — aliases to Blocksy's body-font var which follows the Customizer choice */
+	--bc-sf-font-body:  var(--theme-body-font-family);
+	--bc-sf-font-label: var(--theme-body-font-family);
+
+	/* BBC brand-distinct surface colors */
+	--fc-bg-pale:       var(--theme-palette-color-26);   /* BG/Pale */
+	--fc-accent-teal:   var(--theme-palette-color-27);   /* Accent/Teal */
+	--fc-text-brown:    var(--theme-palette-color-19);   /* Backup/Old Brown (#746A5F) */
+
+	/* Generic checkout neutrals */
+	--fc-text-strong:   var(--theme-palette-color-2);    /* Contrast 2 (#393939) */
+	--fc-text-soft:     var(--theme-palette-color-4);    /* Contrast 4 (#888888) */
+
+	/* Status colors */
+	--fc-error:         var(--theme-palette-color-15);   /* Button/Error (#EF4444) */
+}
+
+/* ==========================================================================
+   404 Page (Blocksy Content Block template_type=404, post 645646)
+   Client-specific typography + spacing. Reusable Baymard UX patterns
+   (decorated headings, product grid) live in shared components.
+   @date 2026-04-22
+   ========================================================================== */
+
+/* Hero icon — aromatic-candle-1.png.
+   WHY: Gutenberg image block has no size preset that matches the live site's
+   decorative candle trio. Scale to a reasonable display size + center.
+   @date 2026-04-22 */
+.bc-404__icon img {
+	max-width: 96px;
+	height: auto;
+	margin: 0 auto;
+}
+
+/* Eyebrow — muted, uppercase, tiny. Establishes error context above headline.
+   WHY: Gutenberg paragraph has no uppercase/tracking controls.
+   @date 2026-04-22 */
+.bc-404__eyebrow {
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #888888;
+	margin-top: 24px;
+	margin-bottom: 8px;
+}
+
+/* Headline — dramatic, matches site H1 scale but pushed larger for emotional beat.
+   WHY: Baymard 404 guidance: the error headline should be the visual anchor.
+   @date 2026-04-22 */
+.bc-404__title {
+	font-size: 48px;
+	line-height: 1.15;
+	margin: 0 0 16px;
+}
+
+@media (max-width: 689px) {
+	.bc-404__title {
+		font-size: 32px;
+	}
+}
+
+/* Lead paragraph — comfortable reading width, slightly muted.
+   WHY: Narrow measure improves scanability on 404 recovery copy.
+   @date 2026-04-22 */
+.bc-404__lead {
+	max-width: 540px;
+	margin: 0 auto 32px;
+	font-size: 16px;
+	line-height: 1.6;
+	color: #444;
+}
+
+/* Search bar — mirror header FiboSearch styling so the 404 search feels
+   native to the site. Source of truth for header styles is the
+   [data-id="search"] block earlier in this file. Duplicated here scoped
+   to .bc-404 because those styles are scoped to Blocksy's header wrapper.
+   TODO: extract into assets/css/components/fibosearch-base.css when a
+   third use-case appears. @date 2026-04-22 */
+.bc-404__search {
+	margin: 0 auto 28px;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp {
+	max-width: 100%;
+	width: 100%;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-search-form {
+	border-radius: 6px;
+	border: 1px solid #E7E7E7;
+	height: auto;
+	background: #FFFFFF;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input,
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:hover,
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input:focus {
+	height: auto;
+	padding: 10px 40px 10px 14px;
+	font-size: 16px;
+	font-weight: 400;
+	color: #393939;
+	line-height: 24px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	box-shadow: none;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input::placeholder {
+	/* WCAG 1.4.3 — placeholder text must hit ≥3:1 contrast against the input
+	   background. Original `#BFBFBF` was 1.84:1 against #fff — failed.
+	   `#746A5F` (palette-color-19) is 5.27:1 against white — comfortably
+	   meets AA for normal text. Audit P0 fix 2026-05-08. */
+	color: #746A5F;
+	opacity: 1;
+	font-style: normal;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-search-submit {
+	width: 40px;
+	height: 100%;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 0 6px 6px 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
+	width: 24px;
+	height: 24px;
+	fill: #888888;
+}
+
+/* CTA row — extra breathing room + consistent gap.
+   WHY: Gutenberg "Flex Layout > Block spacing" doesn't go below default.
+   Button text color is client-controlled via Block → Color panel.
+   @date 2026-04-22 */
+.bc-404__ctas {
+	gap: 12px;
+	margin-top: 8px;
+}
+
+/* Section titles — vertical spacing around decorated heading.
+   Decorated line treatment itself comes from the reusable .bc-section-heading
+   component in homepage.css (pseudo-element flanking lines).
+   WHY: Gutenberg Heading block doesn't expose pseudo-element controls or
+   section-rhythm spacing presets. @date 2026-04-22 */
+.bc-404__section-title {
+	margin-top: 64px;
+	margin-bottom: 32px;
+}
+
+@media (max-width: 689px) {
+	.bc-404__section-title {
+		margin-top: 40px;
+		margin-bottom: 24px;
+		font-size: 22px;
+	}
+}
+
+/* ==========================================================================
+   Animated highlight — reusable inline span with drawing-underline animation
+   Replicates Elementor Pro's "Animated Headline → Highlight" style without
+   the plugin dependency. Used on the candle-refill-offer page (ID 634520)
+   for "21 million tonnes" and "REFILL3".
+   @date 2026-04-22
+   ========================================================================== */
+/* WHY CSS: Gutenberg has no animated-text-decoration control. Blocksy
+   Customizer has no such control either. CSS is the correct fallback per
+   the styling hierarchy rule. Simple transform: scaleX animation on a
+   ::after pseudo-element draws a red underline left-to-right. Respects
+   prefers-reduced-motion. Reusable on any page — add className="bc-highlight"
+   to an inline <span> via Gutenberg's HTML inline-format or a raw heading. */
+.bc-highlight {
+	position: relative;
+	display: inline-block;
+}
+
+.bc-highlight::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 3px;
+	background: #E74C3C;
+	transform: scaleX(0);
+	transform-origin: left center;
+	animation: bc-highlight-draw 1.2s ease-out 0.4s forwards;
+}
+
+@keyframes bc-highlight-draw {
+	to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bc-highlight::after {
+		animation: none;
+		transform: scaleX(1);
+	}
+}
+
+/* ==========================================================================
+   Candle Refill Offer page (634520) — minimal spacing/typography polish
+   Only rules that Gutenberg Block settings + Blocksy can't express.
+   @date 2026-04-22
+   ========================================================================== */
+
+/* Eco/ingredient pills line — uppercase, muted, tracked. Gutenberg paragraph
+   has no letter-spacing control. @date 2026-04-22 */
+.bc-refill-offer__pills {
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #666;
+	margin: 24px auto;
+	max-width: 680px;
+}
+
+/* Discount code display — prominent centered code badge.
+   WHY: Client-editable content ("REFILL3") stays as plain Paragraph;
+   only the visual box treatment needs CSS. @date 2026-04-22 */
+.bc-refill-offer__code {
+	display: inline-block;
+	padding: 12px 32px;
+	background: #F5EFE8;
+	border: 1px dashed #746A5F;
+	border-radius: 4px;
+	font-size: 18px;
+	letter-spacing: 0.1em;
+	margin: 16px auto 24px;
+}
+
+/* Bottom 3-column block — equal-height columns with comfortable gap.
+   Gutenberg columns gap control is site-wide; per-block here. @date 2026-04-22 */
+.bc-refill-offer__bottom {
+	gap: 32px;
+	margin-top: 64px;
+	align-items: stretch;
+}
+
+/* Col 1 — product shortcode (Scent Tester Cards): stretch the .products
+   output so the product card fills the column height to match cols 2 & 3.
+   WHY: WooCommerce [products] renders a grid with a short product tile;
+   without this col 1 collapses and heights don't match live site.
+   @date 2026-04-22 */
+.bc-refill-offer__bottom > .wp-block-column:first-child {
+	display: flex;
+	flex-direction: column;
+}
+.bc-refill-offer__bottom > .wp-block-column:first-child .woocommerce,
+.bc-refill-offer__bottom > .wp-block-column:first-child ul.products {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+.bc-refill-offer__bottom > .wp-block-column:first-child ul.products li.product {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	margin: 0;
+}
+
+/* Col 2 — INTRODUCTORY OFFER image: was stretched with object-fit:cover +
+   forced 350px height. Switch to natural aspect (contain). Block-level
+   width:auto/height:350px attributes removed on post, this is the safety
+   net for the class. @date 2026-04-22 */
+.bc-refill-offer__offer-img img {
+	width: 100%;
+	height: auto;
+	max-height: 400px;
+	object-fit: contain;
+	display: block;
+}
+
+/* Col 3 — "Last Chance" panel: match live site's taller 3rd column
+   (ref: .elementor-element-670e5fa). Stretch panel to column height and
+   center content vertically so CTA lands mid-column like live.
+   @date 2026-04-22 */
+.bc-refill-offer__last-chance {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 48px 24px;
+	background: #F5EFE8;
+	border-radius: 4px;
+}
+.bc-refill-offer__last-chance h2 {
+	margin-top: 0;
+}
+
+@media (max-width: 781px) {
+	.bc-refill-offer__bottom {
+		gap: 24px;
+		margin-top: 40px;
+	}
+	.bc-refill-offer__last-chance {
+		padding: 32px 20px;
+	}
+}
+
+
+/* ==========================================================================
+   Candle Refill Offer (634520) — Row 2 additions
+   Row 1 col 3 = native wp:video block; Row 2 = Watch video + Last Chance.
+   @date 2026-04-22
+   ========================================================================== */
+
+/* Native video block in row 1 col 3 — fill column height like Introductory
+   Offer panel next to it so heights match (ref: live .elementor-element-670e5fa).
+   WHY: wp:video default is auto-width and aspect-based; we want it to act
+   like a card filling the column. */
+.bc-refill-offer__video {
+	margin: 0;
+	height: 100%;
+}
+.bc-refill-offer__video video {
+	width: 100%;
+	height: 100%;
+	min-height: 320px;
+	max-height: 560px;
+	object-fit: cover;
+	border-radius: 5px;
+	display: block;
+	background: #000;
+}
+
+/* Row 2 — 25/50/25 matching live Elementor layout (empty 25% col, watch
+   video in 50% center col, Last Chance panel in 25% right col).
+   Watch video uses wp:embed (Vimeo) with native 16:9 aspect ratio
+   provided by Gutenberg's `wp-embed-aspect-16-9` class — no height
+   override needed. @date 2026-04-22 */
+.bc-refill-offer__bottom--row2 {
+	margin-top: 32px;
+}
+
+.bc-refill-offer__watch h2 {
+	margin-bottom: 24px;
+}
+
+/* Watch Vimeo embed — constrain max-width so it reads well in the 50% col
+   and doesn't grow taller than the Last Chance panel at desktop sizes. */
+.bc-refill-offer__watch-embed {
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+@media (max-width: 781px) {
+	.bc-refill-offer__bottom--row2 {
+		margin-top: 24px;
+	}
+	.bc-refill-offer__bottom--row2 > .wp-block-column {
+		flex-basis: 100% !important;
+	}
+	/* Mobile: hide the empty spacer col rather than render a blank row */
+	.bc-refill-offer__bottom--row2 > .wp-block-column:first-child:empty {
+		display: none;
+	}
+	.bc-refill-offer__video video {
+		min-height: 240px;
+		max-height: 400px;
+	}
+}
+
+
+/* ==========================================================================
+   Custom Candles page (638797) — Media & Text images 350px uniform height
+   WHY: Gutenberg media-text block exposes mediaSizeSlug (thumb/medium/full)
+   but not a height control, and natural image aspects vary, so we need CSS
+   to keep the 8 alternating blocks visually balanced.
+   Scoped to .page-id-638797 so it doesn't affect other pages.
+   @date 2026-04-22
+   ========================================================================== */
+.page-id-638797 .wp-block-media-text__media img {
+	height: 400px;
+	width: 100%;
+	object-fit: cover;
+	border-radius: 5px;
+	display: block;
+}
+
+@media (max-width: 781px) {
+	.page-id-638797 .wp-block-media-text__media img {
+		height: 260px;
+	}
+}
+
+
+/* ==========================================================================
+   Corporate Buyer page (7530) — force 2-col image grid at all mobile widths
+   WHY: Gutenberg's `isStackedOnMobile: false` attr (which emits class
+   `.is-not-stacked-on-mobile`) keeps the grid 2-col down to ~781px but below
+   that breakpoint the child-of-column width squeezes images to 1-col at
+   ~520px. Client-requested: keep 2-col all the way down (matches live).
+   Scoped to .page-id-7530 so other pages with media grids aren't affected.
+   @date 2026-04-24
+   ========================================================================== */
+/* Image grid — force 2-col at all viewports via className hook added in
+   the Block Inspector. Cleaner than overriding Gutenberg's isStackedOnMobile
+   flex rules because the .bc-image-grid class only lives on the 3 inner
+   image rows (not the outer images|list column wrap). @date 2026-04-24 */
+.wp-block-columns.bc-image-grid {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--wp--preset--spacing--30, 20px);
+}
+
+.wp-block-columns.bc-image-grid > .wp-block-column {
+	flex-basis: auto !important;
+	width: auto !important;
+	margin: 0 !important;
+}
+
+/* ==========================================================================
+   Search Results page — gap between header and page-title area
+   Blocksy's hero-section[data-type=type-1] has zero padding (only sets
+   --alignment and --margin-bottom). Type-2 has padding 50px 0 by default
+   but Blocksy uses type-1 for search-results. No Customizer setting
+   exposes search-page hero padding, so scoping CSS here. Value 24px
+   matches single_page_pageTitlePadding (BBC's standard for content pages).
+   @date 2026-04-26
+   ========================================================================== */
+.search.search-results .hero-section[data-type="type-1"] {
+	padding-top: 24px;
+}
+
+/* ==========================================================================
+   BBC 86exbzech — 14px minimum font size (QA — 2026-05-05)
+   Overrides Blocksy parent theme, WooCommerce core, and plugin CSS that
+   render text below 14px. Direct child-theme rules already bumped in-file.
+   ========================================================================== */
+
+/* WooCommerce price suffix — WooCommerce sets small at ~60% of parent */
+small.woocommerce-price-suffix,
+.woocommerce-price-suffix {
+	font-size: 14px;
+}
+
+/* WooCommerce badges — onsale + Blocksy featured badge */
+span.onsale,
+span.ct-woo-badge-featured {
+	font-size: 14px;
+}
+
+/* Blocksy cookie consent buttons */
+button.ct-button.ct-cookies-accept-button,
+button.ct-button.ct-cookies-decline-button {
+	font-size: 14px;
+}
+
+/* SMS / newsletter consent text (Klaviyo form block) */
+.bc-klaviyo-form p,
+.bc-klaviyo-form a,
+[class*='klaviyo'] p,
+[class*='klaviyo'] a,
+.kl-private-reset-css-Xuajs1 p,
+.kl-private-reset-css-Xuajs1 a {
+	font-size: 14px;
+}
+
+/* Quill editor inline rich-text (used in Gutenberg custom blocks) */
+em.ql-font-montserrat,
+.ql-editor em,
+.ql-editor p {
+	font-size: 14px;
+}
+
+/* Repuso / Google reviews widget */
+.rpi-review_us,
+.rpi-review_us a,
+.rpi-logo_after {
+	font-size: 14px;
+}
+
+/* BBC 86exbzech — round 2: additional runtime-discovered sub-14px elements */
+
+/* Blocksy ct-module-title in mini-cart + wishlist suggested panels */
+.bc-minicart-suggested-grid .ct-module-title,
+.bc-wishlist-suggested-grid .ct-module-title,
+#woo-cart-panel .ct-module-title,
+#woo-wishlist-panel .ct-module-title {
+	font-size: 14px;
+}
+
+/* Strikethrough sale price on product cards (Blocksy parent injects 80% of parent) */
+.price del,
+.price del .woocommerce-Price-amount,
+.price del bdi,
+.price del .woocommerce-Price-currencySymbol {
+	font-size: 14px;
+}
+
+/* Klaviyo disclosure / SMS consent text — uses dynamic Emotion class names */
+.kl-private-reset-css-Xuajs1 p,
+.kl-private-reset-css-Xuajs1 a,
+.klaviyo-disclosure p,
+.klaviyo-disclosure a {
+	font-size: 14px !important;
+}
+
+/* Quill rich-text em inline font override */
+em.ql-font-montserrat {
+	font-size: 14px !important;
+}
+
+/* BBC 86exbzech — round 3: strikethrough sale price del (specificity boost) */
+.products .product .price del,
+.products .product .price .sale-price del,
+.price .sale-price del,
+.bc-product-slider__track .price del {
+	font-size: 14px !important;
+}
+
+/* BBC 86exbzech — round 4: shop page offenders */
+
+/* Breadcrumbs — general (not just hero-section) */
+nav.ct-breadcrumbs,
+.ct-breadcrumbs,
+.ct-breadcrumbs a,
+.ct-breadcrumbs span {
+	font-size: 14px;
+}
+
+/* Filter panel trigger */
+.ct-toggle-filter-panel,
+a.ct-toggle-filter-panel {
+	font-size: 14px;
+}
+
+/* Out-of-stock / sold-out badge */
+span.out-of-stock-badge,
+.out-of-stock-badge {
+	font-size: 14px;
+}
+
+/* BBC 86exbzech — round 5: PDP price block (Blocksy CSS var inherits small value) */
+.single-product .summary p.price,
+.single-product .summary .price,
+.single-product .summary .price ins,
+.single-product .summary .price del,
+.single-product .summary .price .woocommerce-Price-amount,
+.single-product .summary .price bdi {
+	font-size: 14px;
+}
+
+/* BBC 86exbzech R6: floating bar price (ct-floating-bar-content) */
+.ct-floating-bar-content .price,
+.ct-floating-bar-content .price *,
+.ct-floating-bar-content .price del,
+.ct-floating-bar-content .price ins { font-size: 14px !important; }
+
+/* ==========================================================================
+   BBC 86exh2229 — Restore qty +/- button glyphs on PDP stepper
+   WHY: Child override of type-2 qty from absolute → flex left the :before
+   glyph dependent on Blocksy "woo" icon font, which fails to render reliably
+   alongside the child theme flex overrides. Fix: explicit Unicode chars.
+   @date 2026-05-07
+   ========================================================================== */
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease::before,
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase::before {
+	font-family: inherit !important;
+	font-size: 18px;
+	line-height: 1;
+	color: var(--theme-palette-color-1, #111);
+	margin: 0 !important;
+	transform: none !important;
+}
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease::before {
+	content: '\2212' !important; /* − minus sign */
+}
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase::before {
+	content: '+' !important;
+}
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease:hover,
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase:hover {
+	background: var(--theme-border-color, #e5e5e5) !important;
+}

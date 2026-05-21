@@ -1,0 +1,1454 @@
+/**
+ * Checkout Order Summary — Figma-spec styles for Byron Bay Candles.
+ * Task: CU-86ewn0gw9
+ * Figma: node 6054-109813 (Desktop 1512px)
+ *
+ * FC Pro breakpoint: >=1000px = desktop sidebar; <1000px = collapsible toggle.
+ * Adapted from ANM reference (CU-86ewyrrcm), rebased for BBC design tokens.
+ *
+ * Figma spec:
+ *   Card: bg #fff, border 1px #cfcfcf, radius 12px, padding 24px
+ *   Title: Quicksand 400 24px var(--fc-text-strong, #393939)
+ *   Badge: Quicksand 700 12px, pill (9999px), border 1px #cfcfcf
+ *   Product name: Quicksand 500 18px var(--fc-text-brown, #746a5f)
+ *   Price note: Quicksand 400 14px var(--fc-text-soft, #888888)
+ *   Remove: trash icon 20x20 var(--fc-text-brown, #746a5f)
+ *   Thumbnail: 120x120, container 6px radius, image 8px radius
+ *   Coupon toggle: Quicksand 400 18px var(--fc-text-strong, #393939)
+ *   Coupon input: 8px radius, border #dddddd
+ *   Apply btn: bordered, Museo Sans 700 16px, border 1px #353638, radius 8px
+ *   Totals rows: Quicksand 400 18px var(--fc-text-strong, #393939)
+ *   Total amount: Quicksand 700 24px var(--fc-text-strong, #393939)
+ *   Shipping note: Museo Sans 400 14px #030712
+ *   Shipping bar: track #dddddd 6px, fill #163317
+ *   Qty selector: 6px radius, border 1px #cfcfcf, Quicksand 400 18px
+ */
+
+/* =============================================
+   CSS CUSTOM PROPERTIES / TOKENS
+============================================= */
+body.woocommerce-checkout {
+	--bc-os-card-bg: #ffffff;
+	--bc-os-card-border: #cfcfcf;
+	--bc-os-card-radius: 12px;
+	--bc-os-card-padding: 24px;
+	--bc-os-title-color: var(--fc-text-strong, #393939);
+	--bc-os-text-color: var(--fc-text-brown, #746a5f);
+	--bc-os-text-secondary: var(--fc-text-soft, #888888);
+	--bc-os-text-dark: #353638;
+	--bc-os-divider-color: #cfcfcf;
+	--bc-os-divider-light: #dddddd;
+	--bc-os-input-border: #dddddd;
+	--bc-os-coupon-btn-border: #353638;
+	--bc-os-coupon-btn-text: #353638;
+	--bc-os-total-color: var(--fc-text-strong, #393939);
+}
+
+/* =============================================
+   FC PRO CSS VARIABLE OVERRIDES
+============================================= */
+.fc-checkout-order-review {
+	--fluidcheckout--order-summary--background-color: var(--bc-os-card-bg);
+	--fluidcheckout--order-summary--border-color: var(--bc-os-card-border);
+	--fluidcheckout--section--border-color: var(--bc-os-card-border);
+	--fluidcheckout--section--border-radius: var(--bc-os-card-radius);
+	--fluidcheckout--section--border-width: 1px;
+}
+
+/* Mobile/tablet collapsible wrapper: transparent bg per Figma */
+@media (max-width: 999px) {
+	.fc-checkout-order-review-collapsible-wrapper {
+		--fluidcheckout--order-summary--background-color: transparent;
+		--fluidcheckout--section--border-color: var(--bc-os-card-border);
+		background-color: transparent !important;
+		border: 1px solid var(--bc-os-card-border) !important;
+		border-radius: var(--bc-os-card-radius) !important;
+		overflow: hidden;
+	}
+}
+
+/* =============================================
+   OUTER CONTAINER — remove default FC Pro box-shadow
+============================================= */
+html body.woocommerce-checkout #fc-checkout-order-review {
+	box-shadow: none !important;
+}
+
+/* =============================================
+   DESKTOP SIDEBAR (>=1000px)
+============================================= */
+@media (min-width: 1000px) {
+	/* Outer container: white bg, border, 12px radius, 24px padding */
+	html body.woocommerce-checkout #fc-checkout-order-review,
+	div.woocommerce .fc-wrapper .fc-checkout-order-review {
+		background-color: var(--bc-os-card-bg) !important;
+		border: 1px solid var(--bc-os-card-border) !important;
+		border-radius: var(--bc-os-card-radius) !important;
+		padding: var(--bc-os-card-padding) !important;
+		box-shadow: none !important;
+	}
+
+	/* Inner box: transparent, no border, no extra padding */
+	div.woocommerce .fc-wrapper .fc-checkout-order-review .fc-checkout-order-review__inner {
+		background-color: transparent !important;
+		border: none !important;
+		border-radius: 0 !important;
+		padding: 0 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		gap: 0 !important;
+		margin: 0 !important;
+	}
+
+	/* Title — Quicksand 400 24px var(--fc-text-strong, #393939) */
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review-title,
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review__title {
+		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-size: 24px !important;
+		font-weight: 400 !important;
+		line-height: 28px !important;
+		color: var(--bc-os-title-color) !important;
+		text-transform: none !important;
+		margin-bottom: 0;
+	}
+
+	/* Head row — flex between title and badge */
+	html body div.woocommerce .fc-wrapper #fc-checkout-order-review .fc-checkout-order-review__inner .fc-checkout-order-review__head {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		margin-bottom: 8px;
+		padding-bottom: 16px !important;
+	}
+	/* Head divider color */
+	html body div.woocommerce .fc-wrapper #fc-checkout-order-review .fc-checkout-order-review__inner .fc-checkout-order-review__head {
+		border-bottom-color: var(--bc-os-divider-color) !important;
+	}
+
+	/* Remove excess top padding on tbody/first cart item */
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table thead {
+		margin-bottom: 0 !important;
+	}
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item:first-child td {
+		padding-top: 8px !important;
+	}
+
+	/* Inter-item spacing via td padding */
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item td {
+		padding-bottom: 12px !important;
+	}
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item + tr.cart_item td {
+		padding-top: 12px !important;
+	}
+
+	/* Thumbnails: 120x120, container 6px radius, image 8px radius */
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail {
+		border-radius: 6px !important;
+		overflow: hidden;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > a img {
+		width: 120px !important;
+		height: 120px !important;
+		max-width: 120px !important;
+		max-height: 120px !important;
+		object-fit: cover;
+		border-radius: 8px !important;
+	}
+}
+
+/* =============================================
+   HIDE EDIT CART LINK
+============================================= */
+.fc-checkout-order-review__edit-cart,
+.fc-checkout-order-review__header-link,
+a.fc-checkout-order-review__edit-cart {
+	display: none !important;
+}
+
+/* =============================================
+   ITEM COUNT BADGE — Quicksand 700 12px, pill shape
+============================================= */
+.bc-os-item-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 16px;
+	background-color: var(--bc-os-card-bg);
+	border: 1px solid var(--bc-os-card-border);
+	color: var(--bc-os-title-color);
+	border-radius: 9999px;
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif);
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 16px;
+	white-space: nowrap;
+}
+
+/* =============================================
+   PRODUCT TYPOGRAPHY — DESKTOP DEFAULTS
+============================================= */
+
+/* Product name: Quicksand 500 18px var(--fc-text-brown, #746a5f) */
+.fc-checkout-order-review .product-name,
+.fc-checkout-order-review .cart-item__name,
+.fc-checkout-order-review td.product-name a,
+.fc-checkout-order-review .cart_item .product-name a,
+body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name,
+body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details > a {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 18px !important;
+	font-weight: 500 !important;
+	line-height: 24px !important;
+	color: var(--bc-os-text-color) !important;
+	text-decoration: none;
+}
+
+/* Product name link as block so variation appears on next line */
+.fc-checkout-order-review td.product-name a,
+.fc-checkout-order-review .cart_item .product-name a {
+	display: block;
+}
+
+/* Variant/meta: Quicksand 400 16px var(--fc-text-brown, #746a5f) */
+.fc-checkout-order-review .variation,
+.fc-checkout-order-review .product-name .variation dd,
+.fc-checkout-order-review .product-name .variation dt,
+.fc-checkout-order-review dl.variation,
+.fc-checkout-order-review .cart-item__name dl.variation,
+.fc-checkout-order-review .cart-item__name dl.variation dd {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 16px !important;
+	font-weight: 400 !important;
+	line-height: 24px !important;
+	color: var(--bc-os-text-color) !important;
+}
+
+/* Variation block on its own line */
+.fc-checkout-order-review dl.variation,
+.fc-checkout-order-review .cart-item__name dl.variation,
+html body #fc-checkout-order-review dl.variation,
+#fc-checkout-order-review .cart-item__name dl.variation {
+	display: block !important;
+	margin: 4px 0 0 0 !important;
+}
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .cart-item__name dl.variation {
+	margin: 4px 0 0 0 !important;
+}
+.fc-checkout-order-review dl.variation dt,
+.fc-checkout-order-review dl.variation dd,
+.fc-checkout-order-review .cart-item__name dl.variation dt,
+.fc-checkout-order-review .cart-item__name dl.variation dd {
+	display: inline !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* =============================================
+   HIDE PER-ITEM TOTAL COLUMN (right-side subtotal)
+   WHY: Figma 6054-109813 omits the right-column subtotal. Trash icon
+   (in .fc-cart-item-actions, absolute-positioned via rules below) is
+   the only top-right element. The INLINE unit price (.cart-item__price)
+   is kept — it sits under the product name/variation.
+   @date 2026-04-23
+============================================= */
+.fc-checkout-order-review .product-total,
+.fc-checkout-order-review td.product-total,
+.fc-checkout-order-review-collapsible__content .product-total {
+	display: none !important;
+}
+
+/* =============================================
+   INLINE UNIT PRICE (.cart-item__price)
+   Figma: sits under product name + variation, before quantity stepper.
+   Sale products: regular price strikethrough (gray), sale price bold
+   dark, then "incl. GST (AU only)" note in 14px var(--fc-text-soft, #888).
+   @date 2026-04-23
+============================================= */
+.fc-checkout-order-review .cart-item__price {
+	display: block !important;
+	margin: 4px 0 8px 0 !important;
+	text-align: left !important;
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 14px !important;
+	line-height: 20px !important;
+	color: var(--bc-os-title-color) !important;
+}
+
+/* Non-sale price: regular weight, dark */
+.fc-checkout-order-review .cart-item__price > .woocommerce-Price-amount,
+.fc-checkout-order-review .cart-item__price > .amount {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	color: var(--bc-os-title-color) !important;
+}
+
+/* Regular (strikethrough) price on sale */
+.fc-checkout-order-review .cart-item__price del,
+.fc-checkout-order-review .cart-item__price del .amount,
+.fc-checkout-order-review .cart-item__price del .woocommerce-Price-amount {
+	color: var(--bc-os-text-secondary) !important;
+	font-weight: 400 !important;
+	text-decoration: line-through;
+	margin-right: 4px;
+}
+
+/* Sale (current) price — bold dark */
+.fc-checkout-order-review .cart-item__price ins,
+.fc-checkout-order-review .cart-item__price ins .amount,
+.fc-checkout-order-review .cart-item__price ins .woocommerce-Price-amount {
+	color: var(--bc-os-title-color) !important;
+	font-weight: 700 !important;
+	text-decoration: none !important;
+	background: transparent !important;
+}
+
+/* GST note: 14px var(--fc-text-soft, #888888) */
+.fc-checkout-order-review .cart-item__price .includes_tax,
+.fc-checkout-order-review .cart-item__price small.tax_label {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	line-height: 20px !important;
+	color: var(--bc-os-text-secondary) !important;
+	margin-left: 4px;
+}
+
+/* Product details wrapper: relative for trash icon positioning */
+.fc-checkout-order-review .product-details {
+	position: relative;
+	padding-right: 32px; /* reserve space for trash icon */
+}
+
+/* Remove link — trash icon: positioned top-right of product details (Figma) */
+.fc-checkout-order-review .fc-cart-item-actions,
+.fc-wrapper .cart_item .fc-cart-item-actions {
+	position: absolute !important;
+	top: 12px !important;
+	right: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.fc-checkout-order-review .product-remove a,
+.fc-checkout-order-review .product-remove .remove,
+.fc-checkout-order-review .fc-cart-item-actions > a.remove,
+.fc-wrapper .fc-cart-item-actions > a.remove,
+.fc-wrapper .cart_item .fc-cart-item-actions > a.remove,
+div.woocommerce .fc-wrapper .cart-item a.remove {
+	color: var(--bc-os-text-color) !important;
+	text-decoration: none !important;
+	font-size: 0 !important; /* hide text, show SVG */
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 24px !important;
+	height: 24px !important;
+}
+.fc-checkout-order-review .product-remove a svg,
+.fc-checkout-order-review .fc-cart-item-actions > a.remove svg,
+div.woocommerce .fc-wrapper .cart-item a.remove svg {
+	width: 24px;
+	height: 24px;
+	stroke: var(--bc-os-text-color);
+}
+
+/* Qty stepper: button group with borders, 6px radius
+   WHY: FC Pro's number-spinner JS injects buttons with class .number-spin-button
+   (no fc- prefix) — see fluid-checkout-pro/js/lib/number-spinner-400.js lines 29-30.
+   Using .minus / .plus modifiers is more robust than :first-of-type since button
+   placement is controlled by the JS library's buttonPlacement option.
+   @date 2026-04-23 */
+html body .fc-wrapper .number-spin-button {
+	border-radius: 0 !important;
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	border: 1px solid var(--bc-os-card-border) !important;
+	background: var(--bc-os-card-bg) !important;
+	width: 32px !important;
+	height: 40px !important;
+	padding: 8px !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+/* Minus button: left rounded, no right border (joins input) */
+html body .fc-wrapper .number-spin-button.minus {
+	border-radius: 6px 0 0 6px !important;
+	border-right: none !important;
+}
+/* Plus button: right rounded, no left border (joins input) */
+html body .fc-wrapper .number-spin-button.plus {
+	border-radius: 0 6px 6px 0 !important;
+	border-left: none !important;
+}
+/* Qty input between buttons — Figma: px-16 py-8 */
+html body .fc-wrapper .quantity input.qty {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	line-height: 24px !important;
+	color: var(--bc-os-title-color) !important;
+	border: 1px solid var(--bc-os-card-border) !important;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: 0 !important;
+	width: auto !important;
+	min-width: 42px !important;
+	height: 40px !important;
+	text-align: center !important;
+	padding: 8px 16px !important;
+}
+/* Quantity wrapper */
+body.woocommerce-checkout .fc-wrapper .woocommerce-checkout-review-order-table div.quantity,
+body.woocommerce-checkout .fc-wrapper .woocommerce-checkout-review-order-table div.quantity.buttons_added {
+	display: inline-flex !important;
+	align-items: center !important;
+	border-radius: 6px !important;
+	overflow: hidden;
+}
+
+/* Last cart item: reduce bottom padding, no duplicate divider */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item:last-child td {
+	padding-bottom: 12px !important;
+	border-bottom: none !important;
+}
+.fc-checkout-order-review tr.cart_item {
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--bc-os-divider-color);
+}
+.fc-checkout-order-review tr.cart_item:last-of-type {
+	margin-bottom: 0;
+	border-bottom: none;
+}
+
+/* Fix inter-item border color */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item + tr.cart_item {
+	border-top-color: var(--bc-os-divider-color) !important;
+}
+
+/* Tfoot divider + spacing */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot,
+html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfoot,
+.fc-checkout-order-review-collapsible__content .woocommerce-checkout-review-order-table tfoot {
+	margin-top: 4px !important;
+	padding-top: 4px !important;
+	border-top: 1px solid var(--bc-os-divider-color) !important;
+}
+
+/* =============================================
+   MOBILE "ORDER SUMMARY" HEADING + HEADER — hidden at desktop
+============================================= */
+.bc-mobile-order-summary-heading,
+.bc-mobile-order-summary-header {
+	display: none;
+}
+
+/* =============================================
+   MOBILE / TABLET COLLAPSIBLE (<1000px)
+============================================= */
+@media (max-width: 999px) {
+	/* Hide FC Pro sidebar-header duplicate toggle */
+	.fc-sidebar-header {
+		display: none !important;
+	}
+
+	/* Toggle bar padding */
+	.fc-checkout-order-review-collapsible__toggle-inner {
+		padding: 16px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	/* Toggle title — Quicksand 400 14px var(--fc-text-strong, #393939) */
+	.fc-wrapper .fc-checkout-order-review-collapsible__title,
+	body.woocommerce-checkout .fc-checkout-order-review-collapsible__title,
+	body.woocommerce-checkout .fc-checkout-order-review-collapsible .fc-checkout-order-review-collapsible__title {
+		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-size: 14px !important;
+		font-weight: 400 !important;
+		line-height: 1.5 !important;
+		color: var(--bc-os-title-color) !important;
+		text-transform: none !important;
+		letter-spacing: normal !important;
+		margin: 0;
+	}
+
+	/* Toggle total */
+	.fc-checkout-order-review-collapsible__total {
+		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-weight: 500 !important;
+		color: var(--bc-os-title-color) !important;
+	}
+
+	/* Inner content padding */
+	body.woocommerce-checkout .fc-checkout-order-review-collapsible__content .collapsible-content__inner,
+	html body .fc-checkout-order-review-collapsible .fc-checkout-order-review-collapsible__content .collapsible-content__inner {
+		padding: 16px !important;
+		box-sizing: border-box !important;
+		width: 100% !important;
+	}
+
+	/* Mobile "Order Summary" heading inside expanded area */
+	h3.bc-mobile-order-summary-heading,
+	body.woocommerce-checkout h3.bc-mobile-order-summary-heading {
+		display: block !important;
+		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-size: 20px !important;
+		font-weight: 400 !important;
+		color: var(--bc-os-title-color) !important;
+		margin: 0 !important;
+		text-transform: none !important;
+		line-height: 28px !important;
+		letter-spacing: normal !important;
+	}
+
+	/* Mobile header — flex row for heading + badge */
+	.bc-mobile-order-summary-header {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		margin-bottom: 16px !important;
+	}
+
+	/* Reduced mobile cart row spacing */
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody .cart_item:last-child td {
+		padding-bottom: 12px !important;
+		border-bottom: none !important;
+	}
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item td {
+		padding-bottom: 12px !important;
+	}
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tbody tr.cart_item:first-child td {
+		padding-top: 8px !important;
+	}
+
+	/* Remove toggle padding */
+	.fc-checkout-order-review-collapsible__toggle {
+		padding: 0 !important;
+	}
+
+	/* Hide hr dividers inside collapsible */
+	.fc-checkout-order-review-collapsible__content hr {
+		border-bottom: none !important;
+	}
+
+	/* Thumbnails: 120x120 all breakpoints, image 8px radius */
+	#order_review,
+	#fc-checkout-order-review,
+	.fc-checkout-order-review {
+		--fluidcheckout--order-summary--image-width: 120px;
+		--fluidcheckout--order-summary--image-width--large-screen: 120px;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > picture {
+		width: 120px !important;
+		border-radius: 6px !important;
+		overflow: hidden;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > picture img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > a img {
+		width: 120px !important;
+		height: 120px !important;
+		max-width: 120px !important;
+		max-height: 120px !important;
+		min-width: 120px !important;
+		min-height: 120px !important;
+		object-fit: cover !important;
+		border-radius: 8px !important;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-details {
+		width: calc(100% - 120px) !important;
+	}
+
+	/* Product name color for mobile */
+	.fc-checkout-order-review .product-name,
+	.fc-checkout-order-review td.product-name a,
+	.fc-checkout-order-review .cart_item .product-name a,
+	body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name,
+	body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details > a {
+		color: var(--bc-os-text-color) !important;
+	}
+
+	/* Variation mobile — 16px lh 26px */
+	.fc-checkout-order-review .variation,
+	.fc-checkout-order-review dl.variation,
+	.fc-checkout-order-review .product-name .variation dd,
+	.fc-checkout-order-review .cart-item__name dl.variation,
+	.fc-checkout-order-review .cart-item__name dl.variation dd,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .cart-item__name dl.variation,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .cart-item__name dl.variation dd {
+		display: block !important;
+		font-size: 16px !important;
+		line-height: 26px !important;
+		font-weight: 400 !important;
+		visibility: visible !important;
+		color: var(--bc-os-text-color) !important;
+	}
+
+	/* Cart items full-width inside collapsible content */
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table,
+	.fc-checkout-order-review-collapsible__content .fc-review-order-totals-table {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+		table-layout: auto !important;
+	}
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table tfoot,
+	.fc-checkout-order-review-collapsible__content .fc-review-order-totals-table tfoot {
+		width: 100% !important;
+		min-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table tbody,
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table thead {
+		width: 100% !important;
+		display: table-row-group !important;
+	}
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table tbody tr.cart_item {
+		width: 100% !important;
+		display: table-row !important;
+	}
+	.fc-checkout-order-review-collapsible__content table.woocommerce-checkout-review-order-table tbody tr.cart_item td {
+		box-sizing: border-box !important;
+	}
+	.fc-checkout-order-review-collapsible__content,
+	.fc-checkout-order-review-collapsible__content .collapsible-content__inner,
+	.fc-checkout-order-review-collapsible__content .collapsible-content__inner > * {
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	.fc-checkout-order-review-collapsible__content .collapsible-content__inner .woocommerce-checkout-review-order,
+	.fc-checkout-order-review-collapsible .collapsible-content__inner .woocommerce-checkout-review-order {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box !important;
+	}
+	.fc-checkout-order-review-collapsible__content[data-collapsible-content] {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	/* Per-item price mobile: 14px. Exclude del/ins (handled below) so the
+	   strikethrough regular price keeps its gray color and sale price keeps
+	   its bold weight on mobile. */
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .cart-item__price > .amount,
+	div.woocommerce .fc-wrapper #order_review .cart-item__price > .woocommerce-Price-amount,
+	.fc-checkout-order-review-collapsible__content .cart-item__price > .amount {
+		font-size: 14px !important;
+		color: var(--bc-os-title-color) !important;
+	}
+
+	/* Mobile sale-price overrides — matched specificity to beat the
+	   #order_review rules; keep del gray + ins bold on mobile. */
+	div.woocommerce .fc-wrapper #order_review .cart-item__price del,
+	div.woocommerce .fc-wrapper #order_review .cart-item__price del .amount,
+	div.woocommerce .fc-wrapper #order_review .cart-item__price del .woocommerce-Price-amount {
+		color: var(--bc-os-text-secondary) !important;
+		font-weight: 400 !important;
+		text-decoration: line-through;
+	}
+	div.woocommerce .fc-wrapper #order_review .cart-item__price ins,
+	div.woocommerce .fc-wrapper #order_review .cart-item__price ins .amount,
+	div.woocommerce .fc-wrapper #order_review .cart-item__price ins .woocommerce-Price-amount {
+		color: var(--bc-os-title-color) !important;
+		font-weight: 700 !important;
+		text-decoration: none !important;
+	}
+
+	/* Subtotal/shipping mobile: 14px */
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
+		font-size: 14px !important;
+		font-weight: 400 !important;
+	}
+
+	/* Total label mobile: 500 14px */
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total th {
+		font-size: 14px !important;
+		font-weight: 500 !important;
+	}
+
+	/* Qty stepper overflow fix */
+	body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details {
+		overflow: visible !important;
+	}
+	body.woocommerce-checkout .fc-wrapper .woocommerce-checkout-review-order-table div.quantity,
+	body.woocommerce-checkout .fc-wrapper .woocommerce-checkout-review-order-table div.quantity.buttons_added {
+		min-width: 80px !important;
+		max-width: 106px !important;
+		width: auto !important;
+		box-sizing: border-box !important;
+	}
+}
+
+/* =============================================
+   RESPONSIVE BREAKPOINTS
+============================================= */
+
+/* Mobile: remove side margins on collapsible wrapper */
+@media (max-width: 767px) {
+	.fc-checkout-order-review-collapsible-wrapper {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		margin-bottom: 8px !important;
+	}
+}
+
+/* Tablet/Mobile: reduce gap below container */
+@media (max-width: 999px) {
+	.fc-checkout-order-review-collapsible-wrapper {
+		margin-bottom: 12px !important;
+	}
+}
+
+/* 320px — compact toggle */
+@media (max-width: 320px) {
+	.fc-checkout-order-review-collapsible__toggle-inner {
+		padding: 12px;
+	}
+}
+
+/* 375px */
+@media (min-width: 321px) and (max-width: 375px) {
+	.fc-checkout-order-review-collapsible__toggle-inner {
+		padding: 14px;
+	}
+}
+
+/* 768px — tablet expanded area padding + heading size */
+@media (min-width: 768px) and (max-width: 999px) {
+	html body .fc-checkout-order-review-collapsible .fc-checkout-order-review-collapsible__content .collapsible-content__inner {
+		padding: 20px !important;
+	}
+	body.woocommerce-checkout h3.bc-mobile-order-summary-heading {
+		font-size: 24px !important;
+	}
+}
+
+/* 1024px — tighter desktop */
+@media (min-width: 1000px) and (max-width: 1024px) {
+	html body.woocommerce-checkout #fc-checkout-order-review {
+		padding: 20px !important;
+	}
+}
+
+/* 2560px */
+@media (min-width: 2560px) {
+	html body.woocommerce-checkout #fc-checkout-order-review {
+		padding: 32px !important;
+	}
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review-title,
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review__title {
+		font-size: 28px !important;
+	}
+	html body.woocommerce-checkout .order-total .amount,
+	html body.woocommerce-checkout tr.order-total td .amount {
+		font-size: 28px !important;
+		line-height: 34px !important;
+	}
+}
+
+/* 359px — shrink thumbnail at tiny viewports */
+@media (max-width: 359px) {
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > picture img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > img,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > a img {
+		width: 80px !important;
+		height: 80px !important;
+		min-width: 80px !important;
+		min-height: 80px !important;
+		max-width: 80px !important;
+		max-height: 80px !important;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > div.product-thumbnail,
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name > picture {
+		width: 80px !important;
+	}
+	div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-details {
+		width: calc(100% - 80px) !important;
+	}
+}
+
+/* =============================================
+   TOTALS TABLE — Desktop defaults: Quicksand 18px var(--fc-text-strong, #393939)
+   Labels (th): 400 weight. Values (td): 400 weight. Total: 700 weight.
+   ID-based selectors to beat FC Pro.
+============================================= */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	color: var(--bc-os-title-color) !important;
+}
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	color: var(--bc-os-title-color) !important;
+}
+
+/* Total row label: 700 */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total th {
+	font-weight: 700 !important;
+	font-size: 18px !important;
+}
+
+/* Tablet/Mobile tfoot font override — AFTER desktop rules so source order wins */
+@media (max-width: 999px) {
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
+		font-size: 14px !important;
+		font-weight: 400 !important;
+	}
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total th {
+		font-size: 14px !important;
+		font-weight: 700 !important;
+	}
+}
+
+/* =============================================
+   TOTAL AMOUNT — Desktop: Quicksand 700 24px var(--fc-text-strong, #393939)
+============================================= */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 24px !important;
+	font-weight: 700 !important;
+	line-height: 28px !important;
+	color: var(--bc-os-total-color) !important;
+}
+
+/* Mobile total: Quicksand 700 20px */
+@media (max-width: 767px) {
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
+		font-size: 20px !important;
+		line-height: 24px !important;
+	}
+}
+
+/* Tablet total: Quicksand 700 22px */
+@media (min-width: 768px) and (max-width: 999px) {
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
+	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
+	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
+		font-size: 22px !important;
+		line-height: 28px !important;
+	}
+}
+
+/* Total label — append colon */
+.fc-review-order-totals-table tr.order-total > th::after,
+.woocommerce-checkout-review-order-table tfoot tr.order-total > th::after {
+	content: ':';
+}
+
+/* =============================================
+   SHIPPING NOTE — Museo Sans 400 14px #030712
+============================================= */
+.fc-checkout-order-review .woocommerce-shipping-destination,
+.fc-checkout-order-review .shipping-note,
+.woocommerce-checkout-review-order-table tfoot .woocommerce-shipping-destination {
+	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	line-height: 20px !important;
+	color: #030712 !important;
+}
+
+/* Hide WT Smart Coupon Pro's server-rendered wrapper at the top of the form.
+   WHY: WT renders <div class="wt_coupon_wrapper"> via woocommerce_before_checkout_form
+   (above the form). custom/js/checkout-order-summary.js clones it into the order
+   summary after .coupon-code-form. Without this rule the original is visible at
+   the top until JS runs (FOUC). The clone gets .bc-wt-coupon-clone — excluded
+   here so it remains visible in the order summary.
+   @date 2026-04-29 */
+body.woocommerce-checkout .wt_coupon_wrapper:not(.bc-wt-coupon-clone) {
+	display: none !important;
+}
+
+/* =============================================
+   COUPON CODE — ACCORDION + REORDER ABOVE SUBTOTAL
+   Figma order: Coupon → divider → Subtotal → Shipping → Tax → divider → Total
+============================================= */
+
+/* Tfoot: flex column for CSS reorder */
+.fc-review-order-totals-table tfoot,
+.woocommerce-checkout-review-order-table tfoot {
+	display: flex !important;
+	flex-direction: column !important;
+	width: 100% !important;
+}
+
+/* Tfoot rows as flex items */
+.fc-review-order-totals-table tfoot tr,
+.woocommerce-checkout-review-order-table tfoot tr {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: baseline !important;
+	width: 100% !important;
+}
+
+/* th/td in tfoot rows */
+.fc-review-order-totals-table tfoot tr th,
+.fc-review-order-totals-table tfoot tr td,
+.woocommerce-checkout-review-order-table tfoot tr th,
+.woocommerce-checkout-review-order-table tfoot tr td {
+	display: block !important;
+}
+
+/* Coupon row: order -10 to appear first */
+.fc-review-order-totals-table tfoot tr.coupon-code-form,
+.woocommerce-checkout-review-order-table tfoot tr.coupon-code-form {
+	order: -10 !important;
+}
+
+/* Available-coupons row (clone wrapper) — sits right after coupon-code-form.
+   WHY: custom/js/checkout-order-summary.js wraps the WT clone in <tr><td colspan="2">
+   to keep <tfoot> markup valid. order:-9 slots it between .coupon-code-form (-10)
+   and .cart-subtotal (0). td/clone get full width to match the row layout used
+   by .coupon-code-form (line ~918-930).
+   @date 2026-04-29 */
+.fc-review-order-totals-table tfoot tr.bc-wt-coupon-row,
+.woocommerce-checkout-review-order-table tfoot tr.bc-wt-coupon-row {
+	order: -9 !important;
+	flex-wrap: nowrap !important;
+	width: 100% !important;
+}
+.fc-review-order-totals-table tr.bc-wt-coupon-row > td,
+.woocommerce-checkout-review-order-table tr.bc-wt-coupon-row > td {
+	padding: 0 !important;
+	width: 100% !important;
+	flex: 1 !important;
+}
+.bc-wt-coupon-row .wt_coupon_wrapper.bc-wt-coupon-clone {
+	margin: 8px 0 !important;
+	width: 100% !important;
+}
+
+/* Coupon row — full width, single column layout */
+.fc-review-order-totals-table tr.coupon-code-form,
+.woocommerce-checkout-review-order-table tr.coupon-code-form {
+	flex-wrap: nowrap !important;
+	width: 100% !important;
+}
+.fc-review-order-totals-table tr.coupon-code-form > td,
+.woocommerce-checkout-review-order-table tr.coupon-code-form > td,
+.fc-review-order-totals-table tr.coupon-code-form > th,
+.woocommerce-checkout-review-order-table tr.coupon-code-form > th {
+	padding: 0 !important;
+	width: 100% !important;
+	flex: 1 !important;
+}
+
+/* Subtotal */
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal,
+.fc-review-order-totals-table tfoot tr.cart-subtotal {
+	order: 0;
+	border-top: none !important;
+	padding-top: 4px;
+	margin-top: 4px;
+}
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal th,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-subtotal th,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-subtotal td {
+	padding-top: 4px !important;
+}
+
+/* Shipping: order 1 */
+.fc-review-order-totals-table tfoot tr.woocommerce-shipping-totals,
+.woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals {
+	order: 1;
+}
+
+/* Tax: order 2 */
+.fc-review-order-totals-table tfoot tr.tax-rate,
+.woocommerce-checkout-review-order-table tfoot tr.tax-rate {
+	order: 2;
+}
+
+/* Applied coupon discount rows: order 3 */
+.fc-review-order-totals-table tfoot tr.cart-discount,
+.woocommerce-checkout-review-order-table tfoot tr.cart-discount {
+	order: 3;
+}
+
+/* Total row — order 10 + top divider */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total {
+	order: 10;
+	border-top: 1px solid var(--bc-os-divider-color) !important;
+	padding-top: 12px;
+	margin-top: 12px;
+	padding-bottom: 0 !important;
+}
+
+/* Remove duplicate divider on order-total th/td */
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total th,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot .order-total td,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td {
+	border-top: none !important;
+	border-bottom: none !important;
+}
+
+/* Remove FC Pro default borders on non-divider tfoot rows */
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.coupon-code-form,
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.woocommerce-shipping-totals,
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.tax-rate,
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-discount {
+	border-top: none !important;
+}
+div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.woocommerce-shipping-totals,
+div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.tax-rate,
+div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-discount,
+div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.coupon-code-form {
+	border-top: none !important;
+}
+
+/* Tfoot row spacing */
+.fc-review-order-totals-table tfoot tr,
+.woocommerce-checkout-review-order-table tfoot tr {
+	padding: 4px 0;
+}
+
+/* --- Coupon Accordion Toggle --- */
+
+/* Hide FC Pro default icon on toggle */
+.fc-coupon_code__collapsible .expansible-section__toggle-plus::before {
+	display: none !important;
+	content: none !important;
+}
+
+/* Toggle link — Quicksand 400 18px var(--fc-text-strong, #393939) */
+html body div.woocommerce .fc-wrapper #order_review .fc-coupon_code__collapsible .expansible-section__toggle-plus,
+.fc-coupon_code__collapsible .expansible-section__toggle-plus {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	width: 100% !important;
+	padding: 8px 0 !important;
+	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	color: var(--bc-os-title-color) !important;
+	text-decoration: none !important;
+	cursor: pointer;
+	background: none !important;
+	border: none !important;
+	line-height: 24px !important;
+}
+
+/* Chevron icon via ::after */
+.fc-coupon_code__collapsible .expansible-section__toggle-plus::after {
+	content: '' !important;
+	display: inline-block !important;
+	width: 10px !important;
+	height: 10px !important;
+	border-right: 2px solid var(--bc-os-title-color) !important;
+	border-bottom: 2px solid var(--bc-os-title-color) !important;
+	transform: rotate(45deg) !important;
+	transition: transform 0.25s ease !important;
+	flex-shrink: 0 !important;
+	margin-left: 8px !important;
+}
+
+/* Chevron direction: FC Pro is-collapsed on toggle = content visible = chevron UP */
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle.is-collapsed .expansible-section__toggle-plus::after {
+	transform: rotate(-135deg) !important;
+}
+
+/* Toggle wrapper: remove padding */
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle .collapsible-content__inner {
+	padding: 0 !important;
+	width: 100% !important;
+}
+
+/* Keep toggle ALWAYS VISIBLE regardless of FC Pro state */
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle > .collapsible-content__inner,
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle.is-collapsed > .collapsible-content__inner,
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle.is-expanded > .collapsible-content__inner {
+	display: block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	height: auto !important;
+	overflow: visible !important;
+}
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle,
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle.is-collapsed,
+.fc-coupon_code__collapsible .fc-expansible-form-section__toggle.is-expanded {
+	display: block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	height: auto !important;
+	overflow: visible !important;
+}
+.fc-coupon_code__collapsible .expansible-section__toggle-plus {
+	visibility: visible !important;
+	opacity: 1 !important;
+}
+
+/* --- Coupon Input + Apply Button --- */
+
+/* Content wrapper */
+.fc-coupon_code__collapsible .fc-expansible-form-section__content {
+	padding: 0 !important;
+}
+html body .fc-coupon_code__collapsible .fc-expansible-form-section__content .collapsible-content__inner {
+	padding: 0 !important;
+}
+html body .fc-coupon_code__collapsible .fc-expansible-form-section__toggle .collapsible-content__inner {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* Coupon section: inline flex row */
+.fc-coupon-code-section {
+	display: flex !important;
+	align-items: stretch !important;
+	gap: 8px !important;
+}
+
+/* Input field row wrapper */
+.fc-coupon-code-section p#coupon_code_field,
+.fc-coupon-code-section .form-row {
+	flex: 1 !important;
+	min-width: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.fc-coupon-code-section input[type="text"] {
+	width: 100% !important;
+	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	color: var(--bc-os-title-color) !important;
+	padding: 12px 24px !important;
+	border: 1px solid var(--bc-os-input-border) !important;
+	border-radius: 8px !important;
+	background: var(--bc-os-card-bg) !important;
+	outline: none !important;
+	box-sizing: border-box !important;
+}
+.fc-coupon-code-section input[type="text"]::placeholder {
+	color: var(--bc-os-text-secondary);
+	opacity: 0.5;
+}
+
+/* Apply button — bordered, Museo Sans 700 16px, border 1px #353638, radius 8px */
+body div.woocommerce .woocommerce-checkout .fc-coupon-code-section .fc-coupon-code__apply,
+body div.woocommerce .woocommerce-checkout .fc-coupon-code-section button[data-apply-coupon-button] {
+	position: static !important;
+	top: auto !important;
+	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: var(--bc-os-coupon-btn-text) !important;
+	background: var(--bc-os-card-bg) !important;
+	background-color: var(--bc-os-card-bg) !important;
+	border: 1px solid var(--bc-os-coupon-btn-border) !important;
+	border-radius: 8px !important;
+	padding: 8px 24px !important;
+	height: auto !important;
+	min-height: 0 !important;
+	line-height: 28px !important;
+	width: auto !important;
+	max-width: none !important;
+	text-transform: uppercase !important;
+	cursor: pointer !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
+	box-shadow: none !important;
+	z-index: auto !important;
+	transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease !important;
+}
+body div.woocommerce .woocommerce-checkout .fc-coupon-code-section .fc-coupon-code__apply:hover,
+body div.woocommerce .woocommerce-checkout .fc-coupon-code-section button[data-apply-coupon-button]:hover {
+	color: var(--bc-os-card-bg) !important;
+	background-color: var(--bc-os-coupon-btn-border) !important;
+	border-color: var(--bc-os-coupon-btn-border) !important;
+}
+
+/* Hide "Have a coupon?" message row */
+.fc-coupon-code-section .fc-coupon-code-section__message {
+	display: none !important;
+}
+
+/* Separator below coupon section */
+.fc-coupon_code__collapsible {
+	border-bottom: 1px solid var(--bc-os-divider-light);
+	padding-bottom: 8px;
+	margin-bottom: 8px;
+}
+
+/* =============================================
+   TABLET TITLE (768-999px): Quicksand 400 24px
+============================================= */
+@media (min-width: 768px) and (max-width: 999px) {
+	body.woocommerce-checkout .fc-checkout-order-review-title,
+	body.woocommerce-checkout .fc-checkout-order-review__title {
+		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-size: 24px !important;
+		font-weight: 400 !important;
+		color: var(--bc-os-title-color) !important;
+		text-transform: none !important;
+	}
+}
+
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name, 
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tr:first-child .product-name {
+	width: 100% !important;
+}
+
+html body.woocommerce-checkout .fc-wrapper div.quantity {
+	display: flex !important;
+}
+
+html body.woocommerce-checkout.has-fc-cart-ajax .fc-wrapper input.qty,
+html body .fc-wrapper .fc-number-spin-button.fc-minus,
+html body .fc-wrapper .fc-number-spin-button.fc-plus {
+	font-size: 18px !important;
+	line-height: 24px !important;
+	padding: 0 !important;
+	border: none !important;
+}
+
+html body .fc-wrapper .fc-number-spin-button.fc-minus {
+	order: 0 !important;
+}
+
+html body.woocommerce-checkout.has-fc-cart-ajax .fc-wrapper input.qty {
+	order: 1 !important;
+}
+
+html body .fc-wrapper .fc-number-spin-button.fc-plus {
+	order: 2 !important;
+}
+
+
+html body.woocommerce-checkout.has-fc-cart-ajax .fc-wrapper input.qty {
+	min-width: 100%;;
+}
+
+html .fc-expansible-form-section.fc-coupon_code__collapsible {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+}
+
+html body .fc-wrapper .fc-number-spin-button.fc-minus,
+html body .fc-wrapper .fc-number-spin-button.fc-plus {
+	position: relative !important;
+}
+
+/* =============================================
+   FIX (CU-86exc6t9e): Hide native FC Pro sidebar order summary on mobile.
+   WHY: option_fc_pro_checkout_order_summary_position_mobile = 'before_checkout_steps'
+   forces an extra collapsible summary at the top of mobile checkout (rendered via
+   fc_checkout_before_steps @ priority 100). The native .fc-sidebar > #fc-checkout-order-review
+   still ships in the markup and stacks below the form on mobile, producing a visible
+   duplicate above the terms checkbox.
+   We can't hide the entire .fc-sidebar because FC Pro can inject the
+   .fc-place-order section inside #fc-checkout-order-review via the
+   fc_checkout_after_order_review_inside hook (depending on the
+   fc_checkout_place_order_position setting) — hiding the wrapper kills the
+   Place Order button. So target only the summary content (head + table +
+   totals), preserving anything with .fc-place-order* class.
+   @date 2026-04-25 @updated 2026-04-25
+============================================= */
+@media (max-width: 999px) {
+	body.woocommerce-checkout .fc-sidebar .fc-checkout-order-review__head,
+	body.woocommerce-checkout .fc-sidebar .woocommerce-checkout-review-order,
+	body.woocommerce-checkout .fc-sidebar .fc-review-order-totals-table {
+		display: none !important;
+	}
+
+	/* Strip the card chrome so a lone Place Order button doesn't sit
+	   inside an empty bordered card on mobile. */
+	body.woocommerce-checkout .fc-sidebar,
+	body.woocommerce-checkout .fc-sidebar .fc-sidebar__inner,
+	body.woocommerce-checkout .fc-sidebar #fc-checkout-order-review {
+		background: transparent !important;
+		border: none !important;
+		padding: 0 !important;
+		box-shadow: none !important;
+	}
+}
+/* ==========================================================================
+   CHK FIX (CU-86exe3dcv): Coupon badge readability + spacing on order summary
+   WHY: wt-smart-coupon-pro 'badge_style' template writes per-coupon colour
+   tokens as inline style="..." on the wrapper, header, code, description
+   and SVG icon. On checkout the cloned badge (.bc-wt-coupon-clone inside
+   tr.bc-wt-coupon-row) renders with low-contrast dark text on a bronze
+   background. Force every text/icon node white. Also tighten the
+   bottom margin on the cloned wrapper so the badge sits closer to
+   the Subtotal row (QA: "adjust the gap between the logo and subtotal").
+   Scope is locked to .bc-wt-coupon-row so cart-page and available-
+   coupons surfaces keep their admin-defined colours.
+   @date 2026-05-05
+   ========================================================================== */
+
+/* All text white */
+.bc-wt-coupon-row .bc-wt-coupon-clone,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt-single-coupon,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt-single-coupon *,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt_sc_coupon_type,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wbte_sc_coupon_desc,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt_sc_coupon_code,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt_sc_coupon_code code,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wbte_sc_coupon_header,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wbte_sc_coupon_header * {
+    color: #ffffff !important;
+}
+
+/* Info / clock icon (inline SVG) — fill + stroke white */
+.bc-wt-coupon-row .bc-wt-coupon-clone svg,
+.bc-wt-coupon-row .bc-wt-coupon-clone svg * {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Tighten gap to Subtotal */
+.bc-wt-coupon-row .wt_coupon_wrapper.bc-wt-coupon-clone {
+    margin: 4px 0 0 0 !important;        /* was 8px 0 */
+}
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt-single-coupon.badge_style {
+    min-height: 0 !important;            /* template forces 100px */
+}
+
+/* CU-86exe3dcv v2 — webkit-text-fill-color fix
+   Fluid Checkout sets body { -webkit-text-fill-color: rgb(57,57,57) } globally.
+   This overrides color: #ffffff on the cloned badge in Chromium/Safari.
+   @date 2026-05-05
+   ========================================================================== */
+
+/* Force white text via webkit override (Fluid Checkout body override) */
+.bc-wt-coupon-row .bc-wt-coupon-clone,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt-single-coupon,
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt-single-coupon * {
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* ==========================================================================
+   CU-86exe3dcv v3 — tighten badge-to-subtotal gap
+   WHY: tr.cart-subtotal has margin-top:4px + padding-top:4px + td padding-top:4px
+   = 12px total gap. Badge bottom = 0px. 12px is too large; remove tr margin-top
+   to reduce to 8px total. Minimal change — td padding kept intact.
+   @date 2026-05-05
+   ========================================================================== */
+.fc-review-order-totals-table tfoot tr.cart-subtotal,
+.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal {
+    margin-top: 0 !important;
+}
+
+
+/* ==========================================================================
+   CU-86exe3dcv v4 — zero ALL padding/margin sources on tr.cart-subtotal
+   WHY: v3 removed only margin-top:4px. Remaining gap (~40px) comes from
+   padding-top on the <tr> itself (4px) + padding-top on <td>/<th> (4px)
+   + unknown Fluid Checkout/WC default padding on tfoot cells. Zero all
+   sources, then apply a single controlled 8px top gap via td padding only.
+   @date 2026-05-05
+   ========================================================================== */
+.fc-review-order-totals-table tfoot tr.cart-subtotal,
+.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+.fc-review-order-totals-table tfoot tr.cart-subtotal th,
+.fc-review-order-totals-table tfoot tr.cart-subtotal td,
+.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal th,
+.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td {
+    padding-top: 8px !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* ==========================================================================
+   CU-86exe3dcv v5 — match existing high-specificity selectors to win
+   WHY: v4 rule was overridden by existing rules at lines 967-979 which use
+   html/body/div.woocommerce/.fc-wrapper/#order_review selectors with ID
+   specificity. v5 uses identical selectors + !important to guarantee win.
+   Goal: zero all top spacing on tr.cart-subtotal and its td/th, then apply
+   a single clean 8px gap via td padding only.
+   @date 2026-05-05
+   ========================================================================== */
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-subtotal,
+.fc-review-order-totals-table tfoot tr.cart-subtotal,
+.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal th,
+html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-subtotal th,
+html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.cart-subtotal td {
+    padding-top: 8px !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* ==========================================================================
+   CU-86exe3dcv v6 — hide wt-sc-hidden-coupon-box elements in checkout clone
+   WHY: Plugin renders 2x div.wt-sc-hidden-coupon-box with visibility:hidden
+   and min-width:314px inside the flex wrapper. With display:block they still
+   occupy layout space and cause flex-wrap, inflating tr.bc-wt-coupon-row to
+   ~152px tall — the main source of the large visual gap before Subtotal.
+   display:none removes them from layout entirely. Scoped to .bc-wt-coupon-row
+   so cart-page badge coupons are unaffected.
+   @date 2026-05-05
+   ========================================================================== */
+.bc-wt-coupon-row .wt-sc-hidden-coupon-box {
+    display: none !important;
+}
+
+
+
+
+/* ==========================================================================
+   CU-86exe3dcv v7 — restore i.info visibility in checkout clone
+   WHY: the blanket color:#fff + -webkit-text-fill-color:#fff rules above
+   override the plugin's own i.info styling (color:var(--fc-accent-teal, #2890a8) — teal). This
+   makes the white-circle info icon render white text on white background
+   (invisible). Restore the plugin's teal color scoped to .bc-wt-coupon-row
+   so the info icon is legible. Specificity (4 classes) > blanket (3 classes).
+   @date 2026-05-05
+   ========================================================================== */
+.bc-wt-coupon-row .bc-wt-coupon-clone .wt_sc_coupon_desc_wrapper i.info {
+    color: var(--fc-accent-teal, #2890a8) !important;
+    -webkit-text-fill-color: var(--fc-accent-teal, #2890a8) !important;
+}

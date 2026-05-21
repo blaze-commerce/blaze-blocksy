@@ -1,0 +1,382 @@
+/**
+ * Header Component CSS — Blocksy Header Builder tweaks.
+ *
+ * This file is loaded on EVERY page (header is global).
+ * Only styles for elements the Blocksy Customizer cannot control.
+ *
+ * RULES:
+ * - Every var() MUST have a hardcoded fallback: var(--theme-palette-color-N, #hex)
+ * - Every rule MUST have a WHY comment
+ * - No !important — use cascade specificity
+ *
+ * @package Blocksy_Child
+ */
+
+/* ==========================================================================
+   FiboSearch Bar in Header Builder (Middle Row)
+   ========================================================================== */
+
+/* FiboSearch bar container — sets max-width for the search bar in the header.
+   WHY: FiboSearch is a third-party plugin. The Blocksy Customizer has no control
+   over its container width. Without this, the search bar expands to fill the
+   entire middle column. */
+.header-fibosearch-bar {
+	width: 100%;
+	max-width: 562px;
+}
+
+/* FiboSearch inner wrapper — ensures it fills the container.
+   WHY: FiboSearch sets its own max-width on this wrapper. We override to let
+   our parent container control the width. */
+.header-fibosearch-bar .dgwt-wcas-search-wrapp {
+	max-width: 100%;
+}
+
+/* FiboSearch search input styling.
+   WHY: FiboSearch renders its own <input> with default styles. The Blocksy
+   Customizer has no control over third-party plugin input styling. Colors
+   use Blocksy palette variables with fallbacks for graceful degradation. */
+.header-fibosearch-bar .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+	height: 48px;
+	border-radius: 8px;
+	border: 1px solid var(--theme-palette-color-16, #CFCFCF);
+	background: var(--theme-palette-color-17, #FFFFFF);
+	font-family: 'Museo Sans', sans-serif;
+	font-size: 14px;
+	color: var(--theme-palette-color-3, #746A5F);
+	padding: 0 48px 0 16px;
+}
+
+/* FiboSearch placeholder text color.
+   WHY: Same reason — third-party plugin input, no Blocksy Customizer control. */
+.header-fibosearch-bar .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input::placeholder {
+	color: var(--theme-palette-color-4, #888888);
+}
+
+/* FiboSearch submit button — make transparent (icon-only).
+   WHY: FiboSearch adds a submit button with a default background. We want
+   icon-only (the magnifying glass SVG). No Blocksy Customizer control. */
+.header-fibosearch-bar .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp .dgwt-wcas-search-submit {
+	background: transparent;
+	border: none;
+}
+
+/* ==========================================================================
+   Announcement Bar (Top Row)
+   ========================================================================== */
+
+/* Center-align the announcement bar text in the top row.
+   WHY: The Blocksy Header Builder HTML element doesn't have a text-align
+   option in its settings panel. The content is set via the Blocksy Customizer
+   HTML field, but alignment requires CSS. */
+[data-row="top"] [data-id="text"] {
+	text-align: center;
+}
+
+/* ==========================================================================
+   Bottom Row (Navigation) — Desktop Only
+   ========================================================================== */
+
+/* Hide the desktop bottom nav row on tablet/mobile.
+   WHY: The desktop bottom row contains the navigation bar. On mobile, a
+   hamburger menu + offcanvas replaces it. Scoped to [data-device="desktop"]
+   so the mobile bottom row (which contains the search bar) stays visible.
+   @date 2026-04-15 */
+@media (max-width: 999px) {
+	[data-device="desktop"] > [data-row="bottom"] {
+		display: none;
+	}
+}
+
+/* ==========================================================================
+   Divider Element — Respect Customizer height setting
+   ========================================================================== */
+
+/* Override Blocksy flex stretch on divider elements.
+   WHY: Blocksy flex container uses align-items:stretch which makes dividers
+   span the full row height (e.g. 115px). The Customizer divider_height setting
+   (24px) is ignored. This forces dividers to their configured height and
+   centers them vertically in the row.
+   @date 2026-04-15 */
+[data-row="middle"] [data-id*="divider"] {
+	align-self: center;
+	height: var(--divider-height, 24px);
+}
+
+/* ==========================================================================
+   Mobile Bottom Row — Search Bar
+   ========================================================================== */
+
+/* Mobile bottom row shows a full-width FiboSearch bar (matching live site).
+   WHY: The Blocksy Header Builder places the search element in the mobile
+   bottom row, but Blocksy has no padding/layout control for FiboSearch
+   output. This ensures the search bar fills the row with proper spacing.
+   @date 2026-04-15 */
+[data-device="mobile"] > [data-row="bottom"] {
+	background: #FFFFFF !important;
+	padding: 4px 15px;
+}
+
+/* Mobile search bar — edge-to-edge (zero horizontal padding/margin).
+   At <690 the bottom row's `padding: 4px 15px` (above) was leaving a 15 px
+   gap on each side from the viewport edge; the search item's intrinsic
+   `margin: 0 10px` (Blocksy header-row-item spacing pattern) added more.
+   Jayr 2026-05-05 — "make end-to-end, zero padding".
+   @date 2026-05-05 */
+@media (max-width: 689.98px) {
+	/* Search bar matches the logo+icons content width above (NOT viewport
+	   edge). Keep the .ct-container's `contentEdgeSpacing` margin (3 vw)
+	   so the search lines up with the logo on the left and the cart icon
+	   on the right. Just zero out the extra 15 px row padding + 10 px
+	   item margin. Jayr clarified 2026-05-05 — "end-to-end means content
+	   width, not viewport edge".
+	   @date 2026-05-05 */
+	[data-device="mobile"] > [data-row="bottom"] {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	[data-device="mobile"] > [data-row="bottom"] [data-id="search"] {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+}
+
+/* Fix middle row height across mobile + tablet viewports.
+   Blocksy outputs `--height: 115px` (desktop value) on `[data-row="middle"]`
+   and applies it via `#header [data-row] > div { min-height: var(--height) }`
+   (specificity 1,1,1). Setting `header_placements → middle-row → headerRowHeight.tablet`
+   to a custom value DOES NOT propagate to dynamic-styles (Blocksy edge case,
+   verified via Playwright + curl 2026-05-04 — only mobile @media gets emitted,
+   even when tablet differs from desktop and is in `__changed`).
+   We override directly with higher specificity here.
+
+   Scope: the Blocksy mobile-device variant is shown at:
+     • <690px (default)
+     • 1000-1080px (via the iPad-Pro swap below at line ~164)
+   So this rule targets all viewports where the mobile-device variant renders.
+
+   At <690px, content height naturally collapses to ~57px (logo + icons).
+   At 690-1080px (iPad-Pro swap range), we want ~80px to match live's
+   header height (live byronbaycandles.com renders the main nav row at 79.5px).
+
+   WHY 80 not auto: setting `min-height: auto` here lets the row compress to
+   its content height (~63px logo+padding), but live targets 79.5px. Explicit
+   80px gives breathing room around the logo at iPad-Pro viewports.
+
+   @date 2026-04-15 (initial mobile fix), 2026-05-04 (CU-86exbe963 — extend
+   to tablet 690-1080 with explicit 80px to match live). */
+@media (max-width: 689.98px) {
+	/* Mobile (<690) main nav row: 50 px (logo 44 + 3 px padding above +
+	   below). Matches Jayr's spec 2026-05-05 "the spacing or padding is
+	   like 3 px". Compact on purpose — keeps the header tight on small
+	   screens. Live `byronbaycandles.com` at 430 renders this row at 52 px
+	   (4 px each side); 50 / 3+3 is the agreed BBC value.
+
+	   History:
+	     2026-04-15 — original `min-height: auto` collapsed row to logo size
+	                   (44 px) — logo touched announcement bar (Jayr 05-05)
+	     2026-05-05 (1st attempt) — 75 px gave 15 px each side. Overshot.
+	     2026-05-05 (2nd attempt) — 52 px to match live exactly.
+	     2026-05-05 (locked) — 50 px / 3 px each side per Jayr.
+
+	   @date 2026-05-05 */
+	[data-device="mobile"] > [data-row="middle"] > .ct-container {
+		min-height: 50px !important;
+		grid-template-rows: 50px !important;
+	}
+}
+
+@media (min-width: 690px) and (max-width: 1080px) {
+	[data-device="mobile"] > [data-row="middle"] > .ct-container {
+		min-height: 80px !important;
+		grid-template-rows: 80px !important;
+	}
+}
+
+[data-device="mobile"] > [data-row="bottom"] [data-id="search"] {
+	width: 100%;
+}
+
+[data-device="mobile"] > [data-row="bottom"] [data-id="search"] .dgwt-wcas-search-wrapp {
+	max-width: 100%;
+	width: 100%;
+}
+
+/* ==========================================================================
+   FiboSearch HTML Element — Hide on Tablet/Mobile
+   ========================================================================== */
+
+/* Hide the FiboSearch HTML element on tablet/mobile.
+   WHY: On mobile, FiboSearch is too wide for the header middle row. The
+   mobile layout uses a search icon trigger instead. The Blocksy Customizer
+   HTML element visibility toggle doesn't distinguish between the search
+   bar and other content in the same column. */
+@media (max-width: 999px) {
+	[data-row="middle"] [data-column="middle"] .ct-header-text {
+		display: none;
+	}
+}
+
+
+/* ==========================================================================
+   iPad Pro (1024px) — Reduce header spacing
+   ========================================================================== */
+
+/* iPad Pro shows desktop header but at a narrow width. Reduce container
+   padding so logo and elements do not have excessive left/right spacing.
+   WHY: Blocksy desktop container has large padding at this width.
+   @date 2026-04-16 */
+@media (min-width: 1000px) and (max-width: 1080px) {
+	/* iPad Pro: swap desktop header for mobile/tablet header.
+	   WHY: At 1024px Blocksy renders desktop device, but iPad Pro should
+	   show tablet layout (hamburger + search row). Hide desktop, show mobile.
+	   @date 2026-04-16 */
+	[data-device="desktop"] {
+		display: none !important;
+	}
+
+	[data-device="mobile"] {
+		display: block !important;
+	}
+
+	/* Reduce container padding for tablet spacing */
+	#header .ct-container {
+		padding-left: 15px !important;
+		padding-right: 15px !important;
+	}
+
+	/* Logo max-height — match the Blocksy tablet value (50 px) at iPad-Pro
+	   viewports too. Blocksy's native responsive CSS only applies tablet
+	   `logoMaxHeight: 50` at 690-999.98, leaving 1000-1080 on the desktop
+	   value (80 px). Combined with our middle-row override of 80 px (above),
+	   that left zero padding above/below the logo — Vita kickback 2026-05-05.
+	   Setting --logo-max-height to match the tablet value gives ~15 px
+	   breathing room around the logo within the 80 px row.
+	   @date 2026-05-05 (CU-86exbe963 V2) */
+	#header [data-id="logo"] .site-logo-container {
+		--logo-max-height: 50px !important;
+	}
+
+	/* Search bar full content width — match the logo+icons row above.
+	   Blocksy applies a 10 px horizontal margin to header-row items
+	   (`[data-items] > [data-id] { margin: 0 10px }` pattern). On the bottom
+	   row at iPad-Pro viewports the search wrap was 79-1001 while the
+	   logo+icons content area sat at 69-1011 — a 10 px shortfall on each
+	   side. Zero the search item's margin so the bar spans the full content
+	   width, edge-to-edge with the row above.
+	   @date 2026-05-05 (Jayr request — "search box end to end, match content
+	   width"). */
+	[data-device="mobile"] > [data-row="bottom"] [data-id="search"] {
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+}
+
+
+/* ==========================================================================
+   Mobile Search Input — Left Padding
+   ========================================================================== */
+
+/* FiboSearch input left padding — mobile/tablet device variant.
+   WHY: The desktop rule above (.header-fibosearch-bar selector) is only
+   applied to the desktop header variant. On mobile device variant (<690px
+   and 690-1080px iPad-Pro swap), FiboSearch default padding-left is 10px,
+   leaving the placeholder flush against the border. 16px matches the desktop
+   input padding and aligns the placeholder with the icons-row gutter.
+   @date 2026-05-05 (CU-86exfx68w) */
+[data-device="mobile"] [data-row="bottom"] .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+	padding-left: 16px;
+}
+
+/* FiboSearch input left padding — desktop override.
+   WHY: byronbay.css:813 ([data-id="search"] … specificity 0,4,1) sets
+   padding-left: 10px for all viewports. The .header-fibosearch-bar rule
+   (0,3,1) in this file is overridden by it. Same selector used here so
+   load-order wins (header.css is enqueued after byronbay.css).
+   QA 86exfx68w requires 16px at ALL breakpoints.
+   @date 2026-05-05 (CU-86exfx68w) */
+[data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-sf-wrapp input[type="search"].dgwt-wcas-search-input {
+	padding-left: 16px;
+}
+
+
+/* ============================================================
+   Checkout/Cart header — responsive + Figma design match (86exgt8tr)
+   Scoped to woocommerce-checkout + woocommerce-cart (both use the
+   same custom Blocksy header section, page IDs 11+12).
+   Phase 1 (2026-05-06): responsive layout.
+   Phase 2 (2026-05-07): Figma match — BBC/Header nodes:
+     Mobile checkout: 6117-158097 (428px)
+     Tab checkout:    148:18021
+     Desktop checkout: 148:18022
+   Phone block: plain icon (heroicons-solid/phone, 24px, #726C6C),
+   no background circle, no border, no wrapping.
+   Announcement bar visible at all viewports (matches Figma).
+   @date 2026-05-06 (CU-86exgt8tr)
+   ============================================================ */
+
+/* Icon: 24px, #726C6C, no circle/background — all checkout/cart viewports */
+body.woocommerce-checkout .ct-contact-info .ct-icon-container,
+body.woocommerce-cart .ct-contact-info .ct-icon-container {
+  color: #726C6C !important;
+  background: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+body.woocommerce-checkout .ct-contact-info .ct-icon-container svg,
+body.woocommerce-cart .ct-contact-info .ct-icon-container svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* SVG path stroke/fill override — heroicons-solid/phone has hardcoded
+   stroke="#888888" attr; CSS color alone does not override SVG
+   presentation attributes. Figma heroicons-solid/phone: stroke-only (no fill). fill:none prevents solid silhouette. */
+body.woocommerce-checkout .ct-contact-info .ct-icon-container svg path,
+body.woocommerce-cart .ct-contact-info .ct-icon-container svg path {
+  stroke: #726C6C !important;
+  fill: none !important;
+}
+
+/* Phone number typography — Figma node 6117-158097: Quicksand 16px w=400 #111111.
+   Blocksy Customizer contacts block inherits Rubik 500 from the body font
+   assignment; override here to match Figma. */
+body.woocommerce-checkout .ct-contact-info .contact-text,
+body.woocommerce-checkout .ct-contact-info .contact-text a,
+body.woocommerce-cart .ct-contact-info .contact-text,
+body.woocommerce-cart .ct-contact-info .contact-text a {
+  font-family: Quicksand, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  color: #111111 !important;
+}
+
+@media (max-width: 768px) {
+  /* Prevent contacts block from wrapping on mobile */
+  body.woocommerce-checkout .ct-contact-info ul,
+  body.woocommerce-cart .ct-contact-info ul {
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  /* Prevent phone number from wrapping */
+  body.woocommerce-checkout .ct-contact-info .contact-text,
+  body.woocommerce-checkout .ct-contact-info .contact-text a,
+  body.woocommerce-cart .ct-contact-info .contact-text,
+  body.woocommerce-cart .ct-contact-info .contact-text a {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hide "Question?" label on narrowest screens — icon + number sufficient */
+  body.woocommerce-checkout .ct-contact-info .contact-title,
+  body.woocommerce-cart .ct-contact-info .contact-title {
+    display: none;
+  }
+}

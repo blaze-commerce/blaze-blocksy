@@ -1,0 +1,622 @@
+/**
+ * Checkout Step Form — Figma-spec styles for checkout form area.
+ * Task: CU-86ewn0gw9
+ * Figma: Desktop 6054:68281, Tablet 6054:112101, Mobile 6054:119403
+ *
+ * Targets the left-column checkout step form (Account step and all steps).
+ * FC breakpoint: >=1000px = two-column desktop; <1000px = single column.
+ *
+ * Figma spec:
+ *   Step card: border 1px #CFCFCF, radius 12px, overflow hidden
+ *   Substep title: Quicksand 400 18px var(--fc-text-strong, #393939), uppercase, checkmark icon
+ *   Login banner: bg var(--fc-bg-pale, #F7FBFC), centered, "Log in" bold 700 underlined
+ *   Guest divider: line #E4E5E7, text Quicksand 300 14px var(--fc-text-soft, #888)
+ *   Form labels: Museo Sans 500 18px #111, asterisk var(--fc-error, #EF4444)
+ *   Inputs: h48px, p-12, radius 8px, border 1px #CFCFCF
+ *   CTA button: bg #D9EAF0, Quicksand 400 18px #111, radius 4px, arrow
+ *
+ * @package Blocksy_Child
+ * @date    2026-04-23
+ */
+
+/* =============================================
+   1. CSS CUSTOM PROPERTIES / TOKENS
+============================================= */
+body.woocommerce-checkout {
+	--bc-sf-card-border: #CFCFCF;
+	--bc-sf-card-radius: 12px;
+	--bc-sf-text-primary: var(--fc-text-strong, #393939);
+	--bc-sf-text-dark: #111111;
+	--bc-sf-text-muted: var(--fc-text-soft, #888888);
+	--bc-sf-divider-color: #E4E5E7;
+	--bc-sf-input-border: #CFCFCF;
+	--bc-sf-input-radius: 8px;
+	--bc-sf-input-height: 48px;
+	--bc-sf-login-bg: var(--fc-bg-pale, #F7FBFC);
+	--bc-sf-asterisk-color: var(--fc-error, #EF4444);
+	--bc-sf-btn-shadow: 0px 1px 2px rgba(0, 0, 0, 0.12);
+	--bc-sf-font-body: var(--bc-sf-font-body, 'Quicksand', sans-serif);
+	--bc-sf-font-label: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+}
+
+/* =============================================
+   2. STEP CARD CONTAINER
+   Figma: border 1px #CFCFCF, radius 12px, overflow hidden
+   Override FC default 8px radius and #d8d8d8 border
+============================================= */
+body.woocommerce-checkout {
+	--fluidcheckout--section--border-radius: var(--bc-sf-card-radius);
+	--fluidcheckout--section--border-color: var(--bc-sf-card-border);
+}
+
+/* Ensure current step in multistep gets full radius (FC removes corners on adjacent steps) */
+.has-checkout-layout--multi-step.woocommerce-checkout form .fc-wrapper .fc-checkout-step[data-step-current="true"] {
+	border-radius: var(--bc-sf-card-radius) !important;
+	overflow: hidden;
+}
+
+/* =============================================
+   3. SUBSTEP TITLE ("ACCOUNT")
+   Figma: checkmark icon 24x24 + "ACCOUNT" Quicksand 400 18px var(--fc-text-strong, #393939)
+   Padding: pt-16 px-16, gap 8px between icon and text
+============================================= */
+body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 400 !important;
+	font-size: 18px !important;
+	line-height: 24px !important;
+	color: var(--bc-sf-text-primary) !important;
+	text-transform: uppercase !important;
+	padding: 0 !important;
+	margin: 0 0 0 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+}
+
+/* Checkmark icon via ::before pseudo-element */
+body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title::before {
+	content: '' !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 19.2px !important;
+	height: 19.2px !important;
+	min-width: 19.2px !important;
+	background-color: var(--fc-text-strong, #393939);
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E");
+	background-size: 14px 14px;
+	background-repeat: no-repeat;
+	background-position: center;
+	table-layout: auto !important;
+	position: static !important;
+	transform: translateY(0) !important;
+}
+
+/* Override FC's ::after pseudo on substep title */
+body.woocommerce-checkout form.woocommerce-checkout .fc-wrapper .fc-step__substep .fc-step__substep-title::after {
+	display: none !important;
+}
+
+/* Hide the duplicate substep title for the contact substep (keep only contact_login title visible) */
+body.woocommerce-checkout .fc-wrapper .fc-step__substep-title--contact {
+	display: none !important;
+}
+
+@media (min-width: 1000px) {
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
+		font-size: 18px !important;
+		padding: 0 0 0 0 !important;
+	}
+}
+
+/* =============================================
+   4. LOGIN BANNER
+   Figma: bg var(--fc-bg-pale, #F7FBFC), py-16, centered
+   "Already have an account?" Quicksand 400 18px var(--fc-text-strong, #393939)
+   "Log in" Quicksand 700 18px var(--fc-text-strong, #393939), underlined
+============================================= */
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__content {
+	background-color: var(--bc-sf-login-bg) !important;
+	padding: 16px !important;
+	margin-bottom: 0 !important;
+	border-radius: 0 !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__cta-text {
+	font-family: var(--bc-sf-font-body) !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	line-height: 24px !important;
+	color: var(--bc-sf-text-primary) !important;
+	text-align: center !important;
+	margin-bottom: 0 !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__action {
+	font-family: var(--bc-sf-font-body) !important;
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: var(--bc-sf-text-primary) !important;
+	text-decoration: underline !important;
+	cursor: pointer !important;
+	opacity: 1 !important;
+}
+
+/* =============================================
+   5. GUEST DIVIDER
+   Figma: line #E4E5E7 — "Or continue as a guest" Quicksand 300 14px var(--fc-text-soft, #888) — line
+============================================= */
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator {
+	margin-bottom: 16px !important;
+	margin-top: 16px !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator::before {
+	background-color: var(--bc-sf-divider-color) !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator-text {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 300 !important;
+	font-size: 14px !important;
+	line-height: 16px !important;
+	color: var(--bc-sf-text-muted) !important;
+	padding: 0 16px !important;
+	background-color: #fff !important;
+}
+
+/* =============================================
+   6. GUEST DESCRIPTION TEXT
+   Figma Desktop: Quicksand 400 18px var(--fc-text-strong, #393939)
+   Figma Mobile: Quicksand 300 14px var(--fc-text-strong, #393939)
+   Injected via PHP hook: fc_checkout_before_contact_fields
+============================================= */
+.bc-guest-description {
+	font-family: var(--bc-sf-font-body);
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 24px;
+	color: var(--bc-sf-text-primary);
+	margin: 0 0 16px 0;
+	padding: 0;
+}
+
+/* =============================================
+   7. FORM LABELS
+   Figma: Museo Sans 500 18px #111, asterisk var(--fc-error, #EF4444)
+============================================= */
+body.woocommerce-checkout .fc-wrapper .form-row > label,
+body.woocommerce-checkout div.woocommerce .fc-wrapper .form-row > label {
+	font-family: var(--bc-sf-font-label) !important;
+	font-weight: 500 !important;
+	font-size: 18px !important;
+	line-height: 24px !important;
+	color: var(--bc-sf-text-dark) !important;
+	margin-bottom: 6px !important;
+}
+
+/* Required asterisk */
+body.woocommerce-checkout .fc-wrapper .form-row > label .required,
+body.woocommerce-checkout .fc-wrapper .form-row > label .optional,
+body.woocommerce-checkout .fc-wrapper .form-row > label abbr[title] {
+	color: var(--bc-sf-asterisk-color) !important;
+	text-decoration: none !important;
+	border: none !important;
+	font-weight: 400 !important;
+}
+
+/* Optional label should stay muted */
+body.woocommerce-checkout .fc-wrapper .form-row > label .optional {
+	color: var(--bc-sf-text-muted) !important;
+	font-size: 14px !important;
+}
+
+/* =============================================
+   8. INPUT FIELDS
+   Figma: h48px, p-12, radius 8px, border 1px #CFCFCF
+   Placeholder: Quicksand 300 14px var(--fc-text-soft, #888)
+============================================= */
+body.woocommerce-checkout {
+	--fluidcheckout--field--height: var(--bc-sf-input-height);
+	--fluidcheckout--field--border-radius: var(--bc-sf-input-radius);
+	--fluidcheckout--field--border-color: var(--bc-sf-input-border);
+}
+
+body.woocommerce-checkout .fc-wrapper .form-row input[type="text"],
+body.woocommerce-checkout .fc-wrapper .form-row input[type="email"],
+body.woocommerce-checkout .fc-wrapper .form-row input[type="tel"],
+body.woocommerce-checkout .fc-wrapper .form-row input[type="password"],
+body.woocommerce-checkout .fc-wrapper .form-row input[type="number"],
+body.woocommerce-checkout .fc-wrapper .form-row input[type="url"],
+body.woocommerce-checkout .fc-wrapper .form-row textarea,
+body.woocommerce-checkout .fc-wrapper .form-row select {
+	height: var(--bc-sf-input-height) !important;
+	min-height: var(--bc-sf-input-height) !important;
+	padding: 12px !important;
+	border: 1px solid var(--bc-sf-input-border) !important;
+	border-radius: var(--bc-sf-input-radius) !important;
+	font-family: var(--bc-sf-font-body) !important;
+	font-size: 16px !important;
+	font-weight: 400 !important;
+	color: var(--bc-sf-text-primary) !important;
+	background-color: #fff !important;
+	box-sizing: border-box !important;
+}
+
+/* Placeholder styling */
+body.woocommerce-checkout .fc-wrapper .form-row input::placeholder,
+body.woocommerce-checkout .fc-wrapper .form-row textarea::placeholder {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 300 !important;
+	font-size: 14px !important;
+	line-height: 16px !important;
+	color: var(--bc-sf-text-muted) !important;
+	opacity: 1 !important;
+}
+
+/* Focus state */
+body.woocommerce-checkout .fc-wrapper .form-row input:focus,
+body.woocommerce-checkout .fc-wrapper .form-row textarea:focus,
+body.woocommerce-checkout .fc-wrapper .form-row select:focus {
+	border-color: var(--bc-sf-text-primary) !important;
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+/* Select2 container (country/state dropdowns) */
+body.woocommerce-checkout .fc-wrapper .select2-container .select2-selection--single {
+	height: var(--bc-sf-input-height) !important;
+	border: 1px solid var(--bc-sf-input-border) !important;
+	border-radius: var(--bc-sf-input-radius) !important;
+	padding: 12px !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .select2-container .select2-selection--single .select2-selection__rendered {
+	line-height: calc(var(--bc-sf-input-height) - 26px) !important;
+	font-family: var(--bc-sf-font-body) !important;
+	font-size: 16px !important;
+	color: var(--bc-sf-text-primary) !important;
+	padding: 0 !important;
+}
+
+/* =============================================
+   9. HELPER / DESCRIPTION TEXT
+   Figma: Quicksand 300 14px var(--fc-text-strong, #393939) below inputs
+   e.g. "Order number and receipt will be sent to this email address"
+============================================= */
+body.woocommerce-checkout .fc-wrapper .form-row .description,
+body.woocommerce-checkout .fc-wrapper .form-row small.description,
+body.woocommerce-checkout .fc-wrapper .form-row .woocommerce-input-wrapper + .description {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 300 !important;
+	font-size: 14px !important;
+	line-height: 16px !important;
+	color: var(--bc-sf-text-primary) !important;
+	margin-top: 4px !important;
+	display: block !important;
+}
+
+/* =============================================
+   10. CHECKBOX STYLING
+   Figma: 16x16, radius 4px, border 1px #CFCFCF
+   Label: Quicksand 400 14px var(--fc-text-soft, #888)
+============================================= */
+body.woocommerce-checkout .fc-wrapper input[type="checkbox"] {
+	width: 16px !important;
+	height: 16px !important;
+	min-width: 16px !important;
+	border: 1px solid var(--bc-sf-input-border) !important;
+	border-radius: 4px !important;
+	accent-color: var(--bc-sf-text-primary);
+	margin-right: 8px !important;
+	vertical-align: middle !important;
+	flex-shrink: 0;
+}
+
+/* Newsletter opt-in (custom injected) */
+.bc-newsletter-optin {
+	margin-top: 16px !important;
+	padding: 0 !important;
+}
+
+.bc-newsletter-optin__label {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 8px !important;
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 400 !important;
+	font-size: 14px !important;
+	line-height: 26px !important;
+	color: var(--bc-sf-text-muted) !important;
+	cursor: pointer !important;
+}
+
+.fc-checkbox-label-text,
+.bc-newsletter-optin__text {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 400 !important;
+	font-size: 14px !important;
+	line-height: 26px !important;
+	color: var(--bc-sf-text-muted) !important;
+}
+
+/* Account creation checkbox (WooCommerce default) */
+body.woocommerce-checkout .fc-wrapper .woocommerce-account-fields label,
+body.woocommerce-checkout .fc-wrapper .form-row.create-account label {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 400 !important;
+	font-size: 14px !important;
+	line-height: 26px !important;
+	color: var(--bc-sf-text-muted) !important;
+}
+
+/* =============================================
+   11. CTA BUTTON (NEXT STEP)
+   Figma: bg #D9EAF0 (already via --fc-btn-primary-bg in byronbay.css)
+   Quicksand 400 18px #111, p-16, radius 4px
+   Shadow: 0px 1px 2px rgba(0,0,0,0.12), arrow icon
+============================================= */
+
+/* Step actions container */
+.has-checkout-layout--multi-step .fc-step__actions {
+	padding: 0 24px 24px 24px !important;
+}
+
+/* Next step button */
+body.woocommerce-checkout .has-checkout-layout--multi-step .fc-step__actions .fc-step__next-step,
+body.woocommerce-checkout .fc-step__actions .button,
+body.woocommerce-checkout .fc-step__actions .fc-step__next-btn {
+	font-family: var(--bc-sf-font-body) !important;
+	font-weight: 400 !important;
+	font-size: 18px !important;
+	line-height: 24px !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0 !important;
+	padding: 16px !important;
+	border-radius: 4px !important;
+	box-shadow: var(--bc-sf-btn-shadow) !important;
+	height: auto !important;
+	min-height: auto !important;
+	position: relative !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 6px !important;
+}
+
+/* Arrow icon after button text */
+body.woocommerce-checkout .fc-step__actions .fc-step__next-step::after,
+body.woocommerce-checkout .fc-step__actions .fc-step__next-btn::after {
+	content: '\2192' !important;
+	font-size: 20px !important;
+	line-height: 1 !important;
+	display: inline-block !important;
+}
+
+/* Inner button shadow overlay (Figma: inset shadow) */
+body.woocommerce-checkout .fc-step__actions .fc-step__next-step {
+	box-shadow: var(--bc-sf-btn-shadow), inset 0px -1px 0px 0px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* =============================================
+   12. TWO-COLUMN GAP (DESKTOP)
+   Figma: 34px gap between form and order summary
+============================================= */
+@media (min-width: 1000px) {
+	body.woocommerce-checkout {
+		--fluidcheckout--columns--gap: 34px;
+	}
+}
+
+/* =============================================
+   13. SUBSTEP FIELDS CONTAINER PADDING
+   Figma: content area padding 24px, gap 16px between fields
+============================================= */
+body.woocommerce-checkout .fc-wrapper .fc-step__substep-fields {
+	padding: 24px 8px 0 8px !important;
+}
+
+/* Contact login area (inside substep but no substep-fields wrapper) */
+body.woocommerce-checkout .fc-wrapper .fc-contact-login {
+	padding: 0 0 0 0 !important;
+}
+
+/* Contact fields wrapper gap */
+body.woocommerce-checkout .fc-wrapper .fc-contact-fields {
+	padding: 0 !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .fc-contact-fields__wrapper {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 16px !important;
+}
+
+/* Form row spacing reset (gap handles spacing) */
+body.woocommerce-checkout .fc-wrapper .fc-contact-fields__wrapper .form-row {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 100% !important;
+	clear: both !important;
+	float: none !important;
+}
+
+/* Guest description inside substep-fields area */
+body.woocommerce-checkout .fc-wrapper .bc-guest-description {
+	padding: 0 0 !important;
+	margin: 0 0 16px 0 !important;
+}
+
+/* =============================================
+   14. TABLET RESPONSIVE (768-999px)
+   Figma: single column, padding 24px
+============================================= */
+@media (max-width: 999px) {
+	/* Substep title */
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
+		padding: 0 !important;
+		font-size: 18px !important;
+	}
+
+	/* Step content padding */
+	body.woocommerce-checkout .fc-wrapper .fc-step__substep-fields {
+		padding: 0 24px 24px 24px !important;
+	}
+
+	body.woocommerce-checkout .fc-wrapper .fc-contact-login {
+		padding: 0 24px 0 24px !important;
+	}
+
+	/* Button actions */
+	.has-checkout-layout--multi-step .fc-step__actions {
+		padding: 0 24px 24px 24px !important;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 999px) {
+	/* Tablet: same text sizes as desktop */
+	.bc-guest-description {
+		font-size: 18px;
+		font-weight: 400;
+		line-height: 24px;
+	}
+}
+
+/* =============================================
+   15. MOBILE RESPONSIVE (<768px)
+   Figma: 20px padding, lighter/smaller guest text
+============================================= */
+@media (max-width: 767px) {
+	/* Tighter padding on mobile */
+	body.woocommerce-checkout .fc-wrapper .fc-step__substep-fields {
+		padding: 0 16px 16px 16px !important;
+	}
+
+	body.woocommerce-checkout .fc-wrapper .fc-contact-login {
+		padding: 0 16px 0 16px !important;
+	}
+
+	.has-checkout-layout--multi-step .fc-step__actions {
+		padding: 0 16px 16px 16px !important;
+	}
+
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
+		padding: 16px 16px 0 16px !important;
+	}
+
+	/* Guest description: lighter weight and smaller on mobile per Figma */
+	.bc-guest-description,
+	body.woocommerce-checkout .fc-wrapper .bc-guest-description {
+		font-weight: 300 !important;
+		font-size: 14px !important;
+		line-height: 16px !important;
+		padding: 0 0 !important;
+	}
+
+	/* Labels slightly smaller on mobile */
+	body.woocommerce-checkout .fc-wrapper .form-row > label,
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .form-row > label {
+		font-size: 18px !important;
+	}
+
+	/* Newsletter opt-in text wraps on mobile */
+	.bc-newsletter-optin__label {
+		align-items: flex-start !important;
+	}
+
+	/* Button font slightly smaller on very narrow */
+	body.woocommerce-checkout .fc-step__actions .fc-step__next-step,
+	body.woocommerce-checkout .fc-step__actions .fc-step__next-btn {
+		font-size: 16px !important;
+		padding: 14px !important;
+	}
+}
+
+/* 375px and below — extra compact */
+@media (max-width: 375px) {
+	body.woocommerce-checkout .fc-wrapper .fc-step__substep-fields {
+		padding: 0 12px 12px 12px !important;
+	}
+
+	body.woocommerce-checkout .fc-wrapper .fc-contact-login {
+		padding: 0 12px 0 12px !important;
+	}
+
+	.has-checkout-layout--multi-step .fc-step__actions {
+		padding: 0 12px 12px 12px !important;
+	}
+
+	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
+		padding: 12px 12px 0 12px !important;
+	}
+}
+
+/* =============================================
+   16. FORM VALIDATION STATES
+   Error: red border on invalid fields
+============================================= */
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-invalid input,
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-invalid select,
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-invalid textarea {
+	border-color: var(--bc-sf-asterisk-color) !important;
+}
+
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-validated input,
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-validated select,
+body.woocommerce-checkout .fc-wrapper .form-row.woocommerce-validated textarea {
+	border-color: #22c55e !important;
+}
+
+
+body.woocommerce-checkout .fc-wrapper .fc-step__substep {
+	padding: 16px;
+}
+
+/* 1. Kondisi Default (Unchecked) */
+body.woocommerce-checkout .fc-wrapper input[type="checkbox"].bc-newsletter-optin__checkbox {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer;
+  vertical-align: middle;
+  border: 0.625px solid #cfcfcf !important;
+  border-radius: 4px !important;
+  margin-right: 4px !important;
+  margin-top: 4px !important;
+  
+  /* Menghilangkan shadow atau outline bawaan */
+  outline: none;
+  box-shadow: none !important;
+  
+  /* Persiapan transisi agar smooth */
+  transition: background-color 0.2s, border-color 0.2s;
+  position: relative;
+  display: inline-block;
+}
+
+/* 2. Kondisi Checked (Dicentang) */
+.bc-newsletter-optin__checkbox:checked {
+  background-color: #111111 !important; /* Warna gelap sesuai referensi */
+  border-color: #cfcfcf !important;
+}
+
+/* 3. Menambahkan Tanda Centang (Checkmark) 
+   Karena appearance: none menghilangkan tanda centang bawaan, 
+   kita perlu menambahkannya menggunakan pseudo-element atau background-image */
+.bc-newsletter-optin__checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+

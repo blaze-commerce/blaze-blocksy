@@ -1,208 +1,169 @@
-# Blocksy Child Theme - Blaze Commerce Edition
+# Blocksy Child
 
-A **site-agnostic** and **portable** WordPress child theme for Blocksy with automated semantic versioning, release management, and comprehensive WooCommerce customizations.
+Reusable Blocksy child theme for Blaze Commerce projects. Powered by Claude, crafted by @jarutosurano.
 
-> **✅ All site-specific references removed - Ready for deployment on any WordPress site**
+## Requirements
 
-## 🚀 Quick Start
+- WordPress 6.0+
+- [Blocksy](https://creativethemes.com/blocksy/) parent theme
+- [Blocksy Companion Pro](https://creativethemes.com/blocksy/) (for premium extensions)
 
-This theme is designed to be **completely portable** across different WordPress installations. All hardcoded URLs, domain references, and site-specific configurations have been removed and replaced with configurable environment variables.
+## Quick Start (New Client)
 
-### Prerequisites
-
-- WordPress 5.0+
-- Blocksy parent theme
-- PHP 7.4+
-- Node.js 16+ (for development)
-- Composer (for PHP dependencies)
-
-### Installation
-
-1. **Download** the theme files
-2. **Upload** to your WordPress site via Admin → Appearance → Themes → Add New → Upload Theme
-3. **Activate** the child theme
-4. **Configure** environment variables (see Configuration section below)
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure for your site:
+See [`docs/NEW-CLIENT-SETUP.md`](docs/NEW-CLIENT-SETUP.md) for the full guide.
 
 ```bash
-# Copy the example file
-cp .env.example .env
+# 1. Copy the template
+cp -r clients/_template clients/my-client
 
-# Edit with your site details
-API_BASE_URL=https://your-wordpress-site.com
-WC_CONSUMER_KEY=ck_your_consumer_key_here
-WC_CONSUMER_SECRET=cs_your_consumer_secret_here
-TEST_USER_EMAIL=test@your-domain.com
-TEST_USER_PASSWORD=your-test-password
+# 2. Rename files
+mv clients/my-client/client-slug.css clients/my-client/my-client.css
+mv clients/my-client/client-slug.php clients/my-client/my-client.php
+
+# 3. Edit manifest.json — set slug, name, active: true, features
+# 4. Deactivate other clients (set active: false)
+# 5. Set up Blocksy Customizer
 ```
 
-### WooCommerce API Setup
+## Architecture
 
-1. Go to **WooCommerce → Settings → Advanced → REST API**
-2. Click **Add Key**
-3. Set permissions to **Read/Write**
-4. Copy the generated keys to your `.env` file
+```
+blocksy-child/
+├── style.css                              # Theme header only — no CSS rules
+├── functions.php                          # Lean loader → inc/loader.php
+├── README.md                              # This file
+│
+├── inc/                                   # Shared PHP modules (reusable across ALL clients)
+│   ├── loader.php                         # Module bootstrapper + feature flag system
+│   ├── helpers.php                        # Utility functions (is_plugin_active wrapper)
+│   ├── enqueue.php                        # Conditional CSS/JS per page type
+│   ├── hooks.php                          # WordPress/Blocksy hooks (FiboSearch fix)
+│   ├── woocommerce.php                    # Reusable WC hooks (PayPal fix, wishlist, stock, qty)
+│   ├── wishlist-offcanvas.php             # [feature] Off-canvas wishlist panel
+│   ├── product-tabs.php                   # [feature] ACF accordion tabs
+│   ├── product-information.php            # [feature] Shipping/returns/FAQ panel
+│   ├── recently-viewed.php                # [feature] Recently viewed products
+│   ├── mini-cart-empty.php                # [feature] Empty cart suggestions
+│   └── product-slider.php                 # [feature] [bc_product_slider] shortcode
+│
+├── assets/
+│   ├── css/
+│   │   ├── base.css                       # Global tweaks (always loaded)
+│   │   ├── utilities.css                  # Utility classes (always loaded)
+│   │   └── components/                    # Conditional per page type
+│   │       ├── header.css                 # Header/nav overrides
+│   │       ├── homepage.css               # Hero slider, sections, VIP signup
+│   │       ├── product-slider.css         # Product carousel (flex track, dots, arrows)
+│   │       ├── woo-archive.css            # Product cards (buttons, price suffix)
+│   │       ├── woo-single.css             # Single product page (PDP)
+│   │       ├── woo-checkout.css           # Checkout page
+│   │       ├── woo-category-grid.css      # Category grid cards
+│   │       ├── product-information.css    # Shipping/returns/FAQ panel
+│   │       ├── offcanvas.css              # Shared off-canvas panel base
+│   │       └── wishlist-offcanvas.css     # Wishlist panel
+│   └── js/                                # Vanilla JS — zero jQuery dependency
+│       ├── hero-slider.js                 # Homepage hero carousel (~1.2KB)
+│       ├── product-slider.js              # Product carousel (~1.5KB)
+│       ├── product-information.js         # Shipping calculator + tabs
+│       └── wishlist-offcanvas.js          # Wishlist panel trigger/render
+│
+├── clients/
+│   ├── _template/                         # Copy this for new client projects
+│   │   ├── manifest.json                  # Client config (slug, features, active toggle)
+│   │   ├── client-slug.css                # Client CSS template with rules
+│   │   └── client-slug.php                # Client PHP template with examples
+│   └── {client-slug}/                     # Active client module
+│       ├── manifest.json                  # Client config + feature flags
+│       ├── {slug}.css                     # Client design overrides (loaded LAST)
+│       └── {slug}.php                     # Client-specific hooks
+│
+├── woocommerce/                           # WooCommerce template overrides
+│   └── single-product/
+│       └── bundled-item-attributes.php    # Bundle product heading override
+│
+├── docs/
+│   ├── NEW-CLIENT-SETUP.md               # Step-by-step new client guide
+│   ├── gutenberg-block-checklist.md       # Block implementation rules
+│   └── patterns/                          # Pattern docs for each feature
+│       ├── product-slider.md
+│       ├── single-product-page.md
+│       ├── global-ux-overrides.md
+│       ├── offcanvas.md
+│       ├── wishlist-offcanvas.md
+│       ├── product-information.md
+│       ├── product-tabs.md
+│       ├── recently-viewed.md
+│       └── woo-category-grid.md
+│
+└── claude-commands/                       # Claude Code automation
+    ├── setup-foundation.md
+    └── setup-project.md
+```
 
-### Testing Configuration
+### Key Principles
 
-Set these environment variables for testing:
+- **Single component**: Product cards, buttons, etc. are styled once — apply everywhere
+- **Client isolation**: Client-specific code in `clients/{slug}/`, never in shared `inc/`
+- **Feature flags**: `manifest.json` controls which optional modules load
+- **Conditional enqueue**: CSS/JS only loads on pages that need it
+- **Vanilla JS**: Zero jQuery dependency, ~1-2KB per module
+- **Blocksy-first**: Use Customizer settings before writing CSS
 
-- `LIGHTHOUSE_BASE_URL` - For Lighthouse performance testing
-- `ARTILLERY_TARGET_URL` - For load testing
-- `BASE_URL` - For K6 performance testing
+## Feature Flags
 
-## Recent Updates
+In `manifest.json`, list only the features this client needs:
 
-- **🧹 Site-Agnostic Cleanup (Latest)**: Removed all hardcoded site-specific references and automation implementations
-  - Removed hardcoded URLs from all configuration files
-  - Replaced site-specific credentials with generic examples
-  - Updated all test configurations to use environment variables
-  - Removed site-specific documentation files
-  - Made all automation scripts configurable via environment variables
-- **Fixed GitHub Actions Workflow**: Resolved "fatal: tag already exists" error with intelligent tag handling
-- **Improved Release Automation**: Enhanced rollback functionality and pre-release cleanup
+```json
+{
+  "features": ["wishlist-offcanvas", "product-slider"]
+}
+```
 
-## 🔧 Site-Agnostic Features
+Omit `"features"` entirely to enable all modules (backward compatible).
 
-This theme has been **completely cleaned** of site-specific references:
+| Feature | Description |
+|---------|-------------|
+| `wishlist-offcanvas` | Off-canvas wishlist panel |
+| `product-tabs` | ACF accordion fields as WC tabs |
+| `product-information` | Shipping calculator + returns + FAQ |
+| `recently-viewed` | Recently viewed products on PDP |
+| `mini-cart-empty` | Empty mini cart with suggestions |
+| `product-slider` | `[bc_product_slider]` shortcode |
 
-### ✅ What Was Removed/Updated:
-- **Hardcoded URLs**: All `infinitytargets` and staging site URLs replaced with environment variables
-- **Site-Specific Documentation**: Removed analysis files tied to specific sites
-- **Test Credentials**: Replaced with generic examples in `.env.example`
-- **Configuration Files**: Updated to use configurable environment variables
-- **Automation Scripts**: Made portable across different WordPress installations
+## Responsive Breakpoints
 
-### 🎯 Benefits:
-- **Zero Manual Cleanup**: Deploy on any WordPress site without editing code
-- **Environment-Based Configuration**: All settings controlled via `.env` file
-- **Portable Testing**: Test suite works with any WordPress/WooCommerce site
-- **Scalable Deployment**: Use across multiple client sites without conflicts
+| Name | Breakpoint | Media Query |
+|------|-----------|-------------|
+| Desktop | >999.98px | Default |
+| Tablet | ≤999.98px | `@media (max-width: 999.98px)` |
+| Mobile | ≤689.98px | `@media (max-width: 689.98px)` |
 
-## Features
+## Versioning
 
-- **Blaze Commerce Thank You Page**: Complete custom thank you page implementation with responsive design
-- **Responsive visibility classes**: Hide/show elements on mobile, tablet, desktop
-- **Judge.me review carousel customizations**: Enhanced product review displays
-- **Sticky header z-index optimizations**: Improved navigation behavior
-- **Mobile-responsive design improvements**: Optimized for all viewport sizes
-- **WooCommerce integration**: Enhanced checkout and order confirmation experience
+- Bump `BLOCKSY_CHILD_VERSION` in `functions.php` and `Version` in `style.css` after each release-worthy change
+- Follow semver: major.minor.patch
+- Record changes in `CHANGELOG.md` at the theme root (newest entries first)
 
-## 🧪 **Advanced Testing Framework**
+## Deployment
 
-[![Security Tests](https://img.shields.io/badge/Security-95%2F100-brightgreen)](tests/security/)
-[![API Tests](https://img.shields.io/badge/API-34%20Tests-blue)](tests/api/)
-[![Performance](https://img.shields.io/badge/Performance-A%2B%20Grade-brightgreen)](tests/performance/)
-[![Database](https://img.shields.io/badge/Database-8%20Tests-blue)](tests/database/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-Ready-brightgreen)](.github/workflows/)
+Deploy directly to the staging server via SSH (then promote to production via Kinsta). The server is the source of truth — there is no git-driven CI/CD pipeline. The local checkout / GitHub repo is used only for code review and history; never as the deploy target.
 
-### **World-Class Testing Infrastructure:**
-- 🔒 **Security Testing** - Vulnerability scanning and penetration testing (8 tests)
-- 🌐 **API Testing** - WooCommerce REST API comprehensive validation (34 tests)
-- 🗄️ **Database Testing** - Database integrity and transaction validation (8 tests)
-- ⚡ **Performance Testing** - Load testing and Core Web Vitals monitoring
-- 🔗 **Integration Testing** - End-to-end workflow validation with Playwright
-- 🤖 **CI/CD Automation** - GitHub Actions with parallel test execution
-
-### **Current Performance Metrics:**
-- **Performance Grade**: A+ (95/100)
-- **First Contentful Paint**: 541.8ms (✅ 70% better than threshold)
-- **Largest Contentful Paint**: 1264.2ms (✅ 49% better than threshold)
-- **Cumulative Layout Shift**: 0.038 (✅ 62% better than threshold)
-- **Security Score**: 95/100 (after implementing security fixes)
-
-### **Quick Testing Commands:**
 ```bash
-# Run all tests
-npm test
+# Push individual files
+scp -P <port> path/to/file.css <user>@<host>:/www/<site>/public/wp-content/themes/blocksy-child/path/to/file.css
 
-# Security tests
-npm run security:test
-
-# API tests (requires WooCommerce credentials)
-npm run test:api:rest
-
-# Performance baseline
-npm run performance:baseline
-
-# Database tests (requires MySQL)
-npm run test:database
+# After enqueue.php / functions.php edits, bust the asset cache
+ssh <alias> "touch /www/<site>/public/wp-content/themes/blocksy-child/inc/enqueue.php"
 ```
 
-### **Complete Documentation:**
-- **[📚 Comprehensive Testing Guide](docs/COMPREHENSIVE_TESTING_GUIDE.md)** - Complete team onboarding
-- **[🔒 Security Implementation Guide](security-fixes/SECURITY_IMPLEMENTATION_GUIDE.md)** - Security hardening
-- **[🌐 API Credentials Setup](tests/api/API_CREDENTIALS_SETUP.md)** - API testing configuration
-- **[⚡ Performance Optimization Report](performance-optimizations/PERFORMANCE_OPTIMIZATION_REPORT.md)** - Performance enhancements
+Each project's CLAUDE.md / SSH alias config has the correct host, port, and path. Always update `CHANGELOG.md` after a deploy.
 
-## Automated Releases
+## Documentation
 
-This repository uses automated semantic versioning with GitHub Actions. Version numbers are automatically calculated based on conventional commit messages and releases are created with downloadable ZIP files.
+- [`docs/NEW-CLIENT-SETUP.md`](docs/NEW-CLIENT-SETUP.md) — New client onboarding
+- [`docs/gutenberg-block-checklist.md`](docs/gutenberg-block-checklist.md) — Block implementation rules
+- [`docs/patterns/`](docs/patterns/) — Pattern docs for each feature
 
-### Quick Start for Developers
+## License
 
-1. Use conventional commit messages:
-   - `fix:` for bug fixes (PATCH version bump)
-   - `feat:` for new features (MINOR version bump)
-   - `feat!:` or `BREAKING CHANGE:` for breaking changes (MAJOR version bump)
-
-2. Create pull requests with descriptive titles
-3. Merge PRs to trigger automatic releases
-
-### Documentation
-
-- [Versioning Strategy](docs/VERSIONING.md) - Complete guide to semantic versioning and conventional commits
-- [Testing Instructions](docs/TESTING.md) - How to test the automated release workflow
-- [Blaze Commerce Thank You Page](docs/THANK-YOU-PAGE-CUSTOMIZATION.md) - Complete customization guide
-- [Thank You Page Analysis](docs/thank-you-page-analysis.md) - Technical analysis and implementation details
-
-## Installation
-
-### From GitHub Release (Recommended)
-1. Go to the [Releases page](../../releases)
-2. Download the latest `blocksy-child-vX.Y.Z.zip` file
-3. Upload via WordPress Admin → Appearance → Themes → Add New → Upload Theme
-4. The extracted theme folder will be consistently named `blocksy-child` regardless of version
-
-### Manual Installation
-1. Clone this repository to your WordPress themes directory
-2. Activate the theme in WordPress Admin
-
-## Development
-
-The theme follows WordPress coding standards and includes:
-- Semantic versioning in `style.css` header
-- Automated changelog generation
-- ZIP distribution for easy installation
-- Rollback mechanisms for failed releases
-
-## Claude Code Governance
-
-AI-assisted development in this repo is governed by rules enforced before every push:
-
-- **`.claude/settings.json`** — team-wide deny rules (force push, `rm -rf`, `sudo`, credential reads) and ask rules for main branch pushes; wires project hooks automatically
-- **`.claude/hooks/`** — safety hooks applied to all Claude Code sessions:
-  - `enforce-worktree.sh` — blocks file edits in the main checkout; requires a worktree
-  - `pre-commit-test-gate.sh` — reminds to run tests before `git commit`
-  - `block-force-push.sh` — blocks `git push --force` / `-f` at hook level
-- **`.claude/rules/`** — project-scoped rule imports:
-  - `anti-false-fix.md` — never claim "fixed" without showing evidence
-  - `code-safety.md` — `custom/` append-only enforcement, git workflow rules
-- **`.claude/recommended/`** — shared enforcement rules for all Claude Code sessions:
-  - `character-limits.md` — hard char limits on all `.claude/` governance files
-  - `pre-push-gate.md` — blocking checklist before every push or PR
-  - `update-docs.md` — doc-currency rule (README + CLAUDE.md must be current before push)
-- **`.claude/commands/`** — slash commands: `/commit`, `/commitpush`, `/commitpr`, `/test`
-- **Character limits** are enforced on all governance files (`wc -c` before and after edits)
-- **README.md + CLAUDE.md** must be updated to reflect current state before every push — stale docs block the push
-
-See `CLAUDE.md` → "Documentation Gate" for the full enforcement rules.
-
-## Version History
-
-All releases and changes are tracked in the [GitHub Releases](../../releases) section with auto-generated changelogs.
+GPL-2.0-or-later
