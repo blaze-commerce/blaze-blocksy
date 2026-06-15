@@ -8,12 +8,12 @@
  *
  * Figma spec:
  *   Step card: border 1px #CFCFCF, radius 12px, overflow hidden
- *   Substep title: Quicksand 400 18px var(--fc-text-strong, #393939), uppercase, checkmark icon
+ *   Substep title: var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939), uppercase, checkmark icon
  *   Login banner: bg var(--fc-bg-pale, #F7FBFC), centered, "Log in" bold 700 underlined
- *   Guest divider: line #E4E5E7, text Quicksand 300 14px var(--fc-text-soft, #888)
- *   Form labels: Museo Sans 500 18px #111, asterisk var(--fc-error, #EF4444)
+ *   Guest divider: line #E4E5E7, text var(--theme-font-family, Montserrat) 300 14px var(--fc-text-soft, #888)
+ *   Form labels: var(--theme-font-family, Montserrat) 500 18px #111, asterisk var(--fc-error, #EF4444)
  *   Inputs: h48px, p-12, radius 8px, border 1px #CFCFCF
- *   CTA button: bg #D9EAF0, Quicksand 400 18px #111, radius 4px, arrow
+ *   CTA button: bg #D9EAF0, var(--theme-font-family, Montserrat) 400 18px #111, radius 4px, arrow
  *
  * @package Blocksy_Child
  * @date    2026-04-23
@@ -35,8 +35,8 @@ body.woocommerce-checkout {
 	--bc-sf-login-bg: var(--fc-bg-pale, #F7FBFC);
 	--bc-sf-asterisk-color: var(--fc-error, #EF4444);
 	--bc-sf-btn-shadow: 0px 1px 2px rgba(0, 0, 0, 0.12);
-	--bc-sf-font-body: var(--bc-sf-font-body, 'Quicksand', sans-serif);
-	--bc-sf-font-label: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+	--bc-sf-font-body: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif);
+	--bc-sf-font-label: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif));
 }
 
 /* =============================================
@@ -57,12 +57,12 @@ body.woocommerce-checkout {
 
 /* =============================================
    3. SUBSTEP TITLE ("ACCOUNT")
-   Figma: checkmark icon 24x24 + "ACCOUNT" Quicksand 400 18px var(--fc-text-strong, #393939)
+   Figma: checkmark icon 24x24 + "ACCOUNT" var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
    Padding: pt-16 px-16, gap 8px between icon and text
 ============================================= */
 body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
 	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 400 !important;
+	font-weight: 500 !important;
 	font-size: 18px !important;
 	line-height: 24px !important;
 	color: var(--bc-sf-text-primary) !important;
@@ -114,8 +114,8 @@ body.woocommerce-checkout .fc-wrapper .fc-step__substep-title--contact {
 /* =============================================
    4. LOGIN BANNER
    Figma: bg var(--fc-bg-pale, #F7FBFC), py-16, centered
-   "Already have an account?" Quicksand 400 18px var(--fc-text-strong, #393939)
-   "Log in" Quicksand 700 18px var(--fc-text-strong, #393939), underlined
+   "Already have an account?" var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
+   "Log in" var(--theme-font-family, Montserrat) 700 18px var(--fc-text-strong, #393939), underlined
 ============================================= */
 body.woocommerce-checkout .fc-wrapper .fc-contact-login__content {
 	background-color: var(--bc-sf-login-bg) !important;
@@ -146,7 +146,7 @@ body.woocommerce-checkout .fc-wrapper .fc-contact-login__action {
 
 /* =============================================
    5. GUEST DIVIDER
-   Figma: line #E4E5E7 — "Or continue as a guest" Quicksand 300 14px var(--fc-text-soft, #888) — line
+   Figma: line #E4E5E7 — "Or continue as a guest" var(--theme-font-family, Montserrat) 300 14px var(--fc-text-soft, #888) — line
 ============================================= */
 body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator {
 	margin-bottom: 16px !important;
@@ -169,8 +169,8 @@ body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator-text {
 
 /* =============================================
    6. GUEST DESCRIPTION TEXT
-   Figma Desktop: Quicksand 400 18px var(--fc-text-strong, #393939)
-   Figma Mobile: Quicksand 300 14px var(--fc-text-strong, #393939)
+   Figma Desktop: var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
+   Figma Mobile: var(--theme-font-family, Montserrat) 300 14px var(--fc-text-strong, #393939)
    Injected via PHP hook: fc_checkout_before_contact_fields
 ============================================= */
 .bc-guest-description {
@@ -185,7 +185,7 @@ body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator-text {
 
 /* =============================================
    7. FORM LABELS
-   Figma: Museo Sans 500 18px #111, asterisk var(--fc-error, #EF4444)
+   Figma: var(--theme-font-family, Montserrat) 500 18px #111, asterisk var(--fc-error, #EF4444)
 ============================================= */
 body.woocommerce-checkout .fc-wrapper .form-row > label,
 body.woocommerce-checkout div.woocommerce .fc-wrapper .form-row > label {
@@ -216,7 +216,7 @@ body.woocommerce-checkout .fc-wrapper .form-row > label .optional {
 /* =============================================
    8. INPUT FIELDS
    Figma: h48px, p-12, radius 8px, border 1px #CFCFCF
-   Placeholder: Quicksand 300 14px var(--fc-text-soft, #888)
+   Placeholder: var(--theme-font-family, Montserrat) 300 14px var(--fc-text-soft, #888)
 ============================================= */
 body.woocommerce-checkout {
 	--fluidcheckout--field--height: var(--bc-sf-input-height);
@@ -283,7 +283,7 @@ body.woocommerce-checkout .fc-wrapper .select2-container .select2-selection--sin
 
 /* =============================================
    9. HELPER / DESCRIPTION TEXT
-   Figma: Quicksand 300 14px var(--fc-text-strong, #393939) below inputs
+   Figma: var(--theme-font-family, Montserrat) 300 14px var(--fc-text-strong, #393939) below inputs
    e.g. "Order number and receipt will be sent to this email address"
 ============================================= */
 body.woocommerce-checkout .fc-wrapper .form-row .description,
@@ -301,7 +301,7 @@ body.woocommerce-checkout .fc-wrapper .form-row .woocommerce-input-wrapper + .de
 /* =============================================
    10. CHECKBOX STYLING
    Figma: 16x16, radius 4px, border 1px #CFCFCF
-   Label: Quicksand 400 14px var(--fc-text-soft, #888)
+   Label: var(--theme-font-family, Montserrat) 400 14px var(--fc-text-soft, #888)
 ============================================= */
 body.woocommerce-checkout .fc-wrapper input[type="checkbox"] {
 	width: 16px !important;
@@ -355,7 +355,7 @@ body.woocommerce-checkout .fc-wrapper .form-row.create-account label {
 /* =============================================
    11. CTA BUTTON (NEXT STEP)
    Figma: bg #D9EAF0 (already via --fc-btn-primary-bg in byronbay.css)
-   Quicksand 400 18px #111, p-16, radius 4px
+   var(--theme-font-family, Montserrat) 400 18px #111, p-16, radius 4px
    Shadow: 0px 1px 2px rgba(0,0,0,0.12), arrow icon
 ============================================= */
 
@@ -369,11 +369,11 @@ body.woocommerce-checkout .has-checkout-layout--multi-step .fc-step__actions .fc
 body.woocommerce-checkout .fc-step__actions .button,
 body.woocommerce-checkout .fc-step__actions .fc-step__next-btn {
 	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 400 !important;
+	font-weight: 500 !important;
 	font-size: 18px !important;
 	line-height: 24px !important;
 	text-transform: uppercase !important;
-	letter-spacing: 0 !important;
+	letter-spacing: 0.6px !important;
 	padding: 16px !important;
 	border-radius: 4px !important;
 	box-shadow: var(--bc-sf-btn-shadow) !important;

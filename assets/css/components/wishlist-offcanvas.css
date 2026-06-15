@@ -171,13 +171,13 @@
 	padding: 14px 24px;
 	background: var(--theme-button-background-initial-color, #333);
 	color: var(--theme-button-text-initial-color, #fff);
-	border-radius: var(--theme-button-border-radius, 8px);
+	border-radius: var(--theme-button-border-radius, 4px);
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	text-decoration: none;
 	text-align: center;
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.6px;
 	transition: background 0.2s;
 	box-sizing: border-box;
 }
@@ -201,13 +201,13 @@
 	padding: 14px 24px;
 	background: var(--theme-button-background-initial-color, #333);
 	color: var(--theme-button-text-initial-color, #fff);
-	border-radius: var(--theme-button-border-radius, 8px);
+	border-radius: var(--theme-button-border-radius, 4px);
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	text-decoration: none;
 	text-align: center;
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.6px;
 	transition: background 0.2s;
 	box-sizing: border-box;
 }
@@ -412,20 +412,20 @@
 	height: 1px;
 }
 
-/* Title typography — customizer says Quicksand n5 14px. */
+/* Title typography — customizer says var(--theme-font-family, Montserrat) n5 14px. */
 .bc-minicart-suggested-grid [data-products] .ct-product-title,
 .bc-wishlist-suggested-grid [data-products] .ct-product-title {
-	--theme-font-family: Quicksand, Sans-Serif;
+	--theme-font-family: var(--theme-font-family, Montserrat), Sans-Serif;
 	--theme-font-weight: 500;
 	--theme-font-size: 14px;
 	--theme-link-initial-color: var(--theme-palette-color-3);
 	--theme-link-hover-color: var(--theme-palette-color-1);
 }
 
-/* Price typography — customizer says Quicksand n5 13px. */
+/* Price typography — customizer says var(--theme-font-family, Montserrat) n5 13px. */
 .bc-minicart-suggested-grid [data-products] .price,
 .bc-wishlist-suggested-grid [data-products] .price {
-	--theme-font-family: Quicksand, Sans-Serif;
+	--theme-font-family: var(--theme-font-family, Montserrat), Sans-Serif;
 	--theme-font-weight: 500;
 	--theme-font-size: 14px;
 }

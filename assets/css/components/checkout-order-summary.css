@@ -8,20 +8,20 @@
  *
  * Figma spec:
  *   Card: bg #fff, border 1px #cfcfcf, radius 12px, padding 24px
- *   Title: Quicksand 400 24px var(--fc-text-strong, #393939)
- *   Badge: Quicksand 700 12px, pill (9999px), border 1px #cfcfcf
- *   Product name: Quicksand 500 18px var(--fc-text-brown, #746a5f)
- *   Price note: Quicksand 400 14px var(--fc-text-soft, #888888)
+ *   Title: var(--theme-font-family, Montserrat) 400 24px var(--fc-text-strong, #393939)
+ *   Badge: var(--theme-font-family, Montserrat) 700 12px, pill (9999px), border 1px #cfcfcf
+ *   Product name: var(--theme-font-family, Montserrat) 500 18px var(--fc-text-brown, #746a5f)
+ *   Price note: var(--theme-font-family, Montserrat) 400 14px var(--fc-text-soft, #888888)
  *   Remove: trash icon 20x20 var(--fc-text-brown, #746a5f)
  *   Thumbnail: 120x120, container 6px radius, image 8px radius
- *   Coupon toggle: Quicksand 400 18px var(--fc-text-strong, #393939)
+ *   Coupon toggle: var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
  *   Coupon input: 8px radius, border #dddddd
- *   Apply btn: bordered, Museo Sans 700 16px, border 1px #353638, radius 8px
- *   Totals rows: Quicksand 400 18px var(--fc-text-strong, #393939)
- *   Total amount: Quicksand 700 24px var(--fc-text-strong, #393939)
- *   Shipping note: Museo Sans 400 14px #030712
+ *   Apply btn: bordered, var(--theme-font-family, Montserrat) 700 16px, border 1px #353638, radius 8px
+ *   Totals rows: var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
+ *   Total amount: var(--theme-font-family, Montserrat) 700 24px var(--fc-text-strong, #393939)
+ *   Shipping note: var(--theme-font-family, Montserrat) 400 14px #030712
  *   Shipping bar: track #dddddd 6px, fill #163317
- *   Qty selector: 6px radius, border 1px #cfcfcf, Quicksand 400 18px
+ *   Qty selector: 6px radius, border 1px #cfcfcf, var(--theme-font-family, Montserrat) 400 18px
  */
 
 /* =============================================
@@ -100,10 +100,10 @@ html body.woocommerce-checkout #fc-checkout-order-review {
 		margin: 0 !important;
 	}
 
-	/* Title — Quicksand 400 24px var(--fc-text-strong, #393939) */
+	/* Title — var(--theme-font-family, Montserrat) 400 24px var(--fc-text-strong, #393939) */
 	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review-title,
 	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review__title {
-		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 		font-size: 24px !important;
 		font-weight: 400 !important;
 		line-height: 28px !important;
@@ -168,7 +168,7 @@ a.fc-checkout-order-review__edit-cart {
 }
 
 /* =============================================
-   ITEM COUNT BADGE — Quicksand 700 12px, pill shape
+   ITEM COUNT BADGE — var(--theme-font-family, Montserrat) 700 12px, pill shape
 ============================================= */
 .bc-os-item-count {
 	display: inline-flex;
@@ -179,7 +179,7 @@ a.fc-checkout-order-review__edit-cart {
 	border: 1px solid var(--bc-os-card-border);
 	color: var(--bc-os-title-color);
 	border-radius: 9999px;
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif);
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif);
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 16px;
@@ -190,14 +190,14 @@ a.fc-checkout-order-review__edit-cart {
    PRODUCT TYPOGRAPHY — DESKTOP DEFAULTS
 ============================================= */
 
-/* Product name: Quicksand 500 18px var(--fc-text-brown, #746a5f) */
+/* Product name: var(--theme-font-family, Montserrat) 500 18px var(--fc-text-brown, #746a5f) */
 .fc-checkout-order-review .product-name,
 .fc-checkout-order-review .cart-item__name,
 .fc-checkout-order-review td.product-name a,
 .fc-checkout-order-review .cart_item .product-name a,
 body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name,
 body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details > a {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 18px !important;
 	font-weight: 500 !important;
 	line-height: 24px !important;
@@ -211,14 +211,14 @@ body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name
 	display: block;
 }
 
-/* Variant/meta: Quicksand 400 16px var(--fc-text-brown, #746a5f) */
+/* Variant/meta: var(--theme-font-family, Montserrat) 400 16px var(--fc-text-brown, #746a5f) */
 .fc-checkout-order-review .variation,
 .fc-checkout-order-review .product-name .variation dd,
 .fc-checkout-order-review .product-name .variation dt,
 .fc-checkout-order-review dl.variation,
 .fc-checkout-order-review .cart-item__name dl.variation,
 .fc-checkout-order-review .cart-item__name dl.variation dd {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 16px !important;
 	font-weight: 400 !important;
 	line-height: 24px !important;
@@ -270,7 +270,7 @@ div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-orde
 	display: block !important;
 	margin: 4px 0 8px 0 !important;
 	text-align: left !important;
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 14px !important;
 	line-height: 20px !important;
 	color: var(--bc-os-title-color) !important;
@@ -279,7 +279,7 @@ div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-orde
 /* Non-sale price: regular weight, dark */
 .fc-checkout-order-review .cart-item__price > .woocommerce-Price-amount,
 .fc-checkout-order-review .cart-item__price > .amount {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: var(--bc-os-title-color) !important;
@@ -308,7 +308,7 @@ div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-orde
 /* GST note: 14px var(--fc-text-soft, #888888) */
 .fc-checkout-order-review .cart-item__price .includes_tax,
 .fc-checkout-order-review .cart-item__price small.tax_label {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	line-height: 20px !important;
@@ -362,7 +362,7 @@ div.woocommerce .fc-wrapper .cart-item a.remove svg {
    @date 2026-04-23 */
 html body .fc-wrapper .number-spin-button {
 	border-radius: 0 !important;
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	border: 1px solid var(--bc-os-card-border) !important;
 	background: var(--bc-os-card-bg) !important;
 	width: 32px !important;
@@ -384,7 +384,7 @@ html body .fc-wrapper .number-spin-button.plus {
 }
 /* Qty input between buttons — Figma: px-16 py-8 */
 html body .fc-wrapper .quantity input.qty {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 18px !important;
 	font-weight: 400 !important;
 	line-height: 24px !important;
@@ -461,11 +461,11 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 		justify-content: space-between;
 	}
 
-	/* Toggle title — Quicksand 400 14px var(--fc-text-strong, #393939) */
+	/* Toggle title — var(--theme-font-family, Montserrat) 400 14px var(--fc-text-strong, #393939) */
 	.fc-wrapper .fc-checkout-order-review-collapsible__title,
 	body.woocommerce-checkout .fc-checkout-order-review-collapsible__title,
 	body.woocommerce-checkout .fc-checkout-order-review-collapsible .fc-checkout-order-review-collapsible__title {
-		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 		font-size: 14px !important;
 		font-weight: 400 !important;
 		line-height: 1.5 !important;
@@ -477,7 +477,7 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 
 	/* Toggle total */
 	.fc-checkout-order-review-collapsible__total {
-		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 		font-weight: 500 !important;
 		color: var(--bc-os-title-color) !important;
 	}
@@ -494,7 +494,7 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 	h3.bc-mobile-order-summary-heading,
 	body.woocommerce-checkout h3.bc-mobile-order-summary-heading {
 		display: block !important;
-		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 		font-size: 20px !important;
 		font-weight: 400 !important;
 		color: var(--bc-os-title-color) !important;
@@ -780,13 +780,13 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 }
 
 /* =============================================
-   TOTALS TABLE — Desktop defaults: Quicksand 18px var(--fc-text-strong, #393939)
+   TOTALS TABLE — Desktop defaults: var(--theme-font-family, Montserrat) 18px var(--fc-text-strong, #393939)
    Labels (th): 400 weight. Values (td): 400 weight. Total: 700 weight.
    ID-based selectors to beat FC Pro.
 ============================================= */
 html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
 html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 18px !important;
 	font-weight: 400 !important;
 	color: var(--bc-os-title-color) !important;
@@ -795,7 +795,7 @@ html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-r
 html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
 html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
 html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 18px !important;
 	font-weight: 400 !important;
 	color: var(--bc-os-title-color) !important;
@@ -827,19 +827,19 @@ html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.ord
 }
 
 /* =============================================
-   TOTAL AMOUNT — Desktop: Quicksand 700 24px var(--fc-text-strong, #393939)
+   TOTAL AMOUNT — Desktop: var(--theme-font-family, Montserrat) 700 24px var(--fc-text-strong, #393939)
 ============================================= */
 html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
 html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
 html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 24px !important;
 	font-weight: 700 !important;
 	line-height: 28px !important;
 	color: var(--bc-os-total-color) !important;
 }
 
-/* Mobile total: Quicksand 700 20px */
+/* Mobile total: var(--theme-font-family, Montserrat) 700 20px */
 @media (max-width: 767px) {
 	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
 	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
@@ -849,7 +849,7 @@ html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.ord
 	}
 }
 
-/* Tablet total: Quicksand 700 22px */
+/* Tablet total: var(--theme-font-family, Montserrat) 700 22px */
 @media (min-width: 768px) and (max-width: 999px) {
 	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
 	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
@@ -866,12 +866,12 @@ html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.ord
 }
 
 /* =============================================
-   SHIPPING NOTE — Museo Sans 400 14px #030712
+   SHIPPING NOTE — var(--theme-font-family, Montserrat) 400 14px #030712
 ============================================= */
 .fc-checkout-order-review .woocommerce-shipping-destination,
 .fc-checkout-order-review .shipping-note,
 .woocommerce-checkout-review-order-table tfoot .woocommerce-shipping-destination {
-	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-family: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif)) !important;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	line-height: 20px !important;
@@ -1043,7 +1043,7 @@ div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.coupon-code-f
 	content: none !important;
 }
 
-/* Toggle link — Quicksand 400 18px var(--fc-text-strong, #393939) */
+/* Toggle link — var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939) */
 html body div.woocommerce .fc-wrapper #order_review .fc-coupon_code__collapsible .expansible-section__toggle-plus,
 .fc-coupon_code__collapsible .expansible-section__toggle-plus {
 	display: flex !important;
@@ -1051,7 +1051,7 @@ html body div.woocommerce .fc-wrapper #order_review .fc-coupon_code__collapsible
 	justify-content: space-between !important;
 	width: 100% !important;
 	padding: 8px 0 !important;
-	font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 	font-size: 18px !important;
 	font-weight: 400 !important;
 	color: var(--bc-os-title-color) !important;
@@ -1142,7 +1142,7 @@ html body .fc-coupon_code__collapsible .fc-expansible-form-section__toggle .coll
 }
 .fc-coupon-code-section input[type="text"] {
 	width: 100% !important;
-	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-family: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif)) !important;
 	font-size: 14px !important;
 	font-weight: 400 !important;
 	color: var(--bc-os-title-color) !important;
@@ -1158,12 +1158,12 @@ html body .fc-coupon_code__collapsible .fc-expansible-form-section__toggle .coll
 	opacity: 0.5;
 }
 
-/* Apply button — bordered, Museo Sans 700 16px, border 1px #353638, radius 8px */
+/* Apply button — bordered, var(--theme-font-family, Montserrat) 700 16px, border 1px #353638, radius 8px */
 body div.woocommerce .woocommerce-checkout .fc-coupon-code-section .fc-coupon-code__apply,
 body div.woocommerce .woocommerce-checkout .fc-coupon-code-section button[data-apply-coupon-button] {
 	position: static !important;
 	top: auto !important;
-	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif)) !important;
+	font-family: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif)) !important;
 	font-size: 16px !important;
 	font-weight: 700 !important;
 	color: var(--bc-os-coupon-btn-text) !important;
@@ -1205,12 +1205,12 @@ body div.woocommerce .woocommerce-checkout .fc-coupon-code-section button[data-a
 }
 
 /* =============================================
-   TABLET TITLE (768-999px): Quicksand 400 24px
+   TABLET TITLE (768-999px): var(--theme-font-family, Montserrat) 400 24px
 ============================================= */
 @media (min-width: 768px) and (max-width: 999px) {
 	body.woocommerce-checkout .fc-checkout-order-review-title,
 	body.woocommerce-checkout .fc-checkout-order-review__title {
-		font-family: var(--bc-sf-font-body, 'Quicksand', sans-serif) !important;
+		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
 		font-size: 24px !important;
 		font-weight: 400 !important;
 		color: var(--bc-os-title-color) !important;

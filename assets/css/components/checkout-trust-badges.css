@@ -77,7 +77,7 @@
 }
 
 .bc-checkout-trust__heading {
-	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+	font-family: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif));
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 26px;
@@ -86,7 +86,7 @@
 }
 
 .bc-checkout-trust__body {
-	font-family: var(--bc-sf-font-label, 'Museo Sans', var(--theme-body-font-family, sans-serif));
+	font-family: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif));
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 26px;

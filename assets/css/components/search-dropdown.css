@@ -177,7 +177,7 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products {
    ========================================================================== */
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-title {
-    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
     font-weight: 400;
     font-size: 18px;
     color: var(--theme-palette-color-4, #888);
@@ -214,14 +214,14 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-pages .dgwt-wcas-suggestion
 
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-categories .dgwt-wcas-suggestion .dgwt-wcas-st {
-    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
     font-weight: 500;
     font-size: 16px;
     color: var(--theme-palette-color-2, #393939);
 }
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-blog .dgwt-wcas-suggestion .dgwt-wcas-st {
-    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
     font-weight: 500;
     font-size: 16px;
     color: var(--theme-palette-color-2, #393939);
@@ -306,11 +306,11 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sd {
    ========================================================================== */
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-st {
-    /* @date 2026-04-28 — switched to Quicksand 400 to match live + Figma 684:85958.
-       Live's /fonts/Museo-Sans-500.otf is 404 and paints Quicksand via Next.js
-       __font_77bc62 fallback; staging body customizer also loads Quicksand 400.
-       Prior Museo Sans 700 was the only override forcing inconsistent weight. */
-    font-family: 'Quicksand', var(--theme-body-font-family), sans-serif;
+    /* @date 2026-04-28 — switched to var(--theme-font-family, Montserrat) 400 to match live + Figma 684:85958.
+       Live's /fonts/Museo-Sans-500.otf is 404 and paints var(--theme-font-family, Montserrat) via Next.js
+       __font_77bc62 fallback; staging body customizer also loads var(--theme-font-family, Montserrat) 400.
+       Prior var(--theme-font-family, Montserrat) 700 was the only override forcing inconsistent weight. */
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family), sans-serif;
     font-weight: 400;
     font-size: 18px;
     line-height: 24px;
@@ -318,7 +318,7 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-st {
 }
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp .woocommerce-Price-amount {
-    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
     font-weight: 300;
     font-size: 15px;
     color: var(--theme-palette-color-2, #393939);
@@ -343,7 +343,7 @@ body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-suggestion-product .dgwt-wcas-sp > 
 
 body .dgwt-wcas-suggestions-wrapp .dgwt-wcas-section-products .dgwt-wcas-view-all {
     background-color: var(--theme-palette-color-3, #746A5F);
-    font-family: 'Museo Sans', var(--theme-body-font-family, sans-serif);
+    font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
     font-weight: 700;
     font-size: 16px;
     line-height: 30px;

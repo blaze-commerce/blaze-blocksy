@@ -128,7 +128,7 @@ h3.bc-decorated-heading::after {
    @since 1.0.0
    ========================================================================== */
 .bc-visual-h2 {
-	font-family: Quicksand, sans-serif;
+	font-family: var(--theme-font-family, Montserrat), sans-serif;
 	font-size: 36px !important;
 	font-weight: 600 !important;
 	line-height: 1.2;
@@ -199,4 +199,10 @@ body.page-id-645912 {
 	--global-palette26: var(--theme-palette-color-26, #F7FBFC);
 	--global-palette27: var(--theme-palette-color-27, #2890a8);
 	--global-palette28: var(--theme-palette-color-28, #C1B19E);
+}
+
+/* Global button font-weight + text colour (migrated 2026-06-04 from Customizer Additional CSS). */
+.button, .ct-button, .added_to_cart, .ct-button-ghost, [type=submit], .wp-element-button, .wp-block-button__link, button.regform-button, button[class*=ajax], .woocommerce button.button, .woocommerce-message .showlogin, .woocommerce-message .restore-item, .forminator-ui[data-design=none] .forminator-button, .fluentform .ff-el-group button.ff-btn, .ct-button-secondary-text {
+	--theme-button-font-weight: 500;
+	--theme-button-text-initial-color: #111111;
 }

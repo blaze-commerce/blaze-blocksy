@@ -1,0 +1,100 @@
+/**
+ * Smart Coupons BOGO — giveaway popup + floating button styling.
+ *
+ * Migrated 2026-06-04 from Customizer "Additional CSS" into the child theme (the correct home for
+ * engineering CSS — Additional CSS is last-resort only). Enqueued site-wide because the floating
+ * giveaway popup button can appear on any page where a BOGO offer applies (matches the prior
+ * Customizer behaviour). The selectors only match WebToffee Smart Coupons markup, so it's inert
+ * anywhere the popup isn't present.
+ */
+
+/* Floating popup button icon (bottom-right) — sized up to 75x75 per client request (2026-06-04). */
+.wbte_sc_bogo_popup_btn img {
+	width: 75px;
+	height: 75px;
+}
+
+/* Giveaway product tiles in the popup. */
+.wbte_sc_bogo_products li.wbte_get_away_product {
+	min-width: 215px;
+}
+
+/* Popup footer buttons. */
+.wbte_sc_giveaway_popup .wbte_sc_giveaway_popup_footer button.button {
+	background-color: #D9EAF0;
+	text-transform: uppercase;
+	color: #111111;
+	font-weight: 600;
+}
+
+.wbte_sc_giveaway_popup .wbte_sc_giveaway_popup_footer button.button.wbte_sc_bogo_add_to_cart {
+	background-color: #FFFFFF;
+	border: 1px solid #EAEBED;
+}
+
+/* Hide the quantity stepper inside the giveaway popup. */
+.wbte_sc_bogo_quantity {
+	display: none;
+}
+
+/* Giveaway popup title. */
+h4.giveaway-title {
+	border-bottom: 1px solid #E4E5E7;
+	padding-bottom: 12px;
+}
+
+/* Giveaway popup variation selectors. */
+.wbte_sc_giveaway_popup .ct-variation-swatches > select.wbte_give_away_product_attr {
+	display: block !important;
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.wbte_sc_giveaway_popup .wt_variations td.value {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 5px;
+}
+
+.wbte_sc_giveaway_popup .ct-variation-swatches .ct-swatch-container,
+.wbte_sc_giveaway_popup .ct-variation-swatches a.ct-swatches-more {
+	display: none;
+}
+
+.wbte_sc_giveaway_popup .wbte_product_name {
+	-webkit-line-clamp: none;
+}
+
+/* == Store-notice prominence + BOGO link spacing (Annemarie 2026-06-11) =======
+   Client report: the "you've unlocked a complimentary item" BOGO notice (and
+   coupon-applied notices) are too faint and get missed -- a couple of orders
+   were placed without the free gift. Also the merged category link renders with
+   no surrounding spaces ("ourCandles + Refill Candlescollection"): Blocksy's
+   flex notice layout collapses the whitespace around the link (which is its own
+   flex item) -- this is NOT a plugin bug; WebToffee outputs correct spaced HTML.
+   Fixes (all CSS):
+     1) give the info/success notices a clear on-brand sage background + accent
+        + readable 500 weight so they stand out;
+     2) restore the visual spaces around the category link + underline it.
+   Background colour is a single value -- easy to adjust to taste. */
+.woocommerce-info,
+.woocommerce-message,
+.wc-block-components-notice-banner {
+	background: #e6eed9 !important;
+	border: 1px solid #cdd9b4 !important;
+	border-left: 4px solid #84944f !important;
+	color: #3a3a3a !important;
+	font-weight: 500 !important;
+	padding-top: 14px !important;
+	padding-right: 18px !important;
+	padding-bottom: 14px !important;
+	/* left padding left to Blocksy (reserves space for the notice icon) */
+	border-radius: 6px !important;
+}
+.wt_sc_giveaway_category_link {
+	margin: 0 0.28em;
+	text-decoration: underline;
+}

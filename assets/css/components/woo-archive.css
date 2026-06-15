@@ -86,3 +86,23 @@
    Pulled until we have a Figma reference or design clarification.
    See ClickUp comment thread for next-step options (drop-shadow, circular
    backdrop, etc.) once design intent is confirmed. */
+
+/* Listing top-bar borders + result-count spacing (migrated 2026-06-04 from Customizer Additional CSS). */
+.woo-listing-top {
+	border-top: 1px solid rgb(192 192 192);
+	border-bottom: 1px solid rgb(192 192 192);
+	padding: 0.75rem 0;
+}
+.woo-listing-top + .woocommerce-result-count,
+.ct-pagination + .woocommerce-result-count {
+	font-size: 1rem;
+	line-height: 1.5rem;
+}
+.products + .woocommerce-result-count,
+.ct-pagination + .woocommerce-result-count {
+	margin-top: 1rem;
+	text-align: center;
+}
+.products + .woocommerce-result-count {
+	margin-top: 3rem;
+}

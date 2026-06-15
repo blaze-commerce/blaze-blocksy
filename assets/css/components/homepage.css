@@ -98,7 +98,7 @@ body.page-id-645912 .site-main {
 }
 
 .bc-hero-slide-content h2 {
-	font-family: var(--theme-headings-font-family, Quicksand, sans-serif);
+	font-family: var(--theme-headings-font-family, var(--theme-font-family, Montserrat), sans-serif);
 	font-size: 56px;
 	font-weight: 500;
 	line-height: 1.1;
@@ -122,12 +122,12 @@ body.page-id-645912 .site-main {
 	padding: 14px 32px;
 	background: var(--theme-button-background-initial-color, transparent);
 	color: var(--theme-button-text-initial-color, #111);
-	border-radius: var(--theme-button-border-radius, 8px);
+	border-radius: var(--theme-button-border-radius, 4px);
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	text-decoration: none;
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
+	letter-spacing: 0.6px;
 	transition: background 0.2s;
 }
 

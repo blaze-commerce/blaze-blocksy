@@ -1,6 +1,174 @@
+## [woo-cart-smartcoupons-guarded-enqueue-2026-06-03] - 2026-06-03
+
+### Changed
+- Made the Smart Coupons BOGO cart CSS (`woo-cart.css`, migrated earlier today from Blocksy code-snippet #5) load **defensively** instead of unconditionally. Because the rule is client-specific (WebToffee Smart Coupons), `inc/enqueue.php` now gates the `is_cart()` enqueue behind a new `bbc_smart_coupons_cart_css_active()` helper: (1) an on/off switch via the `bbc_smart_coupons_cart_css_enabled` filter (default true — flip to false anywhere to disable site-wide WITHOUT editing the theme); (2) a `class_exists( 'Wt_Smart_Coupon_Giveaway_Product' ) || class_exists( 'Wt_Smart_Coupon' )` guard that covers "plugin not installed right" — deactivated, half-installed, or a renamed build all fall through and the file is never enqueued. The selector remains inert by design (only matches Smart Coupons giveaway markup). WHY: Jayr flagged that a bare always-on CSS hide had no kill-switch and no plugin-present check. Theme 1.1.45 -> 1.1.46.
+
+## [woo-cart-smartcoupons-css-migrate-2026-06-03] - 2026-06-03
+
+### Changed
+- Smart Coupons BOGO giveaway "discount detail" hide on the cart page (`.wt_sc_giveaway_products_cart_page .wt_product_discount { display:none }`) migrated OUT of the Blocksy `code-snippets` extension (snippet #5 "WebToffee Smart Coupons", wp_footer) and INTO the child theme as `assets/css/components/woo-cart.css`, conditionally enqueued on `is_cart()` in `inc/enqueue.php`. WHY: `code-snippets` was dropped from `blocksy_active_extensions` (now 4: woocommerce-extra, mega-menu, local-google-fonts, cookies-consent), which stopped the snippet executing — and the go-live cutover script does not migrate the `unz_snippets` table. Moving the rule into the theme decouples it from the extension and lets the cutover carry it automatically via the theme transfer. Selector only matches when Smart Coupons renders giveaway products, so the rule is inert elsewhere (no PHP guard needed in CSS). Re-added the `is_cart()` enqueue that audit P0.2 (2026-05-07) had removed as dead. Verified RENDERED: `components/woo-cart.css` present in `/cart/` head. Theme 1.1.44 -> 1.1.45.
+
+## [primary-button-hover-letterspacing-2026-06-02] - 2026-06-02
+
+### Fixed
+- #3 primary buttons: RENDERED QA (Browserless computed styles) found Add to Cart + See More were NOT darkening on hover (stayed #DDE2CF) and See More had letter-spacing: normal. Added #3b: hover/focus-visible bg #C5CDB4 + text #3F3A36, and letter-spacing 0.6px across all primary buttons. Theme 1.1.39 -> 1.1.40.
+
+## [mega-menu-columns-padding-2026-06-02] - 2026-06-02
+
+### Fixed
+- ROOT CAUSE of the big gap below mega-menu headings found (Jayr): each column <li> has padding: var(--columns-padding, 20px 30px) = 20px top/bottom per column, which stacked (heading bottom + column top) into a large gap. Reduced --columns-padding vertical 20px -> 8px (kept 30px gutters). Theme 1.1.35 -> 1.1.36.
+
+## [mega-menu-fullwidth-heading-spacing-2026-06-02] - 2026-06-02
+
+### Fixed
+- Diffusers full-width heading (#menu-item-639100 Scented Diffusers, .ct-column-heading): removed leftover Feb padding-bottom:12px on the heading row that made the gap below it too big. Now consistent with uniform item spacing. Theme 1.1.32 -> 1.1.33.
+
+## [mega-menu-heading-balanced-padding-2026-06-02] - 2026-06-02
+
+### Fixed
+- Mega menu heading hover pill was vertically unbalanced (leftover Feb rules: candles padding-bottom 10px + margin-bottom 4px; diffusers padding-bottom 0). Forced headings to Blocksy --menu-item-padding (equal top/bottom, same as items) + margin-bottom 0. Theme 1.1.31 -> 1.1.32.
+
+## [mega-menu-heading-hover-2026-06-02] - 2026-06-02
+
+### Changed
+- Mega menu heading items are clickable category links, so they now get the normal hover pill (#EEF1E5) like any item (client request). Removed the #4b rule that suppressed hover/focus on headings. #4d still forces non-hover/current/focus states transparent, so a heading only highlights when hovered directly (not persistently). Theme 1.1.30 -> 1.1.31.
+
+## [mega-menu-heading-spacing-inherit-2026-06-02] - 2026-06-02
+
+### Fixed
+- Mega menu parent/heading items (e.g. #menu-item-639055 Scented/Citrus Candles) stayed tight because the #4 headings=links block forced padding-bottom:0 + margin-bottom:0, blocking Blocksy item spacing. Removed that zeroing (kept font 500/13px + no divider) so headings inherit the same Blocksy Items Spacing (18px) as every other item. Theme 1.1.29 -> 1.1.30.
+
+## [mega-menu-spacing-customizer-control-2026-06-02] - 2026-06-02
+
+### Changed
+- Mega menu item spacing now fully Customizer-controlled. Removed the last child override (.sub-menu li > a padding 8px 12px) so Blocksy --menu-item-padding (derived from Customizer Items Spacing, dropdownItemsSpacing=13px) governs. For the solid dropdown type Blocksy renders 13px as ~6px vertical padding (calc 13-7). Adjust live via Header > Menu > Dropdown Options > Items Spacing. Theme 1.1.28 -> 1.1.29.
+
+## [mega-menu-item-spacing-blocksy-2026-06-02] - 2026-06-02
+
+### Changed
+- Mega menu item spacing: removed child-theme overrides (.sub-menu li margin 2px + heading row/margin/padding tweaks) that were squashing Blocksy Customizer dropdownItemsSpacing (13px) down to 2px. Spacing is now uniform + Customizer-managed (Header > Menu > Dropdown Options > Items Spacing). Theme 1.1.27 -> 1.1.28.
+
+## [mega-menu-4d-restore-hover-2026-06-02] - 2026-06-02
+
+### Fixed
+- Mega menu: restored the hover tint (#4c :not(:hover) rule had suppressed the visible hover). Now explicit states: base/focus/active/current = transparent (no lingering highlight on headings), :hover/:focus-visible = #EEF1E5. Also halved the full-width column-heading bottom spacing. Theme 1.1.26 -> 1.1.27.
+
+## [mega-menu-4c-only-hover-2026-06-02] - 2026-06-02
+
+### Fixed
+- Mega menu: persistent green on column heading (e.g. Scented Candles) traced to Blocksy (headerDropdownBackground / current-item state), NOT the child theme (verified: no child JS/PHP touches the menu). Added bulletproof rule: .sub-menu li > a:not(:hover):not(:focus-visible) background transparent !important — only the hovered item can ever highlight. Theme 1.1.25 -> 1.1.26.
+
+## [mega-menu-focus-visible-2026-06-02] - 2026-06-02
+
+### Fixed
+- Mega menu: column heading (e.g. Scented Candles) stayed highlighted because the menu-link hover rule also fired on :focus, so the opened/clicked item kept its green tint. Changed :focus -> :focus-visible so a mouse click no longer leaves a lingering highlight (keyboard focus still shows). Now ONLY the hovered item highlights. Theme 1.1.24 -> 1.1.25.
+
+## [mega-menu-4b-heading-spacing-2026-06-02] - 2026-06-02
+
+### Changed
+- Mega menu #4b: +5px breathing room below column headings (was too tight after divider removal); column headings (parent links + .ct-column-heading) no longer highlight on hover/focus so only leaf items highlight (client req). Theme 1.1.23 -> 1.1.24.
+
+## [mega-menu-4-headings-and-font-2026-06-02] - 2026-06-02
+
+### Changed
+- Mega menu (#4): switched header Menu/Dropdown font Museo Sans -> Montserrat (6 theme_mod spots; backup option theme_mods_blocksy_child_bak_2026_06_02). Neutralised the 2026-02-25 column-heading treatment (bold 700, 15px, border-bottom divider) so headings MATCH links (500 / 13px / no divider) per client consistency req. Theme 1.1.22 -> 1.1.23.
+
+## [button-consistency-normalize-2026-06-02] - 2026-06-02
+
+### Changed
+- Normalised secondary buttons to the primary spec for sitewide consistency (weight 500, letter-spacing 0.6px, radius 4px): checkout Place Order/prev/next-step (woo-checkout.css, checkout-step-form.css), variation swatches radius 8->4px (byronbay.css), hero CTA (homepage.css), wishlist signup/continue (wishlist-offcanvas.css), shipping-calc submit (product-information.css). Colours intentionally kept distinct: cookie Decline, coupon-apply outline, FiboSearch View All brown. Theme 1.1.21 -> 1.1.22.
+
+## [primary-button-size-17px-2026-06-02] - 2026-06-02
+
+### Changed
+- Primary button font-size set to 17px (client spec, Launch Checklist \xc2\xa72 Button Typography). Added font-size: 17px !important to both #3 sitewide override groups (.ct-button + anchor/.bc-see-more-link). Theme 1.1.20 -> 1.1.21.
+
+## [bogo-gift-icon-halved-2026-06-01] - 2026-06-01
+
+### Changed
+- BOGO free-gift chooser icon (.wbte_sc_bogo_popup_btn) halved per client request: container 150x150 -> 75x75px, padding 18px -> 9px, inner <img> 96x96 -> 48x48px. Position (fixed bottom-right) untouched. Theme bumped 1.1.19 -> 1.1.20.
+
 # Changelog
 
 All notable changes to the Blocksy child theme. Newest entries first.
+
+## [bogo-popup-cta-buttons-2026-06-01] - 2026-06-01
+
+> **Environment:** bbcv1.blz.au (port 46945). Theme **1.1.18 -> 1.1.19**.
+>
+> **Source:** CU-86extrx5y #3 / #5. Jayr-approved.
+
+### BOGO popup CTA buttons - apply client #3 primary-button spec
+
+The WebToffee Smart Coupons Pro BOGO free-gift popup is body-appended (rendered outside `.woocommerce`), so its two customer CTA buttons fell through the sitewide #3 primary-button override (which is scoped under `.woocommerce`) and rendered with the plugin/theme default `.button` style instead of the client's sage spec. Added a minimal `!important` override targeting only the two front-end CTAs - `.wbte_sc_bogo_add_to_cart` ("Add to cart") and `.wbte_sc_bogo_proceed_checkout` ("Add & go to checkout") - applying the client #3 primary-button spec: background `--theme-palette-color-12 (#DDE2CF)`, hover/focus background `--theme-palette-color-13 (#C5CDB4)`, text + hover text `--theme-palette-color-24 (#3F3A36)`, Montserrat 500, letter-spacing 0.6px, border-radius 4px. Admin/"add new"/dropdown buttons (`wbte_sc_bogo_add_new_*`, `wbte_sc_bogo_edit_*`) intentionally NOT styled. Color/hover/text/font/radius only - no padding/layout change. byronbay.css loads LAST so the override out-specifies the plugin stylesheet. Verified via served-CSS + on-server brace balance; live visual confirm by Jayr (BOGO offer is cart-session-stateful, Playwright resets context here). Theme 1.1.18 -> 1.1.19.
+
+## [qty-stepper-radius-2026-06-01] - 2026-06-01
+
+> **Environment:** bbcv1.blz.au (port 46945). Theme **1.1.17 -> 1.1.18**.
+>
+> **Source:** CU-86extrx5y #3 ("consistent radius sitewide"). Jayr-approved.
+
+### Qty steppers - unify corner radius 8px -> 4px to match primary buttons
+
+The three quantity-stepper blocks (PDP `.ct-cart-actions`, sticky `.ct-floating-bar-actions`, off-canvas `#woo-cart-panel` / `.woocommerce-mini-cart`) used an 8px corner radius on the decrease (top-left + bottom-left) and increase (top-right + bottom-right) buttons. This conflicted with the primary buttons, which honour the Blocksy Customizer `buttonRadius = 4px`. Changed all six `border-*-left-radius`/`border-*-right-radius` declarations from 8px to 4px (6 left + 6 right corner declarations across the 3 blocks) so the steppers match the buttons. The variation-swatch shorthand `border-radius: 8px` on `.ct-swatch` is a separate spec and was intentionally left untouched. Verified via served-CSS + on-server brace balance; zero structural change (byte size unchanged). Theme 1.1.17 -> 1.1.18.
+
+## [bogo-gift-chooser-button-2026-06-01] - 2026-06-01
+
+> **Environment:** bbcv1.blz.au (port 46945). Theme **1.1.16 -> 1.1.17**.
+>
+> **Source:** CU-86extrx5y #5. WebToffee Smart Coupons Pro BOGO free-gift chooser floating button enlarged for discoverability (option A).
+
+### BOGO gift-chooser button - enlarge to 150x150
+
+- **Mechanism:** plugin markup is `<div class='wbte_sc_bogo_popup_btn bottom-right'><img src='bogo_popup_btn.svg'></div>`. The plugin's `modules/bogo/assets/style.css` ships the button at `width:50px; height:50px` (circle) with a 24x24px inner `<img>` glyph.
+- **Fix (byronbay.css, appended last):** high-specificity `!important` block. Container `.wbte_sc_bogo_popup_btn` -> `width/height:150px` + `padding:18px box-sizing:border-box`. Inner `.wbte_sc_bogo_popup_btn img` -> `width/height:96px` (`max-width/height:100%`) so the glyph scales to fill the circle proportionally instead of sitting tiny in a big box. Position (`fixed`, bottom-right) untouched. byronbay.css loads LAST among child CSS so it out-specifies the plugin stylesheet.
+- **Files:** `clients/byronbay/byronbay.css` (+1 block). `style.css` Version 1.1.16 -> 1.1.17.
+- **Verified:** served CSS contains the new selector; braces balanced. BOGO offer is cart-session-stateful (needs 2x "Large - 50 Hour Candles" + `freegift` coupon) and Playwright resets context in this env, so live visual confirmation is by Jayr.
+
+## [minicart-qty-stepper-2026-06-01] - 2026-06-01
+
+> **Environment:** bbcv1.blz.au (port 46945). Theme **1.1.15 -> 1.1.16**.
+>
+> **Source:** CU-86extrx5y. Mini-cart / off-canvas "Your bag" drawer qty stepper restyled to match the PDP + sticky-bar seamless grouped pill, compact for the slim drawer.
+
+### Mini-cart qty stepper - seamless pill (compact)
+
+- **Root cause:** Blocksy's lazy-loaded `cart-header-element-lazy.min.css` loads AFTER `byronbay.css` and `qty-stepper.css`, out-specifying the component knob overrides in `offcanvas.css`. The drawer stepper rendered as three separate boxes: `.ct-decrease`/`.ct-increase` at ~19px (smaller than the 28px input) with per-button 3px radius, not the merged outer-only pill.
+- **Fix (byronbay.css, appended last):** new high-specificity `!important` block scoped to `#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2']` (and the `.woocommerce-mini-cart` fragment variant). Mirrors the existing `.ct-cart-actions` (PDP) and `.ct-floating-bar-actions` (sticky) pill structure: `display:inline-flex`, `position:static`, merged borders (`border-right:0`/`border-left:0`), outer-only 8px radius (decrease order:0 / input order:1 / increase order:2), `1px solid var(--theme-form-field-border-initial-color,#D8D1C7)`, `background:#fff`.
+- **Compact dimensions:** buttons **30px wide x 34px tall**, input **40px wide x 34px tall** (vs PDP 44/46/52, sticky 38/40/46) - smaller to suit the slim drawer.
+- **Files:** `clients/byronbay/byronbay.css` (+1 block). `style.css` Version 1.1.15 -> 1.1.16.
+- **Verified:** served CSS contains the new selector; braces balanced (239/239). Pre-fix broken state confirmed via Playwright computed styles (buttons 19.4px, per-button 3px radius). Stateful Playwright click chains unreliable in this env; relied on served-CSS + computed-style checks.
+
+## [buttons-and-token-refactor-2026-06-01] - 2026-06-01
+
+> **Environment:** bbcv1.blz.au (port 46945). Theme **1.1.14 → 1.1.15**.
+>
+> **Source:** CU-86extrx5y (Anne Marie immediate revisions). Two changes: (1) #3 primary-button spec compliance sitewide; (2) byronbay.css hardcoded-value → design-token refactor (zero visual change).
+
+### #3 — Primary buttons (sitewide)
+
+- **Root cause:** a legacy `font-weight: 600 !important` on `.ct-cart-actions > .single_add_to_cart_button`, plus Blocksy not emitting its `buttonTextColor` theme_mod (buttons rendered `#111` instead of the configured `#3F3A36`).
+- **Fix (byronbay.css):** weight 600 → **500**; added `color: var(--theme-palette-color-24)` (#3F3A36) to the main ATC; appended two sitewide override blocks forcing all primary buttons (ATC main + sticky, cookie Accept/Decline, See More anchors ×9, `.wp-block-button__link`, `.ct-button:not(.ct-button-ghost)`) to button-text color24 + weight 500. Ghost / wishlist / icon buttons untouched.
+- **Spec met:** bg `#DDE2CF` (color12), hover bg `#C5CDB4` (color13), text + hover-text `#3F3A36` (color24), Montserrat 500, letter-spacing 0.6px, border-radius 4px.
+- **Verified:** computed `color: rgb(63, 58, 54)` / `font-weight: 500` on every primary button (main ATC, sticky bar, cookie bar, all 9 See More, block buttons). Uniform.
+
+### Token refactor (byronbay.css, zero visual change)
+
+Every swapped token resolves to the identical current literal — verified before swapping (`--theme-font-family`=Montserrat, palette `color4`=#888888, `--theme-form-field-border-initial-color` fallback=#D8D1C7). No pixel change; maintainability + Customizer-follow only.
+
+- `font-family: Montserrat, sans-serif` → `var(--theme-font-family, Montserrat, sans-serif)` (×2 — variation label, description body). Now follows the Customizer global font.
+- Variation-swatch border `1px solid #D8D1C7` → `1px solid var(--theme-form-field-border-initial-color, #D8D1C7)` (matches the qty-stepper border token).
+- Bare icon grey `#888888` → `var(--theme-palette-color-4, #888888)` (×6; matches the 3 pre-existing var-wrapped usages — color4 IS #888888).
+- Hover tints `#E6EAD9` (swatch) + `#EEF1E5` (mega-menu) → new `:root` design tokens `--bc-swatch-hover-bg` / `--bc-menu-hover-bg` (single source of truth).
+
+### Deliberate scope decisions
+
+- **Museo Sans fallback retained** — it's a child-theme-wide convention across 5+ component CSS files (header, checkout-*, search-dropdown); removing it from byronbay.css alone would create drift. No `@font-face`/`@import` in this file (matches the live site's Adobe Fonts).
+- **`#fff` literals (×6) left as-is** — white qty/swatch backgrounds aren't a theming concern.
+- **Qty-stepper DRY merge deferred** — the `.ct-cart-actions` (46px) and `.ct-floating-bar-actions` (40px) blocks are *not* duplicates (different dimensions) and are Playwright-verified working. Merging risks regressing a working component for marginal gain; tracked as a separate task.
+
+Files: `clients/byronbay/byronbay.css`. In-place backup: `byronbay.css.bak-2026-06-01`.
+
 ## [anne-marie-kickback-2026-05-13] - 2026-05-13
 
 > **Environment:** bbcv1.blz.au (port 46945, ex-FROZEN, now opened back up after the 2026-05-13 STG→bbcv1 restore). Theme **1.1.13 → 1.1.14**.

@@ -1,3 +1,10 @@
+/* BC design tokens (byronbay.css — 86extrx5y, Jayr 2026-06-01) */
+:root {
+  --bc-swatch-hover-bg: #E6EAD9; /* #2 variation swatch hover tint */
+  --bc-menu-hover-bg:   #EEF1E5; /* #4 mega-menu link hover tint */
+  --bc-mega-heading-top: 15px;   /* #4 mega-menu heading top space — SINGLE LEVER: change here, applies everywhere it is used */
+}
+
 /**
  * Byron Bay Candles — Client-specific CSS overrides.
  *
@@ -297,7 +304,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
    @date 2026-04-28 (CU-86exduk1q): live renders Title Case (the wrapper
    anchor has Tailwind 'uppercase' but the inner button is text-transform:none,
    so visible text is "See More" not "SEE MORE"). Mirroring live's actual paint:
-   18px / Quicksand 400 / no letter-spacing / no uppercase. Color stays on the
+   18px / var(--theme-font-family, Montserrat) 400 / no letter-spacing / no uppercase. Color stays on the
    theme palette-3 var so it follows Elneil's customizer (Figma's CONTRAST 3
    token #746a5f vs staging palette-3 #655B51 is a separate designer call —
    tracked in the BBC Typography Reference doc). */
@@ -373,7 +380,8 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 	min-width: 0;
 	text-transform: uppercase !important;
 	letter-spacing: 0.05em;
-	font-weight: 600 !important;
+	font-weight: 500 !important; /* #3 spec, was 600 (Jayr 2026-06-01) */
+	color: var(--theme-palette-color-24) !important; /* #3 text #3F3A36 */
 }
 
 .ct-cart-actions > .single_add_to_cart_button::after {
@@ -766,7 +774,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 	padding: 10px 40px 10px 10px;
 	font-size: 16px;
 	font-weight: 400;
-	color: #888888;
+	color: var(--theme-palette-color-4, #888888);
 	line-height: 24px;
 	border: none;
 	border-radius: 6px;
@@ -802,7 +810,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
 	width: 24px;
 	height: 24px;
-	fill: #888888;
+	fill: var(--theme-palette-color-4, #888888);
 }
 
 /* Phone number — prevent wrapping to two lines.
@@ -843,7 +851,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 		padding: 10px 40px 10px 16px; /* QA 86exfx68w: align placeholder with icons-row gutter */
 		font-size: 16px;
 		font-weight: 400;
-		color: #888888;
+		color: var(--theme-palette-color-4, #888888);
 		line-height: 24px;
 		border: none;
 		border-radius: 6px;
@@ -871,7 +879,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 	[data-device="mobile"] [data-id="search"] .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
 		width: 24px;
 		height: 24px;
-		fill: #888888;
+		fill: var(--theme-palette-color-4, #888888);
 	}
 }
 
@@ -984,7 +992,7 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 
 [data-header] #offcanvas .ct-panel-actions::before {
 	content: "Menu";
-	font-family: Museo Sans, var(--theme-body-font-family, sans-serif);
+	font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
 	font-size: 16px;
 	font-weight: 700;
 	color: var(--theme-palette-color-2, #393939);
@@ -1008,13 +1016,13 @@ label.wc-pao-addon-name[data-addon-name=Gift wrap] {
 	fill: var(--theme-palette-color-2, #393939) !important;
 }
 
-/* Menu link font — match live site (16px/500, Museo Sans).
+/* Menu link font — match live site (16px/500, var(--theme-font-family, Montserrat)).
    Blocksy default is 20px/700 which is too bold for this design.
    @date 2026-04-15 */
 [data-header] #offcanvas .ct-menu-link {
 	font-size: 16px !important;
 	font-weight: 500 !important;
-	font-family: Museo Sans, var(--theme-body-font-family, sans-serif) !important;
+	font-family: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif) !important;
 }
 
 /* Menu item dividers — subtle lines between items.
@@ -1124,7 +1132,7 @@ body.woocommerce-checkout {
 	font-weight: 600;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: #888888;
+	color: var(--theme-palette-color-4, #888888);
 	margin-top: 24px;
 	margin-bottom: 8px;
 }
@@ -1217,7 +1225,7 @@ body.woocommerce-checkout {
 .bc-404 .dgwt-wcas-search-wrapp .dgwt-wcas-search-form .dgwt-wcas-ico-magnifier {
 	width: 24px;
 	height: 24px;
-	fill: #888888;
+	fill: var(--theme-palette-color-4, #888888);
 }
 
 /* CTA row — extra breathing room + consistent gap.
@@ -1634,7 +1642,7 @@ span.out-of-stock-badge,
 .single-product .summary .price del,
 .single-product .summary .price .woocommerce-Price-amount,
 .single-product .summary .price bdi {
-	font-size: 14px;
+	font-size: var(--theme-font-size, 24px);
 }
 
 /* BBC 86exbzech R6: floating bar price (ct-floating-bar-content) */
@@ -1668,4 +1676,500 @@ span.out-of-stock-badge,
 .ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease:hover,
 .ct-cart-actions > .quantity[data-type='type-2'] .ct-increase:hover {
 	background: var(--theme-border-color, #e5e5e5) !important;
+}
+
+/* ==========================================================================
+   86extrx5y — PDP qty stepper: seamless grouped pill (client request 2026-06-01)
+   WHY: Blocksy native type-2 rules out-specify qty-stepper.css (buttons stayed
+   30px / 3px-radius, input 55px → three separate boxes, see CU image #3). This
+   high-specificity override (byronbay.css loads last) forces equal-height inline
+   cells with merged borders + outer-only radius. "Qty:" label stays outside.
+   Verified via Playwright computed styles (179x46 pill). @date 2026-06-01
+   ========================================================================== */
+.ct-cart-actions > .quantity[data-type='type-2'] { gap: 0 !important; align-items: center !important; }
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease,
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase {
+	display: inline-flex !important; align-items: center !important; justify-content: center !important;
+	position: static !important; inset: auto !important;
+	height: 46px !important; width: 44px !important; min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; box-shadow: none !important; cursor: pointer;
+}
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease { order: 0 !important; border-right: 0 !important; border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important; }
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase { order: 2 !important; border-left: 0 !important; border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important; }
+.ct-cart-actions > .quantity[data-type='type-2'] .input-text.qty {
+	position: static !important; order: 1 !important; height: 46px !important; width: 52px !important;
+	min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; text-align: center;
+}
+
+
+/* ==========================================================================
+   86extrx5y — PDP product-info row (Calculate Shipping | Return | FAQ): 3 even
+   columns. Consolidated 2026-06-01 (was 3 blocks). minmax(0,1fr) + min-width:0
+   forces equal thirds; divider margin reset keeps the auto columns thin.
+   ========================================================================== */
+.entry-summary .bc-product-info-items {
+	display: grid !important;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) !important;
+	align-items: center !important;
+	width: 100% !important;
+}
+.entry-summary .bc-product-info-items .bc-product-info-item {
+	width: auto !important;
+	min-width: 0 !important;
+	justify-content: center !important;
+	white-space: nowrap !important;
+}
+.entry-summary .bc-product-info-items .bc-product-info-divider {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+/* ==========================================================================
+   86extrx5y — PDP summary box: fit content height + balanced padding (image #5)
+   Client request 2026-06-01: the bordered summary stretched to match the tall
+   gallery column (flex align stretch) leaving ~150px empty at the bottom.
+   align-self:flex-start → content-height (dynamic: shrinks when less content).
+   Zeroing the trailing element margin (afterpay carries 16px before an empty
+   Smart-Coupons block) makes bottom padding (24px) match top (24px).
+   ========================================================================== */
+.single-product .entry-summary { align-self: flex-start !important; }
+.single-product .entry-summary-items > *:last-child,
+.single-product .entry-summary-items > *:has(+ .available_coupons_with_product) { margin-bottom: 0 !important; }
+
+/* ==========================================================================
+   86extrx5y — floating/sticky add-to-cart bar qty stepper (image #6): match the
+   PDP pill. Same rules as .ct-cart-actions but scoped to .ct-floating-bar-actions
+   and sized compact (40px) for the slim sticky bar. @date 2026-06-01
+   ========================================================================== */
+.ct-floating-bar-actions .quantity[data-type='type-2'] { gap: 0 !important; align-items: center !important; }
+.ct-floating-bar-actions .quantity[data-type='type-2'] .ct-decrease,
+.ct-floating-bar-actions .quantity[data-type='type-2'] .ct-increase {
+	display: inline-flex !important; align-items: center !important; justify-content: center !important;
+	position: static !important; inset: auto !important;
+	height: 40px !important; width: 38px !important; min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; box-shadow: none !important; cursor: pointer;
+}
+.ct-floating-bar-actions .quantity[data-type='type-2'] .ct-decrease { order: 0 !important; border-right: 0 !important; border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important; }
+.ct-floating-bar-actions .quantity[data-type='type-2'] .ct-increase { order: 2 !important; border-left: 0 !important; border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important; }
+.ct-floating-bar-actions .quantity[data-type='type-2'] .input-text.qty {
+	position: static !important; order: 1 !important; height: 40px !important; width: 46px !important;
+	min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; text-align: center;
+}
+
+/* ==========================================================================
+   86extrx5y — #1 Variation Labels typography (client 2026-06-01)
+   Montserrat 500 · 14px · letter-spacing 0.02em · #4A433D (palette color29).
+   Was Montserrat 600 / 18px / #5B554F.
+   ========================================================================== */
+.single-product .variations th.label,
+.single-product .variations th.label label {
+	font-family: var(--theme-font-family, Montserrat, sans-serif) !important;
+	font-weight: 500 !important;
+	font-size: 14px !important;
+	letter-spacing: 0.02em !important;
+	color: var(--theme-palette-color-29, #4A433D) !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #2 Product Variation Button (swatch) styling (client 2026-06-01)
+   Kills the harsh black selected state; soft brand palette. Selected colours use
+   palette tokens (color12/13/24 = #DDE2CF/#C5CDB4/#3F3A36); unselected text = color29
+   (#4A433D); unselected border = client literal #D8D1C7; hover bg #E6EAD9.
+   ========================================================================== */
+.single-product .ct-variation-swatches .ct-swatch {
+	background: #FFFFFF !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	color: var(--theme-palette-color-29, #4A433D) !important;
+	border-radius: 4px !important;
+	padding: 8px 16px !important;
+}
+.single-product .ct-variation-swatches .ct-swatch-container.active .ct-swatch {
+	background: var(--theme-palette-color-12, #DDE2CF) !important;
+	border-color: var(--theme-palette-color-13, #C5CDB4) !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+}
+.single-product .ct-variation-swatches .ct-swatch:hover {
+	background: var(--bc-swatch-hover-bg, #E6EAD9) !important;
+	border-color: var(--theme-palette-color-13, #C5CDB4) !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+}
+.single-product .ct-variation-swatches .ct-swatch-container {
+	margin: 0 10px 10px 0 !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #1 Body/Description text + layout spacing (client 2026-06-01)
+   Body: Montserrat 400 · 17px · line-height 1.8 · #5B554F (color25). Was 18px/1.75.
+   Spacing: bump --product-element-spacing 16px → 24px for editorial breathing room.
+   ========================================================================== */
+.single-product .entry-summary-items > * { --product-element-spacing: 24px; }
+.single-product [id*="tab-description"],
+.single-product [id*="tab-description"] p,
+.single-product [id*="tab-description"] li {
+	font-family: var(--theme-font-family, Montserrat, sans-serif) !important;
+	font-weight: 400 !important;
+	font-size: 17px !important;
+	line-height: 1.8 !important;
+	color: var(--theme-palette-color-25, #5B554F) !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #1 layout spacing (client 2026-06-01): more breathing room in the
+   upper summary. Scoped to title/price/stock margins so it can't disturb the
+   summary-box bottom-padding fix (which manages the lower elements).
+   ========================================================================== */
+.single-product .entry-summary-items > .product_title,
+.single-product .entry-summary-items > .price,
+.single-product .entry-summary-items > .bc-stock-status { margin-bottom: 24px !important; }
+
+/* ==========================================================================
+   86extrx5y — #4 Mega Menu (client 2026-06-01)
+   Base links already uniform 500/16px/no-underline (no bold/underlined headers).
+   This adds: calm hover (#EEF1E5 / #4A433D=color29), no active-parent/column
+   highlight, consistent weight, and more link spacing/breathing room.
+   ========================================================================== */
+.sub-menu a { font-weight: 500 !important; text-decoration: none !important; }
+.sub-menu li > a { border-radius: 6px !important; } /* padding now from Blocksy --menu-item-padding (Customizer Items Spacing); child override removed 2026-06-02 */
+.sub-menu li > a:hover,
+.sub-menu li > a:focus-visible {
+	background: var(--bc-menu-hover-bg, #EEF1E5) !important;
+	color: var(--theme-palette-color-29, #4A433D) !important;
+}
+.sub-menu .current-menu-item > a,
+.sub-menu .current-menu-ancestor > a,
+.sub-menu .current-menu-parent > a {
+	background: transparent !important;
+	font-weight: 500 !important;
+	color: inherit !important;
+}
+/* item spacing now governed by Blocksy Customizer dropdownItemsSpacing (13px); child 2px override removed 2026-06-02 */
+
+/* ==========================================================================
+   86extrx5y — Variation swatch option text weight + tracking (client 2026-06-01)
+   The scent-option labels (.ct-swatch text) were 600 / 0.18px → spec is 500 /
+   letter-spacing 0.02em (= 0.28px at 14px). Size 14px + colour #4A433D already set.
+   ========================================================================== */
+.single-product .ct-variation-swatches .ct-swatch,
+.single-product .ct-variation-swatches .ct-swatch-content {
+	font-weight: 500 !important;
+	letter-spacing: 0.02em !important;
+}
+
+/* #3 sitewide primary button text colour + weight. WHY: Blocksy buttonTextColor (=color-24) is not emitted into dynamic CSS, so primary buttons render default #111 / stray weights. Scope: solid/primary only; ghost+wishlist+icon excluded. Jayr 2026-06-01 #86extrx5y */
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce .single_add_to_cart_button,
+.woocommerce button.button:not(.ct-button-ghost),
+.woocommerce input.button:not(.ct-button-ghost),
+.wp-block-button__link,
+.ct-button:not(.ct-button-ghost) {
+	color: var(--theme-palette-color-24) !important;
+	font-weight: 500 !important;
+	font-size: 17px !important; /* #3 spec button size 17px, Jayr 2026-06-02 */
+}
+
+/* #3 anchor-based primary buttons (See More / View cart) missed by the button.alt selector. Jayr 2026-06-01 #86extrx5y */
+.woocommerce a.button:not(.ct-button-ghost),
+.bc-see-more-link {
+	color: var(--theme-palette-color-24) !important;
+	font-weight: 500 !important;
+	font-size: 17px !important; /* #3 spec button size 17px, Jayr 2026-06-02 */
+}
+
+
+/* ==========================================================================
+   86extrx5y - mini-cart / off-canvas "Your bag" drawer qty stepper
+   (client request 2026-06-01). Match the PDP (.ct-cart-actions) + sticky
+   (.ct-floating-bar-actions) seamless grouped pill, but COMPACT for the slim
+   drawer (~34px). Blocksy's lazy-loaded cart-header-element-lazy.min.css loads
+   AFTER byronbay.css and after qty-stepper.css, so its native
+   .quantity[data-type='type-2'] rules out-specified the component knob
+   overrides in offcanvas.css (buttons rendered ~19px tall with per-button 3px
+   radius -> three separate boxes). This high-specificity !important block
+   (byronbay.css loads last among child CSS; mini-cart-scoped + !important beats
+   the lazy Blocksy stylesheet) forces the seamless pill: merged borders +
+   outer-only 8px radius, decrease/input/increase inline at equal 34px height.
+   Scoped to both #woo-cart-panel (drawer) and .woocommerce-mini-cart (fragment
+   contexts). Verified via served-CSS + computed styles (Playwright stateful
+   click chains unreliable in this env). @date 2026-06-01
+   ========================================================================== */
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'],
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] { gap: 0 !important; align-items: center !important; }
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'] .ct-decrease,
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'] .ct-increase,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] .ct-decrease,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] .ct-increase {
+	display: inline-flex !important; align-items: center !important; justify-content: center !important;
+	position: static !important; inset: auto !important;
+	height: 34px !important; width: 30px !important; min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; box-shadow: none !important; cursor: pointer;
+}
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'] .ct-decrease,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] .ct-decrease { order: 0 !important; border-right: 0 !important; border-top-left-radius: 4px !important; border-bottom-left-radius: 4px !important; }
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'] .ct-increase,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] .ct-increase { order: 2 !important; border-left: 0 !important; border-top-right-radius: 4px !important; border-bottom-right-radius: 4px !important; }
+#woo-cart-panel .ct-product-actions > .quantity[data-type='type-2'] .input-text.qty,
+.woocommerce-mini-cart .ct-product-actions > .quantity[data-type='type-2'] .input-text.qty {
+	position: static !important; order: 1 !important; height: 34px !important; width: 40px !important;
+	min-height: 0 !important; box-sizing: border-box !important;
+	border: 1px solid #D8D1C7 !important; /* #2 spec — was rendering Blocksy form-field #cfcfcf via the var */
+	border-radius: 0 !important; background: #fff !important; text-align: center;
+}
+
+
+/* ==========================================================================
+   86extrx5y #5 - WebToffee Smart Coupons Pro BOGO free-gift chooser button
+   (client request 2026-06-01, option A: enlarge for discoverability).
+   Plugin markup: <div class='wbte_sc_bogo_popup_btn bottom-right'><img
+   src='bogo_popup_btn.svg'></div>. Plugin base style.css ships the button
+   at 50x50px with a 24x24px inner <img>. byronbay.css loads LAST among child
+   CSS so this !important block out-specifies the plugin's assets/style.css.
+   Sized container to 75x75 AND scale the inner <img> proportionally
+   (48x48 with padding) so the glyph fills the circle instead of sitting tiny
+   in a big box. Position (fixed, bottom-right) left untouched. Verified via
+   served-CSS + on-server brace balance; live visual confirm by Jayr (BOGO
+   offer is cart-session-stateful, Playwright resets context here). \@date 2026-06-01
+   ========================================================================== */
+.wbte_sc_bogo_popup_btn { width: 75px !important; height: 75px !important; padding: 0 !important; box-sizing: border-box !important; }
+.wbte_sc_bogo_popup_btn img { width: 75px !important; height: 75px !important; max-width: 100% !important; max-height: 100% !important; }
+
+
+/* ==========================================================================
+   86extrx5y #3 - WebToffee Smart Coupons Pro BOGO popup CTA buttons
+   (client request 2026-06-01). The sitewide #3 primary-button override is
+   scoped under .woocommerce, but the BOGO free-gift popup is body-appended
+   (outside .woocommerce), so its CTA buttons fell back to plugin/theme
+   default. Re-apply the client #3 primary-button spec directly on the BOGO
+   CTA selectors. byronbay.css loads LAST among child CSS so this !important
+   block out-specifies the plugin's public/modules/bogo/assets/style.css.
+   Front-end customer CTAs only:
+     .wbte_sc_bogo_add_to_cart        -> 'Add to cart'
+     .wbte_sc_bogo_proceed_checkout   -> 'Add & go to checkout'
+   Admin/'add new'/dropdown buttons (wbte_sc_bogo_add_new_*, *_edit_*)
+   are intentionally NOT styled. Color/hover/text/font/radius only - no
+   padding/layout changes. Verified via served-CSS + on-server brace
+   balance; live visual confirm by Jayr (BOGO offer is cart-session-
+   stateful, Playwright resets context here). \@date 2026-06-01
+   ========================================================================== */
+.wbte_sc_bogo_add_to_cart,
+.wbte_sc_bogo_proceed_checkout {
+	background: var(--theme-palette-color-12, #DDE2CF) !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+	font-family: 'Montserrat', sans-serif !important;
+	font-weight: 500 !important;
+	letter-spacing: 0.6px !important;
+	border-radius: 4px !important;
+}
+.wbte_sc_bogo_add_to_cart:hover,
+.wbte_sc_bogo_add_to_cart:focus,
+.wbte_sc_bogo_proceed_checkout:hover,
+.wbte_sc_bogo_proceed_checkout:focus {
+	background: var(--theme-palette-color-13, #C5CDB4) !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+}
+
+
+/* ==========================================================================
+   86extrx5y — #4 Mega Menu headings = links (client 2026-06-02)
+   Supersedes the 2026-02-25 "Heading & Divider Styling". Client wants column
+   headings to MATCH the links: consistent size + weight, no bold, no underline
+   divider, no oversized headings. Neutralises that earlier treatment.
+   ========================================================================== */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu > li:has(> .ct-column-heading) {
+	border-bottom: none !important;
+	padding-bottom: 0 !important; /* remove leftover Feb 12px row padding under full-width heading */
+}
+nav > ul > [class*="ct-mega-menu"] > .sub-menu > li > .ct-column-heading,
+nav > ul > .byronbay-mega-candles > .sub-menu > li.menu-item-has-children > .ct-menu-link,
+nav > ul > .byronbay-mega-diffusers > .sub-menu > li.menu-item-has-children > .ct-menu-link {
+	font-weight: 500 !important;
+	font-size: 13px !important;
+	border-bottom: none !important;
+	padding: var(--menu-item-padding, 11px 14px) !important; /* balanced top/bottom = same as items */
+	margin-bottom: 0 !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #4b Mega Menu heading spacing + no-highlight (client 2026-06-02)
+   (a) ~5px breathing room below column headings (was too tight after the
+       divider was removed). (b) Column HEADINGS are not clickable "items" —
+       remove their hover/focus highlight so ONLY leaf items highlight
+       (client: "only the individual hovered/selected menu item should highlight").
+   Leaf items are NOT .menu-item-has-children, so they keep their hover tint.
+   ========================================================================== */
+/* (removed 2026-06-02) heading links ARE category links -> they now follow the normal
+   hover pill (#EEF1E5) like any item. #4d still keeps non-hover states transparent,
+   so a heading only highlights when hovered directly, not persistently. */
+
+/* ==========================================================================
+   86extrx5y — #4c Mega Menu: ONLY the hovered item may highlight (client 2026-06-02)
+   Root cause traced to BLOCKSY (headerDropdownBackground / current-item state),
+   not the child theme. This bulletproofs the client rule: every dropdown link
+   that is NOT currently hovered is forced to a transparent background, so no
+   persistent/current/active/JS-applied highlight can linger on a column heading.
+   Keyboard focus (:focus-visible) is preserved for accessibility.
+   ========================================================================== */
+/* #4d (2026-06-02): persistent highlight OFF, hover tint restored. The #4c
+   :not(:hover) rule suppressed the visible hover; enumerate states instead so the
+   HOVERED item highlights (#EEF1E5) while no base/focus/active/current state lingers
+   on a heading. Also trims the full-width heading bottom padding (~half). */
+nav .sub-menu li > a,
+nav .sub-menu li > a:focus,
+nav .sub-menu li > a:active,
+nav .sub-menu .current-menu-item > a,
+nav .sub-menu .current-menu-parent > a,
+nav .sub-menu .current-menu-ancestor > a {
+	background: transparent !important;
+}
+nav .sub-menu li > a:hover,
+nav .sub-menu li > a:focus-visible {
+	background: var(--bc-menu-hover-bg, #EEF1E5) !important;
+	color: var(--theme-palette-color-29, #4A433D) !important;
+}
+
+
+/* ==========================================================================
+   86extrx5y — #4e Mega Menu grid row-gap (client 2026-06-02)
+   The big gap below the full-width heading + column headings is the mega-menu
+   GRID row-gap (scaled up when Items Spacing was set to 18px). Tighten just the
+   vertical grid gap; item-to-item spacing inside columns is unaffected.
+   ========================================================================== */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu {
+	row-gap: 8px !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #4f Full-width heading compact padding (client 2026-06-02)
+   The full-width "Scented Diffusers" label (.ct-column-heading, disabled, no
+   hover pill) had ~11px balanced padding that widened the gap to the columns
+   below. It shows no pill, so give it minimal balanced padding to tighten the
+   gap. Clickable headings keep their balanced pill padding (unaffected).
+   ========================================================================== */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu > li > a.ct-column-heading {
+	padding-top: var(--bc-mega-heading-top, 15px) !important; /* uses shared lever --bc-mega-heading-top */
+	padding-bottom: 3px !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #4g Mega Menu columns vertical padding (client 2026-06-02)
+   ROOT CAUSE of the big gap below headings: each mega column <li> (incl. the
+   full-width heading row) has padding: var(--columns-padding, 20px 30px) — i.e.
+   20px top+bottom per column. Heading bottom 20px + column top 20px stacked into
+   a big gap. Reduce the vertical of --columns-padding to 8px; keep 30px gutters.
+   ========================================================================== */
+nav > ul > [class*="ct-mega-menu"] > .sub-menu {
+	--columns-padding: 8px 30px;
+}
+
+/* ==========================================================================
+   Mobile / off-canvas menu — force Montserrat (client 2026-06-02)
+   The off-canvas menu still rendered var(--theme-font-family, Montserrat) despite mobileMenuFont=Montserrat
+   in theme_mods (a CSS rule was overriding it). Align to Montserrat sitewide.
+   ========================================================================== */
+[data-header] #offcanvas .ct-menu-link,
+[data-header] #offcanvas .ct-mobile-menu a,
+#offcanvas .ct-panel-inner .ct-menu-link {
+	font-family: var(--theme-font-family, Montserrat), sans-serif !important;
+}
+
+/* ==========================================================================
+   86extrx5y — #3b Primary buttons: hover darken + consistent letter-spacing
+   (client 2026-06-02). RENDERED QA found primary buttons (Add to Cart, See More)
+   were NOT darkening on hover (stayed #DDE2CF) and "See More" had letter-spacing:
+   normal. Enforce client #3: hover bg #C5CDB4 + text #3F3A36, letter-spacing 0.6px.
+   ========================================================================== */
+.woocommerce a.button.alt,
+.woocommerce button.button.alt,
+.woocommerce .single_add_to_cart_button,
+.woocommerce button.button:not(.ct-button-ghost),
+.woocommerce input.button:not(.ct-button-ghost),
+.wp-block-button__link,
+.ct-button:not(.ct-button-ghost),
+.woocommerce a.button:not(.ct-button-ghost),
+.bc-see-more-link {
+	letter-spacing: 0.6px !important;
+}
+.woocommerce a.button.alt:hover, .woocommerce a.button.alt:focus-visible,
+.woocommerce button.button.alt:hover, .woocommerce button.button.alt:focus-visible,
+.woocommerce .single_add_to_cart_button:hover, .woocommerce .single_add_to_cart_button:focus-visible,
+.woocommerce button.button:not(.ct-button-ghost):hover, .woocommerce button.button:not(.ct-button-ghost):focus-visible,
+.woocommerce input.button:not(.ct-button-ghost):hover, .woocommerce input.button:not(.ct-button-ghost):focus-visible,
+.wp-block-button__link:hover, .wp-block-button__link:focus-visible,
+.ct-button:not(.ct-button-ghost):hover, .ct-button:not(.ct-button-ghost):focus-visible,
+.woocommerce a.button:not(.ct-button-ghost):hover, .woocommerce a.button:not(.ct-button-ghost):focus-visible,
+.bc-see-more-link:hover, .bc-see-more-link:focus-visible {
+	background-color: var(--theme-palette-color-13, #C5CDB4) !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+}
+
+/* ==========================================================================
+   Product-card wishlist heart (.ct-wishlist-button-archive) — white all states
+   (client 2026-06-02). Blocksy default was grey #888 initial / black when added
+   (looked awful). No Customizer field exists for the card wishlist button bg, so
+   edited here. White circle in initial/hover/active; heart kept dark for contrast.
+   NOT in the QA list yet — Jayr verifying manually (not in client feedback).
+   ========================================================================== */
+[data-products] .ct-wishlist-button-archive,
+.ct-wishlist-button-archive,
+.ct-wishlist-button-archive:hover,
+.ct-wishlist-button-archive:focus,
+.ct-wishlist-button-archive:focus-visible,
+.ct-wishlist-button-archive[data-button-state="added"],
+.ct-wishlist-button-archive.active {
+	background-color: #FFFFFF !important;
+	color: var(--theme-palette-color-24, #3F3A36) !important;
+	border: 1px solid var(--theme-palette-color-13, #C5CDB4) !important; /* sage border = hover bg colour, so the white circle reads on product images */
+}
+
+/* ==========================================================================
+   BBC client styling feedback — 2026-06-03   (ClickUp 86exuq8gz)
+   #1 SALE/HOT badges -> approved palette · #2 Kadence dividers blue->sage ·
+   #5 content text-links WP-default-blue -> brand brown.
+   byronbay.css loads LAST -> overrides Woo/Kadence/WP defaults.
+   Rendered-verified: SALE #111111, HOT #EF4444, divider #3182CE, links #0693E3.
+   ========================================================================== */
+
+/* --- #1  Product badges -------------------------------------------------- */
+.onsale,
+.woocommerce span.onsale,
+li.product .onsale,
+.ct-woo-badges .onsale {
+	background-color: #4A433D !important;   /* SALE: deep brand brown (was #111 near-black) */
+	color: #FFFFFF !important;
+}
+.ct-woo-badge-featured,
+.ct-woo-badges .ct-woo-badge-featured {
+	background-color: #DDE2CF !important;   /* HOT: accent sage (was #EF4444 red) */
+	color: #3F3A36 !important;
+}
+
+/* --- #2  Kadence dividers: blue (#3182CE) -> sage ------------------------ */
+hr.kt-divider,
+.kt-divider,
+.wp-block-kadence-advancedheading hr.kt-divider {
+	border-color: #C5CDB4 !important;
+	border-top-color: #C5CDB4 !important;
+}
+
+/* --- #5  Body/content text links: WP default blue -> brand brown ---------
+   COLOR-ONLY (no underline — not in client feedback). Scoped to editorial text
+   so it does NOT touch WooCommerce product-card titles/images (li.product).
+   Revised 2026-06-03 after underline over-reach on Favourite Buys cards. */
+.entry-content p a:not([class*="button"]):not(.woocommerce-LoopProduct-link):not(.ct-media-container),
+.entry-content li:not(.product) a:not([class*="button"]):not(.woocommerce-LoopProduct-link):not(.ct-media-container),
+.wp-block-accordion a:not([class*="button"]),
+.wp-block-post-content p a:not([class*="button"]) {
+	color: #4A433D !important;
+}
+.entry-content p a:not([class*="button"]):hover,
+.entry-content li:not(.product) a:not([class*="button"]):hover,
+.wp-block-accordion a:not([class*="button"]):hover {
+	color: #7A746E !important;
 }
