@@ -1,0 +1,19 @@
+/**
+ * {Client Name} — Client-specific CSS overrides.
+ *
+ * This file is loaded LAST (highest cascade priority).
+ * Only add styles specific to THIS client's design that can't
+ * be done via Blocksy Customizer.
+ *
+ * Decision checklist: Would this rule make sense on a different client's site?
+ * YES → Put it in assets/css/components/{component}.css
+ * NO  → Put it here.
+ *
+ * RULES:
+ * - Every rule MUST have a WHY comment
+ * - Every rule MUST have a @date tag
+ * - Every value MUST be verified against Figma
+ *
+ * @package Blocksy_Child
+ * @client  {Client Name}
+ */

@@ -1,0 +1,480 @@
+/**
+ * Off-Canvas Wishlist Panel — Content styles only.
+ *
+ * Panel container styles (width, backdrop, shadow, close button) are
+ * generated dynamically in wishlist-offcanvas.php by reading the cart
+ * panel settings from Blocksy header builder.
+ *
+ * @date 2026-03-16
+ * @package Blocksy_Child
+ */
+
+/* ==========================================================================
+   Panel Inner Layout
+   ========================================================================== */
+
+/* ==========================================================================
+   Panel Header — heart icon + title + count
+   ========================================================================== */
+
+/* Heading — uses global h2 styling via CSS variables */
+
+/* Heart icon — inherits heading color */
+
+.ct-wishlist-panel-count {
+	font-weight: 400;
+	opacity: 0.6;
+}
+
+/* ==========================================================================
+   Panel Content
+   ========================================================================== */
+#woo-wishlist-panel .ct-panel-content {
+	flex: 1;
+	overflow-y: auto;
+}
+
+
+/* ==========================================================================
+   Wishlist Items — matches mini cart item layout
+   ========================================================================== */
+.ct-wishlist-items {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ct-wishlist-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 16px 0;
+	border-bottom: 1px solid var(--theme-border-color, #e0e0e0);
+	position: relative;
+}
+
+.ct-wishlist-item:last-child {
+	border-bottom: none;
+}
+
+/* Thumbnail */
+.ct-wishlist-item .ct-media-container {
+	width: 70px;
+	min-width: 70px;
+	border-radius: var(--theme-border-radius, 3px);
+	overflow: hidden;
+}
+
+.ct-wishlist-item .ct-media-container img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+/* Product info */
+.ct-wishlist-item-info {
+	flex: 1;
+	min-width: 0;
+	padding-right: 24px;
+}
+
+.ct-wishlist-item-info a {
+	display: block;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--theme-headings-color, var(--theme-text-color, #333));
+	text-decoration: none;
+	line-height: 1.4;
+	margin-bottom: 6px;
+}
+
+.ct-wishlist-item-info a:hover {
+	color: var(--theme-link-hover-color, var(--theme-palette-color-1, #000));
+}
+
+.ct-wishlist-item-info .price {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--theme-text-color, #333);
+}
+
+/* Remove button — trash icon matching mini cart */
+.ct-wishlist-remove {
+	position: absolute;
+	top: 16px;
+	right: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	color: var(--theme-text-color, #999);
+	opacity: 0.4;
+	transition: opacity 0.2s;
+}
+
+.ct-wishlist-remove:hover {
+	opacity: 1;
+}
+
+.ct-wishlist-remove svg {
+	display: block;
+	fill: currentColor;
+}
+
+/* ==========================================================================
+   Empty State — centered
+   ========================================================================== */
+.ct-wishlist-empty {
+	text-align: center;
+	padding: 40px 20px 20px;
+}
+
+.ct-wishlist-empty-message {
+	font-size: 15px;
+	font-weight: 500;
+	color: var(--theme-text-color, #333);
+	margin: 0;
+}
+
+/* ==========================================================================
+   Error State
+   ========================================================================== */
+.ct-wishlist-error {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--theme-text-color, #666);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+/* ==========================================================================
+   Guest Sign-Up Prompt — always visible for guests
+   ========================================================================== */
+.ct-wishlist-guest-notice {
+	margin: 20px 0;
+	padding: 20px;
+	background: var(--theme-palette-color-6, #f5f5f5);
+	border-radius: 8px;
+	text-align: center;
+}
+
+.ct-wishlist-guest-notice p {
+	font-size: 14px;
+	color: var(--theme-text-color, #666);
+	margin: 0 0 16px 0;
+	line-height: 1.5;
+}
+
+.ct-wishlist-signup-btn {
+	display: block;
+	width: 100%;
+	padding: 14px 24px;
+	background: var(--theme-button-background-initial-color, #333);
+	color: var(--theme-button-text-initial-color, #fff);
+	border-radius: var(--theme-button-border-radius, 8px);
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	transition: background 0.2s;
+	box-sizing: border-box;
+}
+
+.ct-wishlist-signup-btn:hover {
+	background: var(--theme-button-background-hover-color, var(--theme-palette-color-2, #555));
+	color: var(--theme-button-text-initial-color, #fff);
+}
+
+/* ==========================================================================
+   Continue Shopping — logged-in empty state
+   ========================================================================== */
+.ct-wishlist-continue {
+	width: 100%;
+	margin: 20px 0;
+}
+
+.ct-wishlist-continue-btn {
+	display: block;
+	width: 100%;
+	padding: 14px 24px;
+	background: var(--theme-button-background-initial-color, #333);
+	color: var(--theme-button-text-initial-color, #fff);
+	border-radius: var(--theme-button-border-radius, 8px);
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	transition: background 0.2s;
+	box-sizing: border-box;
+}
+
+.ct-wishlist-continue-btn:hover {
+	background: var(--theme-button-background-hover-color, var(--theme-palette-color-2, #555));
+	color: var(--theme-button-text-initial-color, #fff);
+}
+
+/* ==========================================================================
+   Suggested Products — positioned at bottom of panel
+   ========================================================================== */
+.ct-wishlist-suggested {
+	flex-shrink: 0;
+	border-top: 1px solid var(--theme-border-color, #e0e0e0);
+	padding: 0 24px 24px;
+}
+
+.ct-wishlist-suggested:empty {
+	display: none;
+}
+
+/* Match mini cart suggested products title */
+.ct-wishlist-suggested .ct-module-title {
+	padding-top: 16px;
+	margin-bottom: 12px;
+}
+
+/* NOTE — flexy override block removed 2026-04-28.
+   Previous overrides (`transform:none`, `order:0`, manual flex sizing,
+   forced `height:auto` on items 3+) were workarounds for the assumption
+   that Blocksy's flexy JS does NOT initialize inside our drawer. That
+   assumption was wrong: Blocksy's `flexy.min.js` auto-inits any
+   `.flexy-container` element on DOMContentLoaded, and the drawer markup
+   IS in the DOM by then. Stripping `flexy-container` / `data-flexy` at
+   PHP-render time was killing the carousel layout.
+   The shared helper now keeps all flexy hooks intact (see
+   `inc/helpers.php` → `bc_render_blocksy_suggested_carousel`) and
+   Blocksy's native carousel styling applies to all 7 drawer states.
+   See memory file `blocksy-drawer-suggested-products-architecture.md`. */
+
+/* ==========================================================================
+   Wishlist Remove Icon — match mini cart's Blocksy remove styling.
+   WHY: Consistency between cart and wishlist off-canvas panels.
+   Mini cart uses Blocksy's .remove class with clean opacity transition.
+   @date 2026-03-19
+   ========================================================================== */
+.ct-wishlist-remove {
+	opacity: 0.35;
+}
+
+.ct-wishlist-remove:hover {
+	opacity: 0.8;
+}
+
+.ct-wishlist-remove svg {
+	width: 10px;
+	height: 10px;
+}
+
+/* ==========================================================================
+   Mini Cart Empty State — Recently Viewed + Favourites + Bestsellers.
+   Renders via the SAME shared helper as the wishlist drawer (see
+   inc/helpers.php → bc_render_blocksy_suggested_carousel). The unique
+   class `bc-minicart-suggested-grid` is the cart-fragments-safe rename
+   of Blocksy's `.ct-suggested-products--mini-cart`.
+   @date 2026-04-26
+   ========================================================================== */
+.bc-empty-cart-state {
+	padding: 0 0 24px;
+}
+
+.bc-empty-cart-state .wc-empty-cart-message,
+.bc-empty-cart-state .return-to-shop {
+	padding: 0 24px;
+}
+
+.bc-empty-cart-section {
+	padding: 16px 24px 0;
+}
+
+.bc-empty-cart-section + .bc-empty-cart-section {
+	border-top: 1px solid var(--theme-border-color, #e0e0e0);
+	margin-top: 16px;
+}
+
+.bc-empty-cart-section-title {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* NOTE — mini-cart-empty flexy overrides removed 2026-04-28 for the same
+   reason as above. Blocksy's flexy carousel renders natively in the
+   `.bc-empty-cart-section` wrapper too; no per-drawer overrides needed.
+   Carousel arrows (`.ct-slider-arrows`) are also kept VISIBLE so all 7
+   drawer states match Image #1 (mini cart with items, source of truth). */
+
+/* ==========================================================================
+   Simple-grid fallback (LAYER 5 of the helper's defense-in-depth).
+   When Blocksy's template fails entirely, the helper renders this
+   self-contained markup. Style it to LOOK like the Blocksy template
+   so users never notice the fallback kicked in.
+   @date 2026-04-26
+   ========================================================================== */
+.bc-fallback-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+.bc-fallback-item {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	color: inherit;
+	text-decoration: none;
+}
+
+.bc-fallback-item:hover {
+	opacity: 0.85;
+}
+
+.bc-fallback-image {
+	aspect-ratio: 1 / 1;
+	overflow: hidden;
+	background: var(--theme-palette-color-7, #f5f5f5);
+}
+
+.bc-fallback-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.bc-fallback-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.bc-fallback-title {
+	font-size: 14px;
+	line-height: 1.3;
+	font-weight: 500;
+}
+
+.bc-fallback-price {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* ==========================================================================
+   Drawer suggested-products column/typography shim — LAYER 8.
+
+   The shared helper bc_render_blocksy_suggested_carousel() renames Blocksy's
+   wrapper class `ct-suggested-products--mini-cart` to a `bc-*` namespace so
+   WooCommerce cart-fragments AJAX (selector
+   `[class*="ct-suggested-products--mini-cart"]`) cannot match and wipe our
+   element on every cart change.
+
+   Side effect: Blocksy's customizer-driven CSS that targets the original
+   class also stops applying (column width, typography, image radius, slider
+   arrow size). This shim mirrors those rules under the renamed wrappers so
+   the drawer renders byte-for-byte like Image #1 (mini cart with items —
+   the source of truth) across all 7 drawer states.
+
+   Keep this in sync with whatever Blocksy emits for
+   `.ct-suggested-products--mini-cart` in the customizer-generated inline
+   stylesheet. If the client changes column count or typography in the
+   customizer, also update the values here.
+
+   @date 2026-04-28
+   ========================================================================== */
+
+.bc-minicart-suggested-grid,
+.bc-wishlist-suggested-grid {
+	--grid-columns-width: calc(100% / 2);
+	--product-image-width: 20%;
+	--theme-border-radius: 5px;
+	--slider-arrow-button-size: 24px;
+	--theme-border-color: var(--mini-cart-divider-color, rgba(0, 0, 0, 0.07));
+}
+
+/* Inherits --grid-columns-width via --flexy-item-width on .flexy-items.
+   Blocksy ships this for `[class*="ct-suggested-products"]` but our class
+   doesn't contain that substring, so we mirror it. */
+.bc-minicart-suggested-grid .flexy-items,
+.bc-wishlist-suggested-grid .flexy-items {
+	--flexy-items-gap: var(--grid-columns-gap, 30px);
+	--flexy-item-width: var(--grid-columns-width);
+}
+
+/* Items 3+ collapsed when flexy is uninitialized — prevents tall stacked
+   layout while flexy.min.js boots. After init, flexy translates them
+   back into view on prev/next click. */
+.bc-minicart-suggested-grid[data-flexy*="no"] .flexy-item:nth-child(n+3),
+.bc-wishlist-suggested-grid[data-flexy*="no"] .flexy-item:nth-child(n+3) {
+	height: 1px;
+}
+
+/* Title typography — customizer says Quicksand n5 14px. */
+.bc-minicart-suggested-grid [data-products] .ct-product-title,
+.bc-wishlist-suggested-grid [data-products] .ct-product-title {
+	--theme-font-family: Quicksand, Sans-Serif;
+	--theme-font-weight: 500;
+	--theme-font-size: 14px;
+	--theme-link-initial-color: var(--theme-palette-color-3);
+	--theme-link-hover-color: var(--theme-palette-color-1);
+}
+
+/* Price typography — customizer says Quicksand n5 13px. */
+.bc-minicart-suggested-grid [data-products] .price,
+.bc-wishlist-suggested-grid [data-products] .price {
+	--theme-font-family: Quicksand, Sans-Serif;
+	--theme-font-weight: 500;
+	--theme-font-size: 14px;
+}
+
+/* Spacing parity with native Blocksy mini cart suggested-products. */
+.bc-minicart-suggested-grid,
+.bc-wishlist-suggested-grid {
+	margin-bottom: var(--mini-cart-items-spacing, 20px);
+	padding-top: var(--mini-cart-items-spacing, 20px);
+	border-top: 1px dashed var(--mini-cart-divider-color, rgba(0, 0, 0, 0.07));
+}
+
+/* ==========================================================================
+   LAYER 8 v2 — Module title + product card layout (added 2026-04-28 evening).
+
+   Image #7 vs Image #8 audit found these missing rules. Native Blocksy CSS
+   targets `[class*="ct-suggested-products"]` for the heading flex layout
+   and the `<section>` wrapper that stacks title + price vertically. Our
+   renamed `bc-*` classes don't contain that substring, so we mirror.
+   ========================================================================== */
+
+/* SUGGESTED PRODUCTS heading — flex row (heading left, prev/next arrows
+   right), uppercase, 12px bold. Mirrors Blocksy's
+   `[class*="ct-suggested-products"] .ct-module-title` rule. */
+.bc-minicart-suggested-grid .ct-module-title,
+.bc-wishlist-suggested-grid .ct-module-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 15px;
+	font-size: 14px;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--theme-text-color);
+}
+
+/* Product card body wrapper — Blocksy's flexy-item layout uses an unnamed
+   <section> as the title+price container. Without the rule below the
+   children render inline (title and price collide on one line). Mirrors
+   `[class*="ct-suggested-products"] section`. */
+.bc-minicart-suggested-grid .flexy-item > section,
+.bc-wishlist-suggested-grid .flexy-item > section {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+/* `data-products="block"` — image margin-bottom (matches Blocksy native). */
+.bc-minicart-suggested-grid [data-products="block"] .ct-media-container,
+.bc-wishlist-suggested-grid [data-products="block"] .ct-media-container {
+	margin-bottom: 15px;
+}

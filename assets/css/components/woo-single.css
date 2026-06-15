@@ -1,0 +1,511 @@
+/**
+ * WooCommerce Single Product — Component CSS
+ *
+ * Loaded on is_product() pages only.
+ * Reusable styles — not client-specific.
+ *
+ * RULES:
+ * - Use global Blocksy CSS variables with fallbacks wherever possible
+ * - Hardcode font-size ONLY on heading elements where --theme-font-size
+ *   inherits from the heading cascade (h2=48px, h3=36px) — always add
+ *   a comment explaining why
+ * - Colors MUST use var(--theme-palette-color-N, #hex) format
+ *
+ * @package Blocksy_Child
+ */
+
+/* ==========================================================================
+   PDP #1 — Wishlist Button Beside Add to Cart
+   WHY: When the standalone product_actions layout element is DISABLED in
+   Blocksy Customizer, Blocksy auto-renders the wishlist button inside
+   .ct-cart-actions (alongside qty + ATC). This CSS styles it as a square
+   button matching the ATC height, inline in the same row.
+   NOTE: To remove wishlist entirely on a project, disable the Blocksy
+   Wishlist extension (Blocksy > Extensions > Wishlist) — the layout
+   element is just a positioning option, not the on/off switch.
+   Pattern source: Zephyr site build (verified working).
+   @date 2026-03-16
+   ========================================================================== */
+
+/* B2B pricing table + Product Addons subtotal -- hidden on single product page. */
+.single-product .b2bwhs_shop_table,
+.single-product #product-addons-total {
+	display: none;
+}
+
+/* Keep ATC row on one line */
+.ct-product-add-to-cart .ct-cart-actions {
+	flex-wrap: nowrap !important;
+}
+
+/* ATC button fills remaining space between qty and wishlist */
+.ct-product-add-to-cart .ct-cart-actions > .single_add_to_cart_button {
+	flex: 1 1 auto;
+}
+
+/* Hide label and tooltip — icon only (standard + bundle) */
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single .ct-label,
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single .ct-tooltip,
+.bundle_button .ct-wishlist-button-single .ct-label,
+.bundle_button .ct-wishlist-button-single .ct-tooltip {
+	display: none;
+}
+
+/* Default state — height stretches to match ATC row; width stays square at min-height token.
+   align-self:stretch + height:auto tracks the rendered ATC height at any breakpoint.
+   aspect-ratio:auto removes the previous 1/1 lock that pinned height to min-height token.
+   CU-86exf034k @date 2026-05-05 */
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single,
+.bundle_button .ct-wishlist-button-single {
+	align-self: stretch;
+	height: auto;
+	min-height: var(--theme-button-min-height, 40px);
+	width: var(--theme-button-min-height, 40px);
+	min-width: var(--theme-button-min-height, 40px);
+	aspect-ratio: auto;
+	border-radius: var(--theme-button-border-radius, 4px);
+	border: 1px solid var(--theme-border-color, #e0e0e0);
+	padding: 0;
+	background: transparent;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: background 0.2s, border-color 0.2s;
+	box-sizing: border-box;
+}
+
+/* Default icon color — global text color (standard + bundle) */
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single svg,
+.bundle_button .ct-wishlist-button-single svg {
+	width: 16px;
+	height: 16px;
+	color: var(--theme-text-color, #393939);
+}
+
+/* Hover — border highlights with button color (standard + bundle) */
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single:hover,
+.bundle_button .ct-wishlist-button-single:hover {
+	border-color: var(--theme-button-background-initial-color, #333);
+}
+
+/* Active (wishlisted) — filled with global button color (standard + bundle) */
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single[data-button-state="active"],
+.bundle_button .ct-wishlist-button-single[data-button-state="active"] {
+	background: var(--theme-button-background-initial-color, transparent) !important;
+	border-color: var(--theme-button-background-initial-color, transparent) !important;
+}
+
+.ct-product-add-to-cart .ct-cart-actions .ct-wishlist-button-single[data-button-state="active"] svg,
+.bundle_button .ct-wishlist-button-single[data-button-state="active"] svg {
+	color: var(--theme-button-text-initial-color, #333) !important;
+	fill: var(--theme-button-text-initial-color, #333) !important;
+}
+
+/* Force wishlist active state dark — overrides disabled/greyed-out state on bundles.
+   When user clicks wishlist before selecting variants, the button gets both
+   data-button-state="active" AND class="disabled". Must override both. */
+.ct-wishlist-button-single[data-button-state="active"] {
+	background: var(--theme-button-background-initial-color, transparent) !important;
+	border-color: var(--theme-button-background-initial-color, transparent) !important;
+	opacity: 1 !important;
+}
+
+.ct-wishlist-button-single[data-button-state="active"] svg {
+	color: var(--theme-palette-color-1, #111111) !important;
+}
+
+.ct-wishlist-button-single[data-button-state="active"] .ct-heart-fill {
+	fill: var(--theme-palette-color-1, #111111) !important;
+}
+
+/* ==========================================================================
+   PDP #1a - Stock Status (In Stock / Out of Stock)
+   WHY: Blocksy has no simple stock status text element. Only offers
+   product_stock_scarcity (progress bar). This styles the custom stock
+   badge added via PHP hook in inc/woocommerce.php (priority 11, after price).
+   Font size hardcoded: 14px is a design choice, not a heading override.
+   @date 2026-03-16
+   ========================================================================== */
+.bc-stock-status {
+	font-family: var(--theme-body-font-family, inherit);
+	font-size: 14px !important;
+	font-weight: 200;
+	line-height: var(--theme-body-line-height, 1.5);
+	margin: 4px 0 0 0;
+}
+
+.bc-stock-in-stock {
+	color: var(--theme-palette-color-18, #10b981);
+}
+
+.bc-stock-out-of-stock {
+	color: var(--theme-palette-color-15, #EF4444);
+}
+
+/* ==========================================================================
+   PDP #1b - Price Suffix Styling
+   WHY: WooCommerce outputs the price suffix (e.g. "incl. GST (AU only)")
+   as <small class="woocommerce-price-suffix"> which inherits the bold
+   price weight. This makes it lighter to create visual hierarchy between
+   the actual price and the tax note.
+   @date 2026-03-16
+   ========================================================================== */
+.entry-summary .woocommerce-price-suffix {
+	font-weight: 200;
+	color: var(--theme-palette-color-4, #888888);
+	font-size: 14px !important;
+}
+
+/* ==========================================================================
+   PDP #2 — Product Utility Links (Shipping / Returns / FAQ)
+   WHY: Blocksy Content Block renders the utility links HTML. This CSS
+   creates the horizontal row layout with dividers matching the Figma
+   reference (product-utility-links.png).
+   @date 2026-03-11
+   ========================================================================== */
+.bc-utility-links {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	padding: 12px 0;
+	border-top: 1px solid var(--theme-palette-color-12, #E0DCD7);
+}
+
+.bc-utility-link {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	justify-content: center;
+	text-decoration: none;
+	color: var(--theme-palette-color-3, #746A5F);
+	font-size: 14px !important;
+	font-weight: 200;
+	transition: color 0.2s;
+}
+
+.bc-utility-link:hover {
+	color: var(--theme-palette-color-1, #111111);
+}
+
+.bc-utility-link svg {
+	flex-shrink: 0;
+}
+
+.bc-utility-divider {
+	width: 1px;
+	height: 20px;
+	background: var(--theme-palette-color-12, #E0DCD7);
+	flex-shrink: 0;
+}
+
+/* ==========================================================================
+   PDP #4 — Bundle Pricing Font Size
+   WHY: Product Bundles plugin outputs .bundle_price with no font-size control.
+   Figma specifies the bundled total price should be smaller than the main price
+   to create visual hierarchy between "From" price and per-item breakdown.
+   Font size hardcoded: 16px is a design choice for hierarchy, not a heading.
+   @date 2026-03-11
+   ========================================================================== */
+.bundle_price .price {
+	font-size: 16px;
+	line-height: var(--theme-body-line-height, 1.5);
+}
+
+.bundle_price .price del {
+	font-size: 14px !important;
+}
+
+/* ==========================================================================
+   PDP #4b - Product Addon Group Heading
+   WHY: WooCommerce Product Addons outputs addon group titles as <h2> which
+   renders far too large. This matches them to the body font styling.
+   Font size hardcoded: cannot use var(--theme-font-size) because it inherits
+   h2 cascade (48px). 16px is the intended body-like size.
+   @date 2026-03-16
+   ========================================================================== */
+.wc-pao-addon-heading {
+	font-family: var(--theme-body-font-family, inherit);
+	/* Hardcoded: --theme-font-size inherits h2 (48px), not body (18px) */
+	font-size: 16px;
+	font-weight: var(--theme-body-font-weight, 700);
+	line-height: var(--theme-body-line-height, 1.5);
+	letter-spacing: normal;
+	text-transform: none;
+	margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   PDP #4c - Variation Label + Description Styling
+   WHY: Variation attribute labels (e.g. "Select a scent") need to match
+   the addon heading weight (bold, 16px) for visual hierarchy. The variant
+   description (e.g. scent notes) should use body paragraph styling.
+   Font size hardcoded on label: Blocksy inline sets --theme-font-size: 12px
+   on labels. We override to 16px for visual hierarchy.
+   @date 2026-03-16
+   ========================================================================== */
+
+/* Variation label -- bold, matches addon heading.
+   Uses !important to override Blocksy inline --theme-font-weight on labels.
+   The span (selected value e.g. ": Uplift") stays normal weight. */
+.variations .label label {
+	/* Hardcoded: Blocksy inline sets --theme-font-size: 12px on labels */
+	--theme-font-size: 16px !important;
+	--theme-font-weight: 700 !important;
+	--theme-text-transform: none !important;
+	letter-spacing: normal;
+	font-weight: 700 !important;
+	color: var(--theme-palette-color-3, #746A5F);
+}
+
+.variations .label label span {
+	font-weight: var(--theme-body-font-weight, 400) !important;
+}
+
+/* Variation description -- body text color */
+.woocommerce-variation-description,
+.woocommerce-variation-description p {
+	font-family: var(--theme-body-font-family, inherit);
+	font-size: 14px !important;
+	font-weight: 200;
+	line-height: var(--theme-body-line-height, 1.5);
+	color: var(--theme-palette-color-2, #393939);
+}
+
+/* ==========================================================================
+   PDP #6 — Gift Wrap / Product Addons Typography
+   WHY: WooCommerce Product Addons outputs addon labels and descriptions with
+   no dedicated font-size. The addon heading (e.g., "Gift Wrapping") and its
+   description need tighter typography for a cleaner PDP layout.
+   @date 2026-03-11
+   ========================================================================== */
+.wc-pao-addon-container .wc-pao-addon-name {
+	font-size: 15px;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.wc-pao-addon-container .wc-pao-addon-description {
+	font-size: 14px !important;
+	line-height: var(--theme-body-line-height, 1.5);
+	opacity: 0.75;
+	margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   PDP #8 — Disable Variant Swatch Tooltips
+   WHY: Blocksy variations_swatches_display_type is already set to "no" but
+   this CSS ensures any tooltip-like elements (native title or JS tooltips)
+   are visually hidden as a safety net. Pointer-events preserved for click.
+   @date 2026-03-11
+   ========================================================================== */
+.ct-swatch-container [data-tooltip],
+.ct-swatch-container .ct-tooltip {
+	display: none;
+}
+
+/* ==========================================================================
+   B1 — Bundle Item Headings ("Please select your candle scent")
+   WHY: Product Bundles outputs two heading types:
+   - h4.bundled_product_title = bundle item name (main heading per bundled item)
+   - h4.bundled_product_attributes_title = attributes section heading
+   Both are h4 by default. bundled_product_attributes_title changed to h3 via
+   template override (woocommerce/single-product/bundled-item-attributes.php).
+   Font size hardcoded: cannot use var(--theme-font-size) because it inherits
+   h3/h4 cascade (36px/30px). 18px is the intended size — slightly bigger
+   than "Select a scent" (16px) for visual hierarchy.
+   @date 2026-03-17
+   ========================================================================== */
+h4.bundled_product_title,
+h3.bundled_product_attributes_title,
+h4.bundled_product_attributes_title {
+	font-family: var(--theme-body-font-family, inherit);
+	/* Hardcoded: --theme-font-size inherits h3/h4 (36px/30px), not body (18px) */
+	font-size: 18px;
+	font-weight: 600;
+	line-height: var(--theme-headings-line-height, 1.3);
+	text-transform: none;
+	letter-spacing: normal;
+	color: var(--theme-palette-color-2, #393939);
+}
+
+/* ==========================================================================
+   B2 - Hide Payment Badges Inside Bundled Items
+   WHY: Afterpay/Square payment badges (square-placement) render inside each
+   bundled item's variation price, taking excessive space. Hidden on bundle
+   forms only. The main product payment methods section handles this.
+   @date 2026-03-17
+   ========================================================================== */
+.bundle_form square-placement,
+.bundle_form .afterpay-paragraph {
+	display: none;
+}
+
+/* ==========================================================================
+   B3 - Bundle Price Hierarchy (Item Price vs Total Price)
+   WHY: Bundled item variation prices ($34) should be smaller than the
+   bundle total price ($78) to create visual hierarchy. By default both
+   inherit the same size.
+   @date 2026-03-17
+   ========================================================================== */
+
+/* Bundled item variation price -- smaller */
+.bundled_product_summary .woocommerce-variation-price .price {
+	font-size: 14px !important;
+	font-weight: 200;
+}
+
+/* Bundle total price -- prominent */
+.bundle_data .bundle_price .price {
+	/* Hardcoded: needs to match main product price size, not bundle_price PDP #4 (16px) */
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--theme-palette-color-2, #393939);
+}
+
+/* ==========================================================================
+   B4 - Bundle ATC + Wishlist Inline
+   WHY: Bundle products use a different DOM structure than standard products.
+   The wishlist button is a sibling of .bundle_data inside the <form>, NOT
+   inside .bundle_wrap. We target the <form> level to create the flex row.
+   The bundle_error notice is hidden when options haven't been selected yet.
+   @date 2026-03-17
+   ========================================================================== */
+
+/* Bundle total price -- prominent */
+.bundle_data .bundle_price {
+	margin-bottom: 8px;
+}
+
+/* Hide the validation notice until user tries to submit */
+.bundle_data .bundle_error .woocommerce-info {
+	display: none;
+}
+
+/* Bundle button row -- qty + ATC inline */
+.bundle_data .bundle_button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.bundle_data .bundle_button .quantity {
+	flex-shrink: 0;
+}
+
+.bundle_data .bundle_button .bundle_add_to_cart_button {
+	flex: 1 1 auto;
+}
+
+/* Wishlist button inline with ATC on bundle products.
+   PHP hook (woocommerce_bundles_add_to_cart_button, priority 20) renders
+   the wishlist INSIDE .bundle_button. The duplicate wishlist that Blocksy
+   renders outside .bundle_data (at form level) is hidden. */
+
+/* Hide the duplicate wishlist that Blocksy renders outside .bundle_wrap
+   but inside .bundle_data (after woocommerce_after_add_to_cart_button hook) */
+.bundle_data > .ct-wishlist-button-single {
+	display: none !important;
+}
+
+/* PDP #9 — Spacing between product tabs and reviews bundle. */
+.bc-reviews-bundle {
+	max-width: var(--theme-normal-content-max-width, 1290px);
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 var(--theme-content-edge-spacing, 40px);
+	box-sizing: border-box;
+	margin-top: 50px;
+}
+
+/* Related + Suggested Products — full-width ATC buttons. */
+.related.products .ct-woo-card-actions,
+.bc-recently-viewed .ct-woo-card-actions,
+.ct-suggested-products .ct-woo-card-actions {
+	display: flex;
+	width: 100%;
+}
+
+.related.products .ct-woo-card-actions .button,
+.bc-recently-viewed .ct-woo-card-actions .button,
+.ct-suggested-products .ct-woo-card-actions .button {
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+/* Recently Viewed Products — spacing above section. */
+.bc-recently-viewed {
+	margin-top: 50px;
+}
+
+
+
+/* ==========================================================================
+   PDP — Element Spacing Override (16px to match live site).
+   WHY: Live site uses space-y-4 (16px) between all product summary elements.
+   Blocksy Customizer outputs 25px/35px which is too spread out.
+   Uses CSS variables with fallback so Customizer can still override.
+   @date 2026-03-20
+   ========================================================================== */
+.entry-summary-items > * {
+	--product-element-spacing: 16px;
+}
+
+/* ==========================================================================
+   PDP - Bundle Quantity Input Styling
+   ========================================================================== */
+
+.bundle_button .quantity {
+
+}
+
+.bundled_item_qty_col .quantity .bc-qty-label,
+.bundle_button .quantity .bc-qty-label {
+	display: none;
+}
+
+.bundle_button .quantity .bc-qty-input .ct-increase {
+
+}
+
+.bundle_button .quantity .bc-qty-input .ct-decrease {
+
+}
+
+.ct-floating-bar-actions .product_type_variable svg {
+	display: none;
+}
+
+/* ==========================================================================
+   Variation Swatches — Button Type Font Size (14px floor)
+   WHY: blocksy-companion-pro's variation-swatches.min.css sets button-type
+   swatch font-size as calc(var(--swatch-size)/2.5) = 12px at the default
+   30px swatch size. This override enforces the 14px minimum floor.
+   @date 2026-05-05
+   ========================================================================== */
+
+[data-swatches-type=button] .ct-swatch {
+	font-size: 14px !important;
+}
+
+/* ========================================================================
+   GDPR consent label + waitlist users — blocksy main.min.css sets 13px
+   Override: enforce 14px minimum floor.
+   @date 2026-05-05
+   ======================================================================== */
+
+:is(.gdpr-confirm-policy, .comment-form-cookies-consent) label {
+	font-size: 14px !important;
+}
+
+.ct-product-waitlist .ct-waitlist-users {
+	font-size: 14px !important;
+}
+
+/* ========================================================================
+   Blog entry-meta + Gutenberg has-small-font-size — moved to base.css
+   2026-05-08 (audit P0 fix). Defined identically in two files; base.css
+   loads on every page so the duplication here was dead code.
+   ======================================================================== */

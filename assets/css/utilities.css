@@ -1,0 +1,23 @@
+/**
+ * Utility Classes — Small, reusable helper classes.
+ *
+ * This file is ALWAYS loaded on every page. Keep it minimal.
+ * Only standard utility patterns that don't belong in components.
+ *
+ * @package Blocksy_Child
+ */
+
+/* Screen reader only — visually hidden but accessible to assistive tech.
+   WHY: WordPress and Blocksy provide .screen-reader-text, but some
+   third-party plugins or custom markup may need this utility class. */
+.bc-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}

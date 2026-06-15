@@ -1,0 +1,151 @@
+/**
+ * Product Slider — Carousel wrapper for native WooCommerce product cards.
+ *
+ * Uses WC's content-product.php template so cards inherit all Blocksy styling:
+ * hover image swap, badges, wishlist buttons, etc.
+ * This CSS only handles the slider track/navigation — card styling comes from Blocksy.
+ *
+ * @package Blocksy_Child
+ * @date 2026-04-01
+ */
+
+/* Container */
+.bc-product-slider {
+	position: relative;
+	overflow: hidden;
+	padding-bottom: 36px;
+}
+
+/* Track — override Blocksy CSS Grid + WC grid to flex row.
+   WHY: Adding data-products="type-1" to the ul activates Blocksy's
+   grid layout (--shop-columns: repeat(N, minmax(0,1fr))). We need
+   flex for the horizontal slider, so we override display + grid props.
+   @date 2026-04-01 */
+.bc-product-slider__track ul.products {
+	display: flex !important;
+	grid-template-columns: none !important;
+	flex-wrap: nowrap !important;
+	transition: transform 0.4s ease;
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+	gap: 16px !important;
+}
+
+/* Items — fixed width so 4 cards + 3 gaps fit exactly.
+   4 cards with 3 gaps of 16px: each card = (100% - 48px) / 4.
+   @date 2026-04-01 */
+.bc-product-slider__track ul.products > li.product {
+	flex: 0 0 calc((100% - 48px) / 4) !important;
+	max-width: calc((100% - 48px) / 4) !important;
+	width: calc((100% - 48px) / 4) !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+}
+
+/* Tablet — 3 columns. Matches live site product slider.
+   3 cards with 2 gaps of 16px: each card = (100% - 32px) / 3.
+   @date 2026-04-01 */
+@media (max-width: 999.98px) {
+	.bc-product-slider__track ul.products > li.product {
+		flex: 0 0 calc((100% - 32px) / 3) !important;
+		max-width: calc((100% - 32px) / 3) !important;
+		width: calc((100% - 32px) / 3) !important;
+	}
+}
+
+/* Mobile — 2 columns.
+   2 cards with 1 gap of 16px: each card = (100% - 16px) / 2.
+   @date 2026-04-01 */
+@media (max-width: 689.98px) {
+	.bc-product-slider__track ul.products > li.product {
+		flex: 0 0 calc((100% - 16px) / 2) !important;
+		max-width: calc((100% - 16px) / 2) !important;
+		width: calc((100% - 16px) / 2) !important;
+	}
+}
+
+/* Dots — WHY: Carousel pagination dots for product/logo/article sliders.
+   Colors use theme palette for consistency with global styling.
+   @date 2026-04-08 */
+.bc-product-slider__dots {
+	display: flex;
+	justify-content: center;
+	gap: 11px;
+	/* WHY padding: space between carousel items and dots below */
+	padding-top: 16px;
+}
+
+.bc-product-slider__dot {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--theme-palette-color-4, #888888);
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.2s;
+}
+
+.bc-product-slider__dot:hover {
+	background: var(--theme-palette-color-20, #B8A898);
+	transform: scale(1.25);
+}
+
+.bc-product-slider__dot.active {
+	background: var(--theme-palette-color-21, #E7D4B0);
+}
+
+/* Arrows */
+.bc-product-slider__arrow {
+	position: absolute;
+	top: 35%;
+	transform: translateY(-50%);
+	z-index: 5;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid var(--theme-border-color, #E7E7E7);
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.2s, box-shadow 0.2s;
+	padding: 0;
+}
+
+.bc-product-slider__arrow:hover {
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bc-product-slider__arrow svg {
+	width: 18px;
+	height: 18px;
+	fill: none;
+	stroke: var(--theme-palette-color-1, #111);
+	stroke-width: 2.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.bc-product-slider__arrow--prev {
+	left: 4px;
+}
+
+.bc-product-slider__arrow--next {
+	right: 4px;
+}
+
+@media (max-width: 689px) {
+	.bc-product-slider__arrow {
+		width: 32px;
+		height: 32px;
+	}
+	.bc-product-slider__arrow svg {
+		width: 14px;
+		height: 14px;
+	}
+}

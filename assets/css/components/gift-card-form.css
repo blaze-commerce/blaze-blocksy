@@ -1,0 +1,135 @@
+/**
+ * Gift Card form — component styles.
+ * Mirrors live byronbaycandles.com form visual treatment.
+ * Loaded only on gift product PDPs via inc/enqueue.php.
+ */
+
+#pwgc-purchase-container {
+	width: 100%;
+	flex-basis: 100% !important;
+	display: block;
+}
+
+.pwgc-field-container {
+	display: flex;
+	flex-direction: column;
+	gap: .25rem;
+	margin-bottom: 1rem;
+}
+
+.pwgc-label {
+	font-weight: 600;
+	font-size: .875rem;
+	line-height: 1.25rem;
+	color: #6f6f6f;
+	display: block;
+}
+
+.pwgc-input,
+.pwgc-input-text {
+	border: 1px solid #bfbfbf;
+	border-radius: .125rem;
+	color: #555555;
+	padding: .5rem .75rem;
+	font-size: .875rem;
+	width: 100%;
+	box-sizing: border-box;
+	background: #fff;
+}
+
+/* Focus state — keep the visual border-color shift but DO NOT strip the
+   outline without a replacement. WCAG 2.4.7 (Focus Visible) requires a
+   visible focus indicator for keyboard users. Replace native outline
+   with a soft ring via box-shadow so the border-color animation still
+   reads as the primary affordance.
+   Audit P0 fix 2026-05-08 (CU-86exggfgq audit / frontend P0-1). */
+.pwgc-input:focus,
+.pwgc-input-text:focus {
+	outline: none;
+	border-color: #999;
+	box-shadow: 0 0 0 2px rgba(116, 106, 95, 0.25);
+}
+
+.pwgc-textarea {
+	height: 100px;
+	resize: vertical;
+}
+
+.pwgc-subtitle {
+	font-size: .6875rem;
+	line-height: 1.465;
+	color: #767676;
+}
+
+#pwgc-recipient-count {
+	font-weight: 600;
+}
+
+#pwgc-quantity-one-per-recipient {
+	display: none;
+}
+
+.pwgc-hidden {
+	display: none;
+}
+
+/* Hide plugin's inline-style block so our CSS owns the look */
+#pwgc-purchase-container > style {
+	display: none;
+}
+
+/* Keep email preview iframe hidden until triggered */
+#pwgc-email-preview-container {
+	margin-top: 1em;
+	display: none;
+	width: 100%;
+	min-height: 500px;
+	border-width: 1px;
+}
+
+#pwgc-form-email-design {
+	padding-bottom: 1em;
+}
+
+/* Variation add-to-cart flex fixes (from plugin) */
+.add_to_cart_wrapper {
+	flex-wrap: wrap;
+}
+
+.woocommerce-variation-add-to-cart {
+	flex-wrap: wrap !important;
+}
+
+.single_add_to_cart_button {
+	flex: 1;
+}
+
+/* Denomination chip buttons */
+.pwgc-denomination-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+	margin-bottom: .5rem;
+}
+
+.pwgc-chip {
+	border: 1px solid #bfbfbf;
+	border-radius: .125rem;
+	background: #fff;
+	color: #555;
+	font-size: .875rem;
+	font-weight: 600;
+	padding: .375rem .875rem;
+	cursor: pointer;
+	transition: border-color .15s, background .15s;
+}
+
+.pwgc-chip:hover {
+	border-color: #555;
+}
+
+.pwgc-chip--selected {
+	border-color: #333;
+	background: #333;
+	color: #fff;
+}

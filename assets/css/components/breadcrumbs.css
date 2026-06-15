@@ -1,0 +1,33 @@
+/**
+ * Breadcrumbs — Component CSS
+ *
+ * Loaded globally (breadcrumbs render on PDP, archives, single posts, pages).
+ * Reusable styles — not client-specific.
+ *
+ * @package Blocksy_Child
+ */
+
+
+/* ==========================================================================
+   Mobile Horizontal Scroll
+   WHY: Long product/category titles cause the breadcrumb to wrap onto
+   multiple lines on mobile, creating visual clutter and pushing content
+   down. Blocksy Customizer has no setting for breadcrumb overflow
+   behaviour, so we override at the wrapper. Pattern matches the
+   mettahemp project referenced in QA task 86exbz9aq.
+   @date 2026-04-28
+   ========================================================================== */
+@media (max-width: 689px) {
+	.ct-breadcrumbs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		white-space: nowrap;
+		scrollbar-width: none;          /* Firefox */
+		-ms-overflow-style: none;       /* IE/old Edge */
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.ct-breadcrumbs::-webkit-scrollbar {
+		display: none;                  /* Chrome/Safari */
+	}
+}
