@@ -1,0 +1,22 @@
+/**
+ * woo-cart.css — Cart page tweaks.
+ *
+ * Loaded conditionally on is_cart() in inc/enqueue.php, and ONLY when
+ * bbc_smart_coupons_cart_css_active() passes — i.e. Smart Coupons' giveaway class
+ * exists AND the `bbc_smart_coupons_cart_css_enabled` filter is true (default).
+ * So this file never loads if the plugin is missing/inactive, and can be switched
+ * off without editing the theme.
+ *
+ * Smart Coupons BOGO giveaway: hide the per-product discount detail on the
+ * cart page. The `.wt_sc_giveaway_products_cart_page` wrapper only renders when
+ * WebToffee Smart Coupons outputs giveaway products, so the rule is also inert by
+ * design — even if it loaded it could not affect a cart without giveaway markup.
+ *
+ * Migrated 2026-06-03 from the Blocksy code-snippets extension (snippet #5
+ * "WebToffee Smart Coupons", wp_footer). Moving it into the child theme decouples
+ * the rule from `code-snippets` being present in blocksy_active_extensions, and
+ * lets the cutover script carry it automatically via the theme transfer.
+ */
+.wt_sc_giveaway_products_cart_page .wt_product_discount {
+	display: none;
+}

@@ -154,12 +154,20 @@ function blocksy_child_enqueue_styles() {
 				blocksy_child_enqueue_component( 'checkout-trust-badges', $css_url, $css_path );
 			}
 		}
-		// Removed dead enqueue refs 2026-05-07 (audit P0.2):
-		// • is_cart() → woo-cart.css — file never existed, helper silently skipped
-		// • is_account_page() → woo-account.css — same
+		// Cart page — woo-cart.css. Migrated 2026-06-03 from Blocksy code-snippet
+		// #5 ("WebToffee Smart Coupons", wp_footer) so it no longer depends on the
+		// code-snippets extension (dropped from blocksy_active_extensions). The CSS
+		// only hides the BOGO giveaway "discount detail", so it is GUARDED to load
+		// ONLY when Smart Coupons' giveaway feature is genuinely active, and can be
+		// switched off site-wide via the `bbc_smart_coupons_cart_css_enabled` filter
+		// (no theme edit needed). If the plugin is missing/inactive/half-installed
+		// the file is never enqueued. See bbc_smart_coupons_cart_css_active().
+		if ( is_cart() && bbc_smart_coupons_cart_css_active() ) {
+			blocksy_child_enqueue_component( 'woo-cart', $css_url, $css_path );
+		}
+		// Removed dead enqueue refs 2026-05-07 (audit P0.2), re-add file + enqueue together if revived:
+		// • is_account_page() → woo-account.css — file never existed, helper silently skipped
 		// • unconditional → footer.css — same
-		// If page-specific styles are needed later, add the file under
-		// assets/css/components/ AND re-add the matching enqueue here together.
 	}
 
 if ( is_front_page() || ( function_exists("is_page") && is_page(645912) ) ) {
@@ -190,6 +198,11 @@ if ( is_front_page() || ( function_exists("is_page") && is_page(645912) ) ) {
 	// 3e. Breadcrumb mobile horizontal scroll -- loaded globally
 	//     (breadcrumbs render on PDP, archives, single posts, pages).
 	blocksy_child_enqueue_component( 'breadcrumbs', $css_url, $css_path );
+
+	// 3f. Smart Coupons BOGO giveaway popup styling -- loaded globally (the floating giveaway popup
+	//     button can appear on any page where a BOGO offer applies). Migrated 2026-06-04 from
+	//     Customizer Additional CSS into the child theme (runbook §13.18). Inert without BOGO markup.
+	blocksy_child_enqueue_component( 'woo-bogo', $css_url, $css_path );
 
 	// 3c. Wishlist off-canvas JS -- trigger, refresh, remove.
 	$js_path = BLOCKSY_CHILD_PATH . 'assets/js/wishlist-offcanvas.js';
@@ -276,6 +289,35 @@ if ( is_front_page() || ( function_exists("is_page") && is_page(645912) ) ) {
  * @param string $css_url   URL to assets/css/ directory.
  * @param string $css_path  Filesystem path to assets/css/ directory.
  */
+/**
+ * Whether the Smart Coupons cart CSS (woo-cart.css) should load.
+ *
+ * Guards the BOGO giveaway "discount detail" hide migrated 2026-06-03 from Blocksy
+ * code-snippet #5. Because this rule is client-specific (WebToffee Smart Coupons),
+ * it is decoupled from the theme's always-on CSS and gated three ways:
+ *
+ *   1. On/off switch — the `bbc_smart_coupons_cart_css_enabled` filter (default true).
+ *      Return false anywhere (mu-plugin, Customizer toggle, snippet) to disable it
+ *      site-wide WITHOUT editing the child theme.
+ *   2. Plugin-present check — class_exists() for the Smart Coupons giveaway class
+ *      (mirrors the original snippet's guard). Covers "plugin not installed right":
+ *      deactivated, half-installed, or a renamed build all fall through to false.
+ *   3. Inert by design — even if it somehow loaded, the selector only matches markup
+ *      that Smart Coupons emits, so it can never affect a cart without giveaways.
+ *
+ * @return bool
+ */
+function bbc_smart_coupons_cart_css_active() {
+	// 1. Explicit on/off switch (default ON).
+	if ( ! apply_filters( 'bbc_smart_coupons_cart_css_enabled', true ) ) {
+		return false;
+	}
+
+	// 2. Only load when Smart Coupons' giveaway feature is genuinely present.
+	return class_exists( 'Wt_Smart_Coupon_Giveaway_Product' )
+		|| class_exists( 'Wt_Smart_Coupon' );
+}
+
 function blocksy_child_enqueue_component( $component, $css_url, $css_path ) {
 	$file = $css_path . 'components/' . $component . '.css';
 

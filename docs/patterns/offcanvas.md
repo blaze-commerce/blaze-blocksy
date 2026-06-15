@@ -225,3 +225,9 @@ Bound to: `wc_fragments_refreshed`, `wc_fragments_loaded`, `added_to_cart`, `rem
 
 - **[drawer-suggested-products.md](drawer-suggested-products.md)** — Master doc for the suggested-products carousel (7-state matrix, 8-layer bulletproofing). State #1 (mini cart with items) renders inside `.bc-cart-scroll` per the unified-scroll architecture above.
 - **[wishlist-offcanvas.md](wishlist-offcanvas.md)** — Wishlist drawer specifics (data sync, panel open/close)
+
+### 2026-06-09 — client weight override
+Annemarie requested regular-weight drawer text. An override block in offcanvas.css
+sets product title/price (was 500), SUBTOTAL (Blocksy 700) and Order Total + value
+(was 600) to font-weight 400 !important. Design-spec weights remain above the block;
+the override is the live state. Reverse by deleting that block.

@@ -41,7 +41,7 @@
 	border-radius: 8px;
 	border: 1px solid var(--theme-palette-color-16, #CFCFCF);
 	background: var(--theme-palette-color-17, #FFFFFF);
-	font-family: 'Museo Sans', sans-serif;
+	font-family: var(--theme-font-family, Montserrat), sans-serif;
 	font-size: 14px;
 	color: var(--theme-palette-color-3, #746A5F);
 	padding: 0 48px 0 16px;
@@ -343,14 +343,14 @@ body.woocommerce-cart .ct-contact-info .ct-icon-container svg path {
   fill: none !important;
 }
 
-/* Phone number typography — Figma node 6117-158097: Quicksand 16px w=400 #111111.
+/* Phone number typography — Figma node 6117-158097: var(--theme-font-family, Montserrat) 16px w=400 #111111.
    Blocksy Customizer contacts block inherits Rubik 500 from the body font
    assignment; override here to match Figma. */
 body.woocommerce-checkout .ct-contact-info .contact-text,
 body.woocommerce-checkout .ct-contact-info .contact-text a,
 body.woocommerce-cart .ct-contact-info .contact-text,
 body.woocommerce-cart .ct-contact-info .contact-text a {
-  font-family: Quicksand, sans-serif !important;
+  font-family: var(--theme-font-family, Montserrat), sans-serif !important;
   font-weight: 400 !important;
   font-size: 16px !important;
   color: #111111 !important;

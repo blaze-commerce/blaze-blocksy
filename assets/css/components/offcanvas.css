@@ -56,7 +56,7 @@
    ========================================================================== */
 
 /* Drawer heading typography — matches Figma node 16:140 H5 spec exactly:
-   Quicksand Regular 400 / 24px / 28px / #111. Weight, line-height and color
+   var(--theme-font-family, Montserrat) Regular 400 / 24px / 28px / #111. Weight, line-height and color
    are explicitly set (not via theme vars) so the Customizer's heading-2
    tokens don't override these drawer-specific values. CU-86exbe71m. */
 #woo-cart-panel .ct-panel-heading,
@@ -64,7 +64,7 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	font-family: 'Quicksand', var(--theme-heading-2-font-family, var(--theme-headings-font-family, sans-serif));
+	font-family: var(--theme-font-family, Montserrat), var(--theme-heading-2-font-family, var(--theme-headings-font-family, sans-serif));
 	font-size: 24px;
 	font-weight: 400;
 	line-height: 28px;
@@ -458,7 +458,7 @@
    on qty change because cart-fragments AJAX re-renders the whole
    widget_shopping_cart_content subtree.
 
-   Layout (Figma 684:85959 typography tokens — Quicksand):
+   Layout (Figma 684:85959 typography tokens — var(--theme-font-family, Montserrat)):
      - Shipping row (when cart needs shipping): label + "Calculated at
        checkout", 14px, secondary text color
      - Order Total row: label + amount, 16px, semibold, divider above
@@ -638,4 +638,27 @@
 #woo-cart-panel .woocommerce-mini-cart.product_list_widget li,
 .woocommerce-mini-cart.product_list_widget li {
 	align-items: start;
+}
+
+
+/* == Mini-cart text weight -> 400 (Annemarie request, 2026-06-09) =========
+   Regular-weight text in the 'Your bag' drawer. Overrides component design
+   weights to 400: product title/price (was 500), SUBTOTAL (Blocksy 700),
+   Order Total + value (was 600), AND the free-shipping bar message
+   (Blocksy 300 -> 400, for a uniform drawer; the Customizer message field has
+   no font-weight control). Scoped to #woo-cart-panel + the .woocommerce-mini-cart
+   fragment. Delete this block to restore design weights. */
+#woo-cart-panel .bc-mini-product-title,
+#woo-cart-panel .bc-mini-product-price,
+#woo-cart-panel .woocommerce-mini-cart__total,
+#woo-cart-panel .bc-mini-cart-totals__total,
+#woo-cart-panel .bc-mini-cart-totals__total .bc-mini-cart-totals__value,
+#woo-cart-panel .ct-shipping-progress-mini-cart .ct-message,
+#woo-cart-panel .ct-shipping-progress-mini-cart .ct-message p,
+.woocommerce-mini-cart .bc-mini-product-title,
+.woocommerce-mini-cart .bc-mini-product-price,
+.woocommerce-mini-cart .woocommerce-mini-cart__total,
+.woocommerce-mini-cart .ct-shipping-progress-mini-cart .ct-message,
+.woocommerce-mini-cart .ct-shipping-progress-mini-cart .ct-message p {
+	font-weight: 400 !important;
 }

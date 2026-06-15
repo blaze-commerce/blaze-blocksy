@@ -39,12 +39,12 @@ body .fc-wrapper [data-step-complete] .fc-step__substep-save,
 	border-radius: 4px;
 	font-size: 16px;
 	line-height: 24px;
-	font-weight: 400;
+	font-weight: 500;
 	padding: 14px 24px;
 	min-height: 40px;
 	width: 100%;
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.6px;
 	transition: background-color 0.2s;
 }
 
@@ -60,7 +60,7 @@ body .fc-wrapper [data-step-complete] .fc-step__substep-save,
 	color: var(--theme-palette-color-3, #333);
 	border: 1px solid var(--theme-palette-color-12, #E0DCD7);
 	border-radius: 4px;
-	font-weight: 400;
+	font-weight: 500;
 	padding: 14px 24px;
 	min-height: 40px;
 }

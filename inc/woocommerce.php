@@ -423,3 +423,72 @@ function bc_filter_cart_panel_heading( $translation, $text, $domain ) {
 		. ' <span class="ct-cart-panel-title">' . esc_html__( 'Your bag', 'blocksy-child' ) . '</span>'
 		. ' <span class="ct-cart-panel-count">(<span class="ct-cart-count-number">' . esc_html( (string) $count ) . '</span>)</span>';
 }
+
+/* 86extrx5y #6 — Archive cards must open the product page, never ajax add-to-cart (client request 2026-05-28). Priority 20 runs after the See More filter (10); covers simple products that previously fell through to the native ajax button. Remove this block to revert. */
+add_filter( 'woocommerce_loop_add_to_cart_link', function ( $link, $product, $args ) {
+	$bc_more = 'See More <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="bc-see-more-arrow" width="20" height="20"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"></path></svg>';
+	return sprintf( '<a href="%s" class="button bc-see-more-link">%s</a>', esc_url( $product->get_permalink() ), $bc_more );
+}, 20, 3 );
+
+/**
+ * Hide the WooCommerce "Free Shipping" method at checkout for wholesale customers.
+ *
+ * Migrated 2026-06-04 from Code Snippets #11 ("Hide Free Shipping for Wholesale") into the child theme
+ * so the Code Snippets plugin can be removed, then hardened to BC child-theme conventions:
+ *   - function_exists() guard       → no fatal redeclaration if the old snippet is ever still active.
+ *   - master on/off filter          → `bbc_hide_free_shipping_for_wholesale_enabled` (default true);
+ *                                      return false anywhere (mu-plugin/snippet) to disable site-wide
+ *                                      WITHOUT editing the theme. Mirrors bbc_smart_coupons_cart_css_active().
+ *   - dependency-safe               → only runs inside a real WooCommerce shipping calc; if B2B Suite or
+ *                                      the roles are gone the role match simply finds nothing → no-op,
+ *                                      no errors. Nothing here hard-depends on B2B Suite being active.
+ *   - portable / configurable roles → target roles via `bbc_free_shipping_hidden_roles` so a site with
+ *                                      different B2B Suite role IDs can override without touching the theme
+ *                                      (role post-IDs differ per environment — verified sitebuild vs live).
+ *
+ * @param array $rates   WC_Shipping_Rate[] keyed by rate id.
+ * @param array $package The shipping package.
+ * @return array Filtered rates.
+ */
+if ( ! function_exists( 'bbc_hide_free_shipping_for_wholesale' ) ) {
+	function bbc_hide_free_shipping_for_wholesale( $rates, $package ) {
+		// 1. Master on/off switch (default ON). Turn off site-wide without editing the theme.
+		if ( ! apply_filters( 'bbc_hide_free_shipping_for_wholesale_enabled', true ) ) {
+			return $rates;
+		}
+
+		// 2. Only act for a logged-in front-end customer in a real Woo context.
+		if ( ! function_exists( 'WC' ) || is_admin() || ! is_user_logged_in() ) {
+			return $rates;
+		}
+
+		// 3. Wholesale role slugs that should NOT see Free Shipping (documented by display name).
+		//    Filterable so each environment / future role change can override without a code edit.
+		$hidden_roles = apply_filters( 'bbc_free_shipping_hidden_roles', array(
+			'b2bwhs_role_642389', // VIP wholesale local
+			'b2bwhs_role_637532', // Commission Base
+			'b2bwhs_role_632083', // Local Wholesale
+			'b2bwhs_role_631619', // Distributor (absent on some envs — harmless if missing)
+			'b2bwhs_role_631578', // Wholesale
+		) );
+		if ( empty( $hidden_roles ) ) {
+			return $rates;
+		}
+
+		// 4. Bail unless the current user holds one of the targeted wholesale roles.
+		$user = wp_get_current_user();
+		if ( ! $user || empty( $user->roles ) || ! array_intersect( (array) $user->roles, $hidden_roles ) ) {
+			return $rates;
+		}
+
+		// 5. Remove every Free Shipping rate from the package.
+		foreach ( $rates as $rate_id => $rate ) {
+			if ( isset( $rate->method_id ) && 'free_shipping' === $rate->method_id ) {
+				unset( $rates[ $rate_id ] );
+			}
+		}
+
+		return $rates;
+	}
+}
+add_filter( 'woocommerce_package_rates', 'bbc_hide_free_shipping_for_wholesale', 10, 2 );
