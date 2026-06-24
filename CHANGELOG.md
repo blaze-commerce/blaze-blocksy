@@ -1,3 +1,8 @@
+## [button-text-color-from-customizer-2026-06-24] - 2026-06-24
+
+### Fixed
+- Button text colour is now controlled by the Blocksy Customizer (General > Buttons) site-wide. `assets/css/base.css` (migrated 2026-06-04 from Customizer Additional CSS) hard-set `--theme-button-text-initial-color: #111111` on the whole button selector group (`.button, .ct-button, .ct-button-ghost, [type=submit], .wp-element-button, .wp-block-button__link, ..., .ct-button-secondary-text`). Because the variable was declared on the button element, it overrode (a) Blocksy's `:root` Customizer value for solid (type-1) buttons and (b) Blocksy's own ghost (type-2) rule `--theme-button-text-initial-color: var(--theme-button-background-initial-color)`, forcing every button's text to `#111111`. Commented out that one line (kept `--theme-button-font-weight: 500`) so the cascade restores per-type Customizer behaviour: solid buttons take the `:root` Customizer text colour, ghost/outline buttons take the accent (background) colour, and `.ct-button-secondary-text` inherits the Customizer value. Reported on aworld-retheme.blz.au (Alternate Worlds). Theme 1.1.46 -> 1.1.47.
+
 ## [woo-cart-smartcoupons-guarded-enqueue-2026-06-03] - 2026-06-03
 
 ### Changed

@@ -204,5 +204,5 @@ body.page-id-645912 {
 /* Global button font-weight + text colour (migrated 2026-06-04 from Customizer Additional CSS). */
 .button, .ct-button, .added_to_cart, .ct-button-ghost, [type=submit], .wp-element-button, .wp-block-button__link, button.regform-button, button[class*=ajax], .woocommerce button.button, .woocommerce-message .showlogin, .woocommerce-message .restore-item, .forminator-ui[data-design=none] .forminator-button, .fluentform .ff-el-group button.ff-btn, .ct-button-secondary-text {
 	--theme-button-font-weight: 500;
-	--theme-button-text-initial-color: #111111;
+	/* --theme-button-text-initial-color: #111111; */ /* AW 2026-06-24: commented out so the Blocksy Customizer (General > Buttons) controls button text colour site-wide. Declaring it on the button element clobbered the :root Customizer value for solid buttons and Blocksy's ghost-button rule (ghost text = accent colour). Removing it restores per-type Customizer behaviour. */
 }
