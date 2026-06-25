@@ -245,8 +245,18 @@ function blocksy_child_render_wishlist_panel() {
 
 	$close_icon = '<svg class="ct-icon" width="12" height="12" viewBox="0 0 15 15"><path d="M1 15a1 1 0 01-.71-.29 1 1 0 010-1.41l5.8-5.8-5.8-5.8A1 1 0 011.7.29l5.8 5.8 5.8-5.8a1 1 0 011.41 1.41l-5.8 5.8 5.8 5.8a1 1 0 01-1.41 1.41l-5.8-5.8-5.8 5.8A1 1 0 011 15z"/></svg>';
 
-	// Wishlist heart icon — same SVG as the header wishlist icon.
+	// Wishlist heart icon — same SVG as the header wishlist icon. This is the
+	// DEFAULT; the "Off-canvas Panel Icons" Customizer control
+	// (inc/offcanvas-icons.php) overrides it when an admin uploads a drawer icon.
 	$heart_icon = '<svg class="ct-icon ct-wishlist-panel-icon" width="15" height="15" viewBox="0 0 15 15"><path d="M7.5,13.9l-0.4-0.3c-0.2-0.2-4.6-3.5-5.8-4.8C0.4,7.7-0.1,6.4,0,5.1c0.1-1.2,0.7-2.2,1.6-3c0.9-0.8,2.3-1,3.6-0.8C6.1,1.5,6.9,2,7.5,2.6c0.6-0.6,1.4-1.1,2.4-1.3c1.3-0.2,2.6,0,3.5,0.8l0,0c0.9,0.7,1.5,1.8,1.6,3c0.1,1.3-0.3,2.6-1.3,3.7c-1.2,1.4-5.6,4.7-5.7,4.8L7.5,13.9z"/></svg>';
+
+	if ( function_exists( 'blocksy_child_offcanvas_icon_markup' ) ) {
+		$custom_heart = blocksy_child_offcanvas_icon_markup( 'wishlist', 'ct-wishlist-panel-icon' );
+
+		if ( '' !== $custom_heart ) {
+			$heart_icon = $custom_heart;
+		}
+	}
 
 	// Render suggested products (server-side, same as mini cart).
 	$suggested_html = blocksy_child_render_wishlist_suggested();

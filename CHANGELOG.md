@@ -1,3 +1,11 @@
+## [offcanvas-panel-icons-customizer-2026-06-25] - 2026-06-25
+
+### Added
+- New **"Off-canvas Panel Icons"** Customizer section (`inc/offcanvas-icons.php`, loaded as a core module in `inc/loader.php`) with two `WP_Customize_Media_Control` upload controls — **Minicart Drawer Icon** (`blocksy_child_minicart_panel_icon_id`) and **Wishlist Drawer Icon** (`blocksy_child_wishlist_panel_icon_id`). An admin can now replace the icon shown in the HEADING of the minicart drawer (`.ct-cart-panel-icon`) and the wishlist drawer (`.ct-wishlist-panel-icon`) from wp-admin, without touching code or a per-site overlay. Helper `blocksy_child_offcanvas_icon_markup()` inlines an uploaded SVG (injecting `ct-icon` so it inherits Blocksy sizing/colour via currentColor) or falls back to an `<img>`, returning '' when unset so the existing default SVG is kept (clients without an upload — e.g. byronbay — are unaffected). DELIBERATELY scoped to the off-canvas DRAWER icons only: the header-bar cart/wishlist icons remain controlled by Blocksy's native Customizer (Header > Cart / Wishlist > Icon Source: Custom) — they are separate icons by design (the header icon and the drawer heading icon can differ).
+
+### Changed
+- `inc/woocommerce.php` (`bc_filter_cart_panel_heading`) and `inc/wishlist-offcanvas.php` (`blocksy_child_render_wishlist_panel`) now call `blocksy_child_offcanvas_icon_markup()` for their drawer-heading icon, overriding the hard-coded default ONLY when an admin has uploaded one. Requested for Alternate Worlds (aworld-retheme.blz.au), ClickUp 86ey26h27. Theme 1.1.47 -> 1.1.48.
+
 ## [button-text-color-from-customizer-2026-06-24] - 2026-06-24
 
 ### Fixed
