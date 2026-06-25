@@ -67,6 +67,7 @@ blocksy_child_load_module( 'inc/helpers.php' );
 blocksy_child_load_module( 'inc/enqueue.php' );
 blocksy_child_load_module( 'inc/hooks.php' );
 blocksy_child_load_module( 'inc/icons.php' );
+blocksy_child_load_module( 'inc/offcanvas-icons.php' );
 blocksy_child_load_module( 'inc/carousel.php' );
 
 // --- Client Modules (load BEFORE WooCommerce modules so feature flags are available) ---

@@ -414,10 +414,19 @@ function bc_filter_cart_panel_heading( $translation, $text, $domain ) {
 
 	$count = ( function_exists( 'WC' ) && WC()->cart ) ? (int) WC()->cart->get_cart_contents_count() : 0;
 
-	// Same custom shopping-bag icon used by the header cart trigger
-	// (uploaded via Blocksy custom-icon feature). Solid-fill, not stroked.
-	// fill=currentColor so the icon inherits the heading text color.
+	// Same custom shopping-bag icon used by the header cart trigger. Solid-fill,
+	// not stroked. fill=currentColor so the icon inherits the heading text color.
+	// This is the DEFAULT; the "Off-canvas Panel Icons" Customizer control
+	// (inc/offcanvas-icons.php) overrides it when an admin uploads a drawer icon.
 	$icon = '<svg class="ct-icon ct-cart-panel-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M14.6248 5.5C14.6248 3.84315 13.2816 2.5 11.6248 2.5C9.96813 2.50026 8.62476 3.84331 8.62476 5.5V6.25H14.6248V5.5ZM5.13844 7.75C4.94653 7.75 4.78548 7.89508 4.76539 8.08594L3.50172 20.0859C3.47855 20.3072 3.65226 20.4999 3.87476 20.5H19.3757C19.5982 20.4999 19.772 20.3072 19.7488 20.0859L18.4851 8.08594C18.465 7.89508 18.304 7.75 18.1121 7.75H16.1248V9.16211C16.3549 9.3681 16.4998 9.66684 16.4998 10C16.4998 10.6213 15.9961 11.125 15.3748 11.125C14.7537 11.1247 14.2498 10.6212 14.2498 10C14.2498 9.66733 14.3952 9.36905 14.6248 9.16309V7.75H8.62476V9.16211C8.85489 9.3681 8.99976 9.66684 8.99976 10C8.99976 10.6213 8.49608 11.125 7.87476 11.125C7.25367 11.1247 6.74976 10.6212 6.74976 10C6.74976 9.66733 6.89523 9.36905 7.12476 9.16309V7.75H5.13844ZM16.1248 6.25H18.1121C19.0716 6.25 19.8769 6.97444 19.9773 7.92871L21.24 19.9287C21.3565 21.0357 20.4889 21.9999 19.3757 22H3.87476C2.76163 21.9999 1.89398 21.0357 2.01051 19.9287L3.2732 7.92871C3.37365 6.97444 4.17889 6.25 5.13844 6.25H7.12476V5.5C7.12476 3.01488 9.13971 1.00026 11.6248 1C14.11 1 16.1248 3.01472 16.1248 5.5V6.25Z" fill="currentColor"/></svg>';
+
+	if ( function_exists( 'blocksy_child_offcanvas_icon_markup' ) ) {
+		$custom = blocksy_child_offcanvas_icon_markup( 'minicart', 'ct-cart-panel-icon' );
+
+		if ( '' !== $custom ) {
+			$icon = $custom;
+		}
+	}
 
 	return $icon
 		. ' <span class="ct-cart-panel-title">' . esc_html__( 'Your bag', 'blocksy-child' ) . '</span>'
