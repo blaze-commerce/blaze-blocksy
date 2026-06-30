@@ -1,3 +1,8 @@
+## [wishlist-drawer-category-grid-fix-2026-06-30] - 2026-06-30
+
+### Fixed
+- `inc/wishlist-offcanvas.php` — `blocksy_child_render_wishlist_categories()`: the empty-state "You May Also Like" grid auto-picked only top-level terms that had a `thumbnail_id`, which silently dropped categories without one (Alternate Worlds rendered 3 cards / 2+1 instead of the Figma 2×2). It now **defaults to the site's curated Shop-by-Category set** (`aw_category_cards_default_categories()` term IDs) when no `blocksy_child_wishlist_category_ids` override is set, and **resolves media via `aw_category_cards_image_htmls( 0, $term, 2 )`** — one curated cover or two auto-resolved portrait covers, wrapped in `.ct-wishlist-category-img-wrap` (+ `--single`) — so a thumbnail-less term still shows art and the cards match the homepage/minicart collage. Both behind `function_exists()` guards; falls back to the bare term thumbnail for sites without the AW helpers. ClickUp 86ey0r46n.
+
 ## [wishlist-card-grid-layout-2026-06-30] - 2026-06-30
 
 ### Added
