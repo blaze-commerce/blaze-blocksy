@@ -1,3 +1,8 @@
+## [wishlist-drawer-category-labels-2026-06-30] - 2026-06-30
+
+### Fixed
+- `inc/wishlist-offcanvas.php` — `blocksy_child_render_wishlist_categories()`: the curated default set previously plucked **only** term IDs and rendered `$term->name`, so the second card showed the raw taxonomy name **"Collectible Games"** instead of the curated label **"Collectables"** (Figma + the homepage "Shop by Category" band). The renderer now carries each curated entry's `label` (and `imageId`) into per-term override maps and renders the label, falling back to `$term->name`. Added the `blocksy_child_wishlist_category_labels` filter (term ID => label) so any site can override labels regardless of curation source. Live counts unchanged. Staging-verified (aworld-retheme.blz.au). ClickUp 86ey0r46n.
+
 ## [wishlist-drawer-category-grid-fix-2026-06-30] - 2026-06-30
 
 ### Fixed
