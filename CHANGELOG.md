@@ -1,3 +1,13 @@
+## [wishlist-card-grid-layout-2026-06-30] - 2026-06-30
+
+### Added
+- New per-site filter **`blocksy_child_wishlist_card_layout`** (default `false`) that switches the off-canvas wishlist drawer to the Figma "card grid" layout. Helper `blocksy_child_wishlist_uses_cards()` is the single gate; `blocksy_child_wishlist_image_size()` returns `woocommerce_single` (full portrait cover) when on vs the square `woocommerce_gallery_thumbnail` when off. New `blocksy_child_render_wishlist_categories()` renders an empty-state "You May Also Like" 2-col category grid (top-level product categories that have a featured term image — live names + counts; `blocksy_child_wishlist_category_ids`-filterable) and `blocksy_child_wishlist_current_ids()` shares the server-side wishlist id lookup. Requested for Alternate Worlds (aworld-retheme.blz.au), ClickUp 86ey0r46n.
+
+### Changed
+- `inc/wishlist-offcanvas.php` — when the filter is on: the preload + AJAX endpoint use the portrait image size; `bcWishlistData` carries a `cardLayout` flag; the panel shell adds a `ct-wishlist-cards` class, an initial `ct-wishlist-state-empty|filled` class (server-computed, no flash), and the category-grid region.
+- `assets/js/wishlist-offcanvas.js` — when on: items render as a 2-col card grid (`ct-wishlist-items--cards`) with a "Remove" text control instead of the trash icon; `setPanelEmptyState()` keeps the empty/filled state class in sync (toggles the category grid vs the suggested carousel). The card flag is read at render time (`usesCards()`) because the preload `<script>` prints after this footer script.
+- **Every change is gated behind the filter.** With it off (Byron Bay and all other sites) the drawer renders byte-for-byte as before — the only additions are an inert `cardLayout:false` data field and unstyled state classes. Theme 1.1.48 -> 1.1.49.
+
 ## [offcanvas-panel-icons-customizer-2026-06-25] - 2026-06-25
 
 ### Added
@@ -974,10 +984,7 @@ M  style.css                                    (Version 1.1.5 → 1.1.6)
 
 ## [86exf034k] - 2026-05-05
 ### Fixed
-- `assets/css/components/woo-single.css` (PDP #1 + B4): Replace `aspect-ratio:1/1` with
-  `align-self:stretch` + `height:auto` so the wishlist button height tracks the rendered
-  ATC flex-row height at all breakpoints instead of locking to `--theme-button-min-height`
-  token. Adds `box-sizing:border-box`. Applies to standard product and bundle product selectors.
+- `assets/css/components/woo-single.css` (PDP #1 + B4): Replace `aspect-ratio:1/1` with `align-self:stretch` + `height:auto` so the wishlist button height tracks the rendered ATC flex-row height at all breakpoints instead of locking to `--theme-button-min-height` token. Adds `box-sizing:border-box`. Applies to standard product and bundle product selectors.
 
 ## [86exe005n] - 2026-05-05
 ### Fixed
@@ -1122,11 +1129,9 @@ M  style.css                                    (Version 1.1.5 → 1.1.6)
 ### Fixed
 - Mini cart Shipping row now correctly reverts from "Free" to "Calculated at checkout" when items are removed and the cart drops back below the free-shipping threshold. It also now agrees with Blocksy's progress-bar banner in every cart state (above, below, exactly-at the threshold).
 
-### Why
-QA flagged a state-machine bug: after qualifying for free shipping then removing items, the Shipping row stayed pinned at "Free" while the Blocksy banner correctly showed "Add $X more". Two contradictions in one drawer was worse than the original problem we set out to fix.
+### Why QA flagged a state-machine bug: after qualifying for free shipping then removing items, the Shipping row stayed pinned at "Free" while the Blocksy banner correctly showed "Add $X more". Two contradictions in one drawer was worse than the original problem we set out to fix.
 
-### Root cause
-Two mismatches at once:
+### Root cause Two mismatches at once:
 1. The previous helper matched any `cost === 0` rate as "Free". On this site that included Local Pickup (Australia zone) — so even an empty-of-free-shipping cart returned "Free" because Local Pickup is always $0.
 2. The previous helper read WC's zone `min_amount` (Australia zone = $75), but Blocksy reads from `theme_mod woo_count_progress_amount` (set to $100 on this site). So at $88 cart, WC said free shipping was available but Blocksy said "Add $12 more" — and the row sided with WC, contradicting the banner directly above it.
 
@@ -1146,22 +1151,19 @@ Screenshots: `cu-86exbd8gx-shipping-below-threshold-final.png`, `cu-86exbd8gx-sh
 ### Backups
 - `inc/woocommerce.php.bak-20260428-shipping-fix`
 
-### Note for future devs
-If the Customizer setting "Cart > Shipping Progress > Count Method" is ever switched from `custom` to `woo`, this function automatically picks up the change (it reads the same theme mod Blocksy reads). No code change needed.
+### Note for future devs If the Customizer setting "Cart > Shipping Progress > Count Method" is ever switched from `custom` to `woo`, this function automatically picks up the change (it reads the same theme mod Blocksy reads). No code change needed.
 
 ## [86exbd8gx-followup] - 2026-04-29
 ### Fixed
 - Mini cart Shipping row now shows "Free" when the cart qualifies for free shipping (matches Blocksy's progress-bar messaging "Congratulations! You got free shipping 🎉"). Previously hard-coded to "Calculated at checkout" which contradicted the green bar.
 
-### Why
-QA flagged the inconsistency: the Blocksy free-shipping progress bar declared the customer had earned free shipping, but our Shipping row directly below said "Calculated at checkout". Customers would either dismiss the green bar as marketing noise or assume the rate was about to change. Showing "Free" in both spots removes the cognitive dissonance.
+### Why QA flagged the inconsistency: the Blocksy free-shipping progress bar declared the customer had earned free shipping, but our Shipping row directly below said "Calculated at checkout". Customers would either dismiss the green bar as marketing noise or assume the rate was about to change. Showing "Free" in both spots removes the cognitive dissonance.
 
 ### Implementation
 - `inc/woocommerce.php` — added `bc_mini_cart_shipping_value()` helper. Calls `WC()->shipping()->calculate_shipping( $cart->get_shipping_packages() )` to recalculate rates for the current cart, then walks `WC()->shipping()->get_packages()` looking for any rate where `method_id === 'free_shipping'` OR `cost === 0`. Returns "Free" if found, otherwise falls back to "Calculated at checkout".
 - `bc_render_mini_cart_totals_section()` now uses this helper for the Shipping row value.
 
-### Performance note
-We force a shipping calculation per mini cart fragment render. WC caches the result in the cart session so subsequent fragment fetches in the same request don't recompute. Still — if a future site has a slow shipping plugin (the AusPost plugin used here is one example), this adds latency to every cart-fragments AJAX call. Watch the slow-query log if you start seeing wc-ajax timeouts.
+### Performance note We force a shipping calculation per mini cart fragment render. WC caches the result in the cart session so subsequent fragment fetches in the same request don't recompute. Still — if a future site has a slow shipping plugin (the AusPost plugin used here is one example), this adds latency to every cart-fragments AJAX call. Watch the slow-query log if you start seeing wc-ajax timeouts.
 
 ### Backups
 - `inc/woocommerce.php.bak-20260429-002000`
@@ -1170,19 +1172,16 @@ We force a shipping calculation per mini cart fragment render. WC caches the res
 ### Changed
 - Suggested Products carousel in mini cart + wishlist drawers now feels more compact: title clamped to 2 lines (was wrapping 3+ on long names), title 13px / price 12px, tighter module-title spacing. Image keeps its native full-column-width square layout — `object-fit: contain` so source product photos never crop top/bottom.
 
-### Why
-QA flagged the section as visually too large making the drawer bottom-heavy. Root cause was long product titles wrapping 3+ lines (e.g. "All Reed Diffuser Refills 130mls with New Reed Sticks") not the image itself. Fixing the title with `-webkit-line-clamp: 2` shaved ~14px per card; the smaller fonts + tighter heading margin removed another ~10–15px. Image stays full-width square per Figma 684:85959 reference.
+### Why QA flagged the section as visually too large making the drawer bottom-heavy. Root cause was long product titles wrapping 3+ lines (e.g. "All Reed Diffuser Refills 130mls with New Reed Sticks") not the image itself. Fixing the title with `-webkit-line-clamp: 2` shaved ~14px per card; the smaller fonts + tighter heading margin removed another ~10–15px. Image stays full-width square per Figma 684:85959 reference.
 
 ### Iterations during this fix (for posterity — explains the diff if you bisect)
 1. **First attempt:** capped image at `max-height: 140px` with `object-fit: cover`. This visibly cropped top/bottom of square candle photos (lid + holder cut off). Reverted.
 2. **Second attempt:** capped image at `max-width: 140px` with `object-fit: contain`. Image stayed un-cropped but became smaller-than-card-width with whitespace, which made cards feel inconsistent with native Blocksy layout. Reverted.
 3. **Final (this commit):** drop both width and height caps. Keep full-column-width square via `aspect-ratio: 1/1`. Use `object-fit: contain` so any non-square source photo never crops. Visual-weight reduction comes purely from title clamp + smaller fonts.
 
-### Selectors
-Both drawers (`#woo-cart-panel`, `#woo-wishlist-panel`) and both render paths covered in one block — `[class*="ct-suggested-products"]` matches Blocksy's native `.ct-suggested-products--mini-cart` (state 1) AND our renamed `bc-*-suggested-grid ct-suggested-products` two-class wrappers (states 2–7) — see `docs/patterns/drawer-suggested-products.md` for the 7-state matrix.
+### Selectors Both drawers (`#woo-cart-panel`, `#woo-wishlist-panel`) and both render paths covered in one block — `[class*="ct-suggested-products"]` matches Blocksy's native `.ct-suggested-products--mini-cart` (state 1) AND our renamed `bc-*-suggested-grid ct-suggested-products` two-class wrappers (states 2–7) — see `docs/patterns/drawer-suggested-products.md` for the 7-state matrix.
 
-### Verified at 320 / 375 / 768 / 1400 / 1440
-Card height dropped from 295 → 281 (≈5%), but visually feels more balanced because the title block is the same height regardless of product name length. No image cropping in any state. Screenshots: `cu-86exbd8kg-{minicart,wishlist}-final-*.png` in repo root.
+### Verified at 320 / 375 / 768 / 1400 / 1440 Card height dropped from 295 → 281 (≈5%), but visually feels more balanced because the title block is the same height regardless of product name length. No image cropping in any state. Screenshots: `cu-86exbd8kg-{minicart,wishlist}-final-*.png` in repo root.
 
 ### Backups
 - `assets/css/components/offcanvas.css.bak-20260429-001500`
@@ -1195,8 +1194,7 @@ Card height dropped from 295 → 281 (≈5%), but visually feels more balanced b
 - `inc/woocommerce.php` — appended `bc_render_mini_cart_totals_section()` hooked to `woocommerce_widget_shopping_cart_before_buttons` (priority 30, runs after Blocksy's shipping progress bar at priority 10–20). Renders only when cart is non-empty. Toggleable via `BC_FEATURE_MINI_CART_TOTALS` (default true) so a client PHP can disable.
 - `assets/css/components/offcanvas.css` — appended styling for `.bc-mini-cart-totals` block: 12px top padding + dashed border-top, flex space-between rows, Order Total in 16px semibold with its own divider above for visual prominence.
 
-### Why
-Native Blocksy + WooCommerce mini cart shows only the Subtotal row before the Checkout button. Per Figma 684:85959 reference (parent off-canvas spec) and the Austin Natural Mattress reference layout, the drawer needs a clearer breakdown so customers see "Shipping: Calculated at checkout" + "Order Total" before clicking Checkout. Reduces surprise-cost abandonment per Baymard's checkout-transparency research.
+### Why Native Blocksy + WooCommerce mini cart shows only the Subtotal row before the Checkout button. Per Figma 684:85959 reference (parent off-canvas spec) and the Austin Natural Mattress reference layout, the drawer needs a clearer breakdown so customers see "Shipping: Calculated at checkout" + "Order Total" before clicking Checkout. Reduces surprise-cost abandonment per Baymard's checkout-transparency research.
 
 ### Backups
 - `inc/woocommerce.php.bak-20260428-234500`
@@ -1205,14 +1203,12 @@ Native Blocksy + WooCommerce mini cart shows only the Subtotal row before the Ch
 ### Fixed
 - Mini cart Checkout button now spans the full content width of the drawer at all breakpoints (320 / 375 / 768 / 1440 / 2560).
 
-### Why
-Native Blocksy ships `.woocommerce-mini-cart__buttons` with `padding: 0 24px 24px` AND `display: flex; gap: 8px`. The wrap already sits inside `.ct-panel-content-inner` which has its own 24px (mobile: 16px) horizontal padding — double padding made the button render at ~80% drawer width.
+### Why Native Blocksy ships `.woocommerce-mini-cart__buttons` with `padding: 0 24px 24px` AND `display: flex; gap: 8px`. The wrap already sits inside `.ct-panel-content-inner` which has its own 24px (mobile: 16px) horizontal padding — double padding made the button render at ~80% drawer width.
 
 ### Fix
 - `assets/css/components/offcanvas.css` — appended a mini-cart-scoped block that removes the wrap's horizontal padding, switches the wrap to vertical stack with 8px gap (so View Cart + Checkout each get full width when both visible), and forces `width: 100%` on the buttons. Selectors target both `#woo-cart-panel` and `.woocommerce-mini-cart` so the rule survives cart-fragments AJAX re-renders.
 
-### Verified
-Button width at each breakpoint matches drawer content area exactly (inner_width − 2 × content_padding):
+### Verified Button width at each breakpoint matches drawer content area exactly (inner_width − 2 × content_padding):
 - 320 → 288 inner / 256 btn (16px padding)
 - 375 → 338 inner / 306 btn (16px padding)
 - 1440 → 500 inner / 452 btn (24px padding)
@@ -1234,8 +1230,7 @@ Button width at each breakpoint matches drawer content area exactly (inner_width
 ### Backups
 - `assets/js/wishlist-offcanvas.js.bak-20260428-211800`
 
-### Verified
-Empty wishlist drawer state — clicked next arrow, items slid by `-468px` (one full page in 2-column boxed mode); clicked dim backdrop, panel closed with `active` class removed. Same flow works for guest and logged-in empty states.
+### Verified Empty wishlist drawer state — clicked next arrow, items slid by `-468px` (one full page in 2-column boxed mode); clicked dim backdrop, panel closed with `active` class removed. Same flow works for guest and logged-in empty states.
 
 ## [86exbd883-v4] - 2026-04-28
 ### Fixed
@@ -1251,15 +1246,13 @@ Empty wishlist drawer state — clicked next arrow, items slid by `-468px` (one 
   - Mirrors the `.ct-cart-actions > .quantity[data-type="type-2"]` horizontal stepper rules under `.ct-product-actions > .quantity[data-type="type-2"]`.
   - Adds typographic `−` / `+` glyphs on the buttons.
 
-### Note for future
-The horizontal stepper rules are now in TWO places: `clients/byronbay/byronbay.css` (cart page, `.ct-cart-actions` scope) and `assets/css/components/offcanvas.css` (mini cart, `.ct-product-actions` scope). When Blocksy updates its qty stepper or the customizer setting changes, both blocks must stay in sync. Documented as TODO in code comment.
+### Note for future The horizontal stepper rules are now in TWO places: `clients/byronbay/byronbay.css` (cart page, `.ct-cart-actions` scope) and `assets/css/components/offcanvas.css` (mini cart, `.ct-product-actions` scope). When Blocksy updates its qty stepper or the customizer setting changes, both blocks must stay in sync. Documented as TODO in code comment.
 
 ## [86exbd883-v3] - 2026-04-28
 ### Fixed
 - Suggested Products prev/next arrows now work on all 7 drawer states. Click `<` / `>` slides the carousel exactly like Blocksy native cart-with-items rendering (matrix transform `-468px` per click in 2-column boxed mode).
 
-### Why
-Blocksy's `flexy.js` (theme bundle) binds prev/next click handlers via:
+### Why Blocksy's `flexy.js` (theme bundle) binds prev/next click handlers via:
 ```js
 const maybeSuggested = sliderEl.closest('[class*="ct-suggested-products"]');
 if (maybeSuggested) {
@@ -1269,8 +1262,7 @@ if (maybeSuggested) {
 ```
 Our previous wrapper class `bc-minicart-suggested-grid` did NOT contain the substring `ct-suggested-products`, so flexy couldn't find the arrows from within the slider. Items rendered correctly (because the CSS shim mirrored the column rules) but arrows were inert (decoration-only).
 
-### Fix
-`inc/helpers.php` — the str_replace now produces `bc-minicart-suggested-grid ct-suggested-products` (and `bc-wishlist-suggested-grid ct-suggested-products` for the wishlist drawer). Two classes on one element:
+### Fix `inc/helpers.php` — the str_replace now produces `bc-minicart-suggested-grid ct-suggested-products` (and `bc-wishlist-suggested-grid ct-suggested-products` for the wishlist drawer). Two classes on one element:
 - `bc-minicart-suggested-grid` — our cart-fragments-safe namespace
 - `ct-suggested-products` — Blocksy's substring without the `--mini-cart` suffix
 
@@ -1279,26 +1271,22 @@ Our previous wrapper class `bc-minicart-suggested-grid` did NOT contain the subs
 - Flexy.js arrow lookup: `closest('[class*="ct-suggested-products"]')` — substring match, our wrapper has `ct-suggested-products` so it MATCHES.
 - Customizer typography rules `[class*="ct-suggested-products"] .ct-module-title` etc — substring match, also applies. (LAYER 8 v1/v2 shim rules are still kept as belt-and-suspenders, but most are now redundant.)
 
-### Verified
-Empty mini cart state, hover next-arrow → click — items slid `956,1190,1424,1658` → `722,956,1190,1424`. Same translate as native cart-with-items state.
+### Verified Empty mini cart state, hover next-arrow → click — items slid `956,1190,1424,1658` → `722,956,1190,1424`. Same translate as native cart-with-items state.
 
-### Bonus discovery
-Flexy lazy-mounts on first `mouseover`; programmatic `.click()` without prior hover does nothing. Real users hover before clicking, so no UX impact — but the wishlist sentinel JS test was passing arrows but actually testing `mouseover` separately. Documented in code architecture memory.
+### Bonus discovery Flexy lazy-mounts on first `mouseover`; programmatic `.click()` without prior hover does nothing. Real users hover before clicking, so no UX impact — but the wishlist sentinel JS test was passing arrows but actually testing `mouseover` separately. Documented in code architecture memory.
 
 ## [86exbd883-v2] - 2026-04-28
 ### Fixed
 - Suggested Products heading and product card layout now match Blocksy native (Image #8) byte-for-byte. Heading is "SUGGESTED PRODUCTS" UPPERCASE 12px 700 with arrows on the right of the same row; product titles and prices stack vertically inside each card (no more "Reed Sticks$33.00" run-together inline display).
 
-### Why this was needed
-Image #7 vs Image #8 audit (2026-04-28 evening) found three Blocksy CSS rules that the previous LAYER 8 v1 shim missed:
+### Why this was needed Image #7 vs Image #8 audit (2026-04-28 evening) found three Blocksy CSS rules that the previous LAYER 8 v1 shim missed:
 - `[class*="ct-suggested-products"] .ct-module-title { display: flex; justify-content: space-between; ... font-size: 12px; font-weight: 700; text-transform: uppercase; }` — the heading row layout
 - `[class*="ct-suggested-products"] section { display: flex; flex-direction: column; align-items: flex-start; }` — the unnamed `<section>` wrapper that stacks title + price vertically
 - `[class*="ct-suggested-products"] [data-products="block"] .ct-media-container { margin-bottom: 15px; }` — image bottom spacing
 
 All three target `[class*="ct-suggested-products"]` (substring match) which our renamed `bc-minicart-suggested-grid` / `bc-wishlist-suggested-grid` doesn't match. LAYER 8 v2 mirrors them under our renamed wrappers.
 
-### Verified
-Computed CSS values for renamed empty-cart rendering now match native cart-with-item rendering exactly (.ct-module-title display: flex / justifyContent: space-between / textTransform: uppercase / fontSize: 12px / fontWeight: 700 / marginBottom: 15px; flexy-item > section display: flex / flexDirection: column; .ct-product-title display: block; .price display: block).
+### Verified Computed CSS values for renamed empty-cart rendering now match native cart-with-item rendering exactly (.ct-module-title display: flex / justifyContent: space-between / textTransform: uppercase / fontSize: 12px / fontWeight: 700 / marginBottom: 15px; flexy-item > section display: flex / flexDirection: column; .ct-product-title display: block; .price display: block).
 
 ### Changed
 - `assets/css/components/wishlist-offcanvas.css` — appended LAYER 8 v2 block (3 new rules above) to the existing LAYER 8 shim.
@@ -1313,11 +1301,9 @@ Computed CSS values for renamed empty-cart rendering now match native cart-with-
 - `assets/js/wishlist-flexy-sentinel.js` — reframed header comment as LAYER 7 runtime visibility sentinel (post-Blocksy-update QA tool). Previous comment claimed "flexy JS doesn't initialize inside our custom panel" — that was wrong; `flexy.min.js` does auto-init via DOMContentLoaded. Implementation untouched.
 - `assets/css/components/wishlist-offcanvas.css` — appended LAYER 8 column/typography shim. Mirrors Blocksy's customizer-driven CSS (`--grid-columns-width: calc(100% / 2)`, typography vars, image radius, slider arrow size, items-3+-collapse-when-static) under our renamed `bc-minicart-suggested-grid` / `bc-wishlist-suggested-grid` wrappers. Necessary because the cart-fragments-safe class rename strips Blocksy's own CSS targeting `.ct-suggested-products--mini-cart`.
 
-### Why this matters
-The class rename in the shared helper escapes WooCommerce's cart-fragments AJAX wipe (`[class*="ct-suggested-products--mini-cart"]`), but Blocksy's customizer-derived inline stylesheet only targets the original class. Without the LAYER 8 CSS shim, items render at `flex: 0 0 100%` (1-column) and use default theme typography. The shim is the missing link that gives all 7 drawer states visual parity with the Blocksy-native "mini cart with items" state (Image #1).
+### Why this matters The class rename in the shared helper escapes WooCommerce's cart-fragments AJAX wipe (`[class*="ct-suggested-products--mini-cart"]`), but Blocksy's customizer-derived inline stylesheet only targets the original class. Without the LAYER 8 CSS shim, items render at `flex: 0 0 100%` (1-column) and use default theme typography. The shim is the missing link that gives all 7 drawer states visual parity with the Blocksy-native "mini cart with items" state (Image #1).
 
-### Architecture
-Memory file: `~/.claude/projects/-Users-jarutosurano-GitHub--claude/memory/blocksy-drawer-suggested-products-architecture.md` documents the 7-state matrix and the rule "DO NOT strip flexy hooks". This entry adds LAYER 8 (column/typography shim) to the bulletproofing strategy already documented (LAYERS 1-7).
+### Architecture Memory file: `~/.claude/projects/-Users-jarutosurano-GitHub--claude/memory/blocksy-drawer-suggested-products-architecture.md` documents the 7-state matrix and the rule "DO NOT strip flexy hooks". This entry adds LAYER 8 (column/typography shim) to the bulletproofing strategy already documented (LAYERS 1-7).
 
 
 ## [86exbz9aq] - 2026-04-28
