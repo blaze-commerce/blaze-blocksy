@@ -242,6 +242,18 @@ function blocksy_child_render_wishlist_categories() {
 	// top-level categories that have a featured term image.
 	$curated_ids = apply_filters( 'blocksy_child_wishlist_category_ids', [] );
 
+	// Default to the site's curated "Shop by Category" set (the four Figma cards:
+	// Comics, Collectables, Games, Toys/Novelties) so the drawer matches the
+	// homepage/minicart instead of auto-picking only thumbnail-bearing terms
+	// (which silently dropped Collectables → a 2+1 grid instead of the 2×2).
+	if ( empty( $curated_ids ) && function_exists( 'aw_category_cards_default_categories' ) ) {
+		$curated_ids = array_slice(
+			wp_list_pluck( aw_category_cards_default_categories(), 'termId' ),
+			0,
+			4
+		);
+	}
+
 	$terms = [];
 	if ( ! empty( $curated_ids ) && is_array( $curated_ids ) ) {
 		$terms = get_terms( [
@@ -276,12 +288,28 @@ function blocksy_child_render_wishlist_categories() {
 	$cards = '';
 
 	foreach ( $terms as $term ) {
-		$thumb_id  = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
-		$image     = $thumb_id ? wp_get_attachment_image( $thumb_id, 'woocommerce_thumbnail', false, [ 'alt' => $term->name, 'loading' => 'lazy' ] ) : '';
 		$count_txt = sprintf( _n( '%s product', '%s products', $term->count, 'blocksy-child' ), number_format_i18n( $term->count ) );
 
+		// Match the homepage/minicart "Shop by Category" media: one curated cover
+		// when the term has a thumbnail, otherwise up to two auto-resolved portrait
+		// product covers — so a thumbnail-less term (e.g. Collectables) still shows
+		// art instead of an empty box. Falls back to the bare term thumbnail when
+		// the AW helper is absent (another site using this parent theme).
+		if ( function_exists( 'aw_category_cards_image_htmls' ) ) {
+			$covers    = aw_category_cards_image_htmls( 0, $term, 2 );
+			$media_mod = ( count( $covers ) < 2 ) ? ' ct-wishlist-category-media--single' : '';
+			$image     = '';
+			foreach ( $covers as $cover ) {
+				$image .= '<span class="ct-wishlist-category-img-wrap">' . $cover . '</span>';
+			}
+		} else {
+			$thumb_id  = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+			$media_mod = '';
+			$image     = $thumb_id ? wp_get_attachment_image( $thumb_id, 'woocommerce_thumbnail', false, [ 'alt' => $term->name, 'loading' => 'lazy' ] ) : '';
+		}
+
 		$cards .= '<a class="ct-wishlist-category-card" href="' . esc_url( get_term_link( $term ) ) . '">'
-			. '<span class="ct-wishlist-category-media">' . $image . '</span>'
+			. '<span class="ct-wishlist-category-media' . esc_attr( $media_mod ) . '">' . $image . '</span>'
 			. '<span class="ct-wishlist-category-name">' . esc_html( $term->name ) . '</span>'
 			. '<span class="ct-wishlist-category-count">' . esc_html( $count_txt ) . '</span>'
 			. '</a>';
