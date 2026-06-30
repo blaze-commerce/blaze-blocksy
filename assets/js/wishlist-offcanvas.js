@@ -29,6 +29,21 @@
 	var REMOVE_ICON = '<svg class="ct-icon" width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6,0l0,1.2H1.2v2.4h21.6V1.2h-8.4l0-1.2H9.6z M2.8,6l1.8,15.9C4.8,23.1,5.9,24,7.1,24h9.9c1.2,0,2.2-0.9,2.4-2.1L21.2,6H2.8z"></path></svg>';
 	var GUEST_TEXT = "Guest favorites are only saved to your device for 7 days, or until you clear your cache. Sign in or create an account to hang on to your picks.";
 
+	// Figma "card grid" layout (opt-in per site via bcWishlistData.cardLayout).
+	// When on, items render as a 2-col card grid with a "Remove" text control
+	// (CSS uppercases it). When off (Byron Bay) the original list-row icon
+	// template is used, unchanged. The remove BUTTON + its data-product-id +
+	// aria-label are identical either way, so the remove click handler and
+	// server sync work the same in both layouts.
+	//
+	// Read at RENDER time, not init: the preloaded `bcWishlistData` <script>
+	// prints AFTER this enqueued footer script, so `data.cardLayout` is not
+	// yet defined when this file first executes. Re-reading window.bcWishlistData
+	// inside renderPanel() picks up the real flag once it lands.
+	function usesCards() {
+		return !!( window.bcWishlistData && window.bcWishlistData.cardLayout );
+	}
+
 	// Populate cache from preloaded data.
 	data.items.forEach(function (item) {
 		productCache[item.id] = item;
@@ -233,6 +248,11 @@
 			var isGuest = !document.body.classList.contains("logged-in");
 			var html = "";
 
+			// Toggle the panel's empty/filled state class so the server-rendered
+			// "You May Also Like" block (category grid vs product carousel) shows
+			// the right variant. No-op when card layout is off (classes unused).
+			setPanelEmptyState(items.length === 0);
+
 			if (items.length === 0) {
 				// Empty state — centered message.
 				html = '<div class="ct-wishlist-empty">'
@@ -247,7 +267,9 @@
 				}
 			} else {
 				// Wishlist items.
-				html = '<ul class="woocommerce-mini-cart ct-wishlist-items">';
+				var useCards = usesCards();
+				var removeInner = useCards ? '<span class="ct-wishlist-remove-label">Remove</span>' : REMOVE_ICON;
+				html = '<ul class="woocommerce-mini-cart ct-wishlist-items' + (useCards ? ' ct-wishlist-items--cards' : '') + '">';
 
 				items.forEach(function (id) {
 					var product = productCache[id];
@@ -260,7 +282,7 @@
 						+ '<span class="price">' + product.price + '</span>'
 						+ '</div>'
 						+ '<button class="ct-wishlist-remove" data-product-id="' + product.id + '" aria-label="Remove from wishlist">'
-						+ REMOVE_ICON
+						+ removeInner
 						+ '</button>'
 						+ '</li>';
 				});
@@ -291,6 +313,19 @@
 	function updateHeadingCount(count) {
 		var countEl = document.querySelector(PANEL_SEL + " .ct-wishlist-count-number");
 		if (countEl) countEl.textContent = count;
+	}
+
+	/**
+	 * Toggle the panel's empty/filled state class. Card layout uses it (CSS)
+	 * to swap the empty-state category grid for the filled-state suggested
+	 * products carousel. Harmless when card layout is off — the classes are
+	 * simply unstyled.
+	 */
+	function setPanelEmptyState(isEmpty) {
+		var panel = document.querySelector(PANEL_SEL);
+		if (!panel) return;
+		panel.classList.toggle("ct-wishlist-state-empty", isEmpty);
+		panel.classList.toggle("ct-wishlist-state-filled", !isEmpty);
 	}
 
 	// ==========================================================================
@@ -541,6 +576,9 @@
 		if (document.querySelectorAll(PANEL_SEL + " .ct-wishlist-item").length === 0) {
 			var inner = document.querySelector(CONTENT_SEL);
 			if (!inner) return;
+
+			// Last item removed — swap to the empty-state "You May Also Like".
+			setPanelEmptyState(true);
 
 			var isGuest = !document.body.classList.contains("logged-in");
 			var html = '<div class="ct-wishlist-empty">'

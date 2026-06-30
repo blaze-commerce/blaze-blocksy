@@ -21,6 +21,36 @@ if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) 
 }
 
 /**
+ * Whether the wishlist drawer uses the Figma "card grid" layout.
+ *
+ * OFF by default — every existing site (Byron Bay) keeps the original
+ * list-row drawer byte-for-byte. A site opts in with:
+ *   add_filter( 'blocksy_child_wishlist_card_layout', '__return_true' );
+ * Alternate Worlds enables it in its custom/ overlay. This single gate
+ * governs the card item template, the portrait product image size, and
+ * the empty-state category grid below.
+ *
+ * @return bool
+ */
+function blocksy_child_wishlist_uses_cards() {
+	return (bool) apply_filters( 'blocksy_child_wishlist_card_layout', false );
+}
+
+/**
+ * Image size used for wishlist drawer thumbnails.
+ *
+ * Card layout shows a full portrait product cover (`woocommerce_single`, the
+ * uncropped product image — `woocommerce_thumbnail` is a hard square crop that
+ * lops the top/bottom off portrait comic covers); the list-row layout keeps
+ * the small square `woocommerce_gallery_thumbnail` it always used.
+ *
+ * @return string
+ */
+function blocksy_child_wishlist_image_size() {
+	return blocksy_child_wishlist_uses_cards() ? 'woocommerce_single' : 'woocommerce_gallery_thumbnail';
+}
+
+/**
  * Render the wishlist off-canvas panel shell into the footer.
  * Content is empty — JS fills it from preloaded data.
  */
@@ -55,7 +85,7 @@ add_action( 'wp_footer', function () {
 				'id'    => $product_id,
 				'name'  => $product->get_name(),
 				'url'   => $product->get_permalink(),
-				'image' => $product->get_image( 'woocommerce_gallery_thumbnail' ),
+				'image' => $product->get_image( blocksy_child_wishlist_image_size() ),
 				'price' => $product->get_price_html(),
 			];
 		}
@@ -66,6 +96,7 @@ add_action( 'wp_footer', function () {
 		'isGuest'    => ! is_user_logged_in(),
 		'accountUrl' => wc_get_page_permalink( 'myaccount' ),
 		'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+		'cardLayout' => blocksy_child_wishlist_uses_cards(),
 	];
 
 	echo '<script id="bc-wishlist-data">var bcWishlistData = ' . wp_json_encode( $preload ) . ';</script>';
@@ -187,6 +218,80 @@ function blocksy_child_render_wishlist_suggested() {
 }
 
 /**
+ * Render the empty-state "You May Also Like" category grid.
+ *
+ * Figma's wishlist empty state replaces the suggested-products carousel with
+ * a 2-column grid of top-level product categories (cover image + name + live
+ * product count). Card layout only — returns '' otherwise, so Byron Bay never
+ * sees this markup.
+ *
+ * Selection is data-driven: top-level product categories that have a curated
+ * term thumbnail (the site's "featured" categories). A site can override the
+ * exact set with the `blocksy_child_wishlist_category_ids` filter (array of
+ * term IDs). Names + counts are always live WooCommerce data — never the
+ * Figma scaffold values.
+ *
+ * @return string
+ */
+function blocksy_child_render_wishlist_categories() {
+	if ( ! blocksy_child_wishlist_uses_cards() || ! function_exists( 'get_terms' ) ) {
+		return '';
+	}
+
+	// Allow a site to curate the exact category set; otherwise auto-pick
+	// top-level categories that have a featured term image.
+	$curated_ids = apply_filters( 'blocksy_child_wishlist_category_ids', [] );
+
+	$terms = [];
+	if ( ! empty( $curated_ids ) && is_array( $curated_ids ) ) {
+		$terms = get_terms( [
+			'taxonomy'   => 'product_cat',
+			'include'    => array_map( 'absint', $curated_ids ),
+			'orderby'    => 'include',
+			'hide_empty' => false,
+		] );
+	} else {
+		$top = get_terms( [
+			'taxonomy'   => 'product_cat',
+			'parent'     => 0,
+			'hide_empty' => true,
+			'orderby'    => 'count',
+			'order'      => 'DESC',
+		] );
+
+		if ( ! is_wp_error( $top ) ) {
+			foreach ( $top as $term ) {
+				if ( (int) get_term_meta( $term->term_id, 'thumbnail_id', true ) > 0 ) {
+					$terms[] = $term;
+				}
+			}
+		}
+	}
+
+	if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		return '';
+	}
+
+	$terms = array_slice( $terms, 0, 4 );
+	$cards = '';
+
+	foreach ( $terms as $term ) {
+		$thumb_id  = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
+		$image     = $thumb_id ? wp_get_attachment_image( $thumb_id, 'woocommerce_thumbnail', false, [ 'alt' => $term->name, 'loading' => 'lazy' ] ) : '';
+		$count_txt = sprintf( _n( '%s product', '%s products', $term->count, 'blocksy-child' ), number_format_i18n( $term->count ) );
+
+		$cards .= '<a class="ct-wishlist-category-card" href="' . esc_url( get_term_link( $term ) ) . '">'
+			. '<span class="ct-wishlist-category-media">' . $image . '</span>'
+			. '<span class="ct-wishlist-category-name">' . esc_html( $term->name ) . '</span>'
+			. '<span class="ct-wishlist-category-count">' . esc_html( $count_txt ) . '</span>'
+			. '</a>';
+	}
+
+	return '<div class="ct-module-title">You May Also Like</div>'
+		. '<div class="ct-wishlist-category-grid">' . $cards . '</div>';
+}
+
+/**
  * AJAX endpoint — fetch product details for wishlist drawer.
  *
  * Security: requires `bc_wishlist` nonce (added 2026-05-08 — was missing,
@@ -217,7 +322,7 @@ function blocksy_child_ajax_wishlist_product() {
 		'id'    => $product_id,
 		'name'  => $product->get_name(),
 		'url'   => $product->get_permalink(),
-		'image' => $product->get_image( 'woocommerce_gallery_thumbnail' ),
+		'image' => $product->get_image( blocksy_child_wishlist_image_size() ),
 		'price' => $product->get_price_html(),
 	] );
 }
@@ -261,7 +366,26 @@ function blocksy_child_render_wishlist_panel() {
 	// Render suggested products (server-side, same as mini cart).
 	$suggested_html = blocksy_child_render_wishlist_suggested();
 
-	return '<div id="woo-wishlist-panel" class="ct-panel" data-behaviour="right-side" role="dialog" aria-label="Wishlist panel" inert>
+	// Card layout adds: a per-panel class (CSS scope), an empty-state category
+	// grid, and an initial empty/filled state class so the right "You May Also
+	// Like" block shows without a flash. JS keeps the state class in sync as
+	// items are added/removed. All no-ops when card layout is off.
+	$uses_cards     = blocksy_child_wishlist_uses_cards();
+	$categories_html = blocksy_child_render_wishlist_categories();
+
+	$panel_classes = 'ct-panel';
+	if ( $uses_cards ) {
+		$panel_classes .= ' ct-wishlist-cards';
+
+		$server_count   = count( blocksy_child_wishlist_current_ids() );
+		$panel_classes .= $server_count > 0 ? ' ct-wishlist-state-filled' : ' ct-wishlist-state-empty';
+	}
+
+	$categories_block = $uses_cards
+		? '<div class="ct-wishlist-categories">' . $categories_html . '</div>'
+		: '';
+
+	return '<div id="woo-wishlist-panel" class="' . esc_attr( $panel_classes ) . '" data-behaviour="right-side" role="dialog" aria-label="Wishlist panel" inert>
 		<div class="ct-panel-inner">
 			<div class="ct-panel-actions">
 				<h2 class="ct-panel-heading">' . $heart_icon . ' <span class="ct-wishlist-panel-title">Wishlist</span> <span class="ct-wishlist-panel-count">(<span class="ct-wishlist-count-number">0</span>)</span></h2>
@@ -270,7 +394,40 @@ function blocksy_child_render_wishlist_panel() {
 			<div class="ct-panel-content">
 				<div class="ct-panel-content-inner"></div>
 			</div>
+			' . $categories_block . '
 			<div class="ct-wishlist-suggested">' . $suggested_html . '</div>
 		</div>
 	</div>';
+}
+
+/**
+ * Current wishlist product IDs (server-side), or [] when unavailable.
+ *
+ * Shared by the suggested carousel and the initial card-layout state class.
+ *
+ * @return int[]
+ */
+function blocksy_child_wishlist_current_ids() {
+	if ( ! function_exists( 'blc_get_ext' ) ) {
+		return [];
+	}
+
+	$ext = blc_get_ext( 'woocommerce-extra' );
+	if ( ! $ext || ! method_exists( $ext, 'get_wish_list' ) ) {
+		return [];
+	}
+
+	$wish_list_ext = $ext->get_wish_list();
+	if ( ! $wish_list_ext || ! method_exists( $wish_list_ext, 'get_current_wish_list' ) ) {
+		return [];
+	}
+
+	$items = $wish_list_ext->get_current_wish_list();
+	if ( ! is_array( $items ) ) {
+		return [];
+	}
+
+	return array_values( array_filter( array_map( function ( $item ) {
+		return isset( $item['id'] ) ? (int) $item['id'] : 0;
+	}, $items ) ) );
 }
