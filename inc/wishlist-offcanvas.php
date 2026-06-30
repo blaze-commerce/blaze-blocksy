@@ -242,17 +242,37 @@ function blocksy_child_render_wishlist_categories() {
 	// top-level categories that have a featured term image.
 	$curated_ids = apply_filters( 'blocksy_child_wishlist_category_ids', [] );
 
+	// Per-term display-label + cover-image overrides, keyed by term ID. The
+	// curated set assigns a friendly label (and may pin a cover) that the raw
+	// term name lacks — e.g. term 315's curated label is "Collectables" but its
+	// raw $term->name is "Collectible Games". Carry both so the drawer card
+	// matches the homepage band + Figma instead of the raw taxonomy name.
+	$label_overrides = [];
+	$image_overrides = [];
+
 	// Default to the site's curated "Shop by Category" set (the four Figma cards:
 	// Comics, Collectables, Games, Toys/Novelties) so the drawer matches the
 	// homepage/minicart instead of auto-picking only thumbnail-bearing terms
 	// (which silently dropped Collectables → a 2+1 grid instead of the 2×2).
 	if ( empty( $curated_ids ) && function_exists( 'aw_category_cards_default_categories' ) ) {
-		$curated_ids = array_slice(
-			wp_list_pluck( aw_category_cards_default_categories(), 'termId' ),
-			0,
-			4
-		);
+		foreach ( array_slice( aw_category_cards_default_categories(), 0, 4 ) as $cat ) {
+			if ( empty( $cat['termId'] ) ) {
+				continue;
+			}
+			$tid           = (int) $cat['termId'];
+			$curated_ids[] = $tid;
+			if ( ! empty( $cat['label'] ) ) {
+				$label_overrides[ $tid ] = $cat['label'];
+			}
+			if ( ! empty( $cat['imageId'] ) ) {
+				$image_overrides[ $tid ] = (int) $cat['imageId'];
+			}
+		}
 	}
+
+	// Any site may supply per-term display-label overrides (term ID => label)
+	// regardless of how the category set was curated.
+	$label_overrides = apply_filters( 'blocksy_child_wishlist_category_labels', $label_overrides );
 
 	$terms = [];
 	if ( ! empty( $curated_ids ) && is_array( $curated_ids ) ) {
@@ -288,15 +308,19 @@ function blocksy_child_render_wishlist_categories() {
 	$cards = '';
 
 	foreach ( $terms as $term ) {
+		// Prefer the curated label ("Collectables") over the raw term name
+		// ("Collectible Games") so the card matches the homepage band + Figma.
+		$label     = isset( $label_overrides[ $term->term_id ] ) ? $label_overrides[ $term->term_id ] : $term->name;
 		$count_txt = sprintf( _n( '%s product', '%s products', $term->count, 'blocksy-child' ), number_format_i18n( $term->count ) );
 
-		// Match the homepage/minicart "Shop by Category" media: one curated cover
-		// when the term has a thumbnail, otherwise up to two auto-resolved portrait
+		// Match the homepage/minicart "Shop by Category" media: a curated cover
+		// (curated imageId, if pinned) otherwise up to two auto-resolved portrait
 		// product covers — so a thumbnail-less term (e.g. Collectables) still shows
 		// art instead of an empty box. Falls back to the bare term thumbnail when
 		// the AW helper is absent (another site using this parent theme).
 		if ( function_exists( 'aw_category_cards_image_htmls' ) ) {
-			$covers    = aw_category_cards_image_htmls( 0, $term, 2 );
+			$img_id    = isset( $image_overrides[ $term->term_id ] ) ? $image_overrides[ $term->term_id ] : 0;
+			$covers    = aw_category_cards_image_htmls( $img_id, $term, 2 );
 			$media_mod = ( count( $covers ) < 2 ) ? ' ct-wishlist-category-media--single' : '';
 			$image     = '';
 			foreach ( $covers as $cover ) {
@@ -305,12 +329,12 @@ function blocksy_child_render_wishlist_categories() {
 		} else {
 			$thumb_id  = (int) get_term_meta( $term->term_id, 'thumbnail_id', true );
 			$media_mod = '';
-			$image     = $thumb_id ? wp_get_attachment_image( $thumb_id, 'woocommerce_thumbnail', false, [ 'alt' => $term->name, 'loading' => 'lazy' ] ) : '';
+			$image     = $thumb_id ? wp_get_attachment_image( $thumb_id, 'woocommerce_thumbnail', false, [ 'alt' => $label, 'loading' => 'lazy' ] ) : '';
 		}
 
 		$cards .= '<a class="ct-wishlist-category-card" href="' . esc_url( get_term_link( $term ) ) . '">'
 			. '<span class="ct-wishlist-category-media' . esc_attr( $media_mod ) . '">' . $image . '</span>'
-			. '<span class="ct-wishlist-category-name">' . esc_html( $term->name ) . '</span>'
+			. '<span class="ct-wishlist-category-name">' . esc_html( $label ) . '</span>'
 			. '<span class="ct-wishlist-category-count">' . esc_html( $count_txt ) . '</span>'
 			. '</a>';
 	}
