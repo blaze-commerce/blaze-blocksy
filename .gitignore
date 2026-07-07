@@ -18,3 +18,7 @@ node_modules/
 project-config.json
 .env
 .env.*
+
+# Per-site overlay deployed by the bc-site-customizations repo's own CI (see inc/loader.php)
+# — owned by that repo, never tracked here.
+custom/

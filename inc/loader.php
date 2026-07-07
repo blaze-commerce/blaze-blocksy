@@ -70,6 +70,15 @@ blocksy_child_load_module( 'inc/icons.php' );
 blocksy_child_load_module( 'inc/offcanvas-icons.php' );
 blocksy_child_load_module( 'inc/carousel.php' );
 
+// --- Site-specific overlay (bc-site-customizations monorepo) ---
+// Sites deployed the traditional way (not via clients/<slug>/manifest.json) ship their
+// site-specific PHP/CSS/JS as custom/custom.php, deployed into THIS theme's custom/
+// directory by the bc-site-customizations repo's own CI. Unconditional and independent
+// of the clients/ system below — both can be used on the same site if ever needed.
+if ( file_exists( BLOCKSY_CHILD_PATH . 'custom/custom.php' ) ) {
+	blocksy_child_load_module( 'custom/custom.php' );
+}
+
 // --- Client Modules (load BEFORE WooCommerce modules so feature flags are available) ---
 blocksy_child_load_clients();
 
