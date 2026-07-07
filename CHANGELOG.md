@@ -1,3 +1,12 @@
+## [custom-overlay-hook-2026-07-07] - 2026-07-07
+
+### Added
+- `inc/loader.php` — generic, unconditional `custom/custom.php` require (file_exists-guarded), loaded right after the core modules and before the `clients/` manifest system. Lets a site use the traditional `bc-site-customizations` monorepo `custom/` overlay (deployed by that repo's own CI into this theme's `custom/` directory) instead of, or alongside, the `clients/<slug>/manifest.json` system. First consumer: thenaturalmattress.com (ClickUp 86ey6h6p2) — a new site build that needed this theme's real code but not the Byron Bay-style client manifest.
+- `.gitignore` — excludes `custom/` (owned/deployed by the `bc-site-customizations` repo, never tracked here).
+
+### Changed
+- Theme 1.1.49 -> 1.1.50.
+
 ## [wishlist-drawer-category-labels-2026-06-30] - 2026-06-30
 
 ### Fixed
