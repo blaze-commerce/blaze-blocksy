@@ -1,3 +1,8 @@
+## [enqueue-product-taxonomy-archive-2026-07-13] - 2026-07-13
+
+### Fixed
+- `inc/enqueue.php` — the `woo-archive.css` + `shop-customizations.js` archive-polish gate was `is_shop() || is_product_category() || is_product_tag() || is_front_page()`, which excluded custom product taxonomies. Custom-taxonomy archives (`product_brand`, product-attribute `pa_*`) render the same product cards but loaded neither asset, so the "See More" add-to-cart button sat at ~132px auto-width instead of filling the card and the `.woo-listing-top` result/sort bar lost its borders. Broadened the gate to `is_shop() || is_product_taxonomy() || is_front_page()` — `is_product_taxonomy()` is `is_tax( get_object_taxonomies('product') )`, a superset of category+tag that also covers `product_brand` and `pa_*`. Surfaced on the TNM `product_brand` archive (ClickUp 86ey91293); the TNM overlay (bc-site-customizations #327) enqueues the same assets under the same base handles scoped to `is_tax('product_brand')`, so once this lands WP dedupes and the overlay becomes a no-op. Theme 1.1.49 -> 1.1.50.
+
 ## [wishlist-drawer-category-labels-2026-06-30] - 2026-06-30
 
 ### Fixed

@@ -57,7 +57,10 @@ function blocksy_child_enqueue_styles() {
 		// woo-archive.css contains product card styles (full-width buttons, price
 		// suffix). Load on any page that renders product cards: archive pages AND
 		// homepage (product slider shortcode). One file, one source of truth.
-		if ( is_shop() || is_product_category() || is_product_tag() || is_front_page() ) {
+		// is_product_taxonomy() == is_tax( get_object_taxonomies('product') ), so it
+		// covers category + tag AND custom product taxonomies (product_brand, pa_*),
+		// which the previous is_product_category/is_product_tag pair excluded.
+		if ( is_shop() || is_product_taxonomy() || is_front_page() ) {
 			blocksy_child_enqueue_component( 'woo-archive', $css_url, $css_path );
 
 			// Shop-customizations JS — result count repositioning + AJAX update + sort label tweak.
