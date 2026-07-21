@@ -35,7 +35,9 @@
 
 	function buildViewAllLink(query, total) {
 		const q = query || getActiveQuery();
-		const label = total ? `SEE ALL ${total} PRODUCTS` : 'SEE ALL PRODUCTS';
+		// QA round 2 (Vita, 86ey72bye): match the Figma "SEE ALL PRODUCTS (N)" format,
+		// where N is the total matching products (from FiboSearch's more_products link).
+		const label = total ? `SEE ALL PRODUCTS (${total})` : 'SEE ALL PRODUCTS';
 		const a = el('a', {
 			href: `/?s=${encodeURIComponent(q)}&post_type=product`,
 			class: 'dgwt-wcas-view-all',
@@ -95,6 +97,27 @@
 		wrapper.appendChild(content);
 
 		return { wrapper, content };
+	}
+
+	/**
+	 * Append the item count to each section heading, e.g. "Products (5)".
+	 * QA round 2 (Vita, 86ey72bye): the Figma shows a per-section count next to the
+	 * heading. For the products section the Figma count equals the See-all figure
+	 * (the total matching products), so use productsTotal there when it is known;
+	 * for the other sections use the number of results rendered. Idempotent: strips
+	 * any existing "(n)" before appending so a re-run does not stack counts.
+	 */
+	function addSectionCounts(container, productsTotal) {
+		container.querySelectorAll('.dgwt-wcas-suggestion-section').forEach(function (section) {
+			const title = section.querySelector('.dgwt-wcas-section-title');
+			const content = section.querySelector('.dgwt-wcas-section-content');
+			if (!title || !content) return;
+			const isProducts = section.classList.contains('dgwt-wcas-section-products');
+			let count = content.children.length;
+			if (isProducts && productsTotal) count = productsTotal;
+			if (!count) return;
+			title.textContent = title.textContent.replace(/\s*\(\d+\)\s*$/, '') + ' (' + count + ')';
+		});
 	}
 
 	function process(container) {
@@ -176,6 +199,14 @@
 			// Add "SEE ALL" link to products section
 			const productsSection = fragment.querySelector('.dgwt-wcas-section-products');
 			if (productsSection) {
+				if (!viewAllTotal) {
+					// No more_products total from FiboSearch: on a full catalogue it
+					// sends one because the results shown are fewer than the total, but
+					// when every matching product already fits (small catalogue) the
+					// shown count IS the total, so use it. (86ey72bye)
+					const shown = productsSection.querySelectorAll('.dgwt-wcas-section-content > *').length;
+					if (shown) viewAllTotal = String(shown);
+				}
 				productsSection.appendChild(buildViewAllLink(query, viewAllTotal));
 			}
 
@@ -188,6 +219,7 @@
 
 			container.innerHTML = '';
 			container.appendChild(ordered);
+			addSectionCounts(container, viewAllTotal);
 			addSearchHeader(container);
 			upgradeImages(container);
 			disableFiboHover(container);
@@ -327,10 +359,16 @@
 			}
 		}
 
+		if (!viewAllTotal) {
+			// Small catalogue: no more_products total, so the shown count is the total. (86ey72bye)
+			const shown = section.content.children.length;
+			if (shown) viewAllTotal = String(shown);
+		}
 		section.wrapper.appendChild(buildViewAllLink(query, viewAllTotal));
 
 		container.innerHTML = '';
 		container.appendChild(section.wrapper);
+		addSectionCounts(container, viewAllTotal);
 		addSearchHeader(container);
 		upgradeImages(container);
 		disableFiboHover(container);
