@@ -1,3 +1,8 @@
+## [tnm-search-item-count-2026-07-21] - 2026-07-21
+
+### Added
+- `assets/js/search-restructure.js`: QA round 2 (Vita) on the TNM search popup wanted the Figma item count. `addSectionCounts()` now appends the count to each section heading, e.g. "Categories (6)" / "Products (7)", read from the rendered results (the products heading uses the total when FiboSearch provides it). `buildViewAllLink()` reformats the See-all link to the Figma "SEE ALL PRODUCTS (N)" (was "SEE ALL N PRODUCTS"). Because FiboSearch only emits its `more_products` total on a full catalogue (prod, like HNM) and its TNTSearch AJAX endpoint runs under WordPress SHORTINIT (no theme filter can force it), the count falls back to the number of products shown when no total is sent, so the small staging catalogue (11 products) still shows an accurate count. Deployed to tnmretheme.kinsta.cloud; verified at 320/375/425/768/1024/1440/2560px. ClickUp 86ey72bye.
+
 ## [wishlist-drawer-category-labels-2026-06-30] - 2026-06-30
 
 ### Fixed
