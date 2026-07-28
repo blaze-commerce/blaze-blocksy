@@ -253,15 +253,24 @@
 	   Breakpoint handoff, so the boundary is unambiguous:
 	     up to 689.98px   Blocksy mobile device, panel styled by global.css
 	     up to 999.98px   Blocksy tablet device, panel styled by global.css
-	     1000 to 1080px   mobile header, desktop panel values (this block)
+	     1000 to 1080px   mobile header, panel styled by this block
 	     1081px and up    desktop header, off-canvas not in use
 
 	   Values mirror Blocksy's tablet block. --theme-palette-color-7 is each
 	   site's own panel colour, so this stays correct per site.
+
+	   Width is capped rather than left at a bare 65vw. Blocksy's tablet
+	   setting is 65vw, which reaches 649px at the top of the tablet range
+	   (999.98px). Carrying the raw percentage into this band would keep
+	   growing it to 702px at 1080px, so the menu takes two thirds of a
+	   desktop-sized viewport and leaves the labels stranded in a wide empty
+	   panel. min() holds it at the width it already had at 999px, which
+	   keeps the 999 to 1000 handoff seamless and stops the panel widening
+	   into desktop territory where the design never asked for it.
 	   @date 2026-07-28 (CU-86eyeevb8) */
 	[data-header*="type-1"] #offcanvas {
 		background-color: rgba(18, 21, 25, 0.5);
-		--side-panel-width: 65vw;
+		--side-panel-width: min(65vw, 650px);
 		--horizontal-alignment: initial;
 		--text-horizontal-alignment: initial;
 	}

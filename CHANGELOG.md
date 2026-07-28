@@ -1,3 +1,8 @@
+## [offcanvas-band-panel-width-2026-07-28] - 2026-07-28
+
+### Changed
+- `assets/css/components/header.css`: theme 1.1.50 to 1.1.51. Cap the off-canvas panel width in the 1000 to 1080px band at `min(65vw, 650px)`. Restating Blocksy's raw tablet `65vw` inside that block fixed the colours but let the panel keep growing with the viewport, reaching 702px at 1080px, so the menu occupied two thirds of a desktop-sized screen with its labels stranded in a wide empty panel. The cap holds the panel at the 650px it already had at 999px, which keeps the 999 to 1000 handoff seamless and stops it widening into desktop territory. ClickUp 86eyeevb8.
+
 ## [offcanvas-breakpoint-band-2026-07-28] - 2026-07-28
 
 ### Fixed
