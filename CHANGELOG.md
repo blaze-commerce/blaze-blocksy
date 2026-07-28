@@ -1,3 +1,8 @@
+## [offcanvas-breakpoint-band-2026-07-28] - 2026-07-28
+
+### Fixed
+- `assets/css/components/header.css`: theme 1.1.49 to 1.1.50. The header had a dead band at 1000 to 1080px where the off-canvas menu rendered unreadable and the page behind it looked blank. The iPad Pro device swap in that block hands the header to the mobile variant up to 1080px, but Blocksy scopes its `#offcanvas` panel styling to `@media (max-width: 999.98px)` (its tablet device breakpoint) in the compiled `global.css`. So 1000 to 1080 ran the hamburger menu with Blocksy's desktop panel defaults: panel background `rgba(18,21,25,.98)` under `#343437` label text (near zero contrast), and no overlay colour on `#offcanvas` itself, which falls back to opaque white and paints over the page behind the menu. The panel also narrowed from 65vw to 390px. The block now restates Blocksy's tablet panel values so the band is covered, using `var(--theme-palette-color-7)` for the panel so each site keeps its own colour. Measured on aworld-retheme.blz.au at fixed widths (not a drag frame): broken at 1000/1024/1080, correct at 999 and from 1081 up. Byron Bay and any other site on this theme get the same coverage. ClickUp 86eyeevb8.
+
 ## [tnm-search-item-count-2026-07-21] - 2026-07-21
 
 ### Added

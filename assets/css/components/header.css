@@ -239,6 +239,37 @@
 		display: block !important;
 	}
 
+	/* Off-canvas menu panel: restate the tablet values inside this band.
+	   WHY: Blocksy scopes the #offcanvas panel styling to its own tablet
+	   device breakpoint, `@media (max-width: 999.98px)` in the compiled
+	   global.css. The device swap above hands the header to the mobile
+	   variant all the way to 1080px, so 1000 to 1080 ran the hamburger menu
+	   with Blocksy's DESKTOP panel defaults: a dark panel
+	   (rgba(18,21,25,.98)) under dark label text, and no overlay colour on
+	   #offcanvas itself, which falls back to opaque white and paints over
+	   the page behind the menu. Same class of mismatch as the
+	   --logo-max-height override above.
+
+	   Breakpoint handoff, so the boundary is unambiguous:
+	     up to 689.98px   Blocksy mobile device, panel styled by global.css
+	     up to 999.98px   Blocksy tablet device, panel styled by global.css
+	     1000 to 1080px   mobile header, desktop panel values (this block)
+	     1081px and up    desktop header, off-canvas not in use
+
+	   Values mirror Blocksy's tablet block. --theme-palette-color-7 is each
+	   site's own panel colour, so this stays correct per site.
+	   @date 2026-07-28 (CU-86eyeevb8) */
+	[data-header*="type-1"] #offcanvas {
+		background-color: rgba(18, 21, 25, 0.5);
+		--side-panel-width: 65vw;
+		--horizontal-alignment: initial;
+		--text-horizontal-alignment: initial;
+	}
+
+	[data-header*="type-1"] #offcanvas .ct-panel-inner {
+		background-color: var(--theme-palette-color-7);
+	}
+
 	/* Reduce container padding for tablet spacing */
 	#header .ct-container {
 		padding-left: 15px !important;
