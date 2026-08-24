@@ -1,3 +1,14 @@
+## [bonza-client-module-2026-08-25] - 2026-08-25
+
+### Added
+- `clients/bonza/` client module for Bonza (bonza.dog, Cloudways-hosted): manifest with `wishlist-offcanvas` and `mini-cart-empty` feature flags enabled, matching the two Figma build tasks currently scoped. Deployed and verified rendering on staging (bonza-retheme.blz.au) via a manually built and installed theme zip.
+- `functions.php`: conditionally requires `custom/custom.php` after the loader, if present. Bridges this theme to the bc-site-customizations monorepo's per-site override convention, whose deploy.sh rsyncs into this exact `wp-content/themes/blocksy-child/custom/` path expecting the theme to execute it — without this, a deployed `custom.php` was inert. Optional and additive; sites with no `custom/` directory are unaffected.
+
+### Changed
+- `clients/byronbay/manifest.json`: `active` set to `false` to satisfy the single-active-client-per-deployed-instance rule alongside the new Bonza module.
+
+Theme 1.1.49 (no functional change to existing behavior for any site without a deployed `custom/custom.php`).
+
 ## [tnm-search-item-count-2026-07-21] - 2026-07-21
 
 ### Added
