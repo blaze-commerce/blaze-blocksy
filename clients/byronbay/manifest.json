@@ -2,7 +2,7 @@
   "name": "Byron Bay Candles",
   "slug": "byronbay",
   "version": "1.0.0",
-  "active": true,
+  "active": false,
   "css": "byronbay.css",
   "js": null,
   "php": "byronbay.php",

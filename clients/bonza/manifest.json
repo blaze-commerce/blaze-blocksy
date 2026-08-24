@@ -1,0 +1,13 @@
+{
+  "name": "Bonza",
+  "slug": "bonza",
+  "version": "1.0.0",
+  "active": true,
+  "css": "bonza.css",
+  "js": null,
+  "php": "bonza.php",
+  "features": [
+    "wishlist-offcanvas",
+    "mini-cart-empty"
+  ]
+}
