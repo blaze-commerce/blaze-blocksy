@@ -39,3 +39,11 @@ define( 'BLOCKSY_CHILD_URL', trailingslashit( get_stylesheet_directory_uri() ) )
 
 // Load the module loader — everything else is bootstrapped from there.
 require_once BLOCKSY_CHILD_PATH . 'inc/loader.php';
+
+/**
+ * Per-site overrides deployed by the bc-site-customizations monorepo (PR reviewed,
+ * SSH synced into this exact path). Optional: not every site has this directory.
+ */
+if ( file_exists( BLOCKSY_CHILD_PATH . 'custom/custom.php' ) ) {
+	require_once BLOCKSY_CHILD_PATH . 'custom/custom.php';
+}
