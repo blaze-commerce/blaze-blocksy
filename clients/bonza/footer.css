@@ -23,25 +23,38 @@
 	--bfg-cream: var(--bfg-color-cream, #F8EDE3);
 	--bfg-amber: var(--bfg-color-amber, #FFA825);
 	--bfg-green: var(--bfg-color-green, #257E50);
+	/* WHY a second, darker green: the Figma-literal #257E50 is only
+	   4.36:1 against #F8EDE3, which fails WCAG 2.2 AA (4.5:1) for
+	   normal-size text (14px, even at 900 weight, is below the 14pt/
+	   18.66px bold "large text" threshold) and only 5.03:1 for white
+	   text on a #257E50 background, close enough to the 4.5:1 floor
+	   that this darker value is used for every small-text or
+	   white-on-green use instead: nav/contact column headings, the
+	   article-card eyebrow tag, and the primary button fill. #257E50
+	   itself stays in use only where it is either a large heading
+	   (36px/24px, 3:1 floor) or a non-text UI element (borders), where
+	   it already clears WCAG's lower bar. */
+	--bfg-green-text: var(--bfg-color-green-text, #1F6B42);
 	--bfg-yellow: var(--bfg-color-yellow, #FFC125);
 	--bfg-ink: var(--bfg-color-ink, #494545);
 	--bfg-white: var(--bfg-color-white, #FFFFFF);
 	/* WHY: Figma draws the copyright line #FFFFFF on this #F8EDE3 band,
 	   about 1.1:1 contrast, fails WCAG 2.2 AA (contract obligation).
-	   Flagged in the ClickUp task itself and confirmed by team lead as a
-	   known, deliberately deprioritized defect (not blocking this build).
-	   Using the footer's own ink colour here instead of the literal
-	   Figma value restores AA (about 9.7:1) without inventing a new
-	   colour. Swap this back to var(--bfg-white) only once the design
-	   itself is corrected. */
+	   Flagged in the ClickUp task itself as a defect that needs fixing
+	   rather than building as drawn. Using the footer's own ink colour
+	   here instead of the literal Figma value restores AA (about
+	   8.2:1) without inventing a new colour. Swap this back to
+	   var(--bfg-white) only once the design itself is corrected. */
 	--bfg-copyright-color: var(--bfg-color-copyright, var(--bfg-ink));
 
 	--bfg-heading-font: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
 	--bfg-body-font: "Kobe1.1", var(--theme-font-family, sans-serif);
-	/* Same "not loaded yet, fall back to theme font" pattern already used
-	   in clients/bonza/bonza.css (cart panel heading, search headline).
-	   Nominee/Kobe1.1 have no @font-face on this site yet (open project
-	   wide font question, see ClickUp 86eypb6aw "Fonts" section). */
+	/* Same "not loaded yet, fall back to theme font" pattern seen live
+	   on this site's clients/bonza/bonza.css (cart panel heading, search
+	   headline), written by concurrent work on another task and not yet
+	   committed to this git worktree. Nominee/Kobe1.1 have no @font-face
+	   anywhere on the site yet (open project-wide font question, see
+	   ClickUp 86eypb6aw "Fonts" section). */
 
 	display: flex;
 	flex-direction: column;
@@ -149,7 +162,7 @@
 	font-size: 12px;
 	letter-spacing: 0.0833em;
 	text-transform: uppercase;
-	color: var(--bfg-green);
+	color: var(--bfg-green-text);
 }
 
 .bfg-card-title {
@@ -205,7 +218,7 @@
 /* Kind=Secondary: the two solid CTAs ("Explore the health hub",
    "Shop Superfoods & Ancient Grains"). */
 .bfg-btn--primary {
-	background-color: var(--bfg-green);
+	background-color: var(--bfg-green-text);
 	color: var(--bfg-white);
 	box-shadow: 0px 4px 6px -2px rgba(0, 0, 0, 0.03), 0px 12px 16px -4px rgba(0, 0, 0, 0.08);
 }
@@ -216,7 +229,7 @@
 }
 
 .bfg-btn--primary[aria-disabled="true"] {
-	background-color: var(--bfg-green);
+	background-color: var(--bfg-green-text);
 	opacity: 0.6;
 	cursor: not-allowed;
 }
@@ -248,16 +261,15 @@
 }
 
 /* ---------------------------------------------------------------------
-   Bands 2 and 4, decorative image strips (#34457:282305 / #34457:282313)
-   Real Figma photo assets not sourced in this pass (out of scope for a
-   config/token-first footer build), rendered as a themed placeholder
-   band so the section rhythm/height matches Figma. Swap in real photos
-   via `background-image` on .bfg-image-strip without any markup change.
+   Bands 2 and 4, image strips (#34457:282305 / #34457:282313). Both
+   Figma nodes reuse the same template (EL-3eee4d10) and the same
+   imageRef, so one photo, used twice, is correct here, not a bug.
    --------------------------------------------------------------------- */
 .bfg-image-strip {
+	display: block;
+	width: 100%;
 	height: 126.58px;
-	background-color: var(--bfg-green);
-	opacity: 0.12;
+	object-fit: cover;
 }
 
 /* ---------------------------------------------------------------------
@@ -273,14 +285,18 @@
 	text-align: center;
 }
 
+/* WHY ink, not the Figma-literal #FFFFFF: white on this band's #FFA825
+   fill is ~1.93:1, the same WCAG 2.2 AA failure class as the
+   copyright line above (both flagged in the ClickUp task as needing a
+   fix, not an as-drawn build). Ink restores AA (~4.9:1). */
 .bfg-band--signup .bfg-eyebrow {
 	font-family: "Inter", var(--theme-font-family, sans-serif);
 	font-weight: 800;
-	color: var(--bfg-white);
+	color: var(--bfg-ink);
 }
 
 .bfg-band--signup .bfg-h2 {
-	color: var(--bfg-white);
+	color: var(--bfg-ink);
 }
 
 .bfg-signup-actions {
@@ -295,23 +311,22 @@
 /* ---------------------------------------------------------------------
    Band 5, main footer (#34457:280279)
    --------------------------------------------------------------------- */
+/* WHY .bfg-bottom is NOT nested inside .bfg-main: in the Figma tree
+   "Container" (the bottom bar, #34457:280485) is a SIBLING of
+   "bonza-footer" (#34457:280279, trust row + nav section), not a
+   child of it. Keeping that same sibling relationship here means the
+   64px horizontal padding declared once on .bfg-main is not applied a
+   second time to the bottom bar (an earlier version nested
+   .bfg-bottom inside .bfg-main and gave it its own 64px padding too,
+   doubling the inset to 128px and, combined with .bfg-main's
+   align-items:center shrink-wrapping an un-widened child, also
+   breaking justify-content:space-between). */
 .bfg-main {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 80px;
-	padding: 64px 64px 32px;
-	overflow: hidden;
-}
-
-.bfg-main-inner {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	gap: 56px;
-	width: 100%;
-	z-index: 1;
+	padding: 64px 64px 32px;
 }
 
 .bfg-trust-row {
@@ -327,7 +342,10 @@
 	width: auto;
 }
 
-.bfg-trust-row img[alt*="B Corp" i] {
+/* Dedicated class, not an alt-text selector: alt text is a translated
+   string (WPML, five languages) and must never be relied on to select
+   an element. */
+.bfg-trust-row .bfg-badge--bcorp {
 	height: 62px;
 }
 
@@ -398,7 +416,7 @@
 	font-size: 14px;
 	line-height: 16px;
 	letter-spacing: 0.02em;
-	color: var(--bfg-green);
+	color: var(--bfg-green-text);
 }
 
 .bfg-nav-col ul {
@@ -414,7 +432,7 @@
 }
 
 .bfg-nav-col a:hover {
-	color: var(--bfg-green);
+	color: var(--bfg-green-text);
 	text-decoration: underline;
 }
 
@@ -428,7 +446,7 @@
 	font-weight: 700;
 	font-size: 14px;
 	line-height: 16px;
-	color: var(--bfg-green);
+	color: var(--bfg-green-text);
 }
 
 .bfg-contact-item .bfg-contact-value {
@@ -443,13 +461,17 @@
 }
 
 /* ---------------------------------------------------------------------
-   Bottom bar (#34457:280485)
+   Bottom bar (#34457:280485). Direct child of .bfg-footer, a sibling
+   of .bfg-main (see the WHY note on .bfg-main above), so this is its
+   only source of horizontal padding, not doubled on top of .bfg-main's.
    --------------------------------------------------------------------- */
 .bfg-bottom {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
+	width: 100%;
+	box-sizing: border-box;
 	padding: 0 64px 24px;
 	flex-wrap: wrap;
 }
@@ -473,10 +495,11 @@
    (bonza.dog) shows no payment marks in its footer at all, so there is
    no ground truth to build against yet. (2) Card-network logos carry
    their own brand-usage requirements and none of the shipped plugins
-   expose a themeable, redistributable asset for them. `$bfg_payment_
-   methods` in bonza.php is the single place to edit once gateways are
-   confirmed and real brand SVGs are sourced, swap the .bfg-payment
-   pill for an <img> there without touching this file.
+   expose a themeable, redistributable asset for them.
+   `bonza_footer_payment_methods()` in bonza.php is the single place
+   to edit once gateways are confirmed and real brand SVGs are
+   sourced, swap the .bfg-payment pill for an <img> there without
+   touching this file.
    --------------------------------------------------------------------- */
 .bfg-payment-row {
 	display: flex;
@@ -533,8 +556,7 @@
 	}
 
 	.bfg-bottom {
-		padding-left: 24px;
-		padding-right: 24px;
+		padding: 0 24px 24px;
 	}
 }
 
@@ -584,5 +606,9 @@
 
 	.bfg-payment-row {
 		justify-content: center;
+	}
+
+	.bfg-image-strip {
+		height: 36.61px;
 	}
 }

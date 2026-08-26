@@ -19,18 +19,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Global footer, ClickUp 86eypb6aw.
  *
- * Figma FOOTER component set 564:95449 (desktop 29399:99534, tab 2
- * 17298:196546, mobile 2 17298:196807). Rendered on `blocksy:footer:
- * before` (see footer.php in the parent theme) rather than through
- * Blocksy's own Footer Builder rows: this content set (Health Hub
- * cards, an amber sign-up band, a five-column nav + trust-badge block,
- * ten payment marks) is far past what the builder's logo/menu/
- * copyright/social/widget-area elements can express, and Blocksy's own
- * `ct_content_block` Content Blocks feature needs either wp-admin or a
- * full-bootstrap `wp` command, both of which are broken on this
- * LocalWP install (see CHANGELOG for the WP-CLI gotcha). Every visible
- * string is wrapped in `__()` under the `blocksy-child` text domain so
- * WPML String Translation can pick it up across the five languages.
+ * Figma FOOTER component set 564:95449, desktop variant 29399:99534.
+ * The component set also has "Tab 2" (17298:196546) and "Mobile 2"
+ * (17298:196807) sibling variants in the Figma file itself. The
+ * ClickUp task text says the footer "carries no separate mobile or
+ * tablet component" and both canvases just reflow the desktop one, so
+ * this build follows the task text: media queries in footer.css
+ * reflow the one markup, there is no per-variant branching.
+ *
+ * Registered on `blocksy:builder:footer:custom-output`, a filter the
+ * parent theme's own `blocksy_output_footer()` (inc/integrations/
+ * theme-builders.php) checks before falling back to its default
+ * builder rows: a non-empty return short-circuits those default rows
+ * AND is wrapped in the theme's own single `<footer id="footer"
+ * class="ct-footer">` landmark (with schema.org attributes) for us.
+ * This markup supplies only the content, inside a plain `<div
+ * class="bfg-footer">` for CSS scoping, not a second `<footer>`
+ * landmark or a competing copyright line.
+ *
+ * That filter was chosen over Blocksy's Footer Builder rows because
+ * this content set (Health Hub cards, an amber sign-up band, a
+ * five-column nav + trust-badge block, eight payment marks) is far
+ * past what the builder's logo/menu/copyright/social/widget-area
+ * elements can express. Blocksy's own `ct_content_block` Content
+ * Blocks feature needs either wp-admin or a full-bootstrap `wp`
+ * command, and both are broken on this LocalWP install (see CHANGELOG
+ * for the WP-CLI gotcha). Every visible string is wrapped in `__()`
+ * under the `blocksy-child` text domain so WPML String Translation
+ * can pick it up across the five languages.
  *
  * @package Blocksy_Child
  * @client  Bonza
@@ -127,12 +143,22 @@ function bonza_footer_payment_methods() {
 }
 
 /**
- * Render the global footer markup.
+ * Build the global footer markup and return it as a string.
+ *
+ * Hooked to `blocksy:builder:footer:custom-output` (see below), a
+ * filter the parent theme's own `blocksy_output_footer()` checks
+ * first: a non-empty return short-circuits Blocksy's default footer
+ * builder rows AND is wrapped in the theme's own single `<footer
+ * id="footer">` landmark (with its schema.org attributes) for us, so
+ * this markup only needs to supply the content, not the landmark.
+ *
+ * @return string
  */
 function bonza_footer_render_global() {
 	$nav_columns = bonza_footer_nav_columns();
+	ob_start();
 	?>
-	<footer class="bfg-footer" aria-label="<?php esc_attr_e( 'Site footer', 'blocksy-child' ); ?>">
+	<div class="bfg-footer">
 
 		<section class="bfg-band bfg-band--hub">
 			<div class="bfg-hub-intro">
@@ -150,14 +176,17 @@ function bonza_footer_render_global() {
 					],
 					[
 						'tag'   => __( 'The Microbiome', 'blocksy-child' ),
+						/* translators: %s: article title, "your dog's hidden health command centre". */
 						'title' => sprintf( __( '<strong>The Gut Microbiome:</strong> %s', 'blocksy-child' ), __( "your dog's hidden health command centre", 'blocksy-child' ) ),
 					],
 					[
 						'tag'   => __( 'The Biotics Triad', 'blocksy-child' ),
+						/* translators: %s: article title, "why all three matter". */
 						'title' => sprintf( __( '<strong>Prebiotics, Probiotics and Postbiotics:</strong> %s', 'blocksy-child' ), __( 'why all three matter', 'blocksy-child' ) ),
 					],
 					[
 						'tag'   => __( 'The Evidence', 'blocksy-child' ),
+						/* translators: %s: article title, "the peer-reviewed evidence on gut health and longevity". */
 						'title' => sprintf( __( '<strong>Plant-Based Dog Food:</strong> %s', 'blocksy-child' ), __( 'the peer-reviewed evidence on gut health and longevity', 'blocksy-child' ) ),
 					],
 				];
@@ -177,7 +206,7 @@ function bonza_footer_render_global() {
 			<a class="bfg-btn bfg-btn--primary" href="#"><?php esc_html_e( 'Explore the health hub', 'blocksy-child' ); ?></a>
 		</section>
 
-		<div class="bfg-image-strip" role="presentation"></div>
+		<img class="bfg-image-strip" src="<?php echo esc_url( bonza_footer_asset_url( 'image-strip.png' ) ); ?>" alt="" width="1480" height="127" loading="lazy" />
 
 		<section class="bfg-band bfg-band--signup">
 			<p class="bfg-eyebrow"><?php esc_html_e( 'A Good Reason to Stay', 'blocksy-child' ); ?></p>
@@ -188,18 +217,19 @@ function bonza_footer_render_global() {
 			</div>
 		</section>
 
-		<div class="bfg-image-strip" role="presentation"></div>
+		<img class="bfg-image-strip" src="<?php echo esc_url( bonza_footer_asset_url( 'image-strip.png' ) ); ?>" alt="" width="1480" height="127" loading="lazy" />
 
 		<div class="bfg-main">
-			<div class="bfg-main-inner">
-				<div class="bfg-trust-row">
-					<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-b-corp-pending.svg' ) ); ?>" alt="<?php esc_attr_e( 'Certified B Corporation Pending', 'blocksy-child' ); ?>" width="33" height="62" loading="lazy" />
-					<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-1-percent-planet.svg' ) ); ?>" alt="<?php esc_attr_e( '1% for the Planet', 'blocksy-child' ); ?>" width="134" height="56" loading="lazy" />
-					<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-trees-for-the-future.svg' ) ); ?>" alt="<?php esc_attr_e( 'Trees for the Future', 'blocksy-child' ); ?>" width="137" height="56" loading="lazy" />
-					<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-rainforest-trust.svg' ) ); ?>" alt="<?php esc_attr_e( 'Rainforest Trust', 'blocksy-child' ); ?>" width="276" height="56" loading="lazy" />
-				</div>
+			<div class="bfg-trust-row">
+				<img class="bfg-badge--bcorp" src="<?php echo esc_url( bonza_footer_asset_url( 'badge-b-corp-pending.svg' ) ); ?>" alt="<?php esc_attr_e( 'Certified B Corporation Pending', 'blocksy-child' ); ?>" width="33" height="62" loading="lazy" />
+				<?php /* Figma names this mark only "image 687"; content is not identified, so it is treated as decorative (empty alt) rather than a guessed label. Flag for a real alt once it is identified. */ ?>
+				<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-unnamed-687.png' ) ); ?>" alt="" width="125" height="56" loading="lazy" />
+				<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-1-percent-planet.svg' ) ); ?>" alt="<?php esc_attr_e( '1% for the Planet', 'blocksy-child' ); ?>" width="134" height="56" loading="lazy" />
+				<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-trees-for-the-future.svg' ) ); ?>" alt="<?php esc_attr_e( 'Trees for the Future', 'blocksy-child' ); ?>" width="137" height="56" loading="lazy" />
+				<img src="<?php echo esc_url( bonza_footer_asset_url( 'badge-rainforest-trust.svg' ) ); ?>" alt="<?php esc_attr_e( 'Rainforest Trust', 'blocksy-child' ); ?>" width="276" height="56" loading="lazy" />
+			</div>
 
-				<nav class="bfg-nav-section" aria-label="<?php esc_attr_e( 'Footer', 'blocksy-child' ); ?>">
+			<nav class="bfg-nav-section" aria-label="<?php esc_attr_e( 'Footer', 'blocksy-child' ); ?>">
 					<div class="bfg-intro-col">
 						<div class="bfg-logo">
 							<img src="<?php echo esc_url( bonza_footer_asset_url( 'bonza-footer-logo.svg' ) ); ?>" alt="<?php esc_attr_e( 'Bonza', 'blocksy-child' ); ?>" width="189" height="64" loading="lazy" />
@@ -247,29 +277,29 @@ function bonza_footer_render_global() {
 						</div>
 					</div>
 				</nav>
-			</div>
+		</div>
 
-			<div class="bfg-bottom">
-				<p class="bfg-copyright">
-					<?php
-					printf(
-						/* translators: %d: current year. */
-						esc_html__( '© Happea Chappea Limited – %d. Store by Blaze Commerce', 'blocksy-child' ),
-						(int) gmdate( 'Y' )
-					);
-					?>
-				</p>
-				<div class="bfg-payment-row">
-					<?php foreach ( bonza_footer_payment_methods() as $method ) : ?>
-						<span class="bfg-payment"><?php echo esc_html( $method ); ?></span>
-					<?php endforeach; ?>
-				</div>
+		<div class="bfg-bottom">
+			<p class="bfg-copyright">
+				<?php
+				printf(
+					/* translators: %d: current year. */
+					esc_html__( '© Happea Chappea Limited – %d. Store by Blaze Commerce', 'blocksy-child' ),
+					(int) gmdate( 'Y' )
+				);
+				?>
+			</p>
+			<div class="bfg-payment-row">
+				<?php foreach ( bonza_footer_payment_methods() as $method ) : ?>
+					<span class="bfg-payment"><?php echo esc_html( $method ); ?></span>
+				<?php endforeach; ?>
 			</div>
 		</div>
-	</footer>
+	</div>
 	<?php
+	return ob_get_clean();
 }
-add_action( 'blocksy:footer:before', 'bonza_footer_render_global' );
+add_filter( 'blocksy:builder:footer:custom-output', 'bonza_footer_render_global' );
 
 /**
  * Enqueue the footer stylesheet.
