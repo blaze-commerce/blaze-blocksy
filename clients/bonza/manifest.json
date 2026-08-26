@@ -8,6 +8,7 @@
   "php": "bonza.php",
   "features": [
     "wishlist-offcanvas",
-    "mini-cart-empty"
+    "mini-cart-empty",
+    "product-information"
   ]
 }

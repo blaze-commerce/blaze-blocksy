@@ -357,3 +357,30 @@ function bonza_login_signup_modal_enqueue_assets() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'bonza_login_signup_modal_enqueue_assets' );
+
+/**
+ * Shipping panel skin (86eypb6kz).
+ *
+ * Restyles the shared inc/product-information.php off-canvas panel's
+ * Shipping tab to match the Figma mobile spec, scoped to max-width:767px.
+ * Only enqueued on single product pages, where the panel actually renders.
+ */
+function bonza_shipping_panel_enqueue_assets() {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+
+	$file = BLOCKSY_CHILD_PATH . 'clients/bonza/shipping-panel.css';
+
+	if ( ! file_exists( $file ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'bonza-shipping-panel',
+		BLOCKSY_CHILD_URL . 'clients/bonza/shipping-panel.css',
+		[ 'blocksy-child-product-information' ],
+		filemtime( $file )
+	);
+}
+add_action( 'wp_enqueue_scripts', 'bonza_shipping_panel_enqueue_assets' );
