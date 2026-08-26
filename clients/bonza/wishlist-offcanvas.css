@@ -15,6 +15,12 @@
  * filter, set in clients/bonza/bonza.php). Figma shows a 2-col PRODUCT CARD grid,
  * not the shared module's default list-row layout.
  *
+ * Colors are bare literals, not `var(--theme-palette-color-N, <literal>)`. Blocksy
+ * always emits its own palette to :root (themes/blocksy/inc/classes/colors.php), so
+ * a var() fallback here never fires and the rule silently renders Blocksy's default
+ * blue instead of Bonza's brand green. Same convention already used by the Cart
+ * Off-Canvas precedent in this file (see the #woo-cart-panel section above).
+ *
  * @package Blocksy_Child
  * @client  Bonza
  * @date 2026-08-26
@@ -25,26 +31,34 @@
    WHY: Figma's Filled/Empty frames are 445px wide with a light shadow and a
    cream fill; the shared module's PHP-generated defaults (500px width,
    0/0/70/0.35 shadow) come from mirroring the Cart panel's Customizer values,
-   which haven't been set for Bonza yet. Hardcoded literals here are the
-   verified Figma values, used as fallbacks behind the same CSS vars the
-   shared module writes inline, so a later Customizer/cart-panel change still
-   wins once colors are configured.
+   which haven't been set for Bonza yet.
+
+   `inc/wishlist-offcanvas.php` prints its own inline style block
+   (#blocksy-child-wishlist-panel-css) in wp_footer at priority 99, targeting
+   these exact same selectors at the exact same specificity, LATER in the
+   document than this enqueued stylesheet. Equal specificity plus later
+   source order means that inline block always wins over a plain
+   `#woo-wishlist-panel { ... }` rule here, so `--side-panel-width` and the
+   close-button icon color need one extra type-selector (`body`) so they
+   actually take effect.
    ========================================================================== */
-#woo-wishlist-panel {
+body #woo-wishlist-panel {
 	--side-panel-width: 445px;
-	background-color: var(--wishlist-panel-backdrop, rgba(18, 21, 25, 0.6));
 }
 
 #woo-wishlist-panel .ct-panel-inner {
-	background-color: var(--theme-palette-color-8, #F8EDE3);
 	border-radius: 24px 0 0 24px;
 	box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+body #woo-wishlist-panel .ct-panel-inner {
+	background-color: #F8EDE3;
 }
 
 /* Blocksy's own mobile breakpoint (NOT 768px). Figma's mobile frames
    (Variant3/Variant4) are a fixed 340px, not the shared module's 90vw. */
 @media (max-width: 690px) {
-	#woo-wishlist-panel {
+	body #woo-wishlist-panel {
 		--side-panel-width: 340px;
 	}
 
@@ -58,18 +72,22 @@
    WHY: Figma's header is a solid brand-green (#247B4E) 76px band with white
    type and icons; the shared module leaves .ct-panel-actions unstyled
    (inherits page text color) since most sites don't want a colored band here.
+   `border-bottom: none` clears the grey divider assets/css/components/
+   offcanvas.css puts on every panel header by default (visible against a
+   solid green band; matches the same reset in the Cart Off-Canvas section).
    ========================================================================== */
 #woo-wishlist-panel .ct-panel-actions {
-	background-color: var(--theme-palette-color-1, #247B4E);
+	background-color: #247B4E;
 	padding: 16px 20px;
 	min-height: 76px;
+	border-bottom: none;
 	align-items: center;
 }
 
 #woo-wishlist-panel .ct-panel-heading,
 #woo-wishlist-panel .ct-wishlist-panel-title {
 	color: #fff;
-	font-family: var(--theme-font-family-heading, Nominee, sans-serif);
+	font-family: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
 	font-weight: 900;
 	font-size: 18px;
 	line-height: 20px;
@@ -86,11 +104,14 @@
 	opacity: 0.7;
 }
 
-#woo-wishlist-panel .ct-toggle-close {
+/* Same specificity bump as the panel-width rule above: the shared module's
+   wp_footer block also writes a literal --theme-icon-color on this exact
+   selector, later in the document. */
+body #woo-wishlist-panel .ct-toggle-close {
 	--theme-icon-color: #fff;
 }
 
-#woo-wishlist-panel .ct-toggle-close:hover {
+body #woo-wishlist-panel .ct-toggle-close:hover {
 	--theme-icon-color: rgba(255, 255, 255, 0.75);
 }
 
@@ -140,10 +161,9 @@
 	position: static;
 	margin-top: 4px;
 	opacity: 1;
-	font-family: var(--theme-font-family, inherit);
 	font-size: 12px;
 	text-decoration: underline;
-	color: var(--theme-text-color, #666);
+	color: #666;
 }
 
 #woo-wishlist-panel.ct-wishlist-cards .ct-wishlist-remove-label {
@@ -151,20 +171,28 @@
 }
 
 /* ==========================================================================
-   Empty-state "You May Also Like" category grid (Figma Empty state, a 2x2
-   grid of category cards: cover image(s), name, live product count).
+   "You May Also Like" heading. shared between the Filled state's suggested-
+   products carousel (.ct-wishlist-suggested, always rendered by the module)
+   and the Empty state's category grid (.ct-wishlist-categories, card-layout
+   only, added below). Figma "Links/Bold": Nominee Heavy Extended 900,
+   14px/16px, UPPERCASE, letter-spacing 0.02em, color #353638.
    ========================================================================== */
-#woo-wishlist-panel .ct-wishlist-categories .ct-module-title {
-	font-family: var(--theme-font-family-heading, Nominee, sans-serif);
+#woo-wishlist-panel .ct-wishlist-categories .ct-module-title,
+#woo-wishlist-panel .ct-wishlist-suggested .ct-module-title {
+	font-family: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
 	font-weight: 900;
 	font-size: 14px;
 	line-height: 16px;
 	letter-spacing: 0.02em;
 	text-transform: uppercase;
-	color: var(--theme-text-color, #353638);
+	color: #353638;
 	margin-bottom: 12px;
 }
 
+/* ==========================================================================
+   Empty-state "You May Also Like" category grid (Figma Empty state, a 2x2
+   grid of category cards: cover image(s), name, live product count).
+   ========================================================================== */
 #woo-wishlist-panel .ct-wishlist-category-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -191,6 +219,8 @@
 	aspect-ratio: 1 / 1;
 }
 
+/* Wrapped-cover markup, produced when the aw_category_cards_image_htmls()
+   helper is present. */
 #woo-wishlist-panel .ct-wishlist-category-img-wrap {
 	flex: 1;
 	overflow: hidden;
@@ -203,10 +233,21 @@
 	display: block;
 }
 
+/* Bare-img fallback markup. That helper does not exist on this site, so
+   inc/wishlist-offcanvas.php's else-branch runs instead: a plain
+   wp_get_attachment_image() call with no wrapper span. Without this rule
+   the image sits unsized inside the flex/aspect-ratio box above. */
+#woo-wishlist-panel .ct-wishlist-category-media > img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
 #woo-wishlist-panel .ct-wishlist-category-name {
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--theme-text-color, #353638);
+	color: #353638;
 }
 
 #woo-wishlist-panel .ct-wishlist-category-count {
@@ -221,7 +262,7 @@
    ========================================================================== */
 #woo-wishlist-panel .ct-wishlist-signup-btn,
 #woo-wishlist-panel .ct-wishlist-continue-btn {
-	background: var(--theme-palette-color-1, #247B4E);
+	background: #247B4E;
 	color: #fff;
 	border-radius: 999px;
 	box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.03), 0 12px 16px -4px rgba(0, 0, 0, 0.08);
@@ -231,7 +272,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-family: var(--theme-font-family-heading, Nominee, sans-serif);
+	font-family: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
 	font-weight: 900;
 	font-size: 12px;
 	letter-spacing: 0.04em;
@@ -239,7 +280,7 @@
 
 #woo-wishlist-panel .ct-wishlist-signup-btn:hover,
 #woo-wishlist-panel .ct-wishlist-continue-btn:hover {
-	background: var(--theme-palette-color-2, #1d6640);
+	background: #1d6640;
 	color: #fff;
 }
 
