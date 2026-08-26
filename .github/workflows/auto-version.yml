@@ -9,7 +9,6 @@ jobs:
   bump-version:
     name: Bump patch version and tag
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip version]')"
 
     permissions:
       contents: write
@@ -20,7 +19,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check for skip marker
+        id: skip_check
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [[ "$COMMIT_MESSAGE" == *"[skip version]"* ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Bump patch version in style.css
+        if: steps.skip_check.outputs.skip == 'false'
         id: bump
         run: |
           CURRENT=$(grep -m1 '^ Version:' style.css | sed -E 's/^ Version:\s*//')
@@ -30,6 +41,7 @@ jobs:
           echo "VERSION=$NEW" >> "$GITHUB_OUTPUT"
 
       - name: Commit and tag
+        if: steps.skip_check.outputs.skip == 'false'
         env:
           VERSION: ${{ steps.bump.outputs.VERSION }}
         run: |
