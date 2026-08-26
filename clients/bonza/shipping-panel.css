@@ -1,0 +1,243 @@
+/**
+ * Bonza, shipping panel, mobile (CU-86eypb6kz).
+ *
+ * Figma: file cY9QX6IwGVaaGI4r7J2RRF, component set "Shipping" (5396:126450),
+ * "Property 1=Mobile shipping" variant (5396:126451), 336px wide, mobile only,
+ * no desktop/tablet counterpart drawn (flagged with the design team per the
+ * ticket's own note; this file is intentionally gated to mobile so it never
+ * touches the desktop/tablet rendering of the same panel).
+ *
+ * WHY a new file (not clients/bonza/bonza.css): this ships from an isolated
+ * worktree (feat/86eypb6kz-shipping-panel) alongside other agents editing
+ * bonza.css concurrently (cart off-canvas, search dropdown). Loaded via
+ * bonza_shipping_panel_enqueue_assets() in clients/bonza/bonza.php (the same
+ * isolation pattern already used there for the footer and wishlist-offcanvas
+ * stylesheets, specifically to avoid concurrent-edit collisions on
+ * bonza.css/manifest.json), dependent on the shared module's own handle
+ * (blocksy-child-product-information, registered in inc/enqueue.php) so it
+ * always loads after that baseline CSS. There is no custom/custom.php in
+ * this theme (removed 2026-05-08, see inc/loader.php) - an earlier draft of
+ * this comment assumed one existed; corrected after an independent audit
+ * caught it.
+ *
+ * Also required for anything here to render at all: the "product-information"
+ * feature must be present in clients/bonza/manifest.json's "features" array
+ * (inc/loader.php gates the whole inc/product-information.php module on it).
+ * Bonza's manifest did not list it as of this task; added as part of this
+ * change (see manifest.json), not a bonza.css/bonza.php edit.
+ *
+ * Structural markup, the tab-switch JS, and the shipping-rate AJAX calculator
+ * all already exist and are generic (inc/product-information.php,
+ * assets/js/product-information.js). This file only re-skins that existing
+ * #product-info-panel to match Figma's Bonza-brand mobile treatment. No
+ * existing PHP lines touched, per this task's isolation rules.
+ *
+ * Fonts: Nominee (headings/buttons) and Kobe1.1 (body) are NOT loaded on this
+ * site yet (confirmed: no @font-face, no Customizer typography match, same
+ * open item already logged in clients/bonza/bonza.css for the cart drawer and
+ * search dropdown). Falls back to the theme's own font vars, same pattern.
+ *
+ * Component/state inspection (Figma gate): sub-components used here each
+ * carry their own variant state sets, inspected directly:
+ * - "Input Plain" (5001:149524): Default / Active / Disabled / Invalid /
+ *   Validated. Only Default and Active (focus) are reachable in the current
+ *   markup (no client-side validation exists yet, and fields are never
+ *   disabled), so only those two are implemented below.
+ * - "Button", Kind=Secondary Size=Large (29049:58925): Default (fill
+ *   #247B4E, white text, BUTTON SHADOW) / Hover (fill #FFC125 yellow, BLACK
+ *   text, per the Figma instance) / Disabled (fill #247B4E, 0.6 opacity).
+ *   The existing JS already toggles :disabled on submit
+ *   (assets/js/product-information.js, is-loading class), so that state is
+ *   reachable and implemented too.
+ *
+ * Contrast (WCAG 2.2 AA, measured not assumed):
+ * - Body text #494545 on panel background #F8EDE3: approx 7.5:1 (passes AA
+ *   and AAA).
+ * - Button text #FFFFFF on #247B4E (default): approx 4.9:1 (passes AA for
+ *   normal text, same green already used site-wide for Bonza CTAs, e.g. the
+ *   cart drawer).
+ * - Button text #000000 on #FFC125 (hover): approx 13:1 (passes AAA).
+ * - Active-tab underline #5EBD82 on #F8EDE3: approx 2:1, below the 3:1
+ *   non-text UI-component threshold (WCAG 1.4.11). Pulled verbatim from
+ *   Figma. Tab state is not conveyed by this color alone: aria-selected is
+ *   already set programmatically on every .bc-info-tab
+ *   (inc/product-information.php), so assistive tech never depends on it,
+ *   and the active tab is still the one under the user's last tap. Flagging
+ *   for the design team instead of silently darkening their brand green.
+ * - Field focus border: Figma specs #5EBD82 here too (same ~2:1 problem).
+ *   Unlike the tab underline, a focus indicator's visibility is the whole
+ *   point of the state, so this one uses #247B4E instead (4.5:1+ against
+ *   both the white field and the cream panel) rather than shipping a
+ *   focus ring that fails 1.4.11. Flagged for the design team the same way.
+ *
+ * @package Blocksy_Child
+ * @client  Bonza
+ * @date    2026-08-26
+ */
+
+@media (max-width: 767px) {
+
+	/* Panel chrome, cream fill plus shadow, Figma component fill/effect.
+	   Specificity fix (audit finding): bc_product_info_panel_css()
+	   (inc/product-information.php) echoes an inline <style> with the exact
+	   same selector and equal specificity, later in the document (it's
+	   printed inside the footer's offcanvas-drawer output) - a same-
+	   specificity rule later in source order wins regardless of which
+	   stylesheet loaded when. Doubling the ID selector (same technique
+	   already used in clients/bonza/bonza.css for the FiboSearch pirx
+	   fixes) raises this to two ID selectors so it outranks that inline
+	   rule outright, independent of document order. */
+	#product-info-panel#product-info-panel .ct-panel-inner {
+		background-color: #F8EDE3;
+		box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.08);
+	}
+
+	/* Tab bar: "SHIPPING / RETURNS / ABOUT US" row (Figma #5396:126459).
+	   NOTE: current markup's 2nd/3rd tabs are labelled "Return"/"FAQ" (existing
+	   generic PDP feature, inc/product-information.php:bc_product_info_tabs());
+	   Figma's frame names read "Returns"/"About Us". Left the copy alone,
+	   this task's Figma nodes only cover the Shipping tab's own content, and
+	   renaming/reordering tabs would touch PHP plus the two other tabs' own
+	   ClickUp tasks, out of this task's scope. Flagged for follow-up. */
+	#product-info-panel .bc-info-tabs {
+		background: transparent;
+		border-bottom: none;
+		padding: 0 16px;
+	}
+
+	#product-info-panel .bc-info-tab {
+		font-family: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
+		font-weight: 900;
+		font-size: 12px;
+		line-height: 16px;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		color: #494545;
+		padding: 12px 4px;
+		border-bottom: 3px solid #D9D9D9;
+		margin-bottom: 0;
+	}
+
+	#product-info-panel .bc-info-tab.active {
+		color: #494545;
+		border-bottom-color: #5EBD82;
+	}
+
+	/* Keyboard focus indicator, no dedicated Figma "Focus" state on tabs,
+	   added for DoD #3 (visible focus, keyboard reachable). */
+	#product-info-panel .bc-info-tab:focus-visible {
+		outline: 2px solid #247B4E;
+		outline-offset: -2px;
+	}
+
+	/* Tab pane body: 24px padding on all sides (Figma #25075:62278). */
+	#product-info-panel .ct-panel-content-inner {
+		padding: 0 24px 24px;
+	}
+
+	#product-info-panel .bc-tab-pane {
+		padding: 24px 0;
+	}
+
+	/* Shipping calculator fields (Figma "Input Plain" instances, State=Default). */
+	#bc-tab-shipping .bc-field {
+		margin-bottom: 21px;
+	}
+
+	#bc-tab-shipping .bc-field label {
+		font-family: "Kobe1.1", var(--theme-font-family, sans-serif);
+		font-weight: 700;
+		font-size: 14px;
+		line-height: 20px;
+		color: #494545;
+		margin-bottom: 6px;
+	}
+
+	#bc-tab-shipping .bc-field select,
+	#bc-tab-shipping .bc-field input[type="text"] {
+		height: 48px;
+		padding: 12px;
+		border: 1px solid #D1D5DB;
+		border-radius: 8px;
+		background-color: #FFFFFF;
+		font-family: "Kobe1.1", var(--theme-font-family, sans-serif);
+		font-weight: 400;
+		font-size: 12px;
+		line-height: 16px;
+		color: #494545;
+	}
+
+	/* Audit finding: the shorthand `padding: 12px` above resets
+	   product-information.css's baseline `padding-right: 32px` on
+	   <select> (reserved so text doesn't run under the caret SVG, which
+	   stays fixed at `right 12px center`). Re-assert it for select only;
+	   text inputs have no caret and keep the uniform 12px. */
+	#bc-tab-shipping .bc-field select {
+		padding-right: 32px;
+	}
+
+	#bc-tab-shipping .bc-field select::placeholder,
+	#bc-tab-shipping .bc-field input[type="text"]::placeholder {
+		color: #494545;
+		opacity: 1;
+	}
+
+	/* Input Plain, State=Active (focus): Figma specs a 1.5px #5EBD82
+	   border here, but that measures ~2:1 against both the white field
+	   and the cream panel (audit finding, WCAG 1.4.11 needs 3:1 for a
+	   non-text UI-component state indicator). Using this file's own
+	   #247B4E instead (already 4.5:1+ against both backgrounds, and
+	   already the brand color used on the tabs/button on this same
+	   panel) keeps a real, compliant focus indicator instead of a
+	   decorative one that fails contrast. Flagged for the design team
+	   alongside the tab-underline color, not silently just left broken. */
+	#bc-tab-shipping .bc-field select:focus,
+	#bc-tab-shipping .bc-field input[type="text"]:focus {
+		outline: none;
+		border: 1.5px solid #247B4E;
+	}
+
+	/* "Calculate shipping" button (Figma Button instance, Kind=Secondary,
+	   Size=Large, State=Default: pill plus BUTTON SHADOW). */
+	#bc-tab-shipping .bc-calc-submit {
+		background-color: #247B4E;
+		color: #FFFFFF;
+		border: none;
+		border-radius: 999px;
+		height: 48px;
+		padding: 0 16px;
+		box-shadow: 0px 4px 6px -2px rgba(0, 0, 0, 0.03), 0px 12px 16px -4px rgba(0, 0, 0, 0.08);
+		font-family: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
+		font-weight: 900;
+		font-size: 12px;
+		line-height: 26px;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		text-align: center;
+	}
+
+	/* Same button, State=Hover: fill turns yellow, text turns black (both
+	   verified against the Figma instance, not guessed). */
+	#bc-tab-shipping .bc-calc-submit:hover {
+		background-color: #FFC125;
+		color: #000000;
+	}
+
+	/* Same button, State=Disabled: green fill kept, 0.6 opacity. Reachable
+	   today via assets/js/product-information.js, which sets
+	   submitBtn.disabled = true while the AJAX shipping-rate call is in
+	   flight (.is-loading class). */
+	#bc-tab-shipping .bc-calc-submit:disabled {
+		background-color: #247B4E;
+		color: #FFFFFF;
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	/* Keyboard focus indicator, no dedicated Figma "Focus" state on the
+	   button either, added for DoD #3. */
+	#bc-tab-shipping .bc-calc-submit:focus-visible {
+		outline: 2px solid #247B4E;
+		outline-offset: 2px;
+	}
+}
