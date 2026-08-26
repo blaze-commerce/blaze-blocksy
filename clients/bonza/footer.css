@@ -7,9 +7,9 @@
  * Button 29049:58925 (Kind=Secondary used for the two solid CTAs,
  * Kind=Outline for the amber-band secondary CTA). ClickUp 86eypb6aw.
  *
- * Rendered by clients/bonza/bonza.php (bonza_footer_render_global)
- * on the `blocksy:footer:before` hook. Scoped entirely under
- * .bfg-footer so it never leaks into other client CSS.
+ * Rendered by clients/bonza/bonza.php (bonza_footer_render_global) on
+ * the `blocksy:builder:footer:custom-output` filter. Scoped entirely
+ * under .bfg-footer so it never leaks into other client CSS.
  *
  * Colour tokens are declared locally (no site-wide theme.json colour
  * preset exists yet, that is task 86eyk8nqd "Design foundations",
@@ -86,6 +86,15 @@
 .bfg-footer a:focus-visible {
 	outline: 2px solid var(--bfg-green);
 	outline-offset: 2px;
+}
+
+/* WHY a scoped override: the shared green focus outline above is
+   2.60:1 against this band's #FFA825 fill, below the 3:1 WCAG 2.2 AA
+   floor for non-text UI indicators (SC 1.4.11). Ink clears it at
+   4.90:1, the same colour already used for this band's text/borders. */
+.bfg-band--signup a:focus-visible,
+.bfg-band--signup button:focus-visible {
+	outline-color: var(--bfg-ink);
 }
 
 /* ---------------------------------------------------------------------

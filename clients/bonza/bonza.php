@@ -152,9 +152,17 @@ function bonza_footer_payment_methods() {
  * id="footer">` landmark (with its schema.org attributes) for us, so
  * this markup only needs to supply the content, not the landmark.
  *
+ * @param string $existing_content Value already on the filter, empty
+ *                                 by default. Intentionally not used:
+ *                                 this client module owns the entire
+ *                                 footer for this site, there is no
+ *                                 other registered producer to chain
+ *                                 with. Declared so the callback's
+ *                                 signature matches what `apply_
+ *                                 filters()` actually passes.
  * @return string
  */
-function bonza_footer_render_global() {
+function bonza_footer_render_global( $existing_content = '' ) {
 	$nav_columns = bonza_footer_nav_columns();
 	ob_start();
 	?>
@@ -171,22 +179,22 @@ function bonza_footer_render_global() {
 				$articles = [
 					[
 						'tag'   => __( 'Landmark Research', 'blocksy-child' ),
-						/* translators: %s: article title, "The Waltham Catalogue". */
+						/* translators: %s: description that follows the bold "The Waltham Catalogue:" prefix. */
 						'title' => sprintf( __( '<strong>The Waltham Catalogue:</strong> %s', 'blocksy-child' ), __( 'the most significant mapping of the dog gut microbiome ever made', 'blocksy-child' ) ),
 					],
 					[
 						'tag'   => __( 'The Microbiome', 'blocksy-child' ),
-						/* translators: %s: article title, "your dog's hidden health command centre". */
+						/* translators: %s: description that follows the bold "The Gut Microbiome:" prefix. */
 						'title' => sprintf( __( '<strong>The Gut Microbiome:</strong> %s', 'blocksy-child' ), __( "your dog's hidden health command centre", 'blocksy-child' ) ),
 					],
 					[
 						'tag'   => __( 'The Biotics Triad', 'blocksy-child' ),
-						/* translators: %s: article title, "why all three matter". */
+						/* translators: %s: description that follows the bold "Prebiotics, Probiotics and Postbiotics:" prefix. */
 						'title' => sprintf( __( '<strong>Prebiotics, Probiotics and Postbiotics:</strong> %s', 'blocksy-child' ), __( 'why all three matter', 'blocksy-child' ) ),
 					],
 					[
 						'tag'   => __( 'The Evidence', 'blocksy-child' ),
-						/* translators: %s: article title, "the peer-reviewed evidence on gut health and longevity". */
+						/* translators: %s: description that follows the bold "Plant-Based Dog Food:" prefix. */
 						'title' => sprintf( __( '<strong>Plant-Based Dog Food:</strong> %s', 'blocksy-child' ), __( 'the peer-reviewed evidence on gut health and longevity', 'blocksy-child' ) ),
 					],
 				];
@@ -260,7 +268,7 @@ function bonza_footer_render_global() {
 						</div>
 						<div class="bfg-contact-item">
 							<span class="bfg-contact-label"><?php esc_html_e( 'WhatsApp Us', 'blocksy-child' ); ?></span>
-							<a class="bfg-contact-value" href="https://wa.me/447453381766">07453 381766</a>
+							<a class="bfg-contact-value" href="https://wa.me/447453381766"><?php esc_html_e( '07453 381766', 'blocksy-child' ); ?></a>
 						</div>
 						<div class="bfg-contact-item">
 							<span class="bfg-contact-label"><?php esc_html_e( 'Email', 'blocksy-child' ); ?></span>
