@@ -12,6 +12,7 @@ jobs:
 
     permissions:
       contents: write
+      actions: write
 
     steps:
       - name: Checkout code
@@ -52,3 +53,14 @@ jobs:
           git tag "v$VERSION"
           git push origin HEAD:main
           git push origin "v$VERSION"
+
+      - name: Trigger release workflow
+        # GitHub does not start new workflow runs for a tag pushed using the
+        # default GITHUB_TOKEN, so the tag push above will never fire
+        # release.yml's `on: push: tags:` trigger on its own. Explicitly
+        # dispatch it instead, targeting the tag we just pushed.
+        if: steps.skip_check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.bump.outputs.VERSION }}
+        run: gh workflow run release.yml --ref "v$VERSION"
