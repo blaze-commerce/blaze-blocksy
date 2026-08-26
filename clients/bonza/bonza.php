@@ -63,30 +63,86 @@ function bonza_footer_asset_url( $file ) {
 }
 
 /**
+ * Register a real WP menu location per footer column so the client can
+ * manage every link from Appearance > Menus, no code or redeploy needed.
+ *
+ * Until the client assigns a menu to each location, bonza_footer_nav_columns()
+ * below falls back to the original placeholder link set so the footer still
+ * renders a full layout, not an empty column.
+ */
+add_action(
+	'after_setup_theme',
+	function () {
+		register_nav_menus(
+			[
+				'bonza-footer-shop'     => __( 'Bonza Footer: Shop column', 'blocksy-child' ),
+				'bonza-footer-discover' => __( 'Bonza Footer: Discover column', 'blocksy-child' ),
+				'bonza-footer-support'  => __( 'Bonza Footer: Support column', 'blocksy-child' ),
+			]
+		);
+	}
+);
+
+/**
+ * Customizer fields for the footer's social links and CTA button URLs.
+ *
+ * These are single URLs, not link lists, so a Customizer text field is a
+ * better client-editing surface than a full nav menu location. Defaults
+ * match the original placeholder behavior ('#') so nothing changes on the
+ * frontend until the client actually fills these in.
+ */
+add_action(
+	'customize_register',
+	function ( $wp_customize ) {
+		$wp_customize->add_section(
+			'bonza_footer_links',
+			[ 'title' => __( 'Bonza Footer Links', 'blocksy-child' ), 'priority' => 200 ]
+		);
+
+		$fields = [
+			'bonza_footer_social_instagram' => __( 'Instagram URL', 'blocksy-child' ),
+			'bonza_footer_social_facebook'  => __( 'Facebook URL', 'blocksy-child' ),
+			'bonza_footer_social_tiktok'    => __( 'TikTok URL', 'blocksy-child' ),
+			'bonza_footer_cta_health_hub'   => __( '"Explore the health hub" button URL', 'blocksy-child' ),
+			'bonza_footer_cta_superfoods'   => __( '"Shop Superfoods" button URL', 'blocksy-child' ),
+			'bonza_footer_cta_bioactive'    => __( '"Explore Bioactive Bites" button URL', 'blocksy-child' ),
+		];
+
+		foreach ( $fields as $id => $label ) {
+			$wp_customize->add_setting( $id, [ 'default' => '#', 'sanitize_callback' => 'esc_url_raw' ] );
+			$wp_customize->add_control( $id, [ 'label' => $label, 'section' => 'bonza_footer_links', 'type' => 'url' ] );
+		}
+	}
+);
+
+/**
  * The four footer navigation columns (SHOP / DISCOVER / SUPPORT +
  * the contact column is built separately, it is not a link list).
  *
- * Hrefs are '#' placeholders: the destination pages (Health Hub,
- * About Us, FAQs, Privacy Policy, etc.) are separate to-do tasks in
- * this same ClickUp folder and do not exist on the site yet. Centralised
- * here so the real URLs can be filled in from one place once those
- * pages ship, without touching the markup below.
+ * Each column is a real registered nav menu location (see register_nav_menus()
+ * above), client-editable via Appearance > Menus, no developer needed. The
+ * '#' placeholder links below are ONLY the fallback shown until the client
+ * assigns a real menu to each location (has_nav_menu() gates it), since the
+ * destination pages (Health Hub, About Us, FAQs, Privacy Policy, etc.) are
+ * separate to-do tasks in this same ClickUp folder and do not exist yet.
  *
- * @return array<string, array{label: string, links: array<int, array{label: string, href: string}>}>
+ * @return array<string, array{label: string, location: string, links: array<int, array{label: string, href: string}>}>
  */
 function bonza_footer_nav_columns() {
 	return [
 		'shop'     => [
-			'label' => __( 'Shop', 'blocksy-child' ),
-			'links' => [
+			'label'    => __( 'Shop', 'blocksy-child' ),
+			'location' => 'bonza-footer-shop',
+			'links'    => [
 				[ 'label' => __( 'Plant-based Dog Food', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Supplements', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Create Personalised Meal Plan', 'blocksy-child' ), 'href' => '#' ],
 			],
 		],
 		'discover' => [
-			'label' => __( 'Discover', 'blocksy-child' ),
-			'links' => [
+			'label'    => __( 'Discover', 'blocksy-child' ),
+			'location' => 'bonza-footer-discover',
+			'links'    => [
 				[ 'label' => __( 'About Us', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Reviews', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Can Dogs Be Plant-Based', 'blocksy-child' ), 'href' => '#' ],
@@ -103,8 +159,9 @@ function bonza_footer_nav_columns() {
 			],
 		],
 		'support'  => [
-			'label' => __( 'Support', 'blocksy-child' ),
-			'links' => [
+			'label'    => __( 'Support', 'blocksy-child' ),
+			'location' => 'bonza-footer-support',
+			'links'    => [
 				[ 'label' => __( 'My Account', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Track My Order', 'blocksy-child' ), 'href' => '#' ],
 				[ 'label' => __( 'Order Shipment', 'blocksy-child' ), 'href' => '#' ],
@@ -211,7 +268,7 @@ function bonza_footer_render_global( $existing_content = '' ) {
 					</a>
 				<?php endforeach; ?>
 			</div>
-			<a class="bfg-btn bfg-btn--primary" href="#"><?php esc_html_e( 'Explore the health hub', 'blocksy-child' ); ?></a>
+			<a class="bfg-btn bfg-btn--primary" href="<?php echo esc_url( get_theme_mod( 'bonza_footer_cta_health_hub', '#' ) ); ?>"><?php esc_html_e( 'Explore the health hub', 'blocksy-child' ); ?></a>
 		</section>
 
 		<img class="bfg-image-strip" src="<?php echo esc_url( bonza_footer_asset_url( 'image-strip.png' ) ); ?>" alt="" width="1480" height="127" loading="lazy" />
@@ -220,8 +277,8 @@ function bonza_footer_render_global( $existing_content = '' ) {
 			<p class="bfg-eyebrow"><?php esc_html_e( 'A Good Reason to Stay', 'blocksy-child' ); ?></p>
 			<h2 class="bfg-h2"><?php esc_html_e( 'Start With the Gut. Support the Whole Dog.', 'blocksy-child' ); ?></h2>
 			<div class="bfg-signup-actions">
-				<a class="bfg-btn bfg-btn--primary bfg-btn--block" href="#"><?php esc_html_e( 'Shop Superfoods & Ancient Grains', 'blocksy-child' ); ?></a>
-				<a class="bfg-btn bfg-btn--outline bfg-btn--block" href="#"><?php esc_html_e( 'Explore Bioactive Bites Supplements', 'blocksy-child' ); ?></a>
+				<a class="bfg-btn bfg-btn--primary bfg-btn--block" href="<?php echo esc_url( get_theme_mod( 'bonza_footer_cta_superfoods', '#' ) ); ?>"><?php esc_html_e( 'Shop Superfoods & Ancient Grains', 'blocksy-child' ); ?></a>
+				<a class="bfg-btn bfg-btn--outline bfg-btn--block" href="<?php echo esc_url( get_theme_mod( 'bonza_footer_cta_bioactive', '#' ) ); ?>"><?php esc_html_e( 'Explore Bioactive Bites Supplements', 'blocksy-child' ); ?></a>
 			</div>
 		</section>
 
@@ -243,20 +300,33 @@ function bonza_footer_render_global( $existing_content = '' ) {
 							<img src="<?php echo esc_url( bonza_footer_asset_url( 'bonza-footer-logo.svg' ) ); ?>" alt="<?php esc_attr_e( 'Bonza', 'blocksy-child' ); ?>" width="189" height="64" loading="lazy" />
 						</div>
 						<div class="bfg-social">
-							<a href="#" aria-label="<?php esc_attr_e( 'Instagram', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-instagram.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
-							<a href="#" aria-label="<?php esc_attr_e( 'Facebook', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-facebook.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
-							<a href="#" aria-label="<?php esc_attr_e( 'TikTok', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-tiktok.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
+							<a href="<?php echo esc_url( get_theme_mod( 'bonza_footer_social_instagram', '#' ) ); ?>" aria-label="<?php esc_attr_e( 'Instagram', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-instagram.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
+							<a href="<?php echo esc_url( get_theme_mod( 'bonza_footer_social_facebook', '#' ) ); ?>" aria-label="<?php esc_attr_e( 'Facebook', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-facebook.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
+							<a href="<?php echo esc_url( get_theme_mod( 'bonza_footer_social_tiktok', '#' ) ); ?>" aria-label="<?php esc_attr_e( 'TikTok', 'blocksy-child' ); ?>"><img src="<?php echo esc_url( bonza_footer_asset_url( 'social-tiktok.svg' ) ); ?>" alt="" width="18" height="18" loading="lazy" /></a>
 						</div>
 					</div>
 
 					<?php foreach ( $nav_columns as $column ) : ?>
 						<div class="bfg-nav-col">
 							<h3><?php echo esc_html( $column['label'] ); ?></h3>
-							<ul>
-								<?php foreach ( $column['links'] as $link ) : ?>
-									<li><a href="<?php echo esc_url( $link['href'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a></li>
-								<?php endforeach; ?>
-							</ul>
+							<?php if ( has_nav_menu( $column['location'] ) ) : ?>
+								<?php
+								wp_nav_menu(
+									[
+										'theme_location' => $column['location'],
+										'container'       => false,
+										'items_wrap'      => '<ul>%3$s</ul>',
+										'depth'           => 1,
+									]
+								);
+								?>
+							<?php else : ?>
+								<ul>
+									<?php foreach ( $column['links'] as $link ) : ?>
+										<li><a href="<?php echo esc_url( $link['href'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a></li>
+									<?php endforeach; ?>
+								</ul>
+							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>
 
