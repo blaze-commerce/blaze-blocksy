@@ -1,0 +1,66 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    name: Bump patch version and tag
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for skip marker
+        id: skip_check
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [[ "$COMMIT_MESSAGE" == *"[skip version]"* ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump patch version in style.css
+        if: steps.skip_check.outputs.skip == 'false'
+        id: bump
+        run: |
+          CURRENT=$(grep -m1 '^ Version:' style.css | sed -E 's/^ Version:\s*//')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEW="$MAJOR.$MINOR.$((PATCH + 1))"
+          sed -i "s/^ Version:.*/ Version:      $NEW/" style.css
+          echo "VERSION=$NEW" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        if: steps.skip_check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.bump.outputs.VERSION }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add style.css
+          git commit -m "chore: bump version to $VERSION [skip version]"
+          git tag "v$VERSION"
+          git push origin HEAD:main
+          git push origin "v$VERSION"
+
+      - name: Trigger release workflow
+        # GitHub does not start new workflow runs for a tag pushed using the
+        # default GITHUB_TOKEN, so the tag push above will never fire
+        # release.yml's `on: push: tags:` trigger on its own. Explicitly
+        # dispatch it instead, targeting the tag we just pushed.
+        if: steps.skip_check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.bump.outputs.VERSION }}
+        run: gh workflow run release.yml --ref "v$VERSION"
