@@ -1,0 +1,588 @@
+/**
+ * Bonza, global site footer.
+ *
+ * Figma: cY9QX6IwGVaaGI4r7J2RRF, component set FOOTER 564:95449.
+ * Desktop variant 29399:99534 (1480px), Tab 2 17298:196546 (744px),
+ * Mobile 2 17298:196807 (428px). Button states from component set
+ * Button 29049:58925 (Kind=Secondary used for the two solid CTAs,
+ * Kind=Outline for the amber-band secondary CTA). ClickUp 86eypb6aw.
+ *
+ * Rendered by clients/bonza/bonza.php (bonza_footer_render_global)
+ * on the `blocksy:footer:before` hook. Scoped entirely under
+ * .bfg-footer so it never leaks into other client CSS.
+ *
+ * Colour tokens are declared locally (no site-wide theme.json colour
+ * preset exists yet, that is task 86eyk8nqd "Design foundations",
+ * still in progress) as `var(--bfg-*, <figma-hex>)` so a later global
+ * token pass can override them without touching this file.
+ *
+ * @date 2026-08-26
+ */
+
+.bfg-footer {
+	--bfg-cream: var(--bfg-color-cream, #F8EDE3);
+	--bfg-amber: var(--bfg-color-amber, #FFA825);
+	--bfg-green: var(--bfg-color-green, #257E50);
+	--bfg-yellow: var(--bfg-color-yellow, #FFC125);
+	--bfg-ink: var(--bfg-color-ink, #494545);
+	--bfg-white: var(--bfg-color-white, #FFFFFF);
+	/* WHY: Figma draws the copyright line #FFFFFF on this #F8EDE3 band,
+	   about 1.1:1 contrast, fails WCAG 2.2 AA (contract obligation).
+	   Flagged in the ClickUp task itself and confirmed by team lead as a
+	   known, deliberately deprioritized defect (not blocking this build).
+	   Using the footer's own ink colour here instead of the literal
+	   Figma value restores AA (about 9.7:1) without inventing a new
+	   colour. Swap this back to var(--bfg-white) only once the design
+	   itself is corrected. */
+	--bfg-copyright-color: var(--bfg-color-copyright, var(--bfg-ink));
+
+	--bfg-heading-font: "Nominee", var(--theme-headings-font-family, var(--theme-font-family, sans-serif));
+	--bfg-body-font: "Kobe1.1", var(--theme-font-family, sans-serif);
+	/* Same "not loaded yet, fall back to theme font" pattern already used
+	   in clients/bonza/bonza.css (cart panel heading, search headline).
+	   Nominee/Kobe1.1 have no @font-face on this site yet (open project
+	   wide font question, see ClickUp 86eypb6aw "Fonts" section). */
+
+	display: flex;
+	flex-direction: column;
+	background-color: var(--bfg-cream);
+	font-family: var(--bfg-body-font);
+	color: var(--bfg-ink);
+}
+
+.bfg-footer a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.bfg-footer h2,
+.bfg-footer h3 {
+	margin: 0;
+	font-family: var(--bfg-heading-font);
+	font-weight: 900;
+	text-transform: uppercase;
+}
+
+.bfg-footer ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.bfg-footer button:focus-visible,
+.bfg-footer a:focus-visible {
+	outline: 2px solid var(--bfg-green);
+	outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+   Band 1, Health Hub cards + CTA (#34457:282314)
+   --------------------------------------------------------------------- */
+.bfg-band--hub {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 64px;
+	gap: 48px;
+}
+
+.bfg-hub-intro {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	max-width: 640px;
+	text-align: center;
+}
+
+.bfg-eyebrow {
+	margin: 0;
+	font-family: var(--bfg-heading-font);
+	font-weight: 900;
+	font-size: 14px;
+	line-height: 16px;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.bfg-h2 {
+	font-size: 36px;
+	line-height: 40px;
+	color: var(--bfg-green);
+}
+
+.bfg-lead {
+	margin: 0;
+	font-weight: 700;
+	font-size: 20px;
+	line-height: 24px;
+}
+
+.bfg-cards {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 100%;
+	max-width: 720px;
+}
+
+.bfg-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 24px;
+	background-color: var(--bfg-white);
+	border-radius: 8px;
+	box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
+}
+
+.bfg-card-content {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.bfg-card-tag {
+	font-family: var(--bfg-heading-font);
+	font-weight: 900;
+	font-size: 12px;
+	letter-spacing: 0.0833em;
+	text-transform: uppercase;
+	color: var(--bfg-green);
+}
+
+.bfg-card-title {
+	margin: 0;
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: 400;
+}
+
+.bfg-card-title strong {
+	font-weight: 700;
+}
+
+.bfg-card-arrow {
+	flex: 0 0 auto;
+	display: flex;
+	width: 40px;
+	height: 40px;
+	align-items: center;
+	justify-content: center;
+	border: 1.5px solid var(--bfg-green);
+	border-radius: 20px;
+}
+
+.bfg-card-arrow img {
+	width: 18px;
+	height: 18px;
+}
+
+/* ---------------------------------------------------------------------
+   Buttons. Default/hover/disabled fills come straight from Figma
+   component set Button 29049:58925.
+   --------------------------------------------------------------------- */
+.bfg-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 48px;
+	padding: 16px;
+	border-radius: 999px;
+	font-family: var(--bfg-heading-font);
+	font-weight: 900;
+	font-size: 12px;
+	line-height: 26px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Kind=Secondary: the two solid CTAs ("Explore the health hub",
+   "Shop Superfoods & Ancient Grains"). */
+.bfg-btn--primary {
+	background-color: var(--bfg-green);
+	color: var(--bfg-white);
+	box-shadow: 0px 4px 6px -2px rgba(0, 0, 0, 0.03), 0px 12px 16px -4px rgba(0, 0, 0, 0.08);
+}
+
+.bfg-btn--primary:hover {
+	background-color: var(--bfg-yellow);
+	color: var(--bfg-ink);
+}
+
+.bfg-btn--primary[aria-disabled="true"] {
+	background-color: var(--bfg-green);
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Kind=Outline: "Explore Bioactive Bites Supplements" on the amber band.
+   Figma instance override uses the band's ink colour for the default
+   border/text (not the component's default green), matching #34685:47233. */
+.bfg-btn--outline {
+	background-color: transparent;
+	border: 1px solid var(--bfg-ink);
+	color: var(--bfg-ink);
+}
+
+.bfg-btn--outline:hover {
+	background-color: var(--bfg-white);
+	border-color: var(--bfg-green);
+	color: var(--bfg-green);
+}
+
+.bfg-btn--outline[aria-disabled="true"] {
+	background-color: var(--bfg-white);
+	border-color: var(--bfg-green);
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.bfg-btn--block {
+	width: 100%;
+}
+
+/* ---------------------------------------------------------------------
+   Bands 2 and 4, decorative image strips (#34457:282305 / #34457:282313)
+   Real Figma photo assets not sourced in this pass (out of scope for a
+   config/token-first footer build), rendered as a themed placeholder
+   band so the section rhythm/height matches Figma. Swap in real photos
+   via `background-image` on .bfg-image-strip without any markup change.
+   --------------------------------------------------------------------- */
+.bfg-image-strip {
+	height: 126.58px;
+	background-color: var(--bfg-green);
+	opacity: 0.12;
+}
+
+/* ---------------------------------------------------------------------
+   Band 3, amber sign-up band (#34685:47227)
+   --------------------------------------------------------------------- */
+.bfg-band--signup {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px 64px;
+	gap: 48px;
+	background-color: var(--bfg-amber);
+	text-align: center;
+}
+
+.bfg-band--signup .bfg-eyebrow {
+	font-family: "Inter", var(--theme-font-family, sans-serif);
+	font-weight: 800;
+	color: var(--bfg-white);
+}
+
+.bfg-band--signup .bfg-h2 {
+	color: var(--bfg-white);
+}
+
+.bfg-signup-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 10px;
+	width: 100%;
+	max-width: 400px;
+}
+
+/* ---------------------------------------------------------------------
+   Band 5, main footer (#34457:280279)
+   --------------------------------------------------------------------- */
+.bfg-main {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 80px;
+	padding: 64px 64px 32px;
+	overflow: hidden;
+}
+
+.bfg-main-inner {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 56px;
+	width: 100%;
+	z-index: 1;
+}
+
+.bfg-trust-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 20px 40px;
+}
+
+.bfg-trust-row img {
+	height: 56px;
+	width: auto;
+}
+
+.bfg-trust-row img[alt*="B Corp" i] {
+	height: 62px;
+}
+
+.bfg-nav-section {
+	display: flex;
+	flex-direction: row;
+	gap: 40px;
+}
+
+.bfg-intro-col {
+	display: flex;
+	flex-direction: column;
+	/* WHY not "justify-content: center" (Figma's own layout value for this
+	   node): Figma's siblings there are all "hug" height so centering is a
+	   no-op. In CSS the sibling nav columns are much taller (13-link
+	   DISCOVER column) and flex's default align-items:stretch makes this
+	   column match that height too, so centering here would sink the logo
+	   and socials to the middle of the whole nav row instead of keeping
+	   them level with the other columns' headings. */
+	justify-content: flex-start;
+	gap: 24px;
+	flex: 1 1 auto;
+}
+
+.bfg-logo img {
+	width: 189px;
+	height: 64px;
+}
+
+.bfg-social {
+	display: flex;
+	gap: 16px;
+}
+
+.bfg-social a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border: 1.5px solid var(--bfg-green);
+	border-radius: 20px;
+}
+
+.bfg-social a:hover {
+	background-color: var(--bfg-green);
+}
+
+.bfg-social a:hover img {
+	filter: brightness(0) invert(1);
+}
+
+.bfg-social img {
+	width: 18px;
+	height: 18px;
+}
+
+.bfg-nav-col,
+.bfg-contact-col {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.bfg-nav-col h3,
+.bfg-contact-col h3 {
+	font-size: 14px;
+	line-height: 16px;
+	letter-spacing: 0.02em;
+	color: var(--bfg-green);
+}
+
+.bfg-nav-col ul {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.bfg-nav-col a {
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 16px;
+}
+
+.bfg-nav-col a:hover {
+	color: var(--bfg-green);
+	text-decoration: underline;
+}
+
+.bfg-contact-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.bfg-contact-item .bfg-contact-label {
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 16px;
+	color: var(--bfg-green);
+}
+
+.bfg-contact-item .bfg-contact-value {
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 16px;
+}
+
+.bfg-contact-item .bfg-contact-vat {
+	font-weight: 700;
+	font-size: 14px;
+}
+
+/* ---------------------------------------------------------------------
+   Bottom bar (#34457:280485)
+   --------------------------------------------------------------------- */
+.bfg-bottom {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 64px 24px;
+	flex-wrap: wrap;
+}
+
+.bfg-copyright {
+	margin: 0;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 16px;
+	color: var(--bfg-copyright-color);
+}
+
+/* ---------------------------------------------------------------------
+   Payment marks row.
+   WHY placeholder text pills, not brand SVGs: (1) ClickUp 86eypb6aw
+   flags that the shown methods (Discover, Amex, Apple Pay, Google Pay,
+   Klarna, PayPal) must be reconciled against the store's actually
+   enabled WooCommerce gateways before shipping. This LocalWP sandbox
+   has no reliable enabled-gateway signal (Stripe/PayPal both "no",
+   only a "cheque" placeholder is "yes") and the pre-rebuild live site
+   (bonza.dog) shows no payment marks in its footer at all, so there is
+   no ground truth to build against yet. (2) Card-network logos carry
+   their own brand-usage requirements and none of the shipped plugins
+   expose a themeable, redistributable asset for them. `$bfg_payment_
+   methods` in bonza.php is the single place to edit once gateways are
+   confirmed and real brand SVGs are sourced, swap the .bfg-payment
+   pill for an <img> there without touching this file.
+   --------------------------------------------------------------------- */
+.bfg-payment-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 4px;
+}
+
+.bfg-payment {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 28px;
+	padding: 0 6px;
+	min-width: 41px;
+	border-radius: 4px;
+	background-color: var(--bfg-white);
+	color: var(--bfg-ink);
+	font-size: 9px;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------
+   Tablet, 744/768 (Figma "Tab 2" 17298:196546; Blocksy tablet range)
+   --------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+	.bfg-band--hub,
+	.bfg-band--signup {
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+
+	.bfg-main {
+		padding: 64px 24px 32px;
+	}
+
+	.bfg-nav-section {
+		flex-wrap: wrap;
+		row-gap: 40px;
+	}
+
+	.bfg-intro-col {
+		flex: 1 1 100%;
+	}
+
+	.bfg-nav-col,
+	.bfg-contact-col {
+		flex: 1 1 calc(50% - 20px);
+	}
+
+	.bfg-bottom {
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+}
+
+/* ---------------------------------------------------------------------
+   Mobile, Blocksy's real mobile breakpoint (NOT 768px), Figma "Mobile 2"
+   17298:196807 drawn at 428, floor at 375.
+   --------------------------------------------------------------------- */
+@media (max-width: 690px) {
+	.bfg-band--hub {
+		padding: 20px;
+		gap: 48px;
+	}
+
+	.bfg-h2 {
+		font-size: 24px;
+		line-height: 32px;
+	}
+
+	.bfg-band--signup {
+		padding: 20px;
+	}
+
+	.bfg-band--signup .bfg-eyebrow {
+		font-size: 12px;
+	}
+
+	.bfg-main {
+		padding: 64px 20px 32px;
+	}
+
+	.bfg-nav-section {
+		flex-direction: column;
+		gap: 40px;
+	}
+
+	.bfg-nav-col,
+	.bfg-contact-col {
+		flex: 1 1 auto;
+	}
+
+	.bfg-bottom {
+		flex-direction: column;
+		align-items: center;
+		padding: 0 20px 24px;
+		text-align: center;
+	}
+
+	.bfg-payment-row {
+		justify-content: center;
+	}
+}
