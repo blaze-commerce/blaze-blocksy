@@ -9,15 +9,16 @@
  *
  * WHY a new file (not clients/bonza/bonza.css): this ships from an isolated
  * worktree (feat/86eypb6kz-shipping-panel) alongside other agents editing
- * bonza.css concurrently (cart off-canvas, search dropdown). Loaded via a
- * dedicated wp_enqueue_style() call in clients/bonza/bonza.php (the same
- * pattern already used there for the footer stylesheet, specifically to
- * avoid concurrent-edit collisions on bonza.css/manifest.json), dependent on
- * blocksy-child-client-bonza so it wins the cascade over both bonza.css and
- * the shared assets/css/components/product-information.css. There is no
- * custom/custom.php in this theme (removed 2026-05-08, see inc/loader.php) -
- * an earlier draft of this comment assumed one existed; corrected after an
- * independent audit caught it.
+ * bonza.css concurrently (cart off-canvas, search dropdown). Loaded via
+ * bonza_shipping_panel_enqueue_assets() in clients/bonza/bonza.php (the same
+ * isolation pattern already used there for the footer and wishlist-offcanvas
+ * stylesheets, specifically to avoid concurrent-edit collisions on
+ * bonza.css/manifest.json), dependent on the shared module's own handle
+ * (blocksy-child-product-information, registered in inc/enqueue.php) so it
+ * always loads after that baseline CSS. There is no custom/custom.php in
+ * this theme (removed 2026-05-08, see inc/loader.php) - an earlier draft of
+ * this comment assumed one existed; corrected after an independent audit
+ * caught it.
  *
  * Also required for anything here to render at all: the "product-information"
  * feature must be present in clients/bonza/manifest.json's "features" array
