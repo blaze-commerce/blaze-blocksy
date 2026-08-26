@@ -20,46 +20,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for skip marker
-        id: skip_check
-        env:
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          if [[ "$COMMIT_MESSAGE" == *"[skip version]"* ]]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Bump patch version in style.css
-        if: steps.skip_check.outputs.skip == 'false'
+      - name: Compute next version from latest tag
         id: bump
         run: |
-          CURRENT=$(grep -m1 '^ Version:' style.css | sed -E 's/^ Version:\s*//')
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-          NEW="$MAJOR.$MINOR.$((PATCH + 1))"
-          sed -i "s/^ Version:.*/ Version:      $NEW/" style.css
+          LATEST=$(git tag --list 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          if [[ -z "$LATEST" ]]; then
+            echo "No existing vX.Y.Z tags found, starting at v0.0.1"
+            NEW="0.0.1"
+          else
+            CURRENT="${LATEST#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            NEW="$MAJOR.$MINOR.$((PATCH + 1))"
+          fi
           echo "VERSION=$NEW" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and tag
-        if: steps.skip_check.outputs.skip == 'false'
+      - name: Tag and push
+        # Only the new tag is pushed. main itself is never written to. This
+        # repo's branch ruleset requires all changes to main go through a
+        # PR, so a direct git push to HEAD:main (what an earlier version of
+        # this workflow did) is rejected with GH013. Tags under refs/tags
+        # are not covered by that ruleset, so tagging the commit that was
+        # just merged and pushing only the tag succeeds.
+        id: tag
         env:
           VERSION: ${{ steps.bump.outputs.VERSION }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add style.css
-          git commit -m "chore: bump version to $VERSION [skip version]"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists, skipping (likely a rerun)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git tag "v$VERSION"
-          git push origin HEAD:main
           git push origin "v$VERSION"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
 
       - name: Trigger release workflow
-        # GitHub does not start new workflow runs for a tag pushed using the
+        # GitHub does not start new workflow runs for a ref pushed using the
         # default GITHUB_TOKEN, so the tag push above will never fire
-        # release.yml's `on: push: tags:` trigger on its own. Explicitly
-        # dispatch it instead, targeting the tag we just pushed.
-        if: steps.skip_check.outputs.skip == 'false'
+        # release.yml's push tags trigger on its own. Explicitly dispatch
+        # it instead, targeting the tag we just pushed.
+        if: steps.tag.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.bump.outputs.VERSION }}
