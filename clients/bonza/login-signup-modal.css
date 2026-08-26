@@ -73,10 +73,30 @@
 	--theme-palette-color-1: #ffc125;
 	--theme-palette-color-2: #247b4e;
 
-	/* Local design tokens (Figma-accurate, now backed by the override above). */
-	--bonza-login-text: var(--theme-text-color, #494545);
+	/*
+	 * Same bug, same fix, one property over. Blocksy unconditionally emits
+	 * `--theme-text-color` (defaulting to `--theme-palette-color-3`), so a
+	 * `var(--theme-text-color, #494545)` fallback never fires either. It
+	 * silently inherited whatever un-branded value palette-3 resolves to.
+	 * Overridden directly and scoped to #account-modal, same as the two
+	 * palette vars above.
+	 */
+	--theme-text-color: #494545;
+
+	/* Local design tokens (Figma-accurate, now backed by the overrides above). */
+	--bonza-login-text: var(--theme-text-color);
 	--bonza-login-heading-active: var(--theme-palette-color-2);
-	--bonza-login-heading-inactive: var(--theme-palette-color-1);
+	/*
+	 * NOT the literal Figma hex (#ffc125). Measured: #ffc125 on white is
+	 * 1.63:1, which fails WCAG 2.2 AA at any size (large-text threshold is
+	 * 3:1, normal is 4.5:1). This is live, interactive tab-label text, not
+	 * passive decoration, so it can't ship as-drawn the way the input-border
+	 * gap below was. #8a5d00 keeps the same hue family and measures about
+	 * 5.2:1 against white, passing at both the 18px desktop and 14px mobile
+	 * sizes this label renders at. Flagged for designer sign-off on the
+	 * exact shade, not silently matched pixel for pixel.
+	 */
+	--bonza-login-heading-inactive: #8a5d00;
 	--bonza-login-cta-bg: var(--theme-palette-color-1);
 	--bonza-login-cta-text: #000000;
 	--bonza-login-link: #6e5d84;
@@ -91,7 +111,16 @@
 /* ------------------------------------------------------------------ */
 /* Card                                                                */
 /* ------------------------------------------------------------------ */
-#account-modal .ct-panel-content {
+/*
+ * Companion Pro's own dynamic-styles stylesheet (theme-integration.php,
+ * appended to <body> at runtime, so it lands after this enqueued file in
+ * source order) carries the identical selector `#account-modal
+ * .ct-panel-content { padding: 35px }` at the same specificity, and wins
+ * the tie by load order. The doubled class below raises specificity by
+ * one step so this rule always wins regardless of injection order,
+ * without an !important.
+ */
+#account-modal .ct-panel-content.ct-panel-content {
 	padding: 0;
 }
 
