@@ -28,9 +28,13 @@
 (function () {
 	'use strict';
 
-	// Wishlist trigger uses a real URL (intercepted by wishlist-offcanvas.js)
-	// instead of `#woo-wishlist-panel`, so we match it separately.
-	var WISHLIST_TRIGGER_SEL = 'a[href*="/my-account/woo-wish-list"]';
+	// Wishlist trigger: `#woo-wishlist-panel` since 86eypb6jy overrode
+	// Companion Pro's native "wish-list" header item view to open the
+	// off-canvas drawer directly (inc/wishlist-offcanvas.php's
+	// blocksy:header:item-view-path:wish-list filter). The real-URL form
+	// is kept in the selector too, for any older markup still using
+	// Companion Pro's stock page-link view.
+	var WISHLIST_TRIGGER_SEL = 'a[href*="/my-account/woo-wish-list"], a[href="#woo-wishlist-panel"]';
 
 	var PAIRS = [
 		{ panelId: 'woo-cart-panel',     triggerSel: 'a[href="#woo-cart-panel"]' },
