@@ -19,6 +19,10 @@
  * @package Blocksy_Child
  * @date    2026-04-23
  * @updated 2026-04-25
+ * @updated 2026-08-27 — contact_text was hardcoded to Byron Bay Candles' real phone/address,
+ *   so every other client site inherited BBC's contact info as its own "trust" copy. Defaults
+ *   to empty (renders nothing) and each site adds its own via the bc_checkout_trust_contact_text
+ *   filter, same as byronbaycandles now does for its own real number.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -62,7 +66,13 @@ function bc_checkout_trust_get_config() {
 			],
 			'title'        => __( 'Secure Payments', 'blocksy-child' ),
 			'text'         => __( 'We protect your transaction with 256-bit SSL encryption and secure payment methods. Shop confidently, knowing your data is fully protected.', 'blocksy-child' ),
-			'contact_text' => 'Have questions or need assistance? Call us at <a href="tel:+61266855478">+61 2 6685 5478</a> to speak with one of our expert. You\'ll find us located in the Industry and Arts Estate in Byron Bay and you are welcome to visit us at the factory door, Monday to Friday during opening hours.',
+			/**
+			 * Per-site contact copy for the checkout trust block. Empty by default so a
+			 * site with no filter renders no contact line, rather than another site's
+			 * real phone/address. Each site adds its own via this filter, e.g.:
+			 *   add_filter( 'bc_checkout_trust_contact_text', fn() => 'Call us at <a href="tel:+1...">...</a>...' );
+			 */
+			'contact_text' => apply_filters( 'bc_checkout_trust_contact_text', '' ),
 		],
 	];
 }
@@ -93,7 +103,9 @@ function bc_checkout_trust_render( $position = 'sidebar' ) {
 			<p class="bc-checkout-trust__body"><?php echo esc_html( $config['left']['text'] ); ?></p>
 		</div>
 
-		<p class="bc-checkout-trust__body"><?php echo wp_kses_post( $config['left']['contact_text'] ); ?></p>
+		<?php if ( ! empty( $config['left']['contact_text'] ) ) : ?>
+			<p class="bc-checkout-trust__body"><?php echo wp_kses_post( $config['left']['contact_text'] ); ?></p>
+		<?php endif; ?>
 	</div>
 	<?php
 }
