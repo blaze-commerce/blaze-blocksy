@@ -102,7 +102,31 @@ add_action( 'after_setup_theme', function () {
 	remove_action( 'woocommerce_before_checkout_form', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 100 );
 
 	// Re-add to fc_checkout_before_steps (inside .fc-inside).
-	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1 );
+	//
+	// BUG FIX (86eypb6my, 2026-08-27): output_checkout_progress_bar() must be
+	// re-added with 0 accepted args, matching its original registration in
+	// fluid-checkout/inc/checkout-steps.php:89 ("0 = No arguments because the
+	// action passed in an object of unexpected type"). Without the explicit
+	// `, 0` here, WordPress defaults to 1 accepted arg, so the WC_Checkout
+	// object that `do_action( 'fc_checkout_before_steps', $checkout )` passes
+	// lands in $context, and output_checkout_progress_bar( $context ) forwards
+	// it into get_current_step( $context ), which fatals on the string
+	// concatenation `'current_step_' . $context` ("Object of class
+	// WC_Checkout could not be converted to string"). That kills the entire
+	// checkout page output with nothing written to wp-content/debug.log; it
+	// only surfaced running wp-cli eval directly, which prints the uncaught
+	// Error and stack trace.
+	//
+	// Confirmed live on bonza-retheme.blz.au 2026-08-27. The fatal was
+	// dormant on every site using this file because Fluid Checkout Pro alone,
+	// without the free "Fluid Checkout" base plugin also active, never
+	// reaches multi-step rendering at all: the free plugin's own step-split
+	// template only loads once that free plugin is installed and active. It
+	// first surfaced when the free plugin was installed on Bonza staging to
+	// unblock the checkout step 1 through 3 Figma builds, and would hit any
+	// other site running this theme with both plugins active and multi-step
+	// enabled.
+	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1, 0 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_start_tag' ), 2 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 99 );
 }, 20 );
