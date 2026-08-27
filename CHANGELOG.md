@@ -1,3 +1,8 @@
+## [checkout-trust-badges-contact-2026-08-27] - 2026-08-27
+
+### Fixed
+- `inc/checkout-trust-badges.php`: `contact_text` on the checkout trust block was hardcoded to Byron Bay Candles' real phone number and address ("+61 2 6685 5478", "Industry and Arts Estate in Byron Bay"), so every other client site sharing this theme showed BBC's contact info as its own. Confirmed live on bonza's checkout. Now sourced from the `bc_checkout_trust_contact_text` filter, defaulting to empty (renders nothing) instead of another client's real details. Each site adds its own via the filter; byronbaycandles' own site still needs one added separately to keep showing its real number, since this change only removes the hardcoded default.
+
 ## [bonza-client-module-2026-08-25] - 2026-08-25
 
 ### Added
