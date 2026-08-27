@@ -22,7 +22,8 @@
  * @updated 2026-08-27 — contact_text was hardcoded to Byron Bay Candles' real phone/address,
  *   so every other client site inherited BBC's contact info as its own "trust" copy. Defaults
  *   to empty (renders nothing) and each site adds its own via the bc_checkout_trust_contact_text
- *   filter, same as byronbaycandles now does for its own real number.
+ *   filter. byronbaycandles' own site still needs its filter added separately to keep showing
+ *   its real number; this change only removes the hardcoded default.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

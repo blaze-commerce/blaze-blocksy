@@ -23,9 +23,9 @@ CSS toggles which variant is visible per breakpoint so only one shows at a time.
 - **Payment logos** (4) — PayPal, Secure (SSL badge), Afterpay, Zip — sourced from `assets/images/payment-icons/`.
 - **Heading** — "Secure Payments" + checkmark glyph (`✓`).
 - **Body** — "We protect your transaction with 256-bit SSL encryption and secure payment methods. Shop confidently, knowing your data is fully protected."
-- **Contact paragraph** — "Have questions or need assistance? Call us at +61 2 6685 5478 to speak with one of our experts. You'll find us located in the Industry and Arts Estate in Byron Bay…"
+- **Contact paragraph**, per-site, sourced from the `bc_checkout_trust_contact_text` filter. Empty by default (renders nothing) since 2026-08-27; a site with no filter shows no contact line rather than another client's real phone/address.
 
-The phone number + address copy is BBC-specific. Other clients forking the theme will want to override `bc_checkout_trust_get_config()` via a child theme filter (TODO — not yet exposed as a filter; currently a function call).
+Each client adds its own contact copy via `add_filter( 'bc_checkout_trust_contact_text', fn() => '...' )`. BBC's own real number ("+61 2 6685 5478", Industry and Arts Estate in Byron Bay) used to be the hardcoded default for every site. It is no longer hardcoded, and byronbaycandles' own site still needs its own filter added to keep showing it.
 
 ## Why a feature flag
 
