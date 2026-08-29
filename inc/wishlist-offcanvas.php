@@ -483,3 +483,49 @@ function blocksy_child_wishlist_current_ids() {
 		return isset( $item['id'] ) ? (int) $item['id'] : 0;
 	}, $items ) ) );
 }
+
+/**
+ * Header trigger for the off-canvas wishlist panel (86eypb6jy).
+ *
+ * WHY: Blocksy Companion Pro (WooCommerce Extra) already registers a native
+ * "Wishlist" header item type, `header-items/wish-list/` under
+ * framework/premium/extensions/woocommerce-extra/features/wish-list/,
+ * added via the theme's own `blocksy:header:items-paths` filter. It is a
+ * real, addable item in Header Builder > Add Item today (confirmed live on
+ * Companion Pro 2.1.48, 2026-08-27), not a missing item type. Its stock
+ * `view.php` links to a full-page WooCommerce endpoint
+ * (`wc_get_endpoint_url( 'woo-wish-list', ... )`), which navigates away
+ * from the page instead of opening this theme's off-canvas panel
+ * (`#woo-wishlist-panel`, rendered above by
+ * blocksy_child_render_wishlist_panel()). That page-link vs. drawer
+ * mismatch, not a missing item type, is the actual gap this closes.
+ *
+ * Fix: swap only the rendered view for the native `wish-list` item via the
+ * theme's own `blocksy:header:item-view-path:{item_id}` filter (documented
+ * in wp-content/themes/blocksy/changelog.txt, consumed in
+ * builder-header-renderer.php::render_item()). Companion Pro's own
+ * Customizer options for this item (icon source/type, label, visibility,
+ * badge, its `options.php`) are untouched, so admins keep the full native
+ * "Wishlist" controls in Header Builder; only the click behaviour changes,
+ * from page navigation to opening the off-canvas panel. This is the same
+ * pattern the theme's own Cart item already uses when `cart_drawer_type`
+ * is set to `offcanvas` (inc/panel-builder/header/cart/view.php).
+ *
+ * Placement into a site's header row (Customizer > Header > Add Item) is a
+ * config action, not code, and stays per-site.
+ *
+ * Scope: gated behind the same `blc_get_ext( 'woocommerce-extra' )` check
+ * as the rest of this file, so this only activates on sites where the
+ * Wishlist extension (and therefore the native item plus the off-canvas
+ * panel above) is actually active.
+ *
+ * Caveat: Blocksy suffixes an item's render id with `~N` when the SAME item
+ * is placed twice within one device's rows
+ * (builder-renderer.php::get_original_id()). This filter only matches the
+ * bare `wish-list` id. If a site ever needs Wishlist placed twice in one
+ * device (a main row and an offcanvas/mobile-menu row at once), also add
+ * the `wish-list~2` filter before relying on the second placement.
+ */
+add_filter( 'blocksy:header:item-view-path:wish-list', function ( $path ) {
+	return get_stylesheet_directory() . '/partials/wishlist-header-offcanvas-trigger.php';
+}, 20 );
