@@ -6,6 +6,11 @@
 ### Fixed
 - Root cause found on Bonza (bonza-retheme.blz.au) while building the above: Companion Pro's WooCommerce Extra "Wishlist" feature flag (`blocksy_ext_woocommerce_extra_settings.features.wishlist`) had never been turned on for this site, the option row did not exist at all in `wp_options`, so it silently defaulted to `false`. That meant `blc_get_ext('woocommerce-extra')->get_wish_list()` always returned `null`; the off-canvas panel's preload in this file has been rendering an empty wishlist regardless of real cart contents, and the native header item was never registered (so it could not be added at all). This is a per-site config fix (`update_option`, staging only), not a code change; noted here since the previous entries in this file record the panel and layout work as already complete without this dependency having been caught.
 
+## [checkout-trust-badges-contact-2026-08-27] - 2026-08-27
+
+### Fixed
+- `inc/checkout-trust-badges.php`: `contact_text` on the checkout trust block was hardcoded to Byron Bay Candles' real phone number and address ("+61 2 6685 5478", "Industry and Arts Estate in Byron Bay"), so every other client site sharing this theme showed BBC's contact info as its own. Confirmed live on bonza's checkout. Now sourced from the `bc_checkout_trust_contact_text` filter, defaulting to empty (renders nothing) instead of another client's real details. Each site adds its own via the filter; byronbaycandles' own site still needs one added separately to keep showing its real number, since this change only removes the hardcoded default.
+
 ## [bonza-client-module-2026-08-25] - 2026-08-25
 
 ### Added
