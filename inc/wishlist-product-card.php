@@ -22,10 +22,25 @@
  *   - Subheadline reads the product's short description (WooCommerce's own
  *     "Product short description" field, stripped of markup). This reuses
  *     an already-editable WP field rather than adding a new one.
- *   - The Subscribe & Save badge renders only when WooCommerce Subscriptions
- *     is active and the product has a real subscription discount to show.
- *     Most products have no such discount configured today, see
- *     CU-86eyuup3c's data-gap note, and get no badge until that changes.
+ *   - The Subscribe & Save badge renders only when a SINGLE product carries
+ *     both a one-time and a subscription price on itself (a native WC
+ *     Subscriptions product with its own regular price, or a WCS-ATT scheme
+ *     product). Verified live on bonza-retheme.blz.au 7 Sep 2026: Bonza's
+ *     actual "subscribe and save" catalog shape is TWIN PRODUCTS instead —
+ *     e.g. `boost-bioactive-bites-otp` (post 132462, one-time, £29) and
+ *     `daily-multivitamin-dogs` (post 131519, native variable-subscription,
+ *     From £21.60) are two separate posts with no shared SKU prefix or
+ *     product-meta linkage, sharing only a near-identical display name.
+ *     `WCS_ATT_Product_Schemes::get_subscription_schemes()` returns an empty
+ *     array for the subscription twin (WCS-ATT is not what creates it), and
+ *     its own `get_regular_price()` is empty (only its variations carry a
+ *     price), so neither function below can compute the real £7.40 saving —
+ *     that number only exists by comparing two different product objects,
+ *     and there is today no reliable rule (naming, SKU, meta) to pair them.
+ *     The badge therefore does NOT render anywhere in Bonza's current
+ *     catalog. This is a deliberate deferral, not a bug: see CU-86eyuup3c
+ *     for the options (define a real OTP<->subscription linkage, or accept
+ *     no badge) once the client decides which.
  *
  * @package Blocksy_Child
  */
@@ -111,10 +126,23 @@ function blocksy_child_wishlist_card_subscribe_badge( $product ) {
 /**
  * Saving amount from a WCS-ATT (All Products for Subscriptions) scheme.
  *
+ * Not exercised by anything in Bonza's live catalog today (verified 7 Sep
+ * 2026: `get_subscription_schemes()` returns an empty array for every
+ * product checked there), so this has never run against real scheme data
+ * in this project. It reads `get_discount()` first (the accessor a
+ * WCS_ATT_Scheme object is documented to expose) and only falls back to
+ * guessing an array/property shape if that method is absent, and only
+ * applies the percentage for a scheme whose pricing mode is NOT 'override'
+ * (an override scheme sets its own fixed price instead of a % off, so
+ * treating its discount value as a percentage would be wrong). Every step
+ * stays guarded with method_exists()/is_callable() so an API mismatch
+ * yields null (no badge), never a fatal or a guessed number.
+ *
  * @param WC_Product $product Product.
  * @return float|null Saving amount, or null when WCS-ATT is not active, the
- *                     product has no scheme, or the scheme data has no
- *                     discount percentage in the shape this reads.
+ *                     product has no scheme, the scheme uses fixed
+ *                     ('override') pricing, or no discount percentage could
+ *                     be read.
  */
 function blocksy_child_wishlist_card_wcsatt_saving( $product ) {
 	if ( ! class_exists( 'WCS_ATT_Product_Schemes' ) || ! method_exists( 'WCS_ATT_Product_Schemes', 'get_subscription_schemes' ) ) {
@@ -127,14 +155,23 @@ function blocksy_child_wishlist_card_wcsatt_saving( $product ) {
 		return null;
 	}
 
-	$scheme  = reset( $schemes );
+	$scheme = reset( $schemes );
+
+	if ( is_object( $scheme ) && method_exists( $scheme, 'get_pricing_mode' ) ) {
+		if ( 'override' === $scheme->get_pricing_mode() ) {
+			return null;
+		}
+	}
+
 	$percent = null;
 
-	if ( is_object( $scheme ) && method_exists( $scheme, 'get_data' ) ) {
+	if ( is_object( $scheme ) && method_exists( $scheme, 'get_discount' ) ) {
+		$percent = (float) $scheme->get_discount();
+	} elseif ( is_object( $scheme ) && method_exists( $scheme, 'get_data' ) ) {
 		$data    = $scheme->get_data();
-		$percent = isset( $data['discount'] ) ? (float) $data['discount'] : null;
-	} elseif ( is_array( $scheme ) && isset( $scheme['discount'] ) ) {
-		$percent = (float) $scheme['discount'];
+		$percent = isset( $data['subscription_discount'] ) ? (float) $data['subscription_discount'] : ( isset( $data['discount'] ) ? (float) $data['discount'] : null );
+	} elseif ( is_array( $scheme ) ) {
+		$percent = isset( $scheme['subscription_discount'] ) ? (float) $scheme['subscription_discount'] : ( isset( $scheme['discount'] ) ? (float) $scheme['discount'] : null );
 	}
 
 	if ( null === $percent || $percent <= 0 ) {
@@ -153,6 +190,16 @@ function blocksy_child_wishlist_card_wcsatt_saving( $product ) {
 /**
  * Saving amount for a native WooCommerce Subscriptions product, comparing
  * its own regular price against its active subscription price.
+ *
+ * Only ever fires for a SINGLE product that carries both prices on itself.
+ * Verified live 7 Sep 2026: Bonza's `variable-subscription` products (e.g.
+ * `daily-multivitamin-dogs`) return an empty `get_regular_price()` on the
+ * parent post (only their variations have a price), so `$regular_price`
+ * below is 0 and this returns null for every one of them today - correctly
+ * showing no badge rather than a wrong number, but it cannot see the
+ * separate one-time-purchase twin product Bonza actually sells alongside
+ * it (see the file header note). Fixing that needs a real product-to-
+ * product linkage, not a change to this function.
  *
  * @param WC_Product $product Product.
  * @return float|null Saving amount, or null when not applicable.
