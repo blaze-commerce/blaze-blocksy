@@ -1,3 +1,10 @@
+## [wishlist-product-card-audit-fixes-round3-2026-09-07] - 2026-09-07
+
+### Fixed
+- `blocksy_child_wishlist_card_native_subscription_saving()`: round-2 audit fix compared a native WooCommerce Subscriptions product's `get_regular_price()` against its active `WC_Subscriptions_Product::get_price()` and called the difference a "subscribe and save" saving. Round-3 audit found that comparison is wrong: both values are recurring subscription prices (there is no one-time price on a native subscription product), so they differ only when the product is on sale — the badge would have rendered a sale markdown as a fabricated subscribe-vs-one-time claim the first time any Bonza subscription variation goes on sale. This function now always returns null; the WCS-ATT scheme branch is the only remaining path that can compute a real saving, since it is the only place a genuine one-time price and a subscription discount can coexist on one product.
+- `blocksy_child_wishlist_card_wcsatt_saving()`: now reads `$scheme->get_discount()` first (the WCS-ATT scheme's documented accessor) instead of guessing an array key, falls back to `subscription_discount` then `discount` if the object shape differs, and returns null for an `'override'`-pricing-mode scheme (which sets a fixed price, not a percentage) before doing any percentage math.
+- Corrected an inaccurate claim in this file, PR 259's body and the Bonza CHANGELOG: the badge was described as blocked by missing catalog data ("no subscription pricing configured on most products today"). Verified live 7 Sep 2026 that the real blocker is Bonza's catalog shape — subscribe-and-save products are twin posts (a one-time SKU and a separate native-subscription SKU, e.g. `boost-bioactive-bites-otp` at £29 vs `daily-multivitamin-dogs` at From £21.60) with no linkage between them and zero WCS-ATT schemes anywhere in the catalog — not a data-population gap.
+
 ## [wishlist-product-card-audit-fixes-2026-09-07] - 2026-09-07
 
 ### Fixed
@@ -8,7 +15,7 @@
 ## [wishlist-product-card-2026-09-07] - 2026-09-07
 
 ### Added
-- `inc/wishlist-product-card.php`: shared PRODUCT CARD component (Figma 68:34939/29089:54366) rendering image, category pills, subheadline, divider, and price plus a Subscribe and Save badge, sourced from real WooCommerce data (product_cat terms, the short-description field, and WooCommerce Subscriptions pricing). Used by both the wishlist item cards and the new `blocksy_child_render_wishlist_suggested_product_cards()` grid, replacing Blocksy's plain default card for sites that opt in via `blocksy_child_wishlist_suggested_uses_product_cards` (off by default; Byron Bay, AlternateWorlds and The Natural Mattress unaffected).
+- `inc/wishlist-product-card.php`: shared PRODUCT CARD component (Figma 68:34939/29089:54366) rendering image, category pills, subheadline, divider, and price plus a Subscribe and Save badge, sourced from real WooCommerce data only (product_cat terms, the short-description field, and — see the round-3 audit-fix entry above — a same-product one-time-vs-subscription price comparison, which nothing in Bonza's current catalog satisfies). Used by both the wishlist item cards and the new `blocksy_child_render_wishlist_suggested_product_cards()` grid, replacing Blocksy's plain default card for sites that opt in via `blocksy_child_wishlist_suggested_uses_product_cards` (off by default; Byron Bay, AlternateWorlds and The Natural Mattress unaffected).
 
 ### Changed
 - `inc/wishlist-offcanvas.php`: wishlist-item data (preload and the AJAX endpoint) now also returns a `card` field with the rendered HTML.

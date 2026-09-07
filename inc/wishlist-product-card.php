@@ -22,10 +22,14 @@
  *   - Subheadline reads the product's short description (WooCommerce's own
  *     "Product short description" field, stripped of markup). This reuses
  *     an already-editable WP field rather than adding a new one.
- *   - The Subscribe & Save badge renders only when a SINGLE product carries
- *     both a one-time and a subscription price on itself (a native WC
- *     Subscriptions product with its own regular price, or a WCS-ATT scheme
- *     product). Verified live on bonza-retheme.blz.au 7 Sep 2026: Bonza's
+ *   - The Subscribe & Save badge renders only for a WCS-ATT scheme product
+ *     that carries a genuine one-time price plus a subscribe-and-save
+ *     percentage on the SAME product. A native WooCommerce Subscriptions
+ *     product cannot qualify: its "regular price" and "active price" are
+ *     both recurring subscription prices, never a one-time price, so
+ *     comparing them (an earlier version of this file did) yields a sale
+ *     markdown, not a subscribe-vs-one-time saving — round-3 audit,
+ *     7 Sep 2026. Verified live on bonza-retheme.blz.au the same day: Bonza's
  *     actual "subscribe and save" catalog shape is TWIN PRODUCTS instead —
  *     e.g. `boost-bioactive-bites-otp` (post 132462, one-time, £29) and
  *     `daily-multivitamin-dogs` (post 131519, native variable-subscription,
@@ -188,35 +192,36 @@ function blocksy_child_wishlist_card_wcsatt_saving( $product ) {
 }
 
 /**
- * Saving amount for a native WooCommerce Subscriptions product, comparing
- * its own regular price against its active subscription price.
+ * Deliberately inert. Kept (rather than deleted) only as the documented
+ * reason a native WooCommerce Subscriptions product never gets a native-
+ * side saving computed for it.
  *
- * Only ever fires for a SINGLE product that carries both prices on itself.
- * Verified live 7 Sep 2026: Bonza's `variable-subscription` products (e.g.
- * `daily-multivitamin-dogs`) return an empty `get_regular_price()` on the
- * parent post (only their variations have a price), so `$regular_price`
- * below is 0 and this returns null for every one of them today - correctly
- * showing no badge rather than a wrong number, but it cannot see the
- * separate one-time-purchase twin product Bonza actually sells alongside
- * it (see the file header note). Fixing that needs a real product-to-
- * product linkage, not a change to this function.
+ * An earlier version of this function compared a native subscription
+ * product's `get_regular_price()` against `WC_Subscriptions_Product::
+ * get_price()`. Round-3 audit (7 Sep 2026) found that comparison is not a
+ * subscribe-vs-one-time saving at all: for a WooCommerce Subscriptions
+ * product (or a subscription variation, which is what a wishlist entry
+ * actually stores when a shopper wishlists a specific variation of e.g.
+ * `daily-multivitamin-dogs`), BOTH of those are recurring subscription
+ * prices - "regular" and "active" - not a one-time price. They differ only
+ * when the product is on sale, so the old code would have rendered the sale
+ * markdown as a fabricated "Subscribe & Save £X per delivery" claim the
+ * first time any Bonza subscription variation goes on sale, a normal
+ * merchandising event, not an edge case. There is no WooCommerce
+ * Subscriptions API for "this subscription product's one-time-purchase
+ * equivalent price" - that number only exists, if at all, on a separate
+ * twin product (see the file header note), which this function has no way
+ * to find. So this always returns null: the WCS-ATT scheme branch above is
+ * the only place a real subscribe-vs-one-time delta can exist on ONE
+ * product, and is the only branch `blocksy_child_wishlist_card_subscribe_
+ * badge()` can trust.
  *
- * @param WC_Product $product Product.
- * @return float|null Saving amount, or null when not applicable.
+ * @param WC_Product $product Unused; kept in the signature so callers and
+ *                             the dispatch order above need no change.
+ * @return null Always. See docblock.
  */
 function blocksy_child_wishlist_card_native_subscription_saving( $product ) {
-	if ( ! class_exists( 'WC_Subscriptions_Product' ) || ! WC_Subscriptions_Product::is_subscription( $product ) ) {
-		return null;
-	}
-
-	$sub_price     = (float) WC_Subscriptions_Product::get_price( $product );
-	$regular_price = (float) $product->get_regular_price();
-
-	if ( $sub_price <= 0 || $regular_price <= $sub_price ) {
-		return null;
-	}
-
-	return $regular_price - $sub_price;
+	return null;
 }
 
 /**
