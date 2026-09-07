@@ -1,3 +1,10 @@
+## [wishlist-product-card-audit-fixes-2026-09-07] - 2026-09-07
+
+### Fixed
+- `blocksy_child_render_wishlist_suggested()`: "You May Also Like" was rendering the shopper's own wishlist items again (uncapped) because `bc_resolve_suggested_product_ids()` only slices to its `$limit` on the bestseller-fallback branch. Now always resolves fresh bestseller ids and excludes any already in the wishlist, capped to 2.
+- `blocksy_child_wishlist_card_subscribe_badge()`: checked native WooCommerce Subscriptions only, which never matches Bonza's actual plugin (WCS-ATT, All Products for Subscriptions). Added a WCS-ATT scheme check first, guarded with `class_exists()`/`method_exists()` throughout so an API mismatch yields no badge rather than a fatal or a guessed discount.
+- `blocksy_child_wishlist_product_card_html()`: wraps its markup in a new `.ct-wishlist-card-inner` element so the card's rounded/clipped chrome (added in a companion commit) no longer lives on the caller's wrapper, which was clipping the "Remove" control's focus ring.
+
 ## [wishlist-product-card-2026-09-07] - 2026-09-07
 
 ### Added
