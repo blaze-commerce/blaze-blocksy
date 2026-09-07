@@ -1,3 +1,9 @@
+## [wishlist-stale-data-guest-notice-gate-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: `signupLabel` never reached the DOM because the module-level `data` variable is captured once, before the wp_footer-printed `bcWishlistData` blob prints (later in page order than this enqueued script) - the exact stale-closure trap this file's own `usesCards()` already documents for `cardLayout`. Added a matching `signupLabel()` function that re-reads `window.bcWishlistData` at render time.
+- The guest-notice-only-when-empty change was universal with no per-site gate, silently changing behaviour for Byron Bay, AlternateWorlds, and The Natural Mattress. Added `blocksy_child_wishlist_guest_notice_empty_only` (`inc/wishlist-offcanvas.php`, default false = unchanged legacy "always show" behaviour); Bonza opts in via its own filter. Found via independent audit, second round.
+
 ## [wishlist-signup-label-gate-2026-09-07] - 2026-09-07
 
 ### Fixed
