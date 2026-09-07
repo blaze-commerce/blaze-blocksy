@@ -1,3 +1,8 @@
+## [wishlist-signup-label-gate-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: `checkEmpty()` (re-render path when the last item is removed from an open drawer) still hardcoded the guest CTA as Sign Up; only the initial `renderPanel()` path had been relabeled Register in the prior commit. Both paths now read a filterable `bcWishlistData.signupLabel` (`inc/wishlist-offcanvas.php`, new `blocksy_child_wishlist_signup_label` filter, default Sign Up, unchanged for every existing site). The prior commit changed this label for all sites sharing the drawer with no per-site gate; Bonza now opts in separately via its own filter, matching the existing `blocksy_child_wishlist_card_layout` opt-in pattern. Found via independent audit.
+
 ## [wishlist-guest-notice-register-2026-09-07] - 2026-09-07
 
 ### Fixed
