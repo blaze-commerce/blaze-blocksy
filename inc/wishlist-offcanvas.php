@@ -262,7 +262,18 @@ function blocksy_child_render_wishlist_suggested() {
 	// Blocksy's own suggested-products carousel. Off by default: Byron Bay,
 	// AlternateWorlds and The Natural Mattress keep the carousel unchanged.
 	if ( apply_filters( 'blocksy_child_wishlist_suggested_uses_product_cards', false ) ) {
-		$card_ids = bc_resolve_suggested_product_ids( $valid_ids, 2 );
+		// bc_resolve_suggested_product_ids() only applies $limit on its
+		// bestseller-fallback branch; a non-empty first argument returns
+		// every valid id unsliced. Passing the shopper's own wishlist ids
+		// there (as $valid_ids is) would render "You May Also Like" as the
+		// shopper's own wishlist again, uncapped. Always resolve fresh
+		// bestseller suggestions instead, and drop any that are already in
+		// the wishlist.
+		$card_ids = array_values( array_diff(
+			bc_resolve_suggested_product_ids( [], 2 + count( $valid_ids ) ),
+			$valid_ids
+		) );
+		$card_ids = array_slice( $card_ids, 0, 2 );
 
 		return blocksy_child_render_wishlist_suggested_product_cards( $card_ids );
 	}

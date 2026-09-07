@@ -76,37 +76,100 @@ function blocksy_child_wishlist_card_pills_html( $product ) {
 /**
  * Subscribe & Save badge text for a product. Empty string when not applicable.
  *
- * Requires a real WooCommerce Subscriptions product with both a one-time
- * price and a subscription price to compare. A missing comparison price
- * produces an empty string, never a guessed discount.
+ * Bonza runs "All Products for WooCommerce Subscriptions" (WCS-ATT), which
+ * adds a subscribe-and-save SCHEME (usually a percentage discount) to an
+ * otherwise simple/variable product, rather than making the product itself
+ * a native WooCommerce Subscriptions product. Checking only
+ * WC_Subscriptions_Product::is_subscription() would never match a WCS-ATT
+ * product, so the badge could never render on this site. This checks
+ * WCS-ATT's own scheme data first and falls back to a native subscription
+ * product for any site that has one. Every step is guarded with
+ * method_exists()/is_callable(), so a plugin-version API mismatch produces
+ * an empty string (no badge), never a fatal or a guessed discount.
  *
  * @param WC_Product $product Product.
  * @return string Badge text (e.g. "Subscribe & Save £2.25 per delivery"), or ''.
  */
 function blocksy_child_wishlist_card_subscribe_badge( $product ) {
-	if ( ! class_exists( 'WC_Subscriptions_Product' ) || ! WC_Subscriptions_Product::is_subscription( $product ) ) {
-		return '';
+	$saving = blocksy_child_wishlist_card_wcsatt_saving( $product );
+
+	if ( null === $saving ) {
+		$saving = blocksy_child_wishlist_card_native_subscription_saving( $product );
 	}
 
-	$sub_price = (float) WC_Subscriptions_Product::get_price( $product );
-
-	if ( $sub_price <= 0 ) {
+	if ( null === $saving || $saving <= 0 ) {
 		return '';
 	}
-
-	$regular_price = (float) $product->get_regular_price();
-
-	if ( $regular_price <= $sub_price ) {
-		return '';
-	}
-
-	$saving = $regular_price - $sub_price;
 
 	return sprintf(
 		/* translators: %s: saving amount, formatted as a price. */
 		__( 'Subscribe & Save %s per delivery', 'blocksy-child' ),
 		wp_strip_all_tags( wc_price( $saving ) )
 	);
+}
+
+/**
+ * Saving amount from a WCS-ATT (All Products for Subscriptions) scheme.
+ *
+ * @param WC_Product $product Product.
+ * @return float|null Saving amount, or null when WCS-ATT is not active, the
+ *                     product has no scheme, or the scheme data has no
+ *                     discount percentage in the shape this reads.
+ */
+function blocksy_child_wishlist_card_wcsatt_saving( $product ) {
+	if ( ! class_exists( 'WCS_ATT_Product_Schemes' ) || ! method_exists( 'WCS_ATT_Product_Schemes', 'get_subscription_schemes' ) ) {
+		return null;
+	}
+
+	$schemes = WCS_ATT_Product_Schemes::get_subscription_schemes( $product );
+
+	if ( empty( $schemes ) || ! is_array( $schemes ) ) {
+		return null;
+	}
+
+	$scheme  = reset( $schemes );
+	$percent = null;
+
+	if ( is_object( $scheme ) && method_exists( $scheme, 'get_data' ) ) {
+		$data    = $scheme->get_data();
+		$percent = isset( $data['discount'] ) ? (float) $data['discount'] : null;
+	} elseif ( is_array( $scheme ) && isset( $scheme['discount'] ) ) {
+		$percent = (float) $scheme['discount'];
+	}
+
+	if ( null === $percent || $percent <= 0 ) {
+		return null;
+	}
+
+	$price = (float) $product->get_price();
+
+	if ( $price <= 0 ) {
+		return null;
+	}
+
+	return $price * ( $percent / 100 );
+}
+
+/**
+ * Saving amount for a native WooCommerce Subscriptions product, comparing
+ * its own regular price against its active subscription price.
+ *
+ * @param WC_Product $product Product.
+ * @return float|null Saving amount, or null when not applicable.
+ */
+function blocksy_child_wishlist_card_native_subscription_saving( $product ) {
+	if ( ! class_exists( 'WC_Subscriptions_Product' ) || ! WC_Subscriptions_Product::is_subscription( $product ) ) {
+		return null;
+	}
+
+	$sub_price     = (float) WC_Subscriptions_Product::get_price( $product );
+	$regular_price = (float) $product->get_regular_price();
+
+	if ( $sub_price <= 0 || $regular_price <= $sub_price ) {
+		return null;
+	}
+
+	return $regular_price - $sub_price;
 }
 
 /**
@@ -131,7 +194,14 @@ function blocksy_child_wishlist_product_card_html( $product ) {
 	$subheadline = wp_strip_all_tags( $product->get_short_description() );
 	$badge       = blocksy_child_wishlist_card_subscribe_badge( $product );
 
-	$html  = '<a href="' . esc_url( $permalink ) . '" class="ct-wishlist-card-media">' . $image . '</a>';
+	// Wrapped in its own inner element (not left to the caller's own
+	// wrapper) so the card's rounded-corner/overflow:hidden chrome lives
+	// here, never on the caller's own wrapper (the wishlist item <li> or
+	// the suggested-card div). Those wrappers also hold the "Remove"
+	// control in the item context; clipping at the caller level would cut
+	// off its focus ring.
+	$html  = '<div class="ct-wishlist-card-inner">';
+	$html .= '<a href="' . esc_url( $permalink ) . '" class="ct-wishlist-card-media">' . $image . '</a>';
 	$html .= '<div class="ct-wishlist-card-info">';
 	$html .= '<a href="' . esc_url( $permalink ) . '" class="ct-wishlist-card-name">' . esc_html( $name ) . '</a>';
 	$html .= $pills;
@@ -147,6 +217,7 @@ function blocksy_child_wishlist_product_card_html( $product ) {
 		$html .= '<span class="ct-wishlist-card-badge">' . esc_html( $badge ) . '</span>';
 	}
 
+	$html .= '</div>';
 	$html .= '</div>';
 
 	return $html;
