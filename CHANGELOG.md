@@ -1,3 +1,12 @@
+## [wishlist-product-card-2026-09-07] - 2026-09-07
+
+### Added
+- `inc/wishlist-product-card.php`: shared PRODUCT CARD component (Figma 68:34939/29089:54366) rendering image, category pills, subheadline, divider, and price plus a Subscribe and Save badge, sourced from real WooCommerce data (product_cat terms, the short-description field, and WooCommerce Subscriptions pricing). Used by both the wishlist item cards and the new `blocksy_child_render_wishlist_suggested_product_cards()` grid, replacing Blocksy's plain default card for sites that opt in via `blocksy_child_wishlist_suggested_uses_product_cards` (off by default; Byron Bay, AlternateWorlds and The Natural Mattress unaffected).
+
+### Changed
+- `inc/wishlist-offcanvas.php`: wishlist-item data (preload and the AJAX endpoint) now also returns a `card` field with the rendered HTML.
+- `assets/js/wishlist-offcanvas.js`: the item template uses `product.card` when present, falling back to the existing plain template otherwise.
+
 ## [wishlist-preload-print-order-2026-09-07] - 2026-09-07
 
 ### Fixed
