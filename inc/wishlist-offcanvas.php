@@ -104,6 +104,13 @@ add_action( 'wp_footer', function () {
 		 * `blocksy_child_wishlist_card_layout` opts into the card grid.
 		 */
 		'signupLabel' => apply_filters( 'blocksy_child_wishlist_signup_label', 'Sign Up' ),
+		/**
+		 * Guest notice visibility. Default false (always show for guests,
+		 * unchanged legacy behaviour for every existing site). A site opts
+		 * into "empty state only" the same way it opts into the card layout
+		 * or the signup label above.
+		 */
+		'guestNoticeEmptyOnly' => apply_filters( 'blocksy_child_wishlist_guest_notice_empty_only', false ),
 	];
 
 	echo '<script id="bc-wishlist-data">var bcWishlistData = ' . wp_json_encode( $preload ) . ';</script>';
