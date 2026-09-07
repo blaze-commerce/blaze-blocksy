@@ -92,11 +92,18 @@ add_action( 'wp_footer', function () {
 	}
 
 	$preload = [
-		'items'      => $items_data,
-		'isGuest'    => ! is_user_logged_in(),
-		'accountUrl' => wc_get_page_permalink( 'myaccount' ),
-		'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-		'cardLayout' => blocksy_child_wishlist_uses_cards(),
+		'items'       => $items_data,
+		'isGuest'     => ! is_user_logged_in(),
+		'accountUrl'  => wc_get_page_permalink( 'myaccount' ),
+		'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+		'cardLayout'  => blocksy_child_wishlist_uses_cards(),
+		/**
+		 * Guest sign-up CTA label. Default 'Sign Up' unchanged for every
+		 * existing site (Byron Bay, AlternateWorlds, The Natural Mattress);
+		 * a site opts into different wording via this filter the same way
+		 * `blocksy_child_wishlist_card_layout` opts into the card grid.
+		 */
+		'signupLabel' => apply_filters( 'blocksy_child_wishlist_signup_label', 'Sign Up' ),
 	];
 
 	echo '<script id="bc-wishlist-data">var bcWishlistData = ' . wp_json_encode( $preload ) . ';</script>';

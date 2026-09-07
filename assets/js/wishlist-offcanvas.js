@@ -298,7 +298,7 @@
 			if (isGuest && items.length === 0) {
 				html += '<div class="ct-wishlist-guest-notice">'
 					+ '<p>' + GUEST_TEXT + '</p>'
-					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Register</a>'
+					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">' + escapeHtml(data.signupLabel || "Sign Up") + '</a>'
 					+ '</div>';
 			}
 
@@ -592,7 +592,7 @@
 			if (isGuest) {
 				html += '<div class="ct-wishlist-guest-notice">'
 					+ '<p>' + GUEST_TEXT + '</p>'
-					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Sign Up</a>'
+					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">' + escapeHtml(data.signupLabel || "Sign Up") + '</a>'
 					+ '</div>';
 			} else {
 				html += '<div class="ct-wishlist-continue">'
