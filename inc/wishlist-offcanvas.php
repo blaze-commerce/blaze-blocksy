@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/wishlist-product-card.php';
+
 if ( ! function_exists( 'blc_get_ext' ) || ! blc_get_ext( 'woocommerce-extra' ) ) {
 	return;
 }
@@ -106,6 +108,9 @@ add_action( 'wp_footer', function () {
 				'url'   => $product->get_permalink(),
 				'image' => $product->get_image( blocksy_child_wishlist_image_size() ),
 				'price' => $product->get_price_html(),
+				// PRODUCT CARD markup (CU-86eyuup3c), computed only when a site
+				// opted into card layout; '' is a harmless no-op for JS otherwise.
+				'card'  => blocksy_child_wishlist_uses_cards() ? blocksy_child_wishlist_product_card_html( $product ) : '',
 			];
 		}
 	}
@@ -251,6 +256,26 @@ function blocksy_child_render_wishlist_suggested() {
 				}
 			}
 		}
+	}
+
+	// A site can opt into the PRODUCT CARD design (CU-86eyuup3c) instead of
+	// Blocksy's own suggested-products carousel. Off by default: Byron Bay,
+	// AlternateWorlds and The Natural Mattress keep the carousel unchanged.
+	if ( apply_filters( 'blocksy_child_wishlist_suggested_uses_product_cards', false ) ) {
+		// bc_resolve_suggested_product_ids() only applies $limit on its
+		// bestseller-fallback branch; a non-empty first argument returns
+		// every valid id unsliced. Passing the shopper's own wishlist ids
+		// there (as $valid_ids is) would render "You May Also Like" as the
+		// shopper's own wishlist again, uncapped. Always resolve fresh
+		// bestseller suggestions instead, and drop any that are already in
+		// the wishlist.
+		$card_ids = array_values( array_diff(
+			bc_resolve_suggested_product_ids( [], 2 + count( $valid_ids ) ),
+			$valid_ids
+		) );
+		$card_ids = array_slice( $card_ids, 0, 2 );
+
+		return blocksy_child_render_wishlist_suggested_product_cards( $card_ids );
 	}
 
 	// Shared helper handles ID validation, bestsellers fallback, Blocksy
@@ -418,6 +443,7 @@ function blocksy_child_ajax_wishlist_product() {
 		'url'   => $product->get_permalink(),
 		'image' => $product->get_image( blocksy_child_wishlist_image_size() ),
 		'price' => $product->get_price_html(),
+		'card'  => blocksy_child_wishlist_uses_cards() ? blocksy_child_wishlist_product_card_html( $product ) : '',
 	] );
 }
 
