@@ -1,3 +1,8 @@
+## [wishlist-preload-print-order-2026-09-07] - 2026-09-07
+
+### Fixed
+- `inc/wishlist-offcanvas.php`: the `bcWishlistData` blob was echoed from a `wp_footer` callback at priority 99, after WordPress prints enqueued footer scripts at priority 20 - so `wishlist-offcanvas.js` was always parsed before that data existed. Every render path except one covered for this by re-reading `window.bcWishlistData` at call time; the exception was a guest opening an EMPTY wishlist on first page load, which renders synchronously at module-init before the priority-99 echo runs, so `signupLabel`/`guestNoticeEmptyOnly` were always their fallback values there. Moved the preload build to its own `wp_footer:1` callback using `wp_add_inline_script(..., 'before')`, which guarantees print order regardless of hook priority (same mechanism the existing `bcWishlist.ajaxUrl`/`nonce` localization already relies on). The cart-panel CSS mirror that used to share this callback is unchanged, now its own `wp_footer:99` callback. Found via independent audit, third round.
+
 ## [wishlist-stale-data-guest-notice-gate-2026-09-07] - 2026-09-07
 
 ### Fixed
