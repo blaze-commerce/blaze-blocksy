@@ -44,6 +44,16 @@
 		return !!( window.bcWishlistData && window.bcWishlistData.cardLayout );
 	}
 
+	// Same stale-closure trap as cardLayout above: read at render time, not
+	// from the module-level `data` captured before bcWishlistData printed.
+	function signupLabel() {
+		return ( window.bcWishlistData && window.bcWishlistData.signupLabel ) || "Sign Up";
+	}
+
+	function guestNoticeEmptyOnly() {
+		return !!( window.bcWishlistData && window.bcWishlistData.guestNoticeEmptyOnly );
+	}
+
 	// Populate cache from preloaded data.
 	data.items.forEach(function (item) {
 		productCache[item.id] = item;
@@ -290,11 +300,17 @@
 				html += '</ul>';
 			}
 
-			// Guest prompt — always show for guests (empty or not).
-			if (isGuest) {
+			// Guest prompt. Default: always show for guests, unchanged legacy
+			// behaviour for every existing site (Byron Bay, AlternateWorlds,
+			// The Natural Mattress). A site opts into empty-state-only via
+			// bcWishlistData.guestNoticeEmptyOnly (Bonza's Figma component set
+			// 68:34939 places this notice only inside the Empty variant,
+			// 68:34938 / 2138:116569; the Filled variant, 68:34937 / 2138:116628,
+			// has no such block) - same site-scoped opt-in pattern as cardLayout.
+			if (isGuest && ( !guestNoticeEmptyOnly() || items.length === 0 )) {
 				html += '<div class="ct-wishlist-guest-notice">'
 					+ '<p>' + GUEST_TEXT + '</p>'
-					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Sign Up</a>'
+					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">' + escapeHtml(signupLabel()) + '</a>'
 					+ '</div>';
 			}
 
@@ -588,7 +604,7 @@
 			if (isGuest) {
 				html += '<div class="ct-wishlist-guest-notice">'
 					+ '<p>' + GUEST_TEXT + '</p>'
-					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Sign Up</a>'
+					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">' + escapeHtml(signupLabel()) + '</a>'
 					+ '</div>';
 			} else {
 				html += '<div class="ct-wishlist-continue">'

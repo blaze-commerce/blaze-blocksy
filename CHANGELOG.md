@@ -1,3 +1,24 @@
+## [wishlist-preload-print-order-2026-09-07] - 2026-09-07
+
+### Fixed
+- `inc/wishlist-offcanvas.php`: the `bcWishlistData` blob was echoed from a `wp_footer` callback at priority 99, after WordPress prints enqueued footer scripts at priority 20 - so `wishlist-offcanvas.js` was always parsed before that data existed. Every render path except one covered for this by re-reading `window.bcWishlistData` at call time; the exception was a guest opening an EMPTY wishlist on first page load, which renders synchronously at module-init before the priority-99 echo runs, so `signupLabel`/`guestNoticeEmptyOnly` were always their fallback values there. Moved the preload build to its own `wp_footer:1` callback using `wp_add_inline_script(..., 'before')`, which guarantees print order regardless of hook priority (same mechanism the existing `bcWishlist.ajaxUrl`/`nonce` localization already relies on). The cart-panel CSS mirror that used to share this callback is unchanged, now its own `wp_footer:99` callback. Found via independent audit, third round.
+
+## [wishlist-stale-data-guest-notice-gate-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: `signupLabel` never reached the DOM because the module-level `data` variable is captured once, before the wp_footer-printed `bcWishlistData` blob prints (later in page order than this enqueued script) - the exact stale-closure trap this file's own `usesCards()` already documents for `cardLayout`. Added a matching `signupLabel()` function that re-reads `window.bcWishlistData` at render time.
+- The guest-notice-only-when-empty change was universal with no per-site gate, silently changing behaviour for Byron Bay, AlternateWorlds, and The Natural Mattress. Added `blocksy_child_wishlist_guest_notice_empty_only` (`inc/wishlist-offcanvas.php`, default false = unchanged legacy "always show" behaviour); Bonza opts in via its own filter. Found via independent audit, second round.
+
+## [wishlist-signup-label-gate-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: `checkEmpty()` (re-render path when the last item is removed from an open drawer) still hardcoded the guest CTA as Sign Up; only the initial `renderPanel()` path had been relabeled Register in the prior commit. Both paths now read a filterable `bcWishlistData.signupLabel` (`inc/wishlist-offcanvas.php`, new `blocksy_child_wishlist_signup_label` filter, default Sign Up, unchanged for every existing site). The prior commit changed this label for all sites sharing the drawer with no per-site gate; Bonza now opts in separately via its own filter, matching the existing `blocksy_child_wishlist_card_layout` opt-in pattern. Found via independent audit.
+
+## [wishlist-guest-notice-register-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: the guest notice (Guest favorites are only saved to your device...) rendered on every guest visit regardless of item count. Figma's Wishlist component set (68:34939) only places this block, and its CTA, inside the Empty variant (68:34938, 2138:116569); the Filled variant (68:34937, 2138:116628) has none. Now gated on `items.length === 0` alongside the existing guest check. Also relabels the CTA from Sign Up to Register, matching the shared component's actual button text. Both changes are in the shared module, so every site using this drawer (Byron Bay, AlternateWorlds, The Natural Mattress, Bonza) picks up the correction. Found via Bonza (ClickUp 86eypb6jy) Figma comparison.
+
 ## [wishlist-header-offcanvas-trigger-2026-08-27] - 2026-08-27
 
 ### Added

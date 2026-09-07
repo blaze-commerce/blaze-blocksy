@@ -63,10 +63,29 @@ add_filter( 'blocksy:footer:offcanvas-drawer', function ( $elements, $payload ) 
 }, 10, 2 );
 
 /**
- * Output preloaded wishlist product data + cart panel CSS in footer.
+ * Preload wishlist product data as an inline script, printed BEFORE the
+ * wishlist-offcanvas.js tag via `wp_add_inline_script(..., 'before')`.
+ *
+ * WHY a dedicated early hook instead of the wp_footer:99 callback below
+ * (which used to do this with a raw `echo` after wp_print_footer_scripts
+ * already ran at priority 20): a script's own top-level code that reads
+ * `window.bcWishlistData` runs the instant the browser parses that script
+ * tag, which happens at print time, not at the time this PHP runs. Data
+ * echoed AFTER the script has already printed is never seen by that first
+ * synchronous read. `usesCards()` in the JS already re-reads
+ * window.bcWishlistData at render time to dodge this for `cardLayout`, but
+ * a guest opening an EMPTY drawer on first page load renders synchronously
+ * at module-init time, before any later re-render fires, so signupLabel
+ * and guestNoticeEmptyOnly still needed the data to genuinely be there
+ * first. `wp_add_inline_script(..., 'before')` guarantees print order
+ * regardless of hook priority, so this hook's own priority does not matter
+ * as long as it runs before scripts print.
  */
 add_action( 'wp_footer', function () {
-	// --- Preload wishlist product data as JSON ---
+	if ( ! wp_script_is( 'blocksy-child-wishlist-offcanvas', 'enqueued' ) ) {
+		return;
+	}
+
 	$wish_list_ext = blc_get_ext( 'woocommerce-extra' )->get_wish_list();
 	$items_data    = [];
 
@@ -92,15 +111,38 @@ add_action( 'wp_footer', function () {
 	}
 
 	$preload = [
-		'items'      => $items_data,
-		'isGuest'    => ! is_user_logged_in(),
-		'accountUrl' => wc_get_page_permalink( 'myaccount' ),
-		'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-		'cardLayout' => blocksy_child_wishlist_uses_cards(),
+		'items'       => $items_data,
+		'isGuest'     => ! is_user_logged_in(),
+		'accountUrl'  => wc_get_page_permalink( 'myaccount' ),
+		'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+		'cardLayout'  => blocksy_child_wishlist_uses_cards(),
+		/**
+		 * Guest sign-up CTA label. Default 'Sign Up' unchanged for every
+		 * existing site (Byron Bay, AlternateWorlds, The Natural Mattress);
+		 * a site opts into different wording via this filter the same way
+		 * `blocksy_child_wishlist_card_layout` opts into the card grid.
+		 */
+		'signupLabel' => apply_filters( 'blocksy_child_wishlist_signup_label', 'Sign Up' ),
+		/**
+		 * Guest notice visibility. Default false (always show for guests,
+		 * unchanged legacy behaviour for every existing site). A site opts
+		 * into "empty state only" the same way it opts into the card layout
+		 * or the signup label above.
+		 */
+		'guestNoticeEmptyOnly' => apply_filters( 'blocksy_child_wishlist_guest_notice_empty_only', false ),
 	];
 
-	echo '<script id="bc-wishlist-data">var bcWishlistData = ' . wp_json_encode( $preload ) . ';</script>';
+	wp_add_inline_script(
+		'blocksy-child-wishlist-offcanvas',
+		'var bcWishlistData = ' . wp_json_encode( $preload ) . ';',
+		'before'
+	);
+}, 1 );
 
+/**
+ * Output cart panel CSS mirror in footer.
+ */
+add_action( 'wp_footer', function () {
 	// --- Mirror cart panel CSS onto wishlist panel ---
 	$placements = get_theme_mod( 'header_placements' );
 	$cart_atts  = [];
