@@ -1,3 +1,8 @@
+## [wishlist-guest-notice-register-2026-09-07] - 2026-09-07
+
+### Fixed
+- `assets/js/wishlist-offcanvas.js`: the guest notice (Guest favorites are only saved to your device...) rendered on every guest visit regardless of item count. Figma's Wishlist component set (68:34939) only places this block, and its CTA, inside the Empty variant (68:34938, 2138:116569); the Filled variant (68:34937, 2138:116628) has none. Now gated on `items.length === 0` alongside the existing guest check. Also relabels the CTA from Sign Up to Register, matching the shared component's actual button text. Both changes are in the shared module, so every site using this drawer (Byron Bay, AlternateWorlds, The Natural Mattress, Bonza) picks up the correction. Found via Bonza (ClickUp 86eypb6jy) Figma comparison.
+
 ## [wishlist-header-offcanvas-trigger-2026-08-27] - 2026-08-27
 
 ### Added
