@@ -290,11 +290,15 @@
 				html += '</ul>';
 			}
 
-			// Guest prompt — always show for guests (empty or not).
-			if (isGuest) {
+			// Guest prompt: empty state only. Figma's "Wishlist" component set
+			// (68:34939) places this notice and its CTA inside the Empty variant
+			// only (68:34938, 2138:116569). The Filled variant (68:34937,
+			// 2138:116628) has no such block, so showing it alongside real
+			// items was a bug, not a design choice.
+			if (isGuest && items.length === 0) {
 				html += '<div class="ct-wishlist-guest-notice">'
 					+ '<p>' + GUEST_TEXT + '</p>'
-					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Sign Up</a>'
+					+ '<a href="' + data.accountUrl + '" class="ct-wishlist-signup-btn">Register</a>'
 					+ '</div>';
 			}
 
