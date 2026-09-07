@@ -285,12 +285,23 @@
 					var product = productCache[id];
 					if (!product) return;
 
+					// PRODUCT CARD markup (CU-86eyuup3c): server-rendered HTML in
+					// product.card when a site opted into card layout, so the
+					// rich card design (pills/subheadline/badge) lives in one
+					// PHP source of truth shared with the suggested-products
+					// grid, not duplicated here. Falls back to the plain
+					// image+title+price template when product.card is empty
+					// (card layout off, or a stale cached product entry).
+					var itemInner = (useCards && product.card)
+						? product.card
+						: '<a href="' + product.url + '" class="ct-media-container">' + product.image + '</a>'
+							+ '<div class="ct-wishlist-item-info">'
+							+ '<a href="' + product.url + '">' + escapeHtml(product.name) + '</a>'
+							+ '<span class="price">' + product.price + '</span>'
+							+ '</div>';
+
 					html += '<li class="woocommerce-mini-cart-item ct-wishlist-item" data-product-id="' + product.id + '">'
-						+ '<a href="' + product.url + '" class="ct-media-container">' + product.image + '</a>'
-						+ '<div class="ct-wishlist-item-info">'
-						+ '<a href="' + product.url + '">' + escapeHtml(product.name) + '</a>'
-						+ '<span class="price">' + product.price + '</span>'
-						+ '</div>'
+						+ itemInner
 						+ '<button class="ct-wishlist-remove" data-product-id="' + product.id + '" aria-label="Remove from wishlist">'
 						+ removeInner
 						+ '</button>'
