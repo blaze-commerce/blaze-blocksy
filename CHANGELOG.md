@@ -1,3 +1,8 @@
+## [wishlist-suggested-divider-2026-09-09] - 2026-09-09
+
+### Fixed
+- `assets/css/components/wishlist-offcanvas.css`: client reported the "You May Also Like" heading in the wishlist off-canvas panel had a border above it, and should instead have a divider below it with the correct gap spacing. Confirmed against Figma component set 68:34939 "Wishlist" (Filled variant, node #34457:266441/266442, verified with a downloaded render, not layout data alone): no border sits above this section, and the design has a 12px gap from the heading text to a 1px `#E4E5E7` divider line, then a 24px gap from the divider down to the product cards row. Removed `.ct-wishlist-suggested`'s `border-top`, and reproduced the Figma spacing on `.ct-wishlist-suggested .ct-module-title` with `padding-bottom:12px` (text-to-line), `border-bottom:1px solid #E4E5E7` (the line), and `margin-bottom:24px` (line-to-cards).
+
 ## [wishlist-product-card-audit-fixes-round3-2026-09-07] - 2026-09-07
 
 ### Fixed
