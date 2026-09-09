@@ -218,11 +218,15 @@
 }
 
 /* ==========================================================================
-   Suggested Products — positioned at bottom of panel
+   Suggested Products, positioned at bottom of panel
    ========================================================================== */
 .ct-wishlist-suggested {
 	flex-shrink: 0;
-	border-top: 1px solid var(--theme-border-color, #e0e0e0);
+	/* CU-86eyuup3c: no border/divider sits above this section in Figma
+	   (component set 68:34939 "Wishlist", Filled variant, node
+	   #34457:266441, verified against a downloaded render of that exact
+	   node). The divider belongs below the "You May Also Like" heading
+	   instead, see .ct-module-title below. */
 	padding: 0 24px 24px;
 }
 
@@ -230,10 +234,20 @@
 	display: none;
 }
 
-/* Match mini cart suggested products title */
+/* "You May Also Like" heading + divider, Figma node #34457:266442: a
+   12px gap from the heading text to a 1px #E4E5E7 divider rule (node
+   #34457:266444, a "Divider" component instance), then a 24px gap from
+   the divider down to the product cards row (node #34457:266441's own
+   gap:24px). Reproduced here as padding-bottom (text-to-line) plus a
+   border-bottom (the line itself) plus margin-bottom (line-to-cards),
+   rather than adding a real divider element, since no markup change is
+   needed. Figma's divider carries a 2px border-radius, omitted here as
+   negligible on a 1px hairline. */
 .ct-wishlist-suggested .ct-module-title {
 	padding-top: 16px;
-	margin-bottom: 12px;
+	padding-bottom: 12px;
+	margin-bottom: 24px;
+	border-bottom: 1px solid #E4E5E7; /* contrast-exempt: decorative divider line, not text */
 }
 
 /* NOTE — flexy override block removed 2026-04-28.
