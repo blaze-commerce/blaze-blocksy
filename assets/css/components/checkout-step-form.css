@@ -620,3 +620,48 @@ body.woocommerce-checkout .fc-wrapper input[type="checkbox"].bc-newsletter-optin
   transform: rotate(45deg);
 }
 
+/* =============================================
+   N. FLUID CHECKOUT "OPTION BOX" LIST WRAPPER --
+      NEUTRALIZE THE OUTER CONTAINER BORDER
+============================================= */
+/* editor-friendly-ok: this file is a checkout-only, is_checkout()-scoped
+   stylesheet, no Gutenberg/block-editor surface.
+   FIX (found on a Bonza retheme, CU-86eypb6hr, generalized here so every
+   site sharing this theme is protected, not just that one): Fluid
+   Checkout Pro's "Option Box" list pattern (shipping methods today; its
+   payment-method equivalent uses the same pattern) renders as an outer
+   `<ul id="shipping_method" class="shipping-method__options">` that
+   carries its OWN default border by itself --
+   `#shipping_method.shipping-method__options { border: 1px solid
+   var(--fluidcheckout--color--light-grey, #d8d8d8); border-radius:
+   var(--fluidcheckout--option-box--border-radius, 13px); overflow:
+   hidden; }` -- separate from and drawn underneath whatever border a
+   site puts on each individual `.shipping-method__option` pill inside
+   it. When a site (as this design system's Figma consistently does)
+   draws its own border directly on each option pill, that outer list
+   border still renders, sitting just outside the option's own border
+   at a different radius with no shared edge -- the two curves never
+   line up, so the outer border's rounded corner peeks out past the
+   inner one at every corner. Confirmed live on Bonza via
+   `getComputedStyle` plus close-up (deviceScaleFactor 6) screenshots of
+   all four corners at 375/768/1440px, matching a live QA report of
+   "corners not respecting the [option's own] border, something
+   overlapping". `#shipping_method.shipping-method__options` is an ID
+   selector (specificity 1,1,0) with no `!important` on FC's own rule --
+   a lower-specificity override (a bare class selector, or an ID rule
+   without `!important` loaded before FC's own stylesheet) will not
+   reliably win, so this rule matches FC's exact selector and adds
+   `!important`, independent of stylesheet load order. Neutral by
+   default (no visual change on any site that has not styled the
+   individual option pills, since FC's own light-grey list border simply
+   stops rendering, leaving each still-unstyled option a plain row --
+   already the FC default appearance minus one redundant hairline); a
+   site is free to re-add a wrapper border here if its Figma spec
+   actually calls for a double-bordered container. */
+#shipping_method.shipping-method__options {
+	border: none !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	overflow: visible !important;
+}
+
