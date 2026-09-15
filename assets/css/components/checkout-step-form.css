@@ -665,3 +665,40 @@ body.woocommerce-checkout .fc-wrapper input[type="checkbox"].bc-newsletter-optin
 	overflow: visible !important;
 }
 
+/* =============================================
+   N+1. FLUID CHECKOUT "OPTION BOX" LABEL --
+        FOLLOW THE PARENT PILL'S OWN CORNER RADIUS
+============================================= */
+/* editor-friendly-ok: same is_checkout()-only exception as above.
+   FIX (found on the same Bonza retheme, CU-86eypb6hr, generalized here
+   for the same reason as the list-border fix above): the neutralize-
+   the-outer-border fix above solved one real cause of "corners not
+   respecting the border", but a second, separate one remained. Fluid
+   Checkout's own `.shipping-method__option-label` never carries a
+   `border-radius` and, once a site gives the option pill (the `<li>`,
+   its direct parent) its own border, the label sits inset by exactly
+   that border-width on every side -- confirmed on Bonza via
+   `getBoundingClientRect`: `li` 619.5x48, `label` 615.5x44, inset 2px
+   on all four sides -- filling the parent's whole padding-box. A
+   background only clips to its OWN element's border-radius, not its
+   parent's, so the label's square corners paint flat over the last few
+   pixels of the parent's border curve on all four corners. This is
+   real, not anti-aliasing: confirmed with a pixel-level 2D scan of the
+   actual rendered corner (not a visual read) that found rows with zero
+   border-color pixels at all, an outright gap in the arc, reproduced
+   independently on a live user screenshot and a fresh capture at true
+   100% screen scale with no image supersampling. Fixed with
+   `border-radius: inherit`, which pulls whatever radius value the site
+   sets on the parent `<li>` -- self-adjusting if a site's Figma spec
+   ever changes that radius, unlike a hardcoded px value tuned to one
+   site's current 12px/2px combination. This slightly over-rounds
+   relative to the mathematically exact nested-radius formula (outer
+   radius minus border-width), but an over-rounded inner corner still
+   sits fully inside the border curve; only an under-rounded one (the
+   original bug, effectively 0) can poke a square corner outside it.
+   Neutral by default: a site with no border on the option pill has
+   nothing for the label's radius to visually round against. */
+.shipping-method__option-label {
+	border-radius: inherit !important;
+}
+

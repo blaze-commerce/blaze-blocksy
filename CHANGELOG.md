@@ -1,3 +1,8 @@
+## [shipping-option-label-radius-2026-09-16] - 2026-09-16
+
+### Fixed
+- `assets/css/components/checkout-step-form.css`: the previous entry below fixed one real cause of shipping-method pill corners not respecting a site's own border, but a second, separate cause remained. Fluid Checkout's own `.shipping-method__option-label` never carries a `border-radius`, and once a site borders the parent pill (as bonza's does), the label sits inset by exactly that border-width on every side, filling the parent's whole padding-box. A background only clips to its own element's border-radius, not its parent's, so the label's square corners painted flat over the last few pixels of the parent's border curve on all four corners. Confirmed pixel by pixel, not by eye: a 2D scan of the actual rendered corner found rows with zero border-color pixels at all, a real gap, reproduced independently on a live user screenshot and a fresh capture at true 100% screen scale with no image supersampling. Fixed with `border-radius: inherit`, pulling whatever radius a site sets on the parent pill rather than a value hardcoded to one site's current radius/border-width combination.
+
 ## [shipping-option-box-border-conflict-2026-09-16] - 2026-09-16
 
 ### Fixed
