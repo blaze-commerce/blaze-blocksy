@@ -1,3 +1,8 @@
+## [shipping-option-box-border-conflict-2026-09-16] - 2026-09-16
+
+### Fixed
+- `assets/css/components/checkout-step-form.css`: Fluid Checkout Pro's "Option Box" shipping-method list (`#shipping_method.shipping-method__options`) carries its own default border and radius, separate from and underneath whatever border a site draws on each individual `.shipping-method__option` pill. Found on a Bonza retheme (CU-86eypb6hr): once that site's checkout CSS added its own `2px` green border and `12px` radius directly on the option pill, FC's outer list border (`1px` grey, `13px` radius) kept rendering too, one radius unit larger and offset by about a pixel, so the two curves never lined up and the grey outer corner peeked out past the green inner one at every corner. Neutralized the outer list border, radius and background by default in this shared theme file, so every site inherits the fix rather than needing its own per-site override. `#shipping_method.shipping-method__options` is an ID selector with no `!important` on FC's own rule, so this override matches that exact selector and adds `!important` to win independent of stylesheet load order.
+
 ## [wishlist-product-card-audit-fixes-round3-2026-09-07] - 2026-09-07
 
 ### Fixed
