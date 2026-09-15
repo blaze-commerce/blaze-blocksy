@@ -27,21 +27,29 @@
 /* =============================================
    CSS CUSTOM PROPERTIES / TOKENS
 ============================================= */
+/* Color tokens updated 2026-09-15, CU-86eypb6hr: card-border, title-color,
+   text-color, divider-color and total-color were Byron Bay Candles values
+   (grey #393939 / brown #746a5f / #cfcfcf border). Bonza Figma documents
+   #2E2A2A as the primary text color and #D1D5DB as the generic 1px border,
+   with no brown anywhere in its palette. text-secondary/text-dark/
+   divider-light/input-border/coupon-btn-* are left as-is; the Figma spec
+   does not document the coupon input/button or GST-note colors closely
+   enough to justify changing them here. */
 body.woocommerce-checkout {
 	--bc-os-card-bg: #ffffff;
-	--bc-os-card-border: #cfcfcf;
+	--bc-os-card-border: #D1D5DB;
 	--bc-os-card-radius: 12px;
 	--bc-os-card-padding: 24px;
-	--bc-os-title-color: var(--fc-text-strong, #393939);
-	--bc-os-text-color: var(--fc-text-brown, #746a5f);
+	--bc-os-title-color: #2E2A2A;
+	--bc-os-text-color: #2E2A2A;
 	--bc-os-text-secondary: var(--fc-text-soft, #888888);
 	--bc-os-text-dark: #353638;
-	--bc-os-divider-color: #cfcfcf;
+	--bc-os-divider-color: #D1D5DB;
 	--bc-os-divider-light: #dddddd;
 	--bc-os-input-border: #dddddd;
 	--bc-os-coupon-btn-border: #353638;
 	--bc-os-coupon-btn-text: #353638;
-	--bc-os-total-color: var(--fc-text-strong, #393939);
+	--bc-os-total-color: #2E2A2A;
 }
 
 /* =============================================
@@ -100,17 +108,12 @@ html body.woocommerce-checkout #fc-checkout-order-review {
 		margin: 0 !important;
 	}
 
-	/* Title — var(--theme-font-family, Montserrat) 400 24px var(--fc-text-strong, #393939) */
-	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review-title,
-	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review__title {
-		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-		font-size: 24px !important;
-		font-weight: 400 !important;
-		line-height: 28px !important;
-		color: var(--bc-os-title-color) !important;
-		text-transform: none !important;
-		margin-bottom: 0;
-	}
+	/* Title typography REMOVED 2026-09-15, CU-86eypb6hr. Montserrat fallback
+	   400 weight 24px conflicted with the Figma "your order" title
+	   (Body/Bold, Nominee 900, 16px/16px line height, letterSpacing 0.02em,
+	   UPPER, fill #2E2A2A). Left to the Figma CSS in bc-site-customizations,
+	   which targets the same .fc-checkout-order-review-title/__title
+	   classes. */
 
 	/* Head row — flex between title and badge */
 	html body div.woocommerce .fc-wrapper #fc-checkout-order-review .fc-checkout-order-review__inner .fc-checkout-order-review__head {
@@ -170,40 +173,21 @@ a.fc-checkout-order-review__edit-cart {
 /* =============================================
    ITEM COUNT BADGE — var(--theme-font-family, Montserrat) 700 12px, pill shape
 ============================================= */
-.bc-os-item-count {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 8px 16px;
-	background-color: var(--bc-os-card-bg);
-	border: 1px solid var(--bc-os-card-border);
-	color: var(--bc-os-title-color);
-	border-radius: 9999px;
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif);
-	font-size: 14px;
-	font-weight: 700;
-	line-height: 16px;
-	white-space: nowrap;
-}
+/* .bc-os-item-count pill shape REMOVED 2026-09-15, CU-86eypb6hr: this was a
+   9999px pill badge. The Figma "Badges" instance next to "your order" is a
+   4px-radius rectangle, stroke #857697, with its inner content unresolved
+   in the extraction (a genuine gap, not confirmed absent). Left to the
+   Figma CSS in bc-site-customizations rather than guessing the shape here. */
 
 /* =============================================
    PRODUCT TYPOGRAPHY — DESKTOP DEFAULTS
 ============================================= */
 
-/* Product name: var(--theme-font-family, Montserrat) 500 18px var(--fc-text-brown, #746a5f) */
-.fc-checkout-order-review .product-name,
-.fc-checkout-order-review .cart-item__name,
-.fc-checkout-order-review td.product-name a,
-.fc-checkout-order-review .cart_item .product-name a,
-body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .cart-item__name,
-body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name .product-details > a {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 18px !important;
-	font-weight: 500 !important;
-	line-height: 24px !important;
-	color: var(--bc-os-text-color) !important;
-	text-decoration: none;
-}
+/* Product name typography REMOVED 2026-09-15, CU-86eypb6hr: Montserrat
+   fallback 500 weight 18px, color previously the Byron Bay brown
+   #746a5f (token already fixed above). Figma documents this text as
+   Links/Bold (Nominee 900, 14px/16px line height, letterSpacing 0.02em,
+   UPPER). Left to the Figma CSS in bc-site-customizations. */
 
 /* Product name link as block so variation appears on next line */
 .fc-checkout-order-review td.product-name a,
@@ -211,19 +195,12 @@ body.woocommerce-checkout .woocommerce-checkout-review-order-table .product-name
 	display: block;
 }
 
-/* Variant/meta: var(--theme-font-family, Montserrat) 400 16px var(--fc-text-brown, #746a5f) */
-.fc-checkout-order-review .variation,
-.fc-checkout-order-review .product-name .variation dd,
-.fc-checkout-order-review .product-name .variation dt,
-.fc-checkout-order-review dl.variation,
-.fc-checkout-order-review .cart-item__name dl.variation,
-.fc-checkout-order-review .cart-item__name dl.variation dd {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 16px !important;
-	font-weight: 400 !important;
-	line-height: 24px !important;
-	color: var(--bc-os-text-color) !important;
-}
+/* Variant/meta typography REMOVED 2026-09-15, CU-86eypb6hr: same Byron
+   Bay Candles brown token as the product name above (already fixed at
+   the token level). The Bonza spec does not resolve a distinct named
+   style for this variation text (a genuine gap, not confirmed absent),
+   so this is left to whatever the Figma CSS in bc-site-customizations
+   sets, rather than guessing an exact replacement here. */
 
 /* Variation block on its own line */
 .fc-checkout-order-review dl.variation,
@@ -270,20 +247,16 @@ div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-orde
 	display: block !important;
 	margin: 4px 0 8px 0 !important;
 	text-align: left !important;
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 14px !important;
-	line-height: 20px !important;
 	color: var(--bc-os-title-color) !important;
 }
+/* font-family/font-size/line-height REMOVED 2026-09-15, CU-86eypb6hr:
+   Montserrat fallback 14px conflicted with the Figma price row, which
+   splits the main price (Kobe1.1 Bold, 16px/24px lh) from the "every 8
+   weeks" note (Kobe1.1 Regular, 14px/12px lh) into two different sizes.
+   Left to the Figma CSS in bc-site-customizations. */
 
-/* Non-sale price: regular weight, dark */
-.fc-checkout-order-review .cart-item__price > .woocommerce-Price-amount,
-.fc-checkout-order-review .cart-item__price > .amount {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 14px !important;
-	font-weight: 400 !important;
-	color: var(--bc-os-title-color) !important;
-}
+/* Non-sale price color REMOVED 2026-09-15, CU-86eypb6hr: same reason,
+   font-size/weight here forced a single 14px/400 on the whole amount. */
 
 /* Regular (strikethrough) price on sale */
 .fc-checkout-order-review .cart-item__price del,
@@ -746,15 +719,8 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 	html body.woocommerce-checkout #fc-checkout-order-review {
 		padding: 32px !important;
 	}
-	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review-title,
-	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-checkout-order-review__title {
-		font-size: 28px !important;
-	}
-	html body.woocommerce-checkout .order-total .amount,
-	html body.woocommerce-checkout tr.order-total td .amount {
-		font-size: 28px !important;
-		line-height: 34px !important;
-	}
+	/* Title/total-amount 28px overrides REMOVED 2026-09-15, CU-86eypb6hr,
+	   along with their base rules above. */
 }
 
 /* 359px — shrink thumbnail at tiny viewports */
@@ -780,84 +746,18 @@ html body .fc-checkout-order-review .woocommerce-checkout-review-order-table tfo
 }
 
 /* =============================================
-   TOTALS TABLE — Desktop defaults: var(--theme-font-family, Montserrat) 18px var(--fc-text-strong, #393939)
-   Labels (th): 400 weight. Values (td): 400 weight. Total: 700 weight.
-   ID-based selectors to beat FC Pro.
+   TOTALS TABLE and TOTAL AMOUNT typography REMOVED 2026-09-15,
+   CU-86eypb6hr (desktop, tablet/mobile override, and the 767px/999px
+   total-amount responsive variants).
+   WHY REMOVED: Montserrat fallback 18px 400 weight, 700 for the Total
+   row, 24px 700 for the total amount. Figma documents Subtotal/Tax as a
+   Body/Regular label plus Links/Bold 2 value, and the Total row as
+   Body/Bold (Nominee 900, UPPER, letterSpacing 0.02em) for both label and
+   amount, fill #2E2A2A throughout, with no size, weight, or case match to
+   this file's values. Left to the Figma CSS in bc-site-customizations,
+   which targets the same tfoot/tr.order-total selectors. Color is already
+   fixed at the token level above (--bc-os-title-color / --bc-os-total-color).
 ============================================= */
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
-html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 18px !important;
-	font-weight: 400 !important;
-	color: var(--bc-os-title-color) !important;
-}
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td,
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
-html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
-html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 18px !important;
-	font-weight: 400 !important;
-	color: var(--bc-os-title-color) !important;
-}
-
-/* Total row label: 700 */
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
-html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total th {
-	font-weight: 700 !important;
-	font-size: 18px !important;
-}
-
-/* Tablet/Mobile tfoot font override — AFTER desktop rules so source order wins */
-@media (max-width: 999px) {
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr th,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr th,
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td,
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr td .amount,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr td .amount {
-		font-size: 14px !important;
-		font-weight: 400 !important;
-	}
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total th,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total th {
-		font-size: 14px !important;
-		font-weight: 700 !important;
-	}
-}
-
-/* =============================================
-   TOTAL AMOUNT — Desktop: var(--theme-font-family, Montserrat) 700 24px var(--fc-text-strong, #393939)
-============================================= */
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
-html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
-html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
-	font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-	font-size: 24px !important;
-	font-weight: 700 !important;
-	line-height: 28px !important;
-	color: var(--bc-os-total-color) !important;
-}
-
-/* Mobile total: var(--theme-font-family, Montserrat) 700 20px */
-@media (max-width: 767px) {
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
-		font-size: 20px !important;
-		line-height: 24px !important;
-	}
-}
-
-/* Tablet total: var(--theme-font-family, Montserrat) 700 22px */
-@media (min-width: 768px) and (max-width: 999px) {
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .amount,
-	html body div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tfoot tr.order-total td .woocommerce-Price-amount,
-	html body div.woocommerce .fc-wrapper .fc-review-order-totals-table tfoot tr.order-total td .amount {
-		font-size: 22px !important;
-		line-height: 28px !important;
-	}
-}
 
 /* Total label — append colon */
 .fc-review-order-totals-table tr.order-total > th::after,
@@ -1204,21 +1104,10 @@ body div.woocommerce .woocommerce-checkout .fc-coupon-code-section button[data-a
 	margin-bottom: 8px;
 }
 
-/* =============================================
-   TABLET TITLE (768-999px): var(--theme-font-family, Montserrat) 400 24px
-============================================= */
-@media (min-width: 768px) and (max-width: 999px) {
-	body.woocommerce-checkout .fc-checkout-order-review-title,
-	body.woocommerce-checkout .fc-checkout-order-review__title {
-		font-family: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif) !important;
-		font-size: 24px !important;
-		font-weight: 400 !important;
-		color: var(--bc-os-title-color) !important;
-		text-transform: none !important;
-	}
-}
+/* Tablet title override REMOVED 2026-09-15, CU-86eypb6hr, along with
+   the desktop base rule it duplicated. */
 
-div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name, 
+div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table .product-name,
 div.woocommerce .fc-wrapper #order_review table.woocommerce-checkout-review-order-table tr:first-child .product-name {
 	width: 100% !important;
 }

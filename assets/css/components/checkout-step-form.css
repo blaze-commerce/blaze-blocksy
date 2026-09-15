@@ -23,13 +23,13 @@
    1. CSS CUSTOM PROPERTIES / TOKENS
 ============================================= */
 body.woocommerce-checkout {
-	--bc-sf-card-border: #CFCFCF;
+	--bc-sf-card-border: #D1D5DB; /* was #CFCFCF; matches the Bonza Figma generic 1px border color, CU-86eypb6hr */
 	--bc-sf-card-radius: 12px;
 	--bc-sf-text-primary: var(--fc-text-strong, #393939);
 	--bc-sf-text-dark: #111111;
 	--bc-sf-text-muted: var(--fc-text-soft, #888888);
 	--bc-sf-divider-color: #E4E5E7;
-	--bc-sf-input-border: #CFCFCF;
+	--bc-sf-input-border: #D1D5DB; /* was #CFCFCF; matches the Bonza Figma input-field stroke color, CU-86eypb6hr */
 	--bc-sf-input-radius: 8px;
 	--bc-sf-input-height: 48px;
 	--bc-sf-login-bg: var(--fc-bg-pale, #F7FBFC);
@@ -56,23 +56,15 @@ body.woocommerce-checkout {
 }
 
 /* =============================================
-   3. SUBSTEP TITLE ("ACCOUNT")
-   Figma: checkmark icon 24x24 + "ACCOUNT" var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
-   Padding: pt-16 px-16, gap 8px between icon and text
+   3. SUBSTEP TITLE ("ACCOUNT") typography REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: this rule set the "ACCOUNT" panel-header text to
+   var(--bc-sf-font-body) (Montserrat fallback) 500 weight 18px, color
+   var(--bc-sf-text-primary) (#393939 fallback). The Bonza Figma spec
+   documents this exact text node with a different style: Links/Bold
+   (Nominee "Heavy Extended" 900, 14px/16px line height, letterSpacing
+   0.02em, UPPER), fill #247B4E. Left the display/flex/gap layout to the
+   Figma CSS in bc-site-customizations, which targets the same element.
 ============================================= */
-body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 500 !important;
-	font-size: 18px !important;
-	line-height: 24px !important;
-	color: var(--bc-sf-text-primary) !important;
-	text-transform: uppercase !important;
-	padding: 0 !important;
-	margin: 0 0 0 0 !important;
-	display: flex !important;
-	align-items: center !important;
-	gap: 8px !important;
-}
 
 /* Checkmark icon via ::before pseudo-element */
 body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title::before {
@@ -104,84 +96,31 @@ body.woocommerce-checkout .fc-wrapper .fc-step__substep-title--contact {
 	display: none !important;
 }
 
-@media (min-width: 1000px) {
-	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
-		font-size: 18px !important;
-		padding: 0 0 0 0 !important;
-	}
-}
+/* Section 3 media-query override REMOVED 2026-09-15, CU-86eypb6hr: same
+   hardcoded 18px title size as the base rule above, same removal reason. */
 
 /* =============================================
-   4. LOGIN BANNER
-   Figma: bg var(--fc-bg-pale, #F7FBFC), py-16, centered
-   "Already have an account?" var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
-   "Log in" var(--theme-font-family, Montserrat) 700 18px var(--fc-text-strong, #393939), underlined
+   4. LOGIN BANNER and 5. GUEST DIVIDER REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: these blocks styled the "Already have an account? Log in"
+   banner and the "Or continue as a guest" divider with a cream-white bg
+   (var(--bc-sf-login-bg), #F7FBFC fallback), 18px/400-700 weight Montserrat
+   text, and a #E4E5E7 divider line/#888 muted text. The Bonza Figma spec
+   documents this same row on a warm cream rgba(248,237,227,0.5) background,
+   16px Kobe1.1 body text with the "Log in" run bold, underlined, and
+   colored #247B4E (not the body's #2E2A2A), and a plain divider around
+   "Or continue as a guest" at 14px/400 weight. Left to the Figma CSS in
+   bc-site-customizations, which targets the same .fc-contact-login__*
+   classes.
 ============================================= */
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__content {
-	background-color: var(--bc-sf-login-bg) !important;
-	padding: 16px !important;
-	margin-bottom: 0 !important;
-	border-radius: 0 !important;
-}
-
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__cta-text {
-	font-family: var(--bc-sf-font-body) !important;
-	font-size: 18px !important;
-	font-weight: 400 !important;
-	line-height: 24px !important;
-	color: var(--bc-sf-text-primary) !important;
-	text-align: center !important;
-	margin-bottom: 0 !important;
-}
-
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__action {
-	font-family: var(--bc-sf-font-body) !important;
-	font-size: 18px !important;
-	font-weight: 700 !important;
-	color: var(--bc-sf-text-primary) !important;
-	text-decoration: underline !important;
-	cursor: pointer !important;
-	opacity: 1 !important;
-}
 
 /* =============================================
-   5. GUEST DIVIDER
-   Figma: line #E4E5E7 — "Or continue as a guest" var(--theme-font-family, Montserrat) 300 14px var(--fc-text-soft, #888) — line
+   6. GUEST DESCRIPTION TEXT typography REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: set Montserrat-fallback 400 18px color #393939. The PHP
+   string itself (inc/checkout-step-form.php) already matches the Bonza
+   Figma copy verbatim, but the Figma spec styles it Body/Regular
+   (Kobe1.1 400 16px/20px lh), fill #2E2A2A, not this file's tokens. Left
+   the margin/padding here to the Figma CSS in bc-site-customizations.
 ============================================= */
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator {
-	margin-bottom: 16px !important;
-	margin-top: 16px !important;
-}
-
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator::before {
-	background-color: var(--bc-sf-divider-color) !important;
-}
-
-body.woocommerce-checkout .fc-wrapper .fc-contact-login__separator-text {
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 300 !important;
-	font-size: 14px !important;
-	line-height: 16px !important;
-	color: var(--bc-sf-text-muted) !important;
-	padding: 0 16px !important;
-	background-color: #fff !important;
-}
-
-/* =============================================
-   6. GUEST DESCRIPTION TEXT
-   Figma Desktop: var(--theme-font-family, Montserrat) 400 18px var(--fc-text-strong, #393939)
-   Figma Mobile: var(--theme-font-family, Montserrat) 300 14px var(--fc-text-strong, #393939)
-   Injected via PHP hook: fc_checkout_before_contact_fields
-============================================= */
-.bc-guest-description {
-	font-family: var(--bc-sf-font-body);
-	font-weight: 400;
-	font-size: 18px;
-	line-height: 24px;
-	color: var(--bc-sf-text-primary);
-	margin: 0 0 16px 0;
-	padding: 0;
-}
 
 /* =============================================
    7. FORM LABELS
@@ -315,89 +254,44 @@ body.woocommerce-checkout .fc-wrapper input[type="checkbox"] {
 	flex-shrink: 0;
 }
 
-/* Newsletter opt-in (custom injected) */
-.bc-newsletter-optin {
-	margin-top: 16px !important;
-	padding: 0 !important;
-}
+/* .bc-newsletter-optin* styling REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: this checkbox itself is not in the Figma spec. Step 1's
+   ACCOUNT panel documents exactly one optional checkbox, "Create an
+   account? (Optional)"; there is no email-marketing opt-in row anywhere
+   in the extracted spec. The markup is injected by
+   inc/checkout-step-form.php (fc_checkout_contact_after_fields hook,
+   class .bc-newsletter-optin) and is outside this CSS-only task's scope,
+   flagged in the parity report for a follow-up PHP removal.
 
-.bc-newsletter-optin__label {
-	display: flex !important;
-	align-items: flex-start !important;
-	gap: 8px !important;
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 400 !important;
-	font-size: 14px !important;
-	line-height: 26px !important;
-	color: var(--bc-sf-text-muted) !important;
-	cursor: pointer !important;
-}
+   .fc-checkbox-label-text REMOVED separately: this is Fluid Checkout's own
+   generic class, applied to checkbox labels beyond just the newsletter
+   row (e.g. "Same as shipping address", "Save to account (Optional)").
+   It forced 400-weight muted grey (var(--bc-sf-text-muted), #888888
+   fallback) on all of them, but Figma documents these labels at full body
+   color #2E2A2A, "Same as shipping address" specifically at 700 weight
+   (Links/Bold 2), not 400. Left to the Figma CSS in bc-site-customizations. */
 
-.fc-checkbox-label-text,
-.bc-newsletter-optin__text {
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 400 !important;
-	font-size: 14px !important;
-	line-height: 26px !important;
-	color: var(--bc-sf-text-muted) !important;
-}
-
-/* Account creation checkbox (WooCommerce default) */
-body.woocommerce-checkout .fc-wrapper .woocommerce-account-fields label,
-body.woocommerce-checkout .fc-wrapper .form-row.create-account label {
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 400 !important;
-	font-size: 14px !important;
-	line-height: 26px !important;
-	color: var(--bc-sf-text-muted) !important;
-}
+/* Account creation checkbox label REMOVED 2026-09-15, CU-86eypb6hr: same
+   muted-grey-vs-#2E2A2A conflict as .fc-checkbox-label-text above, for the
+   literal Figma-documented "Create an account? (Optional)" checkbox. */
 
 /* =============================================
-   11. CTA BUTTON (NEXT STEP)
-   Figma: bg #D9EAF0 (already via --fc-btn-primary-bg in byronbay.css)
-   var(--theme-font-family, Montserrat) 400 18px #111, p-16, radius 4px
-   Shadow: 0px 1px 2px rgba(0,0,0,0.12), arrow icon
+   11. CTA BUTTON (NEXT STEP) REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: same conflict as the CHK #3 button block deleted from
+   woo-checkout.css, restated here with !important on every property
+   (font-family Montserrat fallback, 500 weight, 18px, 4px radius, 16px
+   padding, plus a '\2192' arrow pseudo-element and an inset-shadow
+   overlay). The Bonza Figma CTA (CONTINUE TO SHIPPING / PROCEED TO
+   BILLING / PROCEED TO PAYMENT / PLACE ORDER) is a plain-label 999px pill
+   button, no arrow, styled by the Figma CSS in bc-site-customizations
+   against the same .fc-step__actions .button / .fc-step__next-btn /
+   .fc-step__next-step selectors. Kept the step-actions container padding
+   below since it is pure layout with no Figma-documented conflict.
 ============================================= */
 
 /* Step actions container */
 .has-checkout-layout--multi-step .fc-step__actions {
 	padding: 0 24px 24px 24px !important;
-}
-
-/* Next step button */
-body.woocommerce-checkout .has-checkout-layout--multi-step .fc-step__actions .fc-step__next-step,
-body.woocommerce-checkout .fc-step__actions .button,
-body.woocommerce-checkout .fc-step__actions .fc-step__next-btn {
-	font-family: var(--bc-sf-font-body) !important;
-	font-weight: 500 !important;
-	font-size: 18px !important;
-	line-height: 24px !important;
-	text-transform: uppercase !important;
-	letter-spacing: 0.6px !important;
-	padding: 16px !important;
-	border-radius: 4px !important;
-	box-shadow: var(--bc-sf-btn-shadow) !important;
-	height: auto !important;
-	min-height: auto !important;
-	position: relative !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	gap: 6px !important;
-}
-
-/* Arrow icon after button text */
-body.woocommerce-checkout .fc-step__actions .fc-step__next-step::after,
-body.woocommerce-checkout .fc-step__actions .fc-step__next-btn::after {
-	content: '\2192' !important;
-	font-size: 20px !important;
-	line-height: 1 !important;
-	display: inline-block !important;
-}
-
-/* Inner button shadow overlay (Figma: inset shadow) */
-body.woocommerce-checkout .fc-step__actions .fc-step__next-step {
-	box-shadow: var(--bc-sf-btn-shadow), inset 0px -1px 0px 0px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* =============================================
@@ -415,7 +309,7 @@ body.woocommerce-checkout .fc-step__actions .fc-step__next-step {
    Figma: content area padding 24px, gap 16px between fields
 ============================================= */
 body.woocommerce-checkout .fc-wrapper .fc-step__substep-fields {
-	padding: 24px 8px 0 8px !important;
+	padding: 24px !important; /* was 24px 8px 0 8px; Figma panel body is padding 24px on all sides, CU-86eypb6hr */
 }
 
 /* Contact login area (inside substep but no substep-fields wrapper) */
@@ -454,10 +348,9 @@ body.woocommerce-checkout .fc-wrapper .bc-guest-description {
    Figma: single column, padding 24px
 ============================================= */
 @media (max-width: 999px) {
-	/* Substep title */
+	/* Substep title padding only; font-size removed 2026-09-15 with the base rule (section 3) */
 	body.woocommerce-checkout div.woocommerce .fc-wrapper .fc-step__substep .fc-step__substep-title {
 		padding: 0 !important;
-		font-size: 18px !important;
 	}
 
 	/* Step content padding */
@@ -475,14 +368,8 @@ body.woocommerce-checkout .fc-wrapper .bc-guest-description {
 	}
 }
 
-@media (min-width: 768px) and (max-width: 999px) {
-	/* Tablet: same text sizes as desktop */
-	.bc-guest-description {
-		font-size: 18px;
-		font-weight: 400;
-		line-height: 24px;
-	}
-}
+/* Tablet .bc-guest-description size override REMOVED 2026-09-15,
+   CU-86eypb6hr, along with the base rule it duplicated (section 6). */
 
 /* =============================================
    15. MOBILE RESPONSIVE (<768px)
@@ -506,14 +393,8 @@ body.woocommerce-checkout .fc-wrapper .bc-guest-description {
 		padding: 16px 16px 0 16px !important;
 	}
 
-	/* Guest description: lighter weight and smaller on mobile per Figma */
-	.bc-guest-description,
-	body.woocommerce-checkout .fc-wrapper .bc-guest-description {
-		font-weight: 300 !important;
-		font-size: 14px !important;
-		line-height: 16px !important;
-		padding: 0 0 !important;
-	}
+	/* Mobile .bc-guest-description weight/size override REMOVED 2026-09-15,
+	   CU-86eypb6hr, along with the base rule it duplicated (section 6). */
 
 	/* Labels slightly smaller on mobile */
 	body.woocommerce-checkout .fc-wrapper .form-row > label,
@@ -521,17 +402,10 @@ body.woocommerce-checkout .fc-wrapper .bc-guest-description {
 		font-size: 18px !important;
 	}
 
-	/* Newsletter opt-in text wraps on mobile */
-	.bc-newsletter-optin__label {
-		align-items: flex-start !important;
-	}
-
-	/* Button font slightly smaller on very narrow */
-	body.woocommerce-checkout .fc-step__actions .fc-step__next-step,
-	body.woocommerce-checkout .fc-step__actions .fc-step__next-btn {
-		font-size: 16px !important;
-		padding: 14px !important;
-	}
+	/* Newsletter opt-in mobile tweak and CTA button mobile font/padding
+	   REMOVED 2026-09-15, CU-86eypb6hr, along with their base rules
+	   (newsletter checkbox is not in the Figma spec; CTA button is
+	   superseded by section 11's removal above). */
 }
 
 /* 375px and below — extra compact */
@@ -574,49 +448,7 @@ body.woocommerce-checkout .fc-wrapper .fc-step__substep {
 	padding: 16px;
 }
 
-/* 1. Kondisi Default (Unchecked) */
-body.woocommerce-checkout .fc-wrapper input[type="checkbox"].bc-newsletter-optin__checkbox {
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  
-  width: 16px !important;
-  height: 16px !important;
-  cursor: pointer;
-  vertical-align: middle;
-  border: 0.625px solid #cfcfcf !important;
-  border-radius: 4px !important;
-  margin-right: 4px !important;
-  margin-top: 4px !important;
-  
-  /* Menghilangkan shadow atau outline bawaan */
-  outline: none;
-  box-shadow: none !important;
-  
-  /* Persiapan transisi agar smooth */
-  transition: background-color 0.2s, border-color 0.2s;
-  position: relative;
-  display: inline-block;
-}
-
-/* 2. Kondisi Checked (Dicentang) */
-.bc-newsletter-optin__checkbox:checked {
-  background-color: #111111 !important; /* Warna gelap sesuai referensi */
-  border-color: #cfcfcf !important;
-}
-
-/* 3. Menambahkan Tanda Centang (Checkmark) 
-   Karena appearance: none menghilangkan tanda centang bawaan, 
-   kita perlu menambahkannya menggunakan pseudo-element atau background-image */
-.bc-newsletter-optin__checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
+/* .bc-newsletter-optin__checkbox custom appearance REMOVED 2026-09-15,
+   CU-86eypb6hr, along with the rest of the newsletter opt-in styling
+   (section 10): the checkbox itself is not in the Figma spec. */
 

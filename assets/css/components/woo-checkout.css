@@ -22,38 +22,22 @@
  */
 
 /* ==========================================================================
-   CHK #3 — Checkout Button Styling (structural + tokens)
-   WHY: Fluid Checkout outputs Place Order / Next / Previous step buttons with
-   plugin-specific classes (.fc-step__*) that don't inherit Blocksy's global
-   button token. Structure aligns to Blocksy Customizer buttonPadding / buttonRadius
-   / buttonMinHeight. Colors use local CSS vars so client CSS can override.
-   @date 2026-03-11 @updated 2026-04-17
+   CHK #3 Checkout Button Styling REMOVED 2026-09-15, CU-86eypb6hr.
+   WHY REMOVED: this block set the Place Order / Next step CTA to
+   background var(--theme-palette-color-1, #000), which resolves to Blocksy
+   blue #2872FA on Bonza, with border-radius 4px. The Bonza Figma spec fully
+   documents this button (primary CTA: height 48px, fill width, borderRadius
+   999px pill, fill #247B4E, "BUTTON SHADOW", Nominee 900 12px/26px
+   letterSpacing 0.04em UPPER label) and it is implemented by the
+   Figma-accurate stylesheet in the bc-site-customizations repo
+   (sites/bonza/custom/css/checkout-*.css, .fc-step__next-step.button). This
+   legacy block's high specificity grouped selector, including the
+   #place_order ID, was winning the cascade and rendering the old blue
+   square button instead. Deleted rather than !important escalated per the
+   parity brief so the two repos' checkout CSS do not end up in an
+   !important arms race.
+   @date 2026-03-11 @updated 2026-04-17 @removed 2026-09-15
    ========================================================================== */
-#place_order,
-body .fc-wrapper [data-step-complete] .fc-step__substep-save,
-.fc-step__actions .button,
-.fc-step__actions .fc-step__next-btn {
-	background-color: var(--fc-btn-primary-bg, var(--theme-palette-color-1, #000));
-	color: var(--fc-btn-primary-text, var(--theme-palette-color-5, #fff));
-	border: none;
-	border-radius: 4px;
-	font-size: 16px;
-	line-height: 24px;
-	font-weight: 500;
-	padding: 14px 24px;
-	min-height: 40px;
-	width: 100%;
-	text-transform: uppercase;
-	letter-spacing: 0.6px;
-	transition: background-color 0.2s;
-}
-
-#place_order:hover,
-.fc-step__actions .button:hover,
-.fc-step__actions .fc-step__next-btn:hover {
-	background-color: var(--fc-btn-primary-bg-hover, var(--theme-palette-color-2, #333));
-	color: var(--fc-btn-primary-text, var(--theme-palette-color-5, #fff));
-}
 
 .fc-step__actions .fc-step__prev-btn {
 	background: transparent;
@@ -127,25 +111,17 @@ body .fc-progress-bar--bars .fc-progress-bar__steps .fc-progress-bar__step.is-cu
 	border-radius: 0 17px 17px 0;
 }
 
-/* STEP X OF N — FC's built-in counter element */
-body .fc-progress-bar .fc-progress-bar__count {
-	display: block;
-	font-family: inherit;
-	font-weight: 400;
-	font-size: 18px;
-	line-height: 24px;
-	color: var(--theme-palette-color-3, #393939);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	margin-bottom: 12px;
-	text-align: center;
-}
+/* STEP X OF N label typography REMOVED 2026-09-15, CU-86eypb6hr: hardcoded
+   inherit/400/18px conflicted with the Figma spec (Nominee "Heavy Extended"
+   900, 16px, color #2E2A2A). Left the track/segment rules above alone; they
+   read colors from the --fc-progress-bar-bg / --fc-progress-bar-fill CSS
+   vars (this file's own documented client override pattern), not hardcoded
+   Byron Bay Candles design tokens, so they are not fighting the Figma CSS. */
 
-/* Place Order button arrow icon */
-#place_order::after {
-	content: ' \2192';
-	margin-left: 8px;
-}
+/* Place Order button arrow icon REMOVED 2026-09-15, CU-86eypb6hr: the
+   Figma CTA buttons (CONTINUE TO SHIPPING / PROCEED TO BILLING / PROCEED TO
+   PAYMENT / PLACE ORDER) are plain uppercase text labels with no arrow
+   glyph documented. */
 
 body #createaccount,
 body #kl_newsletter_checkbox {
@@ -154,12 +130,6 @@ body #kl_newsletter_checkbox {
 
 body .has-checkout-layout--multi-step.woocommerce-checkout {
 	--fluidcheckout--color--grey: #393939;
-}
-
-body .has-checkout-layout--multi-step.woocommerce-checkout form .fc-wrapper .fc-checkout-step[data-step-complete] .fc-step__substep .fc-step__substep-title:before {
-	transform: translateY(0) !important;
-	background-color: #393939 !important;
-
 }
 
 body .select2-selection.select2-selection--single .select2-selection__rendered {
