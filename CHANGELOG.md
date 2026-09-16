@@ -1,3 +1,10 @@
+## [restore-hide-cart-page-2026-09-17] - 2026-09-17
+
+### Fixed
+- `inc/hide-cart-page.php`, `inc/loader.php`: the "hide cart page" feature is back. It shipped in PR #209 (commit `1003dde`, 2026-02-12, CU-86ewjqyw7) as `includes/features/hide-cart-page.php`, and left `main` in `26b5ea9` (2026-05-21, `feat!: adopt BBC-based child theme as the shared theme`), which replaced the entire `includes/` + `custom/` tree with the BBC `inc/` + `clients/` codebase imported from a production server. Nothing in that commit or its message singles the feature out, so it was collateral of the wholesale swap; it still exists on tag `v1.78.2-legacy` and branch `legacy/main-pre-bbc`. Since then `/cart/` has rendered a live page on every BBC-architecture site, which is why a Bonza retheme flow was landing there. Behaviour is unchanged from PR #209: a non-empty cart goes to checkout, an empty one to the shop (sending an empty cart to checkout would bounce straight back to `/cart` and loop), cart URLs are rewritten site-wide, the cart page is dropped from nav menus and Blocksy breadcrumbs, and the page itself gets `noindex, nofollow`.
+- Two additions over the original. The destination is now configurable with `BLAZE_HIDE_CART_PAGE_DESTINATION` (`'checkout'`, `'shop'` or `'home'`) and the `blaze_hide_cart_page_destination` filter, since not every site wants checkout. The redirect also stands down inside wp-admin and REST requests, so a block-based cart page stays editable.
+- Config-first was checked before writing any of it and logged: `woocommerce_cart_page_id` is a page assignment with no disable value, `woocommerce_cart_redirect_after_add` only governs where an add-to-cart POST lands, Blocksy's `cart_drawer_type` / `has_cart_drawer` / `header_cart_behavior` mods are all `false` and none of them governs the cart page, and Fluid Checkout (Pro) offers no cart bypass. No native toggle produces this.
+
 ## [shipping-option-label-radius-2026-09-16] - 2026-09-16
 
 ### Fixed

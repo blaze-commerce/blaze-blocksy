@@ -96,6 +96,9 @@ if ( blocksy_child_is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 		'checkout-trust-badges'    => 'inc/checkout-trust-badges.php',
 		'checkout-order-summary'   => 'inc/checkout-order-summary.php',
 		'checkout-step-form'       => 'inc/checkout-step-form.php',
+		// Restored 2026-09-17: shipped in PR #209, lost in 26b5ea9's wholesale
+		// tree swap rather than by any decision to drop it. See the file header.
+		'hide-cart-page'           => 'inc/hide-cart-page.php',
 	];
 
 	foreach ( $optional_modules as $feature => $file ) {
