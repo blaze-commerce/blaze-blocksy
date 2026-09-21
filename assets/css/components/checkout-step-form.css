@@ -35,8 +35,25 @@ body.woocommerce-checkout {
 	--bc-sf-login-bg: var(--fc-bg-pale, #F7FBFC);
 	--bc-sf-asterisk-color: var(--fc-error, #EF4444);
 	--bc-sf-btn-shadow: 0px 1px 2px rgba(0, 0, 0, 0.12);
-	--bc-sf-font-body: var(--bc-sf-font-body, var(--theme-font-family, Montserrat), sans-serif);
-	--bc-sf-font-label: var(--bc-sf-font-label, var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif));
+	/* --bc-sf-font-body/-label used to reference themselves inside their own
+	   value, e.g. `--bc-sf-font-body: var(--bc-sf-font-body, ...)`. That is a
+	   cyclic custom-property self-reference: nothing else in this theme ever
+	   sets --bc-sf-font-body/-label at any ancestor of body.woocommerce-checkout
+	   (both are invented here), so the cycle made them compute to the
+	   guaranteed-invalid value on every page load, confirmed against MDN/W3C,
+	   2026-09-21. The 14 bare `font-family: var(--bc-sf-font-body) !important;`
+	   consumers further down this file had no fallback of their own, so their
+	   font-family declaration was itself invalid and fell back to whatever
+	   these elements would inherit without this file at all, not the Figma
+	   font this file documents in its own header comment. Consumers that do
+	   carry their own fallback (checkout-order-summary.css, checkout-trust-
+	   badges.css) were unaffected either way, since their fallback duplicates
+	   what these tokens were always supposed to resolve to. Fixed by removing
+	   the self-reference; each token now resolves once, non-cyclically, to the
+	   exact chain the previous fallback already spelled out. Bug found and
+	   fixed 2026-09-21, CU-86eypb6jt/86eypb6m6 CSS-ownership audit. */
+	--bc-sf-font-body: var(--theme-font-family, Montserrat), sans-serif;
+	--bc-sf-font-label: var(--theme-font-family, Montserrat), var(--theme-body-font-family, sans-serif);
 }
 
 /* =============================================
