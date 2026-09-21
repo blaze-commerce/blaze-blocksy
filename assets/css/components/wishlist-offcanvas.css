@@ -412,20 +412,30 @@
 	height: 1px;
 }
 
-/* Title typography — customizer says var(--theme-font-family, Montserrat) n5 14px. */
+/* Title typography, customizer says var(--theme-font-family, Montserrat) n5 14px.
+   --theme-font-family is intentionally NOT redeclared here. The previous rule,
+   `--theme-font-family: var(--theme-font-family, Montserrat), Sans-Serif;`, is a
+   cyclic custom-property self-reference. A custom property that references
+   itself inside its own value computes to the guaranteed-invalid value per the
+   CSS Custom Properties spec (confirmed against MDN/W3C, 2026-09-21). It is not
+   "inherit-or-default-to-Montserrat" as the comment intended. Leaving the
+   property undeclared at this scope lets it inherit normally from whatever
+   ancestor (Blocksy Customizer output) actually sets it, which is the
+   "customizer says" value this rule was trying, and failing, to restate. Only
+   the weight/size overrides (never self-referential) are kept. Bug found and
+   fixed 2026-09-21, CU-86eypb6jt/86eypb6m6 CSS-ownership audit. */
 .bc-minicart-suggested-grid [data-products] .ct-product-title,
 .bc-wishlist-suggested-grid [data-products] .ct-product-title {
-	--theme-font-family: var(--theme-font-family, Montserrat), Sans-Serif;
 	--theme-font-weight: 500;
 	--theme-font-size: 14px;
 	--theme-link-initial-color: var(--theme-palette-color-3);
 	--theme-link-hover-color: var(--theme-palette-color-1);
 }
 
-/* Price typography — customizer says var(--theme-font-family, Montserrat) n5 13px. */
+/* Price typography, customizer says var(--theme-font-family, Montserrat) n5 13px.
+   Same cyclic self-reference removed. See the comment on the title rule above. */
 .bc-minicart-suggested-grid [data-products] .price,
 .bc-wishlist-suggested-grid [data-products] .price {
-	--theme-font-family: var(--theme-font-family, Montserrat), Sans-Serif;
 	--theme-font-weight: 500;
 	--theme-font-size: 14px;
 }
