@@ -148,6 +148,10 @@ function blocksy_child_perf_fonts_url_roots(): array {
  * @return bool
  */
 function blocksy_child_perf_fonts_contained( string $path, string $root ): bool {
+	if ( false !== strpos( $root, "\0" ) ) {
+		return false;
+	}
+
 	$real_root = realpath( $root );
 	if ( false === $real_root ) {
 		return false;
@@ -181,7 +185,14 @@ function blocksy_child_perf_fonts_url_to_path( string $href ): ?string {
 		}
 
 		$candidate = rtrim( (string) $dir, '/\\' ) . '/' . rawurldecode( substr( $clean, strlen( $prefix ) ) );
-		$real      = realpath( $candidate );
+
+		// A NUL byte (e.g. a `%00` in the href) makes realpath() throw a
+		// ValueError on PHP 8 — refuse the candidate instead (fail open).
+		if ( false !== strpos( $candidate, "\0" ) ) {
+			continue;
+		}
+
+		$real = realpath( $candidate );
 
 		if ( false !== $real && is_file( $real ) && blocksy_child_perf_fonts_contained( $real, (string) $dir ) ) {
 			return $real;
@@ -222,7 +233,7 @@ function blocksy_child_perf_fonts_cached_file(): ?string {
 
 	$dir = (string) apply_filters( 'blocksy_child_perf_fonts_cache_dir', blocksy_child_perf_fonts_default_cache_dir( $host ) );
 
-	if ( '' === $dir || ! is_dir( $dir ) ) {
+	if ( '' === $dir || false !== strpos( $dir, "\0" ) || ! is_dir( $dir ) ) {
 		return null;
 	}
 
