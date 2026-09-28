@@ -548,7 +548,7 @@ bc_test( 'bc-perf-minicart-hydrate: triggers filter applied at PRINT time', func
 	assert_same( false !== strpos( $out, '".my-cart"' ), true, 'late filter seen' );
 } );
 
-bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards + the widget-element guard + the no-op seed', function () {
+bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards + a widget-mirroring (not aborting) seed', function () {
 	$js = blocksy_child_perf_minicart_fragments_seed_js( 'wc_fragments_abc', 'wc_cart_hash_abc' );
 
 	assert_same( false !== strpos( $js, 'document.cookie' ), true, 'layer 1: WC cookies' );
@@ -556,10 +556,18 @@ bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards +
 	assert_same( false !== strpos( $js, '!sessionStorage.getItem("wc_fragments_abc")' ), true, 'layer 2: fragments key' );
 	assert_same( false !== strpos( $js, '!sessionStorage.getItem("wc_cart_hash_abc")' ), true, 'layer 2: session hash' );
 	assert_same( false !== strpos( $js, '!localStorage.getItem("wc_cart_hash_abc")' ), true, 'layer 3: localStorage hash' );
-	assert_same( false !== strpos( $js, "!document.querySelector('div.widget_shopping_cart_content')" ), true, 'layer 4: no widget_shopping_cart_content element in the DOM' );
-	assert_same( strpos( $js, "!document.querySelector('div.widget_shopping_cart_content')" ) < strpos( $js, 'sessionStorage.setItem(' ), true, 'layer 4 checked before seeding' );
-	assert_same( false !== strpos( $js, 'sessionStorage.setItem("wc_fragments_abc",' ), true, 'seeds the fragments key' );
-	assert_same( false !== strpos( $js, 'div.widget_shopping_cart_content' ), true, 'no-op fragment' );
+
+	// The widget lookup is a BRANCH for the seeded value, never an abort.
+	assert_same( false !== strpos( $js, "querySelector('div.widget_shopping_cart_content')" ), true, 'widget lookup' );
+	assert_same( false !== strpos( $js, '.outerHTML' ), true, 'rendered widget outerHTML mirrored into the fragment' );
+	assert_same( false !== strpos( $js, "!document.querySelector('div.widget_shopping_cart_content')" ), false, 'no longer aborts when the widget exists' );
+	assert_same( false !== strpos( $js, 'f["div.widget_shopping_cart_content"]=w.outerHTML' ), true, 'fragment key is the one cart-fragments.js requires' );
+	assert_same( false !== strpos( $js, 'if(w){' ) && false !== strpos( $js, '}else{v=' ), true, 'widget present -> mirror, absent -> no-op div' );
+	assert_same( false !== strpos( $js, '<div class=\\\\\\"widget_shopping_cart_content\\\\\\">' ), true, 'no-op fallback still present' );
+
+	assert_same( false !== strpos( $js, 'sessionStorage.setItem("wc_fragments_abc",v)' ), true, 'seeds the fragments key' );
+	assert_same( false !== strpos( $js, 'window.jQuery(bcSeed)' ), true, 'value computed in a jQuery ready callback registered before cart-fragments.js' );
+	assert_same( strpos( $js, 'localStorage.getItem(' ) < strpos( $js, 'var bcSeed' ), true, 'guards evaluated before any seeding' );
 	assert_same( 0 === strpos( $js, 'try{' ) && '}catch(e){}' === substr( $js, -11 ), true, 'storage access wrapped' );
 } );
 
