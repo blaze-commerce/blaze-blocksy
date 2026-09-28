@@ -31,10 +31,14 @@ if ( ! defined( 'BLOCKSY_CHILD_PERF_FEATURES' ) ) {
 	define( 'BLOCKSY_CHILD_PERF_FEATURES', [ 'async-styles' ] );
 }
 
-add_filter( 'blocksy_child_perf_features', function ( $features ) {
+// Named so it can be removed at the end of this file — run.php requires
+// every test file into ONE process, and a filter left behind would enable
+// 'dequeue-assets' for every later file.
+$bc_helpers_features_filter = function ( $features ) {
 	$features[] = 'dequeue-assets';
 	return $features;
-} );
+};
+add_filter( 'blocksy_child_perf_features', $bc_helpers_features_filter );
 
 $blocksy_child_perf_resolved = blocksy_child_perf_enabled_features();
 
@@ -311,12 +315,25 @@ bc_test( 'blocksy_child_perf_reset_state(): clears both the memoised enabled-fea
 	// Proving the enabled-features MEMO (not just its inputs) was cleared:
 	// register a new filter callback — invisible to a still-memoised
 	// result — and confirm a fresh call picks it up.
-	add_filter( 'blocksy_child_perf_features', function ( $features ) {
+	$late_filter = function ( $features ) {
 		$features[] = 'media-hygiene';
 		return $features;
-	} );
+	};
+	add_filter( 'blocksy_child_perf_features', $late_filter );
 
 	$features = blocksy_child_perf_enabled_features();
 
+	remove_filter( 'blocksy_child_perf_features', $late_filter );
+
 	assert_same( in_array( 'media-hygiene', $features, true ), true, 'post-reset resolution recomputes and sees a filter feature added after the original (pre-reset) resolution' );
 } );
+
+// -----------------------------------------------------------------------
+// Teardown — do not leak this file's fixture into later test files.
+// $blocksy_child_active_clients is also reset per file by bc_wp_stub_reset()
+// (bootstrap.php); the BLOCKSY_CHILD_PERF_FEATURES constant cannot be
+// undefined (see bootstrap.php).
+// -----------------------------------------------------------------------
+remove_filter( 'blocksy_child_perf_features', $bc_helpers_features_filter );
+$GLOBALS['blocksy_child_active_clients'] = [];
+blocksy_child_perf_reset_state();

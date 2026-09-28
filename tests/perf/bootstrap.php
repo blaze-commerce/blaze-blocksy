@@ -257,6 +257,17 @@ function bc_wp_stub_defaults(): array {
  */
 function bc_wp_stub_reset(): void {
 	$GLOBALS['bc_wp_stub'] = bc_wp_stub_defaults();
+
+	// The theme's active-client list (read by blocksy_child_perf_enabled_features()
+	// for each manifest's "perf" key) is process-wide too — test-helpers.php
+	// sets a fake client with perf ['*'] that must not leak into later files.
+	//
+	// NOT resettable: the BLOCKSY_CHILD_PERF_FEATURES constant. test-helpers.php
+	// defines it as [ 'async-styles' ] (a PHP constant cannot be undefined), so
+	// every test file that runs after it sees 'async-styles' in the resolved
+	// feature set. Only test-helpers.php asserts on it; no other test depends on
+	// 'async-styles' being enabled or disabled through the resolver.
+	$GLOBALS['blocksy_child_active_clients'] = [];
 }
 
 bc_wp_stub_reset();
@@ -482,6 +493,24 @@ if ( ! function_exists( 'wc_get_page_permalink' ) ) {
 // Theme helpers from inc/helpers.php that inc/mini-cart-empty.php calls —
 // stubbed (not required) because inc/helpers.php pulls in far more
 // WordPress/WooCommerce than this harness provides.
+/**
+ * Declare an empty `WooCommerce` class on demand, so a test can take a
+ * module's `class_exists( 'WooCommerce' )` branch. A class cannot be
+ * undeclared: once called, WooCommerce "exists" for the rest of the
+ * process — only call it after every test that needs the class absent
+ * (currently only tests/perf/test-task8.php uses it, in its last cases).
+ * The flag $GLOBALS['bc_wp_stub_woocommerce_declared'] records the call.
+ *
+ * @return void
+ */
+function bc_wp_stub_declare_woocommerce(): void {
+	if ( ! class_exists( 'WooCommerce', false ) ) {
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile
+		class WooCommerce {}
+	}
+	$GLOBALS['bc_wp_stub_woocommerce_declared'] = true;
+}
+
 if ( ! function_exists( 'bc_get_recently_viewed_cookie' ) ) {
 	function bc_get_recently_viewed_cookie() {
 		return $GLOBALS['bc_wp_stub']['recently_viewed_cookie'];

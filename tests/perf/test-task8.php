@@ -294,17 +294,21 @@ bc_test( 'blocksy_child_perf_archive_thumb_attributes(): uncropped (height 0) si
 // media-hygiene (d): below-fold lazy
 // -----------------------------------------------------------------------
 
-bc_test( 'blocksy_child_perf_belowfold_lazy(): the first 3 <img> of the request stay eager, the rest lazy + async', function () {
+bc_test( 'blocksy_child_perf_belowfold_lazy(): the first 3 <img> of the request stay eager (stamped only), the rest lazy + async', function () {
 	blocksy_child_perf_reset_state();
 
-	$html = '<img src="1.jpg"><img src="2.jpg">';
-	assert_same( blocksy_child_perf_belowfold_lazy( $html ), $html, 'imgs 1-2 eager' );
+	$out = blocksy_child_perf_belowfold_lazy( '<img src="1.jpg"><img src="2.jpg">' );
+	assert_same( $out, '<img data-bc-perf-n="1" src="1.jpg"><img data-bc-perf-n="2" src="2.jpg">', 'imgs 1-2 eager, stamped' );
 
 	$out = blocksy_child_perf_belowfold_lazy( '<img src="3.jpg"><img src="4.jpg" decoding="sync"><img src="5.jpg">' );
-	assert_same( $out, '<img src="3.jpg"><img loading="lazy" src="4.jpg" decoding="sync"><img loading="lazy" decoding="async" src="5.jpg">', 'img 3 eager; 4+ lazy; existing decoding kept' );
+	assert_same(
+		$out,
+		'<img data-bc-perf-n="3" src="3.jpg"><img data-bc-perf-n="4" loading="lazy" src="4.jpg" decoding="sync"><img data-bc-perf-n="5" loading="lazy" decoding="async" src="5.jpg">',
+		'img 3 eager; 4+ lazy; existing decoding kept'
+	);
 } );
 
-bc_test( 'blocksy_child_perf_belowfold_lazy(): LCP / fetchpriority / skip classes / explicit loading are never touched', function () {
+bc_test( 'blocksy_child_perf_belowfold_lazy(): LCP / fetchpriority / skip classes / explicit loading are never lazied', function () {
 	blocksy_child_perf_reset_state();
 	blocksy_child_perf_belowfold_lazy( '<img src="1.jpg"><img src="2.jpg"><img src="3.jpg">' );
 
@@ -318,22 +322,55 @@ bc_test( 'blocksy_child_perf_belowfold_lazy(): LCP / fetchpriority / skip classe
 		'<img src="g.jpg" loading="eager">',
 		'<img src="h.jpg" loading="lazy">',
 	];
+	$n = 3;
 	foreach ( $skip as $img ) {
-		assert_same( blocksy_child_perf_belowfold_lazy( $img ), $img, "untouched: {$img}" );
+		$n++;
+		$out = blocksy_child_perf_belowfold_lazy( $img );
+		assert_same( $out, preg_replace( '#^<img#', '<img data-bc-perf-n="' . $n . '"', $img ), "only stamped: {$img}" );
 	}
 
-	assert_same( blocksy_child_perf_belowfold_lazy( '<img src="z.jpg" class="lcp-ish">' ), '<img loading="lazy" decoding="async" src="z.jpg" class="lcp-ish">', 'an ordinary later image is lazied' );
+	assert_same( blocksy_child_perf_belowfold_lazy( '<img src="z.jpg" class="lcp-ish">' ), '<img data-bc-perf-n="12" loading="lazy" decoding="async" src="z.jpg" class="lcp-ish">', 'an ordinary later image is lazied' );
 } );
 
-bc_test( 'blocksy_child_perf_belowfold_lazy(): an inner block\'s eager image re-seen in its parent block is not re-counted or lazied', function () {
+bc_test( 'blocksy_child_perf_belowfold_lazy(): inner-block tags ALTERED by later filters before the parent pass are not re-counted (stamp survives)', function () {
 	blocksy_child_perf_reset_state();
 
-	$inner = blocksy_child_perf_belowfold_lazy( '<img src="1.jpg">' );
-	$outer = blocksy_child_perf_belowfold_lazy( '<div class="group">' . $inner . '<img src="2.jpg"><img src="3.jpg"></div>' );
-	assert_same( $outer, '<div class="group"><img src="1.jpg"><img src="2.jpg"><img src="3.jpg"></div>', '1 re-seen, 2 and 3 are the 2nd/3rd eager' );
+	// Inner core/image blocks, each through the render_block @20 callback.
+	$inner = [];
+	foreach ( [ 1, 2, 3 ] as $i ) {
+		$inner[] = blocksy_child_perf_belowfold_lazy_render_block( '<figure class="wp-block-image"><img src="' . $i . '.jpg" class="wp-image-' . $i . '"></figure>', [ 'blockName' => 'core/image' ] );
+	}
+
+	// A later render_block / render_block_core/image callback (priority > 20)
+	// rewrites each inner tag before the parent gallery sees it.
+	$altered = array_map( function ( $html ) {
+		return str_replace( 'class="wp-image-', 'data-extra="1" class="altered wp-image-', $html );
+	}, $inner );
+
+	$gallery_in = '<figure class="wp-block-gallery">' . implode( '', $altered ) . '</figure>';
+	$gallery    = blocksy_child_perf_belowfold_lazy_render_block( $gallery_in, [ 'blockName' => 'core/gallery' ] );
+
+	assert_same( $gallery, $gallery_in, 'parent pass leaves the three (altered) above-fold images alone' );
+	assert_same( substr_count( $gallery, 'loading=' ), 0, 'none of images 1-3 lazied on the parent pass' );
 
 	$out = blocksy_child_perf_belowfold_lazy( '<img src="4.jpg">' );
-	assert_same( $out, '<img loading="lazy" decoding="async" src="4.jpg">', '4th distinct image is lazy' );
+	assert_same( $out, '<img data-bc-perf-n="4" loading="lazy" decoding="async" src="4.jpg">', 'the next new image is position 4' );
+} );
+
+bc_test( 'blocksy_child_perf_belowfold_lazy(): identical repeated tags each count — the 4th identical copy is lazied', function () {
+	blocksy_child_perf_reset_state();
+
+	$icon = '<img src="icon.svg" alt="">';
+	$out  = blocksy_child_perf_belowfold_lazy( str_repeat( $icon, 4 ) );
+
+	assert_same(
+		$out,
+		'<img data-bc-perf-n="1" src="icon.svg" alt="">'
+		. '<img data-bc-perf-n="2" src="icon.svg" alt="">'
+		. '<img data-bc-perf-n="3" src="icon.svg" alt="">'
+		. '<img data-bc-perf-n="4" loading="lazy" decoding="async" src="icon.svg" alt="">'
+	);
+	blocksy_child_perf_reset_state();
 } );
 
 bc_test( 'blocksy_child_perf_belowfold_lazy(): eager count is filterable (blocksy_child_perf_eager_img_count)', function () {
@@ -344,7 +381,7 @@ bc_test( 'blocksy_child_perf_belowfold_lazy(): eager count is filterable (blocks
 	$out = bc_t8_with_filter( 'blocksy_child_perf_eager_img_count', $cb, function () {
 		return blocksy_child_perf_belowfold_lazy( '<img src="1.jpg">' );
 	} );
-	assert_same( $out, '<img loading="lazy" decoding="async" src="1.jpg">' );
+	assert_same( $out, '<img data-bc-perf-n="1" loading="lazy" decoding="async" src="1.jpg">' );
 	blocksy_child_perf_reset_state();
 } );
 
@@ -354,7 +391,9 @@ bc_test( 'below-fold pass at render_block @20 respects the lcp-image cover pass 
 
 	// What inc/perf/lcp-image.php's cover rewrite leaves behind.
 	$cover = '<div class="wp-block-cover"><img fetchpriority="high" src="hero.jpg" class="wp-block-cover__image-background"/></div>';
-	assert_same( blocksy_child_perf_belowfold_lazy_render_block( $cover, [ 'blockName' => 'core/cover' ] ), $cover );
+	$out   = blocksy_child_perf_belowfold_lazy_render_block( $cover, [ 'blockName' => 'core/cover' ] );
+	assert_same( false !== strpos( $out, 'loading=' ), false, 'LCP cover image never lazied' );
+	assert_same( false !== strpos( $out, 'fetchpriority="high" src="hero.jpg"' ), true );
 	blocksy_child_perf_reset_state();
 } );
 
@@ -370,12 +409,34 @@ bc_test( 'blocksy_child_perf_img_height_fix_filter(): width + wp-image-<id> + no
 	assert_same( $out, '<img height="60" src="badge.png" width="120" class="wp-image-639922" loading="lazy" sizes="auto, 120px">' );
 } );
 
-bc_test( 'blocksy_child_perf_img_height_fix_filter(): left alone when height present, no width, no wp-image class, or no meta', function () {
+bc_test( 'blocksy_child_perf_img_height_fix(): a hard-cropped subsize in src uses THAT ratio, not the original one', function () {
+	$meta = [
+		'width'  => 1200,
+		'height' => 800,
+		'sizes'  => [ 'thumbnail' => [ 'file' => 'photo-300x300.jpg', 'width' => 300, 'height' => 300 ] ],
+	];
+
+	assert_same(
+		blocksy_child_perf_img_height_fix( '<img src="https://example.test/photo-300x300.jpg?v=2" width="150" class="wp-image-3">', $meta ),
+		'<img height="150" src="https://example.test/photo-300x300.jpg?v=2" width="150" class="wp-image-3">',
+		'square crop -> 150, not 100'
+	);
+
+	assert_same(
+		blocksy_child_perf_img_height_fix( '<img src="https://example.test/photo-640x480.jpg" width="150" class="wp-image-3">', $meta ),
+		'<img height="100" src="https://example.test/photo-640x480.jpg" width="150" class="wp-image-3">',
+		'suffix not among the generated sizes -> original ratio'
+	);
+} );
+
+bc_test( 'blocksy_child_perf_img_height_fix_filter(): left alone when height present, no width, non-integer width, no wp-image class, or no meta', function () {
 	$GLOBALS['bc_wp_stub']['attachment_metadata'][7] = [ 'width' => 400, 'height' => 300 ];
 
 	foreach ( [
 		'<img src="a.png" width="120" height="10" class="wp-image-7">',
 		'<img src="a.png" class="wp-image-7">',
+		'<img src="a.png" width="100%" class="wp-image-7">',
+		'<img src="a.png" width="12.5" class="wp-image-7">',
 		'<img src="a.png" width="120" class="foo">',
 		'<img src="a.png" width="120" class="wp-image-8">',
 	] as $img ) {
@@ -386,6 +447,11 @@ bc_test( 'blocksy_child_perf_img_height_fix_filter(): left alone when height pre
 		blocksy_child_perf_img_height_fix( '<img width="200" class="wp-image-7">', [ 'width' => 400, 'height' => 300 ] ),
 		'<img height="150" width="200" class="wp-image-7">',
 		'pure helper'
+	);
+	assert_same(
+		blocksy_child_perf_img_height_fix( '<img width=200 class="wp-image-7">', [ 'width' => 400, 'height' => 300 ] ),
+		'<img height="150" width=200 class="wp-image-7">',
+		'unquoted integer width'
 	);
 } );
 
@@ -461,6 +527,9 @@ bc_test( 'blocksy_child_perf_minicart_hydrate_js(): clones the template on hover
 	assert_same( false !== strpos( $js, "'mouseover'" ), true, 'hover' );
 	assert_same( false !== strpos( $js, "'scroll'" ) && false !== strpos( $js, "'click'" ), true, 'first scroll / click' );
 	assert_same( false !== strpos( $js, 'requestIdleCallback' ) && false !== strpos( $js, 'timeout:4000' ), true, 'idle 4s' );
+	assert_same( false !== strpos( $js, "removeEventListener('mouseover',onTrigger" ), true, 'hover listener removed once hydrated' );
+	assert_same( false !== strpos( $js, "removeEventListener('focusin',onTrigger" ), true, 'focus listener removed once hydrated' );
+	assert_same( false !== strpos( $js, "ctEvents.trigger('blocksy:frontend:init')" ), true, 'Blocksy re-mount dispatched through window.ctEvents' );
 } );
 
 bc_test( 'bc-perf-minicart-hydrate: triggers filter applied at PRINT time', function () {
@@ -479,7 +548,7 @@ bc_test( 'bc-perf-minicart-hydrate: triggers filter applied at PRINT time', func
 	assert_same( false !== strpos( $out, '".my-cart"' ), true, 'late filter seen' );
 } );
 
-bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards + the no-op seed', function () {
+bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards + the widget-element guard + the no-op seed', function () {
 	$js = blocksy_child_perf_minicart_fragments_seed_js( 'wc_fragments_abc', 'wc_cart_hash_abc' );
 
 	assert_same( false !== strpos( $js, 'document.cookie' ), true, 'layer 1: WC cookies' );
@@ -487,6 +556,8 @@ bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards +
 	assert_same( false !== strpos( $js, '!sessionStorage.getItem("wc_fragments_abc")' ), true, 'layer 2: fragments key' );
 	assert_same( false !== strpos( $js, '!sessionStorage.getItem("wc_cart_hash_abc")' ), true, 'layer 2: session hash' );
 	assert_same( false !== strpos( $js, '!localStorage.getItem("wc_cart_hash_abc")' ), true, 'layer 3: localStorage hash' );
+	assert_same( false !== strpos( $js, "!document.querySelector('div.widget_shopping_cart_content')" ), true, 'layer 4: no widget_shopping_cart_content element in the DOM' );
+	assert_same( strpos( $js, "!document.querySelector('div.widget_shopping_cart_content')" ) < strpos( $js, 'sessionStorage.setItem(' ), true, 'layer 4 checked before seeding' );
 	assert_same( false !== strpos( $js, 'sessionStorage.setItem("wc_fragments_abc",' ), true, 'seeds the fragments key' );
 	assert_same( false !== strpos( $js, 'div.widget_shopping_cart_content' ), true, 'no-op fragment' );
 	assert_same( 0 === strpos( $js, 'try{' ) && '}catch(e){}' === substr( $js, -11 ), true, 'storage access wrapped' );
@@ -501,13 +572,30 @@ bc_test( 'blocksy_child_perf_minicart_fragments_seed(): bails without WooCommerc
 	assert_same( $GLOBALS['bc_wp_stub']['inline_scripts'], [], 'no WooCommerce class in this harness -> nothing added' );
 } );
 
+bc_test( 'blocksy_child_perf_minicart_fragments_seed(): with WooCommerce + wc-cart-fragments -> seed added BEFORE wc-cart-fragments', function () {
+	// Must run after the "bails without WooCommerce" case above: the class
+	// cannot be undeclared (see bc_wp_stub_declare_woocommerce()).
+	bc_wp_stub_declare_woocommerce();
+
+	$GLOBALS['bc_wp_stub']['inline_scripts']     = [];
+	$GLOBALS['bc_wp_stub']['scripts_registered'] = [];
+	blocksy_child_perf_minicart_fragments_seed();
+	assert_same( $GLOBALS['bc_wp_stub']['inline_scripts'], [], 'wc-cart-fragments not registered -> nothing added' );
+
+	$GLOBALS['bc_wp_stub']['scripts_registered'] = [ 'wc-cart-fragments' ];
+	blocksy_child_perf_minicart_fragments_seed();
+
+	$calls = $GLOBALS['bc_wp_stub']['inline_scripts'];
+	assert_same( count( $calls ), 1, 'one inline script' );
+	assert_same( $calls[0][0], 'wc-cart-fragments', 'attached to wc-cart-fragments' );
+	assert_same( $calls[0][2], 'before', "position 'before'" );
+
+	$suffix = md5( '1_https://example.test/blocksy' );
+	assert_same( $calls[0][1], blocksy_child_perf_minicart_fragments_seed_js( 'wc_fragments_' . $suffix, 'wc_cart_hash_' . $suffix ), 'keys mirror WC_Frontend_Scripts' );
+} );
+
 bc_test( 'inc/mini-cart-empty.php: suggestions wrapped in <template> only when minicart-hydrate is enabled', function () {
 	$GLOBALS['bc_wp_stub']['suggested_carousel_html'] = '<div class="bc-minicart-suggested-grid"><img src="p.jpg"></div>';
-
-	// test-helpers.php leaves a fake client manifest with perf ['*'] in this
-	// process-wide global — isolate from it for the "disabled" case.
-	$saved_clients                           = $GLOBALS['blocksy_child_active_clients'] ?? null;
-	$GLOBALS['blocksy_child_active_clients'] = [];
 
 	blocksy_child_perf_reset_state();
 	ob_start();
@@ -541,9 +629,6 @@ bc_test( 'inc/mini-cart-empty.php: suggestions wrapped in <template> only when m
 	remove_filter( 'blocksy_child_perf_features', $features );
 	blocksy_child_perf_reset_state();
 	assert_same( false !== strpos( $none, '<template' ), false, 'no suggestions -> no empty template' );
-
-	$GLOBALS['blocksy_child_active_clients'] = $saved_clients;
-	blocksy_child_perf_reset_state();
 } );
 
 // -----------------------------------------------------------------------
@@ -582,6 +667,8 @@ bc_test( 'assets/js/perf-lazy-rescan.js: observer + Blocksy events + instance lo
 		assert_same( false !== strpos( $js, "'{$ev}'" ), true, "listens for {$ev}" );
 	}
 	assert_same( false !== strpos( $js, 'LazyLoad::Initialized' ), true, 'captures the Perfmatters instance' );
+	assert_same( false !== strpos( $js, 'window.ctEvents.on(ev, onBlocksyEvent)' ), true, 'subscribes on the Blocksy ctEvents bus' );
+	assert_same( false !== strpos( $js, 'document.addEventListener(ev, onBlocksyEvent, true)' ), true, 'DOM listener kept as fallback' );
 	assert_same( false !== strpos( $js, 'window.LazyLoad.update' ), false, 'never calls update() on the constructor' );
 	assert_same( false !== strpos( $js, 'img.perfmatters-lazy[data-src]' ), true, 'source fallback sweep' );
 } );
