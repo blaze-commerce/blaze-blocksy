@@ -184,6 +184,161 @@ register_shutdown_function( function () {
 	}
 } );
 
+// -----------------------------------------------------------------------
+// Shared WP conditional/data stubs — used by more than one test-*.php file
+// (or will be, by a later task). Declared HERE, each wrapped in
+// function_exists(), instead of in an individual test-*.php file, because
+// run.php requires every tests/perf/test-*.php file into ONE process: a
+// second bare (unguarded) declaration of e.g. is_singular() in a later
+// test file is a fatal "Cannot redeclare".
+//
+// All driven by the single $GLOBALS['bc_wp_stub'] array — a test case sets
+// $GLOBALS['bc_wp_stub']['is_singular'] = true; instead of declaring its
+// own is_singular(). bc_wp_stub_reset() restores every key to its default;
+// run.php calls it before requiring each test file, right next to
+// blocksy_child_perf_reset_state().
+// -----------------------------------------------------------------------
+
+/**
+ * Default state for $GLOBALS['bc_wp_stub']. See bc_wp_stub_reset().
+ *
+ * @return array
+ */
+function bc_wp_stub_defaults(): array {
+	return [
+		// Conditional tags.
+		'is_singular'             => false,
+		'is_front_page'           => false,
+		'is_shop'                 => false,
+		'is_product_taxonomy'     => false,
+		'is_product'              => false,
+
+		// Data getters. The attachment-image maps and attachment_metadata /
+		// wc_image_size are keyed (see bc_wp_stub_attachment_key() / each
+		// stub below) so more than one fixture can coexist in one test case.
+		'post_thumbnail_id'       => 0,
+		'attachment_image_url'    => [],
+		'attachment_image_srcset' => [],
+		'attachment_image_sizes'  => [],
+		'attachment_metadata'     => [], // <id> => array. Task 8.
+		'wc_image_size'           => [], // <size name> => array. Task 8.
+		'post_field'              => [], // <field name> => string.
+		'options'                 => [], // <option name> => mixed.
+	];
+}
+
+/**
+ * Resets $GLOBALS['bc_wp_stub'] to bc_wp_stub_defaults(). Called by
+ * run.php before requiring each test-*.php file, so no test file inherits
+ * state a previous file set.
+ *
+ * @return void
+ */
+function bc_wp_stub_reset(): void {
+	$GLOBALS['bc_wp_stub'] = bc_wp_stub_defaults();
+}
+
+bc_wp_stub_reset();
+
+/**
+ * Keys the "<id>:<size>" stub maps below. An array size (a `[width, height]`
+ * pair, as e.g. blocksy_child_perf_lcp_hero_from_content() derives) is
+ * flattened to "WxH" so it can be used as an array key.
+ *
+ * @param int          $id
+ * @param string|array $size
+ * @return string
+ */
+function bc_wp_stub_attachment_key( $id, $size ): string {
+	return $id . ':' . ( is_array( $size ) ? implode( 'x', $size ) : $size );
+}
+
+if ( ! function_exists( 'is_singular' ) ) {
+	function is_singular( $type = '' ) {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_singular'] );
+	}
+}
+
+if ( ! function_exists( 'is_front_page' ) ) {
+	function is_front_page() {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_front_page'] );
+	}
+}
+
+if ( ! function_exists( 'is_shop' ) ) {
+	function is_shop() {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_shop'] );
+	}
+}
+
+if ( ! function_exists( 'is_product_taxonomy' ) ) {
+	function is_product_taxonomy() {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_product_taxonomy'] );
+	}
+}
+
+if ( ! function_exists( 'is_product' ) ) {
+	function is_product() {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_product'] );
+	}
+}
+
+if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
+	function get_post_thumbnail_id( $post = 0 ) {
+		return (int) $GLOBALS['bc_wp_stub']['post_thumbnail_id'];
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_image_url' ) ) {
+	function wp_get_attachment_image_url( $id, $size ) {
+		$key = bc_wp_stub_attachment_key( $id, $size );
+		return $GLOBALS['bc_wp_stub']['attachment_image_url'][ $key ] ?? '';
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_image_srcset' ) ) {
+	function wp_get_attachment_image_srcset( $id, $size ) {
+		$key = bc_wp_stub_attachment_key( $id, $size );
+		return $GLOBALS['bc_wp_stub']['attachment_image_srcset'][ $key ] ?? '';
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_image_sizes' ) ) {
+	function wp_get_attachment_image_sizes( $id, $size ) {
+		$key = bc_wp_stub_attachment_key( $id, $size );
+		return $GLOBALS['bc_wp_stub']['attachment_image_sizes'][ $key ] ?? '';
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_metadata' ) ) {
+	// Not consumed by any module shipped so far — included now so Task 8
+	// can set $GLOBALS['bc_wp_stub']['attachment_metadata'][ $id ] without
+	// needing to declare this stub itself.
+	function wp_get_attachment_metadata( $id ) {
+		return $GLOBALS['bc_wp_stub']['attachment_metadata'][ (int) $id ] ?? [];
+	}
+}
+
+if ( ! function_exists( 'wc_get_image_size' ) ) {
+	// Not consumed by any module shipped so far — included now for Task 8,
+	// same reasoning as wp_get_attachment_metadata() above.
+	function wc_get_image_size( $image_size, $default_args = [] ) {
+		return $GLOBALS['bc_wp_stub']['wc_image_size'][ (string) $image_size ] ?? $default_args;
+	}
+}
+
+if ( ! function_exists( 'get_post_field' ) ) {
+	function get_post_field( $field, $post = 0 ) {
+		return $GLOBALS['bc_wp_stub']['post_field'][ $field ] ?? '';
+	}
+}
+
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $name, $default = false ) {
+		return $GLOBALS['bc_wp_stub']['options'][ $name ] ?? $default;
+	}
+}
+
 /**
  * Every message passed to error_log() since the test run started, in call
  * order, with the leading PHP `[date-time]` prefix stripped.

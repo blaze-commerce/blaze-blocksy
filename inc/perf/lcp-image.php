@@ -185,10 +185,17 @@ function blocksy_child_perf_lcp_preload_markup( string $src, string $srcset = ''
  *
  * Once-per-request (only the first `core/cover` block containing an `<img`
  * is ever touched — later calls this request return their input unchanged)
- * and idempotent (if the image already carries a `fetchpriority` attribute
- * — core, WP 6.3+, may already have set one — the block is left exactly as
- * given, including its `loading` attribute, rather than risk a duplicate
- * attribute).
+ * and idempotent (if THAT `<img>` — the one this function would otherwise
+ * rewrite, not merely something else in the block's markup — already
+ * carries a `fetchpriority` attribute — core, WP 6.3+, may already have set
+ * one — that `<img>` is left exactly as given, including its `loading`
+ * attribute, rather than risk a duplicate attribute). The `fetchpriority=`
+ * check is scoped to the matched `<img>` tag itself, deliberately: a cover
+ * block can carry other elements (a `<video>` poster, a second `<img>`
+ * later in the same block) that happen to carry their own `fetchpriority`
+ * attribute unrelated to this one — checking the whole block's HTML would
+ * wrongly skip rewriting the first `<img>` because of an attribute on a
+ * completely different element.
  *
  * The caller (blocksy_child_perf_lcp_image_register()) is responsible for
  * only passing `core/cover` block content — this function itself does not
@@ -210,14 +217,16 @@ function blocksy_child_perf_lcp_cover_block_rewrite( string $html ): string {
 	// whether or not the rewrite below actually changes anything.
 	$GLOBALS['blocksy_child_perf_state']['lcp_cover_done'] = true;
 
-	if ( false !== strpos( $html, 'fetchpriority=' ) ) {
-		return $html; // core already handled it — idempotent, no double attribute.
-	}
-
 	return preg_replace_callback(
 		'#<img\b[^>]*>#i',
 		function ( $m ) {
-			$tag = preg_replace( '#<img\s+#i', '<img fetchpriority="high" ', $m[0], 1 );
+			$tag = $m[0];
+
+			if ( false !== stripos( $tag, 'fetchpriority=' ) ) {
+				return $tag; // core already handled THIS <img> — idempotent, no double attribute.
+			}
+
+			$tag = preg_replace( '#<img\s+#i', '<img fetchpriority="high" ', $tag, 1 );
 			$tag = preg_replace( '#\s*loading=(["\'])lazy\1#i', '', $tag, 1 );
 			return $tag;
 		},

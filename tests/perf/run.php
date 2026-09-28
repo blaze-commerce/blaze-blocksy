@@ -64,6 +64,11 @@ foreach ( $test_files as $test_file ) {
 		blocksy_child_perf_reset_state();
 	}
 
+	// Same clean-slate reasoning for the shared WP conditional/data stubs
+	// (bootstrap.php) — bc_wp_stub_reset() always exists (declared
+	// unconditionally in bootstrap.php), unlike blocksy_child_perf_reset_state().
+	bc_wp_stub_reset();
+
 	require $test_file;
 }
 

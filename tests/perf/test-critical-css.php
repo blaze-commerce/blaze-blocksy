@@ -208,9 +208,8 @@ bc_test( 'blocksy_child_perf_critical_css_extra: only reaches the bucket it name
 	};
 	add_filter( 'blocksy_child_perf_critical_css_extra', $cb );
 
-	global $bc_test_is_shop, $bc_test_is_product_taxonomy;
-	$bc_test_is_shop             = true;
-	$bc_test_is_product_taxonomy = false;
+	$GLOBALS['bc_wp_stub']['is_shop']             = true;
+	$GLOBALS['bc_wp_stub']['is_product_taxonomy'] = false;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -223,9 +222,8 @@ bc_test( 'blocksy_child_perf_critical_css_extra: only reaches the bucket it name
 } );
 
 bc_test( 'bc-perf-critical-archive: suppressed when is_shop()/is_product_taxonomy() are both false', function () {
-	global $bc_test_is_shop, $bc_test_is_product_taxonomy;
-	$bc_test_is_shop             = false;
-	$bc_test_is_product_taxonomy = false;
+	$GLOBALS['bc_wp_stub']['is_shop']             = false;
+	$GLOBALS['bc_wp_stub']['is_product_taxonomy'] = false;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -233,9 +231,8 @@ bc_test( 'bc-perf-critical-archive: suppressed when is_shop()/is_product_taxonom
 } );
 
 bc_test( 'bc-perf-critical-archive: prints (with mandated attributes) when is_shop() is true', function () {
-	global $bc_test_is_shop, $bc_test_is_product_taxonomy;
-	$bc_test_is_shop             = true;
-	$bc_test_is_product_taxonomy = false;
+	$GLOBALS['bc_wp_stub']['is_shop']             = true;
+	$GLOBALS['bc_wp_stub']['is_product_taxonomy'] = false;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -244,9 +241,8 @@ bc_test( 'bc-perf-critical-archive: prints (with mandated attributes) when is_sh
 } );
 
 bc_test( 'bc-perf-critical-archive: prints when is_product_taxonomy() is true (is_shop() false)', function () {
-	global $bc_test_is_shop, $bc_test_is_product_taxonomy;
-	$bc_test_is_shop             = false;
-	$bc_test_is_product_taxonomy = true;
+	$GLOBALS['bc_wp_stub']['is_shop']             = false;
+	$GLOBALS['bc_wp_stub']['is_product_taxonomy'] = true;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -254,8 +250,7 @@ bc_test( 'bc-perf-critical-archive: prints when is_product_taxonomy() is true (i
 } );
 
 bc_test( 'bc-perf-critical-product: suppressed when is_product() is false', function () {
-	global $bc_test_is_product;
-	$bc_test_is_product = false;
+	$GLOBALS['bc_wp_stub']['is_product'] = false;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -263,8 +258,7 @@ bc_test( 'bc-perf-critical-product: suppressed when is_product() is false', func
 } );
 
 bc_test( 'bc-perf-critical-product: prints (with mandated attributes) when is_product() is true', function () {
-	global $bc_test_is_product;
-	$bc_test_is_product = true;
+	$GLOBALS['bc_wp_stub']['is_product'] = true;
 
 	$output = bc_critical_css_fire_wp_head( 'blocksy_child_perf_critical_css_register' );
 
@@ -272,24 +266,6 @@ bc_test( 'bc-perf-critical-product: prints (with mandated attributes) when is_pr
 	assert_same( strpos( $output, '.flexy-view{overflow:hidden}' ) !== false, true );
 } );
 
-// -----------------------------------------------------------------------
-// Test fixtures for is_shop() / is_product_taxonomy() / is_product() —
-// declared last so every test above ran with the state it explicitly set;
-// PHP hoists function declarations, so these are available from the very
-// first bc_test() call above despite appearing at the bottom of the file.
-// -----------------------------------------------------------------------
-
-function is_shop() {
-	global $bc_test_is_shop;
-	return ! empty( $bc_test_is_shop );
-}
-
-function is_product_taxonomy() {
-	global $bc_test_is_product_taxonomy;
-	return ! empty( $bc_test_is_product_taxonomy );
-}
-
-function is_product() {
-	global $bc_test_is_product;
-	return ! empty( $bc_test_is_product );
-}
+// is_shop() / is_product_taxonomy() / is_product() are declared once, for
+// every test-*.php file that needs them, in tests/perf/bootstrap.php —
+// driven by $GLOBALS['bc_wp_stub'], reset before each test file by run.php.

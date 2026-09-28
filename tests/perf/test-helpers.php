@@ -270,6 +270,30 @@ bc_test( 'blocksy_child_perf_script(): $js may be a callable, resolved at wp_foo
 	assert_same( $output, '', 'no <script> tag at all when the resolved content is empty' );
 } );
 
+bc_test( 'blocksy_child_perf_script(): a bare content string equal to a function name is printed verbatim, never invoked', function () {
+	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
+
+	// Same is_string()-first hardening as blocksy_child_perf_style() (see
+	// that test above) — "phpinfo" is itself a callable (a real PHP
+	// built-in), so a naive is_callable()-first check would call it
+	// instead of printing the literal string.
+	blocksy_child_perf_script( 'bc-perf-test-script-string-fnname', 'phpinfo' );
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_footer'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same(
+		$output,
+		'<script id="bc-perf-test-script-string-fnname" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">phpinfo</script>',
+		'the literal string "phpinfo" is printed as content, not executed as a function'
+	);
+} );
+
 // -----------------------------------------------------------------------
 // blocksy_child_perf_reset_state() — testing-only state reset.
 // -----------------------------------------------------------------------

@@ -36,8 +36,7 @@ bc_test( 'blocksy_child_perf_lcp_image_register(): wires every hook at its manda
 // -----------------------------------------------------------------------
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): not is_singular(product) -> attributes untouched', function () {
-	global $bc_test_is_singular_product;
-	$bc_test_is_singular_product = false;
+	$GLOBALS['bc_wp_stub']['is_singular'] = false;
 
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'loading' => 'lazy' ], (object) [ 'ID' => 42 ], 'woocommerce_single' );
 
@@ -45,9 +44,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): not is_singular(product) -> a
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): different attachment (not the featured image) -> attributes untouched', function () {
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 42;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 42;
 
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'loading' => 'lazy' ], (object) [ 'ID' => 999 ], 'woocommerce_single' );
 
@@ -55,9 +53,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): different attachment (not the
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a DIFFERENT size, BEFORE the gallery has rendered -> left untouched (never guessed lazy)', function () {
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 42;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 42;
 
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'loading' => 'lazy' ], (object) [ 'ID' => 42 ], 'thumbnail' );
 
@@ -65,9 +62,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a DIFFERENT size, BEFORE the 
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): FIRST render at woocommerce_single gets the full LCP treatment', function () {
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 42;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 42;
 
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'class' => 'wp-image-42', 'loading' => 'lazy' ], (object) [ 'ID' => 42 ], 'woocommerce_single' );
 
@@ -81,9 +77,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): FIRST render at woocommerce_s
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a SECOND render at woocommerce_single this request is left untouched', function () {
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 42;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 42;
 
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'loading' => 'lazy' ], (object) [ 'ID' => 42 ], 'woocommerce_single' );
 
@@ -91,9 +86,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a SECOND render at woocommerc
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a DIFFERENT size, AFTER the gallery has rendered -> forced lazy, no fetchpriority', function () {
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 42;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 42;
 
 	// e.g. the floating add-to-cart bar's small copy of the same featured image.
 	$attr = blocksy_child_perf_lcp_pdp_attributes( [ 'fetchpriority' => 'high' ], (object) [ 'ID' => 42 ], [ 100, 100 ] );
@@ -107,15 +101,13 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a DIFFERENT size, AFTER the g
 // -----------------------------------------------------------------------
 
 bc_test( 'blocksy_child_perf_lcp_pdp_lazyload_false(): sets lazyload=false on a product singular', function () {
-	global $bc_test_is_singular_product;
-	$bc_test_is_singular_product = true;
+	$GLOBALS['bc_wp_stub']['is_singular'] = true;
 
 	assert_same( blocksy_child_perf_lcp_pdp_lazyload_false( [ 'lazyload' => 'yes' ] ), [ 'lazyload' => false ] );
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_lazyload_false(): untouched off a product singular', function () {
-	global $bc_test_is_singular_product;
-	$bc_test_is_singular_product = false;
+	$GLOBALS['bc_wp_stub']['is_singular'] = false;
 
 	assert_same( blocksy_child_perf_lcp_pdp_lazyload_false( [ 'lazyload' => 'yes' ] ), [ 'lazyload' => 'yes' ] );
 } );
@@ -211,20 +203,17 @@ bc_test( 'blocksy_child_perf_lcp_preload_markup(): high-priority slot guard — 
 bc_test( 'blocksy_child_perf_lcp_preload_markup(): the slot guard applies across separate calls (e.g. PDP preload vs hero preload)', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id, $bc_test_attachment_urls, $bc_test_attachment_srcsets;
-	global $bc_test_is_front_page, $bc_test_option_page_on_front, $bc_test_post_field_content;
-
-	$bc_test_is_singular_product              = true;
-	$bc_test_post_thumbnail_id                = 42;
-	$bc_test_attachment_urls['42:woocommerce_single']    = 'https://example.test/pdp.jpg';
-	$bc_test_attachment_srcsets['42:woocommerce_single']  = '';
+	$GLOBALS['bc_wp_stub']['is_singular']                                       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id']                                 = 42;
+	$GLOBALS['bc_wp_stub']['attachment_image_url']['42:woocommerce_single']     = 'https://example.test/pdp.jpg';
+	$GLOBALS['bc_wp_stub']['attachment_image_srcset']['42:woocommerce_single']  = '';
 
 	$pdp_markup = blocksy_child_perf_lcp_pdp_preload_markup();
 	assert_same( strpos( $pdp_markup, 'pdp.jpg' ) !== false, true, 'PDP preload takes the slot' );
 
-	$bc_test_is_front_page          = true;
-	$bc_test_option_page_on_front   = 7;
-	$bc_test_post_field_content     = '<img src="https://example.test/hero.jpg" class="bc-hero-img wp-image-99">';
+	$GLOBALS['bc_wp_stub']['is_front_page']              = true;
+	$GLOBALS['bc_wp_stub']['options']['page_on_front']   = 7;
+	$GLOBALS['bc_wp_stub']['post_field']['post_content'] = '<img src="https://example.test/hero.jpg" class="bc-hero-img wp-image-99">';
 
 	$hero_markup = blocksy_child_perf_lcp_hero_preload_markup();
 	assert_same( $hero_markup, '', 'hero preload refused — the PDP preload already used the one slot' );
@@ -272,6 +261,20 @@ bc_test( 'blocksy_child_perf_lcp_cover_block_rewrite(): idempotent — an <img> 
 	$out  = blocksy_child_perf_lcp_cover_block_rewrite( $html );
 
 	assert_same( $out, $html, "core already set fetchpriority — left untouched, no duplicate attribute, loading left as-is" );
+} );
+
+bc_test( 'blocksy_child_perf_lcp_cover_block_rewrite(): a fetchpriority attribute on a DIFFERENT element in the block does not block the rewrite of the first <img>', function () {
+	blocksy_child_perf_reset_state();
+
+	// The video poster carries its own unrelated fetchpriority attribute — a
+	// whole-block substring check would wrongly treat the block as already
+	// handled and skip the <img> entirely.
+	$html = '<div class="wp-block-cover"><video poster="e.jpg" fetchpriority="low"></video><img src="e.jpg" loading="lazy" class="wp-image-5"/></div>';
+	$out  = blocksy_child_perf_lcp_cover_block_rewrite( $html );
+
+	assert_same( strpos( $out, '<img fetchpriority="high" src="e.jpg" class="wp-image-5"/>' ) !== false, true, 'the <img> itself is still rewritten' );
+	assert_same( strpos( $out, 'loading="lazy" class="wp-image-5"' ) !== false, false, 'loading=lazy stripped from the <img>' );
+	assert_same( strpos( $out, '<video poster="e.jpg" fetchpriority="low">' ) !== false, true, 'the unrelated <video> element is left completely untouched' );
 } );
 
 // -----------------------------------------------------------------------
@@ -336,6 +339,15 @@ bc_test( 'blocksy_child_perf_lcp_hero_content_attributes(): adds fetchpriority +
 	assert_same( substr_count( $out, 'loading="lazy"' ), 1, 'only the hero image lost its loading=lazy' );
 } );
 
+bc_test( 'blocksy_child_perf_lcp_hero_content_attributes(): idempotent — a hero <img> that already carries fetchpriority is not given a duplicate attribute', function () {
+	$html = '<img src="b.jpg" class="bc-hero-img wp-image-2" fetchpriority="high" loading="lazy"/>';
+
+	$out = blocksy_child_perf_lcp_hero_content_attributes( $html, 'bc-hero-img' );
+
+	assert_same( substr_count( $out, 'fetchpriority="high"' ), 1, 'not duplicated' );
+	assert_same( strpos( $out, 'loading="lazy"' ) !== false, false, 'loading=lazy still stripped' );
+} );
+
 // -----------------------------------------------------------------------
 // blocksy_child_perf_lcp_pdp_preload_markup() / blocksy_child_perf_lcp_hero_preload_markup()
 // — the full assemblers, using the WP stubs declared below.
@@ -344,11 +356,10 @@ bc_test( 'blocksy_child_perf_lcp_hero_content_attributes(): adds fetchpriority +
 bc_test( 'blocksy_child_perf_lcp_pdp_preload_markup(): builds from get_post_thumbnail_id() + woocommerce_single, same sizes string as the element', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id, $bc_test_attachment_urls, $bc_test_attachment_srcsets;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 77;
-	$bc_test_attachment_urls['77:woocommerce_single']   = 'https://example.test/gallery.jpg';
-	$bc_test_attachment_srcsets['77:woocommerce_single'] = 'https://example.test/gallery-600.jpg 600w';
+	$GLOBALS['bc_wp_stub']['is_singular']                                      = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id']                                = 77;
+	$GLOBALS['bc_wp_stub']['attachment_image_url']['77:woocommerce_single']    = 'https://example.test/gallery.jpg';
+	$GLOBALS['bc_wp_stub']['attachment_image_srcset']['77:woocommerce_single'] = 'https://example.test/gallery-600.jpg 600w';
 
 	$out = blocksy_child_perf_lcp_pdp_preload_markup();
 
@@ -360,9 +371,8 @@ bc_test( 'blocksy_child_perf_lcp_pdp_preload_markup(): builds from get_post_thum
 bc_test( 'blocksy_child_perf_lcp_pdp_preload_markup(): no featured image -> \'\'', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_is_singular_product, $bc_test_post_thumbnail_id;
-	$bc_test_is_singular_product = true;
-	$bc_test_post_thumbnail_id   = 0;
+	$GLOBALS['bc_wp_stub']['is_singular']       = true;
+	$GLOBALS['bc_wp_stub']['post_thumbnail_id'] = 0;
 
 	assert_same( blocksy_child_perf_lcp_pdp_preload_markup(), '' );
 } );
@@ -370,14 +380,12 @@ bc_test( 'blocksy_child_perf_lcp_pdp_preload_markup(): no featured image -> \'\'
 bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): builds from the front page\'s post_content', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_option_page_on_front, $bc_test_post_field_content, $bc_test_attachment_urls, $bc_test_attachment_srcsets, $bc_test_attachment_sizes;
+	$GLOBALS['bc_wp_stub']['options']['page_on_front']   = 7;
+	$GLOBALS['bc_wp_stub']['post_field']['post_content'] = '<figure><img src="https://example.test/hero-1200x600.jpg" class="bc-hero-img wp-image-321"/></figure>';
 
-	$bc_test_option_page_on_front = 7;
-	$bc_test_post_field_content   = '<figure><img src="https://example.test/hero-1200x600.jpg" class="bc-hero-img wp-image-321"/></figure>';
-
-	$bc_test_attachment_urls['321:1200x600']    = 'https://example.test/hero-1200x600.jpg';
-	$bc_test_attachment_srcsets['321:1200x600']  = 'https://example.test/hero-600x300.jpg 600w, https://example.test/hero-1200x600.jpg 1200w';
-	$bc_test_attachment_sizes['321:1200x600']    = '(max-width: 1200px) 100vw, 1200px';
+	$GLOBALS['bc_wp_stub']['attachment_image_url']['321:1200x600']    = 'https://example.test/hero-1200x600.jpg';
+	$GLOBALS['bc_wp_stub']['attachment_image_srcset']['321:1200x600'] = 'https://example.test/hero-600x300.jpg 600w, https://example.test/hero-1200x600.jpg 1200w';
+	$GLOBALS['bc_wp_stub']['attachment_image_sizes']['321:1200x600']  = '(max-width: 1200px) 100vw, 1200px';
 
 	$out = blocksy_child_perf_lcp_hero_preload_markup();
 
@@ -389,9 +397,8 @@ bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): builds from the front pa
 bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): no hero match in the content -> \'\'', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_option_page_on_front, $bc_test_post_field_content;
-	$bc_test_option_page_on_front = 7;
-	$bc_test_post_field_content   = '<p>no hero image here</p>';
+	$GLOBALS['bc_wp_stub']['options']['page_on_front']   = 7;
+	$GLOBALS['bc_wp_stub']['post_field']['post_content'] = '<p>no hero image here</p>';
 
 	assert_same( blocksy_child_perf_lcp_hero_preload_markup(), '' );
 } );
@@ -399,81 +406,13 @@ bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): no hero match in the con
 bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): no page_on_front configured -> \'\'', function () {
 	blocksy_child_perf_reset_state();
 
-	global $bc_test_option_page_on_front;
-	$bc_test_option_page_on_front = 0;
+	$GLOBALS['bc_wp_stub']['options']['page_on_front'] = 0;
 
 	assert_same( blocksy_child_perf_lcp_hero_preload_markup(), '' );
 } );
 
-// -----------------------------------------------------------------------
-// Test fixtures / WP stubs — declared last; PHP hoists function
-// declarations, so these are available from the very first bc_test() call
-// above despite appearing at the bottom of the file (same convention as
-// tests/perf/test-critical-css.php).
-// -----------------------------------------------------------------------
-
-function is_singular( $type = '' ) {
-	global $bc_test_is_singular_product;
-
-	if ( 'product' === $type ) {
-		return ! empty( $bc_test_is_singular_product );
-	}
-
-	return false;
-}
-
-function is_front_page() {
-	global $bc_test_is_front_page;
-	return ! empty( $bc_test_is_front_page );
-}
-
-function get_post_thumbnail_id( $post = 0 ) {
-	global $bc_test_post_thumbnail_id;
-	return (int) ( $bc_test_post_thumbnail_id ?? 0 );
-}
-
-/**
- * Keys the stub attachment maps by "<id>:<size>", where an array size
- * (a `[width, height]` pair, as derived by blocksy_child_perf_lcp_hero_from_content())
- * is flattened to "WxH" so it can be used as an array key.
- *
- * @param int          $id
- * @param string|array $size
- * @return string
- */
-function bc_test_attachment_key( $id, $size ) {
-	return $id . ':' . ( is_array( $size ) ? implode( 'x', $size ) : $size );
-}
-
-function wp_get_attachment_image_url( $id, $size ) {
-	global $bc_test_attachment_urls;
-	$key = bc_test_attachment_key( $id, $size );
-	return $bc_test_attachment_urls[ $key ] ?? '';
-}
-
-function wp_get_attachment_image_srcset( $id, $size ) {
-	global $bc_test_attachment_srcsets;
-	$key = bc_test_attachment_key( $id, $size );
-	return $bc_test_attachment_srcsets[ $key ] ?? '';
-}
-
-function wp_get_attachment_image_sizes( $id, $size ) {
-	global $bc_test_attachment_sizes;
-	$key = bc_test_attachment_key( $id, $size );
-	return $bc_test_attachment_sizes[ $key ] ?? '';
-}
-
-function get_post_field( $field, $post ) {
-	global $bc_test_post_field_content;
-	return ( 'post_content' === $field ) ? (string) ( $bc_test_post_field_content ?? '' ) : '';
-}
-
-function get_option( $name ) {
-	global $bc_test_option_page_on_front;
-
-	if ( 'page_on_front' === $name ) {
-		return (int) ( $bc_test_option_page_on_front ?? 0 );
-	}
-
-	return false;
-}
+// is_singular(), is_front_page(), get_post_thumbnail_id(),
+// wp_get_attachment_image_url/srcset/sizes(), get_post_field(), get_option()
+// are declared once, for every test-*.php file that needs them, in
+// tests/perf/bootstrap.php — driven by $GLOBALS['bc_wp_stub'], reset before
+// each test file by run.php.
