@@ -57,6 +57,13 @@ $test_files = glob( __DIR__ . '/test-*.php' );
 sort( $test_files );
 
 foreach ( $test_files as $test_file ) {
+	// Give each test-*.php file a clean slate. blocksy_child_perf_reset_state()
+	// only exists once inc/perf/helpers.php has been loaded (by whichever
+	// test file requires it first) and only when BC_PERF_TESTING is true.
+	if ( function_exists( 'blocksy_child_perf_reset_state' ) ) {
+		blocksy_child_perf_reset_state();
+	}
+
 	require $test_file;
 }
 

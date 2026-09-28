@@ -20,6 +20,12 @@ if ( ! defined( 'BLOCKSY_CHILD_URL' ) ) {
 	define( 'BLOCKSY_CHILD_URL', 'https://example.test/wp-content/themes/blocksy-child/' );
 }
 
+// Gates blocksy_child_perf_reset_state() (inc/perf/helpers.php) into
+// existence — that function does not exist in a real WordPress request.
+if ( ! defined( 'BC_PERF_TESTING' ) ) {
+	define( 'BC_PERF_TESTING', true );
+}
+
 // Recorded add_action()/add_filter() callbacks: $GLOBALS['bc_test_hooks'][ $hook ][ $priority ][] = $callback.
 $GLOBALS['bc_test_hooks'] = [];
 

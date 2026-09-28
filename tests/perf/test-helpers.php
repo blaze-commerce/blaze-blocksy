@@ -160,3 +160,30 @@ bc_test( 'blocksy_child_perf_script(): prints exactly the mandated <script> mark
 		'exact attribute set + content (Global Constraint 4)'
 	);
 } );
+
+// -----------------------------------------------------------------------
+// blocksy_child_perf_reset_state() — testing-only state reset.
+// -----------------------------------------------------------------------
+
+bc_test( 'blocksy_child_perf_reset_state(): clears both the memoised enabled-features resolution and the script-id registry', function () {
+	// Preconditions: both stores are non-empty from earlier in this file.
+	assert_same( blocksy_child_perf_enabled( 'lcp-image' ), true, 'precondition: lcp-image enabled from the shared fixture' );
+	assert_same( in_array( 'bc-perf-test-registry-a', blocksy_child_perf_script_ids(), true ), true, 'precondition: registry holds ids from earlier tests' );
+
+	blocksy_child_perf_reset_state();
+
+	// The registry is trivially observable as cleared.
+	assert_same( blocksy_child_perf_script_ids(), [], 'script-id registry cleared' );
+
+	// Proving the enabled-features MEMO (not just its inputs) was cleared:
+	// register a new filter callback — invisible to a still-memoised
+	// result — and confirm a fresh call picks it up.
+	add_filter( 'blocksy_child_perf_features', function ( $features ) {
+		$features[] = 'media-hygiene';
+		return $features;
+	} );
+
+	$features = blocksy_child_perf_enabled_features();
+
+	assert_same( in_array( 'media-hygiene', $features, true ), true, 'post-reset resolution recomputes and sees a filter feature added after the original (pre-reset) resolution' );
+} );

@@ -71,17 +71,16 @@ function blocksy_child_perf_known_features(): array {
  * Any other name not in blocksy_child_perf_known_features() is dropped
  * from the resolved set and logged once via error_log().
  *
- * Memoised in a static: the result is computed once per request. Later
- * mutations to the client manifest / constant / filter after the first
- * call have no effect.
+ * Memoised (in $GLOBALS['blocksy_child_perf_state']['enabled_features'],
+ * not a plain `static` — see blocksy_child_perf_reset_state() below): the
+ * result is computed once per request. Later mutations to the client
+ * manifest / constant / filter after the first call have no effect.
  *
  * @return string[] Resolved, deduped, lowercase feature names (may include '*').
  */
 function blocksy_child_perf_enabled_features(): array {
-	static $resolved = null;
-
-	if ( null !== $resolved ) {
-		return $resolved;
+	if ( isset( $GLOBALS['blocksy_child_perf_state']['enabled_features'] ) ) {
+		return $GLOBALS['blocksy_child_perf_state']['enabled_features'];
 	}
 
 	global $blocksy_child_active_clients;
@@ -126,6 +125,8 @@ function blocksy_child_perf_enabled_features(): array {
 
 	$resolved = array_values( array_unique( $valid ) );
 
+	$GLOBALS['blocksy_child_perf_state']['enabled_features'] = $resolved;
+
 	return $resolved;
 }
 
@@ -155,18 +156,20 @@ function blocksy_child_perf_enabled( string $feature ): bool {
  * later perfmatters-filters module) can see what this request printed —
  * or would print.
  *
+ * Stored in $GLOBALS['blocksy_child_perf_state']['script_ids'] (not a
+ * plain `global` scalar) for the same reason blocksy_child_perf_enabled_features()
+ * uses that store — see blocksy_child_perf_reset_state() below.
+ *
  * @param string $id Element id (should start with `bc-perf-`, Global Constraint 1).
  * @return void
  */
 function blocksy_child_perf_register_script_id( string $id ): void {
-	global $blocksy_child_perf_script_ids;
-
-	if ( ! isset( $blocksy_child_perf_script_ids ) ) {
-		$blocksy_child_perf_script_ids = [];
+	if ( ! isset( $GLOBALS['blocksy_child_perf_state']['script_ids'] ) ) {
+		$GLOBALS['blocksy_child_perf_state']['script_ids'] = [];
 	}
 
-	if ( ! in_array( $id, $blocksy_child_perf_script_ids, true ) ) {
-		$blocksy_child_perf_script_ids[] = $id;
+	if ( ! in_array( $id, $GLOBALS['blocksy_child_perf_state']['script_ids'], true ) ) {
+		$GLOBALS['blocksy_child_perf_state']['script_ids'][] = $id;
 	}
 }
 
@@ -176,9 +179,7 @@ function blocksy_child_perf_register_script_id( string $id ): void {
  * @return string[]
  */
 function blocksy_child_perf_script_ids(): array {
-	global $blocksy_child_perf_script_ids;
-
-	return isset( $blocksy_child_perf_script_ids ) ? $blocksy_child_perf_script_ids : [];
+	return $GLOBALS['blocksy_child_perf_state']['script_ids'] ?? [];
 }
 
 /**
@@ -295,4 +296,30 @@ function blocksy_child_perf_data( string $name ): array {
 	$data = include $path;
 
 	return is_array( $data ) ? $data : [];
+}
+
+if ( defined( 'BC_PERF_TESTING' ) && BC_PERF_TESTING ) {
+	/**
+	 * TESTING ONLY — reset process-lifetime perf module state.
+	 *
+	 * Clears the memoised blocksy_child_perf_enabled_features() resolution
+	 * and the blocksy_child_perf_register_script_id() registry (both held
+	 * in $GLOBALS['blocksy_child_perf_state'], which is exactly what makes
+	 * them resettable — a plain function `static` cannot be cleared from
+	 * outside the function). Lets tests/perf/run.php give each
+	 * tests/perf/test-*.php file a clean slate instead of inheriting
+	 * whatever an earlier test file resolved/registered.
+	 *
+	 * Only defined at all when BC_PERF_TESTING is true (set by
+	 * tests/perf/bootstrap.php) — does not exist in a real WordPress
+	 * request. Callers must check function_exists() first.
+	 *
+	 * @return void
+	 */
+	function blocksy_child_perf_reset_state(): void {
+		$GLOBALS['blocksy_child_perf_state'] = [
+			'enabled_features' => null,
+			'script_ids'       => [],
+		];
+	}
 }
