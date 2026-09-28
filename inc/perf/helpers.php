@@ -224,9 +224,10 @@ function blocksy_child_perf_is_frontend_request(): bool {
  * moment `wp_head` actually fires, rather than to whenever the module
  * itself happened to load. This matters because `inc/perf/loader.php`
  * requires every enabled module directly from `functions.php`, not on a
- * hook — very early — so a filter a plugin or mu-plugin registers on
- * `init`/`plugins_loaded` would already have been missed by a plain
- * string built at module-load time. Passing a closure instead lets that
+ * hook — i.e. AFTER `plugins_loaded` but BEFORE any `after_setup_theme` /
+ * `init` registrations — so a filter a plugin, mu-plugin or the theme
+ * itself registers on `after_setup_theme`/`init` would already have been
+ * missed by a plain string built at module-load time. Passing a closure instead lets that
  * later registration still be seen when `wp_head` prints.
  *
  * A bare string is checked with `is_string()` FIRST, before `is_callable()`
