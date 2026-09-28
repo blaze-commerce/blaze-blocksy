@@ -291,11 +291,18 @@ function blocksy_child_perf_style( string $id, $css, int $priority = 1, ?callabl
 	}
 
 	add_action( 'wp_head', function () use ( $id, $css, $condition ) {
-		if ( null !== $condition && ! call_user_func( $condition ) ) {
+		// A throwing condition/callable must not fatal mid-wp_head: log it
+		// and print nothing for this id.
+		try {
+			if ( null !== $condition && ! call_user_func( $condition ) ) {
+				return;
+			}
+
+			$out = ( ! is_string( $css ) && is_callable( $css ) ) ? (string) call_user_func( $css ) : (string) $css;
+		} catch ( \Throwable $e ) {
+			error_log( '[blocksy-child][perf] ' . $id . ': print-time callable threw: ' . $e->getMessage() );
 			return;
 		}
-
-		$out = ( ! is_string( $css ) && is_callable( $css ) ) ? (string) call_user_func( $css ) : (string) $css;
 
 		if ( '' === $out ) {
 			return;
@@ -342,11 +349,18 @@ function blocksy_child_perf_script( string $id, $js, int $priority = 99, ?callab
 	}
 
 	add_action( 'wp_footer', function () use ( $id, $js, $condition ) {
-		if ( null !== $condition && ! call_user_func( $condition ) ) {
+		// Same as blocksy_child_perf_style(): a throwing condition/callable
+		// is logged and prints nothing, never a fatal mid-wp_footer.
+		try {
+			if ( null !== $condition && ! call_user_func( $condition ) ) {
+				return;
+			}
+
+			$out = ( ! is_string( $js ) && is_callable( $js ) ) ? (string) call_user_func( $js ) : (string) $js;
+		} catch ( \Throwable $e ) {
+			error_log( '[blocksy-child][perf] ' . $id . ': print-time callable threw: ' . $e->getMessage() );
 			return;
 		}
-
-		$out = ( ! is_string( $js ) && is_callable( $js ) ) ? (string) call_user_func( $js ) : (string) $js;
 
 		if ( '' === $out ) {
 			return;
