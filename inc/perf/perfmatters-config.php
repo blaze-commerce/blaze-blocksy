@@ -205,10 +205,30 @@ function blocksy_child_perf_pm_merge_options( array $stored, array $config ): ar
 }
 
 /**
+ * The child theme's root directory, with a trailing slash.
+ *
+ * BLOCKSY_CHILD_PATH when functions.php has already defined it; otherwise
+ * derived from this file's own location (`inc/perf/` is two levels below
+ * the theme root). The fallback is what the mu-plugin shim path relies on:
+ * a must-use plugin loads — and `option_perfmatters_options` can fire —
+ * before the theme's functions.php has run at all.
+ *
+ * @return string
+ */
+function blocksy_child_perf_pm_theme_dir(): string {
+	if ( defined( 'BLOCKSY_CHILD_PATH' ) ) {
+		return rtrim( (string) BLOCKSY_CHILD_PATH, '/\\' ) . '/';
+	}
+
+	return dirname( __DIR__, 2 ) . '/';
+}
+
+/**
  * Read, decode and memoise the shipped configuration.
  *
- * Starts from `inc/perf/data/perfmatters-defaults.json`. If
- * `BLOCKSY_CHILD_PATH . 'custom/perfmatters.json'` (filterable via
+ * Starts from `inc/perf/data/perfmatters-defaults.json` (resolved from this
+ * file's own `__DIR__`). If `<theme dir>/custom/perfmatters.json` (see
+ * blocksy_child_perf_pm_theme_dir(); filterable via
  * `blocksy_child_perf_pm_site_config_path`) also exists and decodes to a
  * non-empty array, it is merged OVER the defaults with
  * blocksy_child_perf_pm_merge_options() — that file is the per-site
@@ -230,7 +250,10 @@ function blocksy_child_perf_pm_shipped_config(): ?array {
 
 	$config = null;
 
-	$defaults_path = BLOCKSY_CHILD_PATH . 'inc/perf/data/perfmatters-defaults.json';
+	// Resolved from __DIR__, never from BLOCKSY_CHILD_PATH: when this file is
+	// loaded by the mu-plugin shim (inc/perf/mu-plugins/bc-perfmatters-config.php)
+	// the filter can fire before functions.php has defined that constant.
+	$defaults_path = __DIR__ . '/data/perfmatters-defaults.json';
 
 	if ( is_readable( $defaults_path ) ) {
 		$decoded = json_decode( (string) file_get_contents( $defaults_path ), true );
@@ -244,9 +267,10 @@ function blocksy_child_perf_pm_shipped_config(): ?array {
 		/**
 		 * Filter the path to the per-site Perfmatters override JSON.
 		 *
-		 * @param string $path Default: BLOCKSY_CHILD_PATH . 'custom/perfmatters.json'.
+		 * @param string $path Default: <theme dir>/custom/perfmatters.json
+		 *                     (see blocksy_child_perf_pm_theme_dir()).
 		 */
-		$site_path = apply_filters( 'blocksy_child_perf_pm_site_config_path', BLOCKSY_CHILD_PATH . 'custom/perfmatters.json' );
+		$site_path = apply_filters( 'blocksy_child_perf_pm_site_config_path', blocksy_child_perf_pm_theme_dir() . 'custom/perfmatters.json' );
 
 		if ( is_string( $site_path ) && '' !== $site_path && is_readable( $site_path ) ) {
 			$site_decoded = json_decode( (string) file_get_contents( $site_path ), true );

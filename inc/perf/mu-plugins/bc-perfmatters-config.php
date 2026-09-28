@@ -56,14 +56,18 @@ if ( ! function_exists( 'get_stylesheet_directory' ) ) {
 	return;
 }
 
-$bc_perf_mu_theme_dir = rtrim( get_stylesheet_directory(), '/\\' ) . '/';
+// Defines nothing global of its own — no constants (in particular NOT
+// BLOCKSY_CHILD_PATH, which functions.php owns; perfmatters-config.php
+// resolves every path it needs from its own __DIR__) and no variables
+// (the paths live in this closure's scope only).
+( static function () {
+	$theme_dir = rtrim( get_stylesheet_directory(), '/\\' ) . '/';
 
-$bc_perf_mu_helpers_path = $bc_perf_mu_theme_dir . 'inc/perf/helpers.php';
-$bc_perf_mu_module_path  = $bc_perf_mu_theme_dir . 'inc/perf/perfmatters-config.php';
+	$helpers_path = $theme_dir . 'inc/perf/helpers.php';
+	$module_path  = $theme_dir . 'inc/perf/perfmatters-config.php';
 
-if ( file_exists( $bc_perf_mu_helpers_path ) && file_exists( $bc_perf_mu_module_path ) ) {
-	require_once $bc_perf_mu_helpers_path;
-	require_once $bc_perf_mu_module_path;
-}
-
-unset( $bc_perf_mu_theme_dir, $bc_perf_mu_helpers_path, $bc_perf_mu_module_path );
+	if ( file_exists( $helpers_path ) && file_exists( $module_path ) ) {
+		require_once $helpers_path;
+		require_once $module_path;
+	}
+} )();
