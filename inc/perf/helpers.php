@@ -229,6 +229,12 @@ function blocksy_child_perf_is_frontend_request(): bool {
  * string built at module-load time. Passing a closure instead lets that
  * later registration still be seen when `wp_head` prints.
  *
+ * A bare string is checked with `is_string()` FIRST, before `is_callable()`
+ * — so a plain content string that happens to equal a function name (e.g.
+ * a module accidentally passing the literal string `"phpinfo"`) is always
+ * printed verbatim, never invoked. Only a genuine non-string callable
+ * (a Closure, an `[$object, 'method']` array, etc.) is called.
+ *
  * The resolved content is cast to string; if that string is `''`, NOTHING
  * is printed for this id on this request — not even an empty `<style>`
  * tag — so an all-conditional bucket (e.g. everything routed through
@@ -255,7 +261,7 @@ function blocksy_child_perf_style( string $id, $css, int $priority = 1, ?callabl
 			return;
 		}
 
-		$out = is_callable( $css ) ? (string) call_user_func( $css ) : (string) $css;
+		$out = ( ! is_string( $css ) && is_callable( $css ) ) ? (string) call_user_func( $css ) : (string) $css;
 
 		if ( '' === $out ) {
 			return;
@@ -279,7 +285,10 @@ function blocksy_child_perf_style( string $id, $css, int $priority = 1, ?callabl
  * resolved content is ''" behaviour as `blocksy_child_perf_style()`'s
  * `$css` parameter; see that function's docblock for why this matters for
  * a module whose content depends on a filter that may be registered after
- * the module itself has loaded.
+ * the module itself has loaded. Same `is_string()`-first check as
+ * `blocksy_child_perf_style()` too: a bare content string is always
+ * printed verbatim, even if it happens to equal a function name — only a
+ * genuine non-string callable is invoked.
  *
  * Prints exactly:
  *   <script id="{id}" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">{js}</script>
@@ -303,7 +312,7 @@ function blocksy_child_perf_script( string $id, $js, int $priority = 99, ?callab
 			return;
 		}
 
-		$out = is_callable( $js ) ? (string) call_user_func( $js ) : (string) $js;
+		$out = ( ! is_string( $js ) && is_callable( $js ) ) ? (string) call_user_func( $js ) : (string) $js;
 
 		if ( '' === $out ) {
 			return;

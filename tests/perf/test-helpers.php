@@ -167,6 +167,29 @@ bc_test( 'blocksy_child_perf_style(): $css may be a callable, resolved at wp_hea
 	);
 } );
 
+bc_test( 'blocksy_child_perf_style(): a bare content string equal to a function name is printed verbatim, never invoked', function () {
+	$GLOBALS['bc_test_hooks']['wp_head'] = [];
+
+	// "phpinfo" is itself a callable (a real PHP built-in) — is_callable('phpinfo')
+	// is true. A naive is_callable()-first check would call it instead of
+	// printing the literal string. Proves the is_string()-first hardening.
+	blocksy_child_perf_style( 'bc-perf-test-style-string-fnname', 'phpinfo' );
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_head'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same(
+		$output,
+		'<style id="bc-perf-test-style-string-fnname" data-no-optimize="1" data-no-minify="1">phpinfo</style>',
+		'the literal string "phpinfo" is printed as content, not executed as a function'
+	);
+} );
+
 bc_test( 'blocksy_child_perf_style(): prints nothing (not even the tag) when the resolved CSS is empty', function () {
 	$GLOBALS['bc_test_hooks']['wp_head'] = [];
 
