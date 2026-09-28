@@ -13,5 +13,7 @@
     "recently-viewed",
     "mini-cart-empty",
     "product-slider"
-  ]
+  ],
+  "_perf_help": "perf: opt-in ONLY (no 'no key = all on' fallback, unlike features above). List feature names to enable, or [\"*\"] to enable all. Known names: perfmatters-config, perfmatters-filters, rucss-safelist, critical-css-supplements, lcp-image, hero-facade, fonts-critical-path, async-styles, dequeue-assets, media-hygiene, content-visibility, minicart-hydrate, lazy-rescan",
+  "perf": []
 }
