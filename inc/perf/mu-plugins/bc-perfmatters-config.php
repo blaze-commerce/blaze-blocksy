@@ -24,12 +24,22 @@
  * get_stylesheet_directory() (guarded by function_exists() — mu-plugins
  * load very early) and requires inc/perf/helpers.php then
  * inc/perf/perfmatters-config.php from there, but only if both files exist
- * and BLOCKSY_CHILD_PERF_CONFIG_LOADED is not already defined. The module
- * itself defines that constant on load, so if the theme's own
- * inc/perf/loader.php also requires perfmatters-config.php later in the
- * same request (the normal case — this shim does not replace that, it
- * only runs earlier), that second require is a no-op rather than a
- * duplicate filter registration.
+ * and BLOCKSY_CHILD_PERF_CONFIG_LOADED is not already defined.
+ *
+ * In practice the theme's own inc/perf/loader.php (via functions.php's
+ * `BLOCKSY_CHILD_PATH = trailingslashit( get_stylesheet_directory() )`)
+ * builds the exact same path string this shim does, from the exact same
+ * get_stylesheet_directory() call — so when it requires
+ * inc/perf/perfmatters-config.php again later in the same request, PHP's
+ * own require_once() already recognises it as the same file (via
+ * realpath()) and never re-opens it at all; BLOCKSY_CHILD_PERF_CONFIG_LOADED
+ * is then just documentation of that fact, not what prevents the second
+ * load. It is not a general safety net for a genuinely different path to
+ * the same content (e.g. a filesystem hard link) — this module's
+ * functions are declared unconditionally at file scope, so PHP binds them
+ * as soon as such a file is actually re-parsed, before any runtime guard
+ * inside it can run, and a second real parse would fatal on redeclaration
+ * regardless of this constant.
  *
  * @package Blocksy_Child
  */

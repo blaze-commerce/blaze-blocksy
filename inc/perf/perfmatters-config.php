@@ -62,10 +62,18 @@ if ( defined( 'BC_PERFMATTERS_CONFIG_AS_CODE' ) && ! BC_PERFMATTERS_CONFIG_AS_CO
 	return;
 }
 
-// Lets the inc/perf/mu-plugins/bc-perfmatters-config.php shim require this
-// file AND the theme's own loader.php require it again (different string
-// paths that may or may not dedupe under require_once) without registering
-// the filters below twice.
+// Documents (rather than causes) why the inc/perf/mu-plugins/bc-perfmatters-config.php
+// shim requiring this file, followed by the theme's own loader.php requiring
+// it again later in the same request, does not register the filters below
+// twice: both call sites build their path from the same get_stylesheet_directory()
+// call, so require_once() itself already recognises the second require as
+// the same file (via realpath()) and never re-opens it — this guard's
+// `return` is not what does the preventing there. It is not a general
+// safety net for a path require_once() fails to recognise as identical
+// (e.g. a filesystem hard link to this file): the functions below are
+// declared unconditionally at file scope, so PHP binds them as soon as
+// such a path is genuinely re-parsed, before this `if` can run, and that
+// would fatal on redeclaration regardless of this constant.
 if ( defined( 'BLOCKSY_CHILD_PERF_CONFIG_LOADED' ) ) {
 	return;
 }

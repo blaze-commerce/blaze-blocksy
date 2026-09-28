@@ -19,6 +19,11 @@ $bc_pm_module_path    = dirname( __DIR__, 2 ) . '/inc/perf/perfmatters-config.ph
 $bc_pm_mu_plugin_path = dirname( __DIR__, 2 ) . '/inc/perf/mu-plugins/bc-perfmatters-config.php';
 $bc_pm_theme_dir      = dirname( __DIR__, 2 );
 
+// Every temp script path bc_pm_run_isolated() has ever created, so a test
+// near the end of this file can assert none were left behind — see that
+// test for why this is tracked rather than glob()'d after the fact.
+$GLOBALS['bc_pm_isolated_script_paths'] = [];
+
 /**
  * Run inline PHP as a fresh subprocess and decode its JSON stdout.
  *
@@ -30,33 +35,44 @@ $bc_pm_theme_dir      = dirname( __DIR__, 2 );
  * a clean process instead of requiring test-file-level process isolation
  * for the whole suite.
  *
+ * tempnam() itself creates the temp file (a real 0-byte file at the exact
+ * path it returns) — the script is written to THAT path, not a derived
+ * one, so there is exactly one file to clean up, and the cleanup runs in
+ * a `finally` so it happens whether the subprocess (or JSON decoding)
+ * throws or not.
+ *
  * @param string $body PHP code (no opening `<?php` tag) that MUST end by
  *                      echoing exactly one JSON-encoded value.
  * @return array Decoded JSON result.
  */
 function bc_pm_run_isolated( string $body ): array {
-	$script_path = tempnam( sys_get_temp_dir(), 'bc_pm_iso_' ) . '.php';
-	file_put_contents( $script_path, "<?php\n" . $body . "\n" );
+	$script_path = tempnam( sys_get_temp_dir(), 'bc_pm_iso_' );
 
-	$command = escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script_path ) . ' 2>&1';
+	$GLOBALS['bc_pm_isolated_script_paths'][] = $script_path;
 
-	$output    = [];
-	$exit_code = 0;
-	exec( $command, $output, $exit_code );
+	try {
+		file_put_contents( $script_path, "<?php\n" . $body . "\n" );
 
-	@unlink( $script_path );
+		$command = escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script_path ) . ' 2>&1';
 
-	if ( 0 !== $exit_code ) {
-		throw new \RuntimeException( 'subprocess exited ' . $exit_code . ': ' . implode( "\n", $output ) );
+		$output    = [];
+		$exit_code = 0;
+		exec( $command, $output, $exit_code );
+
+		if ( 0 !== $exit_code ) {
+			throw new \RuntimeException( 'subprocess exited ' . $exit_code . ': ' . implode( "\n", $output ) );
+		}
+
+		$decoded = json_decode( implode( "\n", $output ), true );
+
+		if ( ! is_array( $decoded ) ) {
+			throw new \RuntimeException( 'subprocess did not print valid JSON: ' . implode( "\n", $output ) );
+		}
+
+		return $decoded;
+	} finally {
+		@unlink( $script_path );
 	}
-
-	$decoded = json_decode( implode( "\n", $output ), true );
-
-	if ( ! is_array( $decoded ) ) {
-		throw new \RuntimeException( 'subprocess did not print valid JSON: ' . implode( "\n", $output ) );
-	}
-
-	return $decoded;
 }
 
 // -----------------------------------------------------------------------
@@ -360,6 +376,46 @@ PHP,
 	assert_same( $result['loaded_defined'], 1, 'constant defined once the mu-plugin path loaded the module' );
 } );
 
+bc_test( 'require_once with a spelling-different ("/./" segment) path to the same module file: still exactly one registration', function () use ( $bc_pm_bootstrap_path, $bc_pm_module_path ) {
+	// This exercises require_once()'s OWN realpath()-based dedup, not the
+	// BLOCKSY_CHILD_PERF_CONFIG_LOADED guard: an inserted "/./" segment is
+	// a spelling variant require_once already resolves to the same file
+	// before re-opening it, on both Windows and *nix — confirmed
+	// empirically (see this task's fix report) — so the module body never
+	// executes a second time and the guard's own `if` is never reached
+	// again either. That IS the behaviour both real call sites in this
+	// theme rely on (inc/perf/mu-plugins/bc-perfmatters-config.php's shim
+	// and functions.php's BLOCKSY_CHILD_PATH both derive their path from
+	// the same get_stylesheet_directory() call), so this test's coverage
+	// matches production. A path require_once() genuinely cannot resolve
+	// to the same file (e.g. a filesystem hard link) is a different,
+	// worse case — confirmed (not committed here, see the fix report) to
+	// fatal on function redeclaration regardless of the guard, because
+	// this module's functions are declared unconditionally at file scope;
+	// that is not a live risk for either real caller, both of which always
+	// produce identical path strings.
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+$canonical        = %s;
+$spelling_variant = dirname( $canonical ) . '/./' . basename( $canonical );
+require_once $canonical;
+require_once $spelling_variant;
+echo json_encode([
+	'strings_differ' => ( $canonical !== $spelling_variant ) ? 1 : 0,
+	'option_filters' => count($GLOBALS['bc_test_hooks']['option_perfmatters_options'][10] ?? []),
+]);
+PHP,
+		var_export( $bc_pm_bootstrap_path, true ),
+		var_export( $bc_pm_module_path, true )
+	);
+
+	$result = bc_pm_run_isolated( $body );
+
+	assert_same( $result['strings_differ'], 1, 'sanity: the two require_once calls really used different path strings' );
+	assert_same( $result['option_filters'], 1, 'require_once normalises both spellings to the same file, so still exactly one registration' );
+} );
+
 bc_test( 'admin_notice(): prints the notice when Perfmatters is active and the current screen is one of its own', function () use ( $bc_pm_bootstrap_path, $bc_pm_module_path ) {
 	$body = sprintf(
 		<<<'PHP'
@@ -383,6 +439,12 @@ PHP,
 
 	assert_same( $result['contains_notice'], 1, 'notice text printed when the screen id contains "perfmatters"' );
 	assert_same( $result['is_dismissible'], 1, 'dismissible notice markup' );
+} );
+
+bc_test( 'bc_pm_run_isolated(): every subprocess script file it created has been cleaned up', function () {
+	$leftover = array_values( array_filter( $GLOBALS['bc_pm_isolated_script_paths'] ?? [], 'file_exists' ) );
+
+	assert_same( $leftover, [], 'no bc_pm_iso_* temp file survives in sys_get_temp_dir() after the run' );
 } );
 
 // Leave the shared memo clean for anything that requires this file again
