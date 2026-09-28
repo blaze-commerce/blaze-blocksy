@@ -274,6 +274,40 @@ bc_test( 'blocksy_child_perf_script(): $js may be a callable, resolved at wp_foo
 	assert_same( $output, '', 'no <script> tag at all when the resolved content is empty' );
 } );
 
+bc_test( 'blocksy_child_perf_style() / _script(): a throwing print-time closure prints nothing, logs, and does not fatal', function () {
+	$GLOBALS['bc_test_hooks']['wp_head']   = [];
+	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
+
+	$throw = function () {
+		throw new \RuntimeException( 'boom-from-closure' );
+	};
+
+	blocksy_child_perf_style( 'bc-perf-test-style-throws', $throw );
+	blocksy_child_perf_script( 'bc-perf-test-script-throws', $throw );
+	blocksy_child_perf_style( 'bc-perf-test-style-cond-throws', 'body{}', 1, $throw );
+
+	ob_start();
+	foreach ( [ 'wp_head', 'wp_footer' ] as $hook ) {
+		foreach ( $GLOBALS['bc_test_hooks'][ $hook ] as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				call_user_func( $callback ); // would throw out of this test before the fix.
+			}
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same( $output, '', 'no tag (or partial tag) printed' );
+
+	$logged = array_values( array_filter( bc_test_error_log_messages(), function ( $m ) {
+		return false !== strpos( $m, 'boom-from-closure' );
+	} ) );
+	assert_same( count( $logged ), 3, 'each throw logged once' );
+	assert_same( false !== strpos( $logged[0], 'bc-perf-test-style-throws' ), true, 'log names the element id' );
+
+	$GLOBALS['bc_test_hooks']['wp_head']   = [];
+	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
+} );
+
 bc_test( 'blocksy_child_perf_script(): a bare content string equal to a function name is printed verbatim, never invoked', function () {
 	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
 
