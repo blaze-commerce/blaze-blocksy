@@ -249,6 +249,9 @@ function bc_wp_stub_defaults(): array {
 		'template'                  => 'blocksy', // get_template().
 		'recently_viewed_cookie'    => [], // bc_get_recently_viewed_cookie() (theme helper, inc/helpers.php).
 		'suggested_carousel_html'   => '', // bc_render_blocksy_suggested_carousel() (theme helper, inc/helpers.php).
+
+		// test-noop.php.
+		'loaded_modules'            => [], // Recorded blocksy_child_load_module() calls, in order: the $file argument.
 	];
 }
 
@@ -557,6 +560,18 @@ function bc_wp_stub_declare_woocommerce(): void {
 		class WooCommerce {}
 	}
 	$GLOBALS['bc_wp_stub_woocommerce_declared'] = true;
+}
+
+if ( ! function_exists( 'blocksy_child_load_module' ) ) {
+	// Theme loader (inc/loader.php) — stubbed to RECORD, not require, so
+	// tests/perf/test-noop.php can assert exactly which inc/perf/<feature>.php
+	// files inc/perf/loader.php asked for. No test requires inc/loader.php
+	// (it would redeclare this function); a test that needs the real one
+	// must run in bc_test_run_isolated() without this bootstrap.
+	function blocksy_child_load_module( $file ) {
+		$GLOBALS['bc_wp_stub']['loaded_modules'][] = (string) $file;
+		return true;
+	}
 }
 
 if ( ! function_exists( 'bc_get_recently_viewed_cookie' ) ) {

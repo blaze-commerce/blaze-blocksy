@@ -14,7 +14,7 @@
     "mini-cart-empty",
     "product-slider"
   ],
-  "_perf_help": "perf: opt-in ONLY (no 'no key = all on' fallback, unlike features above). List feature names to enable, or [\"*\"] to enable all. Known names: perfmatters-config, perfmatters-filters, rucss-safelist, critical-css-supplements, lcp-image, hero-facade, fonts-critical-path, async-styles, dequeue-assets, media-hygiene, content-visibility, minicart-hydrate, lazy-rescan. The list below is the recommended default: every feature except hero-facade (add it only once poster assets and .bc-hero-video markup exist). dequeue-assets ships a conservative handle list (each verified unused on a named site); still check it against this site's DOM. See docs/patterns/perf.md.",
+  "_perf_help": "Copying this template opts the site into the perf family. For an EXISTING site that only needs `features` gating, set \"perf\": []. perf: opt-in ONLY (no 'no key = all on' fallback, unlike features above). List feature names to enable, or [\"*\"] to enable all. Known names: perfmatters-config, perfmatters-filters, rucss-safelist, critical-css-supplements, lcp-image, hero-facade, fonts-critical-path, async-styles, dequeue-assets, media-hygiene, content-visibility, minicart-hydrate, lazy-rescan. The list below is the recommended default: every feature except hero-facade (add it only once poster assets and .bc-hero-video markup exist). dequeue-assets ships a conservative handle list (each verified unused on a named site); still check it against this site's DOM. See docs/patterns/perf.md.",
   "perf": [
     "perfmatters-config",
     "perfmatters-filters",

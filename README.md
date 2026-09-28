@@ -141,6 +141,8 @@ Omit `"features"` entirely to enable all modules (backward compatible).
 
 PageSpeed modules in `inc/perf/` are **opt-in only**. They use their own `"perf"` key, and the "omit the key to enable all" rule above does not apply. List names, or `["*"]` for all. The `BLOCKSY_CHILD_PERF_FEATURES` constant and the `blocksy_child_perf_features` filter add to the list. Full reference: [`docs/patterns/perf.md`](docs/patterns/perf.md).
 
+Copying `clients/_template/` opts a new site into the perf family (set `"perf": []` for an existing site that only needs `features` gating); existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register.
+
 ```json
 {
   "perf": ["perfmatters-config", "perfmatters-filters", "rucss-safelist", "lcp-image"]

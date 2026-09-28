@@ -97,6 +97,8 @@ if ( is_shop() || is_product_category() || is_product_tag() || is_front_page() |
 
 The `inc/perf/` modules are **opt-in only**, through a separate `"perf"` key. Omitting it enables nothing. Full reference: [`docs/patterns/perf.md`](patterns/perf.md).
 
+**Copying `clients/_template/` opts the site into the perf family**, because the template ships the recommended `"perf"` list. For an EXISTING site that only needs `features` gating, set `"perf": []`. Existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register.
+
 1. **Preflight before touching anything:** `bash scripts/preflight.sh <home> <cat> <pdp>`. The script is in `blaze-commerce-mcp` and served as an MCP skill script. Fix its stop conditions first.
 2. **Enable the recommended set** in `clients/{client-slug}/manifest.json`. That is every perf feature except `hero-facade`, which needs poster assets and `.bc-hero-video` wrapper markup, so add it per site:
 

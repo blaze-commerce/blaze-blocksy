@@ -26,6 +26,8 @@ Perf modules are **opt-in only**. The legacy `"features"` rule, where a missing 
 - An unknown name is dropped and logged once: `[blocksy-child][perf] unknown feature: <name>`.
 - The set is resolved **once per request** and memoised, so anything added after the first resolution is ignored. `functions.php` requires `custom/custom.php` before `inc/perf/loader.php`, which means a constant or filter defined in `custom/custom.php` is seen.
 
+**Copying `clients/_template/` opts the site into the perf family**, because the template ships the recommended `"perf"` list below. For an EXISTING site that only needs `features` gating, set `"perf": []`. Existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register (pinned by `tests/perf/test-noop.php`). The `_template` directory itself is never loaded as a client, even if its `active` flag is flipped.
+
 **Client manifest** (the recommended default: every feature except `hero-facade`, which needs per-site poster assets and wrapper markup):
 
 ```json
