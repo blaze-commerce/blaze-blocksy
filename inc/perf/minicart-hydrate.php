@@ -24,13 +24,23 @@
  * `before` inline script on `wc-cart-fragments` seeds
  * `sessionStorage[wc_fragments_<hash>]` with a single no-op fragment
  * (`div.widget_shopping_cart_content`, absent from Blocksy's DOM) so Woo
- * takes its cached branch. AW's three-layer guard, all load-bearing:
+ * takes its cached branch. AW's three-layer guard, all load-bearing, plus
+ * a fourth for this theme:
  *   1. no JS-visible WooCommerce cart cookie (`document.cookie`);
  *   2. neither sessionStorage key already set (never overwrite);
  *   3. no non-empty cart hash in `localStorage` — the only signal that
  *      survives a browser restart, because `wp_woocommerce_session_*` is
  *      HttpOnly (proved on AW staging: without layer 3 a restored cart
- *      rendered EMPTY).
+ *      rendered EMPTY);
+ *   4. no `div.widget_shopping_cart_content` in the DOM. AW's theme had none,
+ *      so its no-op seed could never match anything; THIS theme's own
+ *      off-canvas cart renders inside that element (`inc/woocommerce.php`,
+ *      `assets/css/components/offcanvas.css`, `docs/patterns/offcanvas.md`),
+ *      and seeding would replace the empty state — and the `<template>`
+ *      this module hydrates — with an empty div. `wc-cart-fragments`
+ *      prints in the footer, so the check runs against the parsed DOM.
+ *      Where the element exists the seed is simply skipped (one normal
+ *      fragments request, as without this feature).
  * Any doubt = no seed = one normal fragments request. Add-to-cart is
  * unaffected (its response carries its own fragments + hash).
  *
@@ -46,11 +56,11 @@
  * fragments seed removed the 0.95–1.04 s uncached `get_refreshed_fragments`
  * request on first pageviews.
  *
- * WHAT DOES NOT TRAVEL WITH THE THEME: the seed assumes nothing on the page
- * renders `div.widget_shopping_cart_content` (Blocksy's off-canvas cart
- * owns the cart UI). A site that also shows WooCommerce's classic Cart
- * widget would see that widget's empty-cart text replaced by an empty div
- * for no-cart visitors — do not enable this feature there without checking.
+ * WHAT DOES NOT TRAVEL WITH THE THEME: nothing client-specific. Layer 4
+ * means the seed only ever applies on pages with no
+ * `div.widget_shopping_cart_content` (e.g. a site whose cart UI is
+ * Blocksy's own off-canvas without this theme's widget wrapper); elsewhere
+ * the hydration half still works and the seed is inert.
  *
  * @package Blocksy_Child
  */
@@ -89,7 +99,9 @@ function blocksy_child_perf_minicart_hydrate_js( string $triggers ): string {
 		. "t.setAttribute('data-bc-perf-hydrated','1');p.insertBefore(t.content.cloneNode(true),t);n++;}"
 		. "if(n&&window.ctEvents&&typeof window.ctEvents.trigger==='function'){try{window.ctEvents.trigger('blocksy:frontend:init');}catch(e){}}"
 		. '}'
-		. 'function go(){intent=true;hydrate();}'
+		// Once intent is shown the trigger listeners have done their job; later
+		// fragment re-renders are re-hydrated from the jQuery events below.
+		. "function go(){if(!intent){intent=true;document.removeEventListener('mouseover',onTrigger,{passive:true});document.removeEventListener('focusin',onTrigger);}hydrate();}"
 		. 'function onTrigger(e){var el=e.target;if(T&&el&&el.closest){try{if(el.closest(T))go();}catch(x){}}}'
 		. "document.addEventListener('mouseover',onTrigger,{passive:true});"
 		. "document.addEventListener('focusin',onTrigger);"
@@ -101,7 +113,8 @@ function blocksy_child_perf_minicart_hydrate_js( string $triggers ): string {
 }
 
 /**
- * The fragments-seed script body, with AW's three guards.
+ * The fragments-seed script body, with AW's three guards plus the
+ * widget-element guard (layer 4, see the file docblock).
  *
  * @param string $fragment_name sessionStorage key cart-fragments.js reads fragments from.
  * @param string $cart_hash_key sessionStorage/localStorage key for the cart hash.
@@ -114,6 +127,11 @@ function blocksy_child_perf_minicart_fragments_seed_js( string $fragment_name, s
 	return 'try{'
 		// Layer 1: any JS-visible WooCommerce cart cookie.
 		. 'if(!/(^|;\s*)woocommerce_(items_in_cart|cart_hash)=/.test(document.cookie)'
+		// Layer 4 (this theme): the off-canvas cart itself renders inside
+		// div.widget_shopping_cart_content, which the no-op seed would
+		// replace with an empty div. wc-cart-fragments prints in the footer,
+		// so the DOM is parsed by now.
+		. "&&!document.querySelector('div.widget_shopping_cart_content')"
 		// Layer 2: never overwrite.
 		. '&&!sessionStorage.getItem(' . wp_json_encode( $fragment_name ) . ')'
 		. '&&!sessionStorage.getItem(' . wp_json_encode( $cart_hash_key ) . ')'

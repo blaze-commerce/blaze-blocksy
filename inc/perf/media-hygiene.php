@@ -310,17 +310,33 @@ function blocksy_child_perf_eager_img_count(): int {
  * Add `loading="lazy"` (+ `decoding="async"` unless one is set) to every
  * `<img>` after the first N of the request (blocksy_child_perf_eager_img_count()).
  *
- * Skipped (left exactly as given, still counted positionally): an `<img>`
+ * Skipped (never lazied, but still counted positionally and stamped): an `<img>`
  * that already has a `loading=` attribute, carries `fetchpriority="high"`,
  * or has a class matching `blaze-lcp-image`, `bc-perf-lcp`,
  * `bc-perf-hero__poster`, `skip-lazy` or `kb-skip-lazy`.
  *
- * `render_block` fires for inner blocks AND again for their parent, whose
- * content already contains the inner block's rendered `<img>`. Each tag
- * this pass has seen (before and after its own rewrite) is remembered for
- * the request (hash set in $GLOBALS['blocksy_child_perf_state'], reset by
- * blocksy_child_perf_reset_state()), so a re-seen image is neither
- * re-counted nor lazied on the second pass.
+ * `render_block` fires for an inner block AND again for its parent, whose
+ * content already contains the inner block's rendered `<img>` — possibly
+ * altered in between, because `WP_Block::render()` runs later
+ * `render_block` / `render_block_{name}` callbacks (priority > 20) on the
+ * inner block before the parent sees it. So an image cannot be recognised
+ * by its tag text. Instead every `<img>` this pass counts is STAMPED with
+ * `data-bc-perf-n="<position>"` (inserted right after `<img`), and an
+ * already-stamped tag is skipped on every later pass: never re-counted,
+ * never lazied. Attribute-preserving rewrites by other filters keep the
+ * stamp; identical repeated tags (an icon used four times) each get their
+ * own stamp and position, so the 4th copy is lazied like any other 4th
+ * image. The marker stays in the HTML (a few bytes per image — accepted).
+ *
+ * Why not "process only top-level blocks": that needs a depth counter
+ * paired across `pre_render_block` and `render_block`, and a plugin that
+ * short-circuits `pre_render_block` skips the matching `render_block`
+ * call, so the counter drifts for the rest of the request. The stamp has
+ * no pairing to lose.
+ *
+ * The request-scoped position counter lives in
+ * $GLOBALS['blocksy_child_perf_state']['lazy_count'] (reset by
+ * blocksy_child_perf_reset_state()).
  *
  * @param string $html Rendered block HTML.
  * @return string
@@ -335,52 +351,36 @@ function blocksy_child_perf_belowfold_lazy( string $html ): string {
 	return preg_replace_callback(
 		'#<img\b[^>]*>#i',
 		function ( $m ) use ( $eager ) {
-			$tag   = $m[0];
-			$state = &$GLOBALS['blocksy_child_perf_state'];
+			$tag = $m[0];
 
-			if ( ! isset( $state['lazy_seen'] ) ) {
-				$state['lazy_seen']  = [];
-				$state['lazy_count'] = 0;
+			if ( preg_match( '#\sdata-bc-perf-n\s*=#i', $tag ) ) {
+				return $tag; // Counted on an earlier (inner-block) pass.
 			}
 
-			$hash = md5( $tag );
-			if ( isset( $state['lazy_seen'][ $hash ] ) ) {
-				return $tag;
+			if ( ! isset( $GLOBALS['blocksy_child_perf_state']['lazy_count'] ) ) {
+				$GLOBALS['blocksy_child_perf_state']['lazy_count'] = 0;
 			}
-			$state['lazy_seen'][ $hash ] = true;
+			$position = ++$GLOBALS['blocksy_child_perf_state']['lazy_count'];
 
-			$position = ++$state['lazy_count'];
+			$add = ' data-bc-perf-n="' . $position . '"';
 
-			if ( $position <= $eager ) {
-				return $tag;
-			}
+			$skip = $position <= $eager
+				|| preg_match( '#\sloading\s*=#i', $tag )
+				|| preg_match( '#\sfetchpriority\s*=\s*["\']?\s*high#i', $tag )
+				// Substring match inside the class attribute (as the BBC source
+				// did) — deliberately loose: over-skipping only leaves an image
+				// eager, under-skipping could lazy-load the LCP image.
+				|| ( preg_match( '#\sclass\s*=\s*(["\'])(.*?)\1#i', $tag, $cm )
+					&& preg_match( '#blaze-lcp-image|bc-perf-lcp|bc-perf-hero__poster|skip-lazy|kb-skip-lazy#i', $cm[2] ) );
 
-			if ( preg_match( '#\sloading\s*=#i', $tag ) ) {
-				return $tag;
-			}
-
-			if ( preg_match( '#\sfetchpriority\s*=\s*["\']?\s*high#i', $tag ) ) {
-				return $tag;
-			}
-
-			// Substring match inside the class attribute (as the BBC source
-			// did) — deliberately loose: over-skipping only leaves an image
-			// eager, under-skipping could lazy-load the LCP image.
-			if ( preg_match( '#\sclass\s*=\s*(["\'])(.*?)\1#i', $tag, $cm )
-				&& preg_match( '#blaze-lcp-image|bc-perf-lcp|bc-perf-hero__poster|skip-lazy|kb-skip-lazy#i', $cm[2] ) ) {
-				return $tag;
+			if ( ! $skip ) {
+				$add .= ' loading="lazy"';
+				if ( ! preg_match( '#\sdecoding\s*=#i', $tag ) ) {
+					$add .= ' decoding="async"';
+				}
 			}
 
-			$add = ' loading="lazy"';
-			if ( ! preg_match( '#\sdecoding\s*=#i', $tag ) ) {
-				$add .= ' decoding="async"';
-			}
-
-			$new = preg_replace( '#^<img\b#i', '<img' . $add, $tag, 1 );
-
-			$state['lazy_seen'][ md5( $new ) ] = true;
-
-			return $new;
+			return preg_replace( '#^<img\b#i', '<img' . $add, $tag, 1 );
 		},
 		$html
 	);
@@ -406,11 +406,16 @@ function blocksy_child_perf_belowfold_lazy_render_block( $block_content, $block 
 // -----------------------------------------------------------------------
 
 /**
- * Add a `height` computed from `$meta`'s stored aspect ratio to an `<img>`
- * that has a numeric `width` but no `height`. Pure — no WP calls.
+ * Add a `height` to an `<img>` that has a plain-integer `width` (not e.g.
+ * `width="100%"`) but no `height`. Pure — no WP calls.
+ *
+ * The aspect ratio comes from the generated subsize the tag actually
+ * displays when its `src` ends in a `-WxH.ext` suffix matching an entry in
+ * `$meta['sizes']` (a hard-cropped subsize has a different ratio from the
+ * original); otherwise from the original's `width`/`height`.
  *
  * @param string $img  The `<img>` tag.
- * @param array  $meta Attachment metadata (needs `width` + `height`).
+ * @param array  $meta Attachment metadata.
  * @return string
  */
 function blocksy_child_perf_img_height_fix( string $img, array $meta ): string {
@@ -418,15 +423,30 @@ function blocksy_child_perf_img_height_fix( string $img, array $meta ): string {
 		return $img;
 	}
 
-	if ( ! preg_match( '#\swidth\s*=\s*["\']?(\d+)#i', $img, $m ) ) {
+	if ( ! preg_match( '#\swidth\s*=\s*(["\']?)(\d+)\1(?=[\s/>])#i', $img, $m ) ) {
 		return $img;
 	}
 
-	if ( empty( $meta['width'] ) || empty( $meta['height'] ) ) {
+	$ratio_w = (int) ( $meta['width'] ?? 0 );
+	$ratio_h = (int) ( $meta['height'] ?? 0 );
+
+	if ( ! empty( $meta['sizes'] ) && is_array( $meta['sizes'] )
+		&& preg_match( '#\ssrc\s*=\s*(["\'])(.*?)\1#i', $img, $src )
+		&& preg_match( '#-(\d+)x(\d+)\.[a-z0-9]+$#i', (string) strtok( $src[2], '?' ), $dim ) ) {
+		foreach ( $meta['sizes'] as $sub ) {
+			if ( is_array( $sub ) && (int) ( $sub['width'] ?? 0 ) === (int) $dim[1] && (int) ( $sub['height'] ?? 0 ) === (int) $dim[2] ) {
+				$ratio_w = (int) $dim[1];
+				$ratio_h = (int) $dim[2];
+				break;
+			}
+		}
+	}
+
+	if ( $ratio_w <= 0 || $ratio_h <= 0 ) {
 		return $img;
 	}
 
-	$height = (int) round( (int) $m[1] * ( (int) $meta['height'] / (int) $meta['width'] ) );
+	$height = (int) round( (int) $m[2] * ( $ratio_h / $ratio_w ) );
 	if ( $height < 1 ) {
 		return $img;
 	}

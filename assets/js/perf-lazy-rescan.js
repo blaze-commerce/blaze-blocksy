@@ -142,8 +142,15 @@
 			'blocksy:frontend:init',
 			'blocksy-pagination:load-more:complete'
 		];
+		// Blocksy dispatches these through its own bus (window.ctEvents) —
+		// subscribe there when it exists; the DOM listeners (as in the
+		// source) stay as a fallback for anything dispatched as a DOM event.
+		var onBlocksyEvent = function () { scheduleRescan(100); };
 		blocksyEvents.forEach(function (ev) {
-			document.addEventListener(ev, function () { scheduleRescan(100); }, true);
+			if (window.ctEvents && typeof window.ctEvents.on === 'function') {
+				try { window.ctEvents.on(ev, onBlocksyEvent); } catch (e) {}
+			}
+			document.addEventListener(ev, onBlocksyEvent, true);
 		});
 
 		// Generic AJAX completion (jQuery).
