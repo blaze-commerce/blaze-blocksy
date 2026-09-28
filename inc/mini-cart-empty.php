@@ -49,6 +49,10 @@ function bc_mini_cart_empty_state() {
 
 	$html = bc_render_blocksy_suggested_carousel( $merged_ids, 'bc-minicart-suggested-grid' );
 	if ( ! empty( $html ) ) {
+		// Perf opt-in (inc/perf/minicart-hydrate.php): inert until hydrated on intent.
+		if ( function_exists( 'blocksy_child_perf_enabled' ) && blocksy_child_perf_enabled( 'minicart-hydrate' ) ) {
+			$html = '<template class="bc-perf-minicart-template">' . $html . '</template>';
+		}
 		echo $html;
 	}
 

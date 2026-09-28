@@ -127,6 +127,11 @@ function blocksy_child_load_clients() {
 	foreach ( $manifests as $manifest_file ) {
 		$manifest = json_decode( file_get_contents( $manifest_file ), true );
 
+		// The template is documentation, never a client — even if someone flips `active`.
+		if ( '_template' === basename( dirname( $manifest_file ) ) ) {
+			continue;
+		}
+
 		if ( empty( $manifest ) || empty( $manifest['active'] ) ) {
 			continue;
 		}
