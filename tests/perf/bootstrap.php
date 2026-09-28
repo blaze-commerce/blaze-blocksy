@@ -106,6 +106,19 @@ function apply_filters( $hook, $value, ...$extra_args ) {
 	return $value;
 }
 
+// WordPress core's own no-op filter callbacks (wp-includes/default-filters.php
+// et al.) — not WordPress-specific behaviour of their own, just the two
+// literal "always true"/"always false" callbacks core ships and that
+// perf modules are expected to reuse (Perfmatters filters brief) rather
+// than declare their own trivial closures for.
+function __return_true() {
+	return true;
+}
+
+function __return_false() {
+	return false;
+}
+
 function is_admin() {
 	return false;
 }
