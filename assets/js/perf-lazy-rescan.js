@@ -16,7 +16,14 @@
  *      after update() (never picked up — no `data-ll-status`) is upgraded
  *      directly, so a visible card can never stay a placeholder.
  *   3. With no instance at all, the source's direct `data-src` -> `src`
- *      upgrade runs for every stuck image (exactly the measured fix).
+ *      upgrade runs — but ONLY for stuck images whose box intersects the
+ *      viewport grown by FALLBACK_MARGIN px. Off-screen images are never
+ *      upgraded up front; an IntersectionObserver (or, without one, a
+ *      throttled scroll/resize sweep) upgrades each as it nears the
+ *      viewport, so the fallback stays lazy instead of force-loading the
+ *      whole grid.
+ * This file is excluded from Delay JS (inc/perf/lazy-rescan.php registers
+ * its tag id), so it normally runs before `LazyLoad::Initialized` fires.
  * Without Perfmatters there are no `.perfmatters-lazy` images: every sweep
  * is a no-op.
  */
@@ -64,22 +71,77 @@
 		return true;
 	}
 
-	function inViewport(img) {
+	// No-instance fallback: how far outside the viewport (px) an image may
+	// be and still be upgraded.
+	var FALLBACK_MARGIN = 300;
+
+	// Whether img's bounding box intersects the viewport grown by margin px
+	// on every side (margin 0 = strictly on screen).
+	function inViewport(img, margin) {
 		if (!img.getBoundingClientRect) return false;
+		var m = margin || 0;
 		var r = img.getBoundingClientRect();
 		var h = window.innerHeight || document.documentElement.clientHeight;
 		var w = window.innerWidth || document.documentElement.clientWidth;
-		return r.bottom >= 0 && r.right >= 0 && r.top <= h && r.left <= w;
+		return r.bottom >= -m && r.right >= -m && r.top <= h + m && r.left <= w + m;
 	}
 
-	function upgradeStuck(onlyVisible) {
+	// Upgrade stuck images near the viewport only — every caller passes a
+	// margin; there is no "upgrade everything" mode.
+	function upgradeStuck(margin) {
 		var imgs = document.querySelectorAll(STUCK);
 		var n = 0;
 		for (var i = 0; i < imgs.length; i++) {
-			if (onlyVisible && !inViewport(imgs[i])) continue;
+			if (!inViewport(imgs[i], margin)) continue;
 			if (upgradeLazyImage(imgs[i])) n++;
 		}
 		return n;
+	}
+
+	function isStillStuck(img) {
+		return !!(img && img.classList && img.classList.contains('perfmatters-lazy')
+			&& img.getAttribute('data-src') && !img.hasAttribute('data-ll-status'));
+	}
+
+	var fallbackObserver = null;
+	var fallbackScrollBound = false;
+	var fallbackScrollPending = false;
+
+	// Keep the no-instance fallback lazy: images left off-screen by
+	// upgradeStuck(FALLBACK_MARGIN) are upgraded only once they come within
+	// FALLBACK_MARGIN px of the viewport.
+	function watchOffscreenStuck() {
+		if (typeof IntersectionObserver !== 'undefined') {
+			if (!fallbackObserver) {
+				fallbackObserver = new IntersectionObserver(function (entries) {
+					for (var i = 0; i < entries.length; i++) {
+						var en = entries[i];
+						if (!en.isIntersecting && !(en.intersectionRatio > 0)) continue;
+						fallbackObserver.unobserve(en.target);
+						if (isStillStuck(en.target)) upgradeLazyImage(en.target);
+					}
+				}, { rootMargin: FALLBACK_MARGIN + 'px' });
+			}
+			var imgs = document.querySelectorAll(STUCK);
+			for (var i = 0; i < imgs.length; i++) {
+				if (imgs[i].__bcPerfLazyWatched) continue;
+				imgs[i].__bcPerfLazyWatched = true;
+				fallbackObserver.observe(imgs[i]);
+			}
+			return;
+		}
+		if (fallbackScrollBound) return;
+		fallbackScrollBound = true;
+		var onScroll = function () {
+			if (fallbackScrollPending) return;
+			fallbackScrollPending = true;
+			setTimeout(function () {
+				fallbackScrollPending = false;
+				if (!findInstance()) upgradeStuck(FALLBACK_MARGIN);
+			}, 100);
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll, { passive: true });
 	}
 
 	var visibleCheck;
@@ -93,10 +155,12 @@
 			}
 		}
 		if (!inst) {
-			return upgradeStuck(false);
+			var n = upgradeStuck(FALLBACK_MARGIN);
+			watchOffscreenStuck();
+			return n;
 		}
 		clearTimeout(visibleCheck);
-		visibleCheck = setTimeout(function () { upgradeStuck(true); }, 300);
+		visibleCheck = setTimeout(function () { upgradeStuck(0); }, 300);
 		return 0;
 	}
 

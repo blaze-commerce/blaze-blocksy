@@ -11,7 +11,15 @@
  * via the Perfmatters vanilla-lazyload INSTANCE (captured from its
  * `LazyLoad::Initialized` event), never `.update()` on the `window.LazyLoad`
  * constructor, which throws — falling back to the source's direct
- * `data-src` → `src` upgrade when no instance can be found.
+ * `data-src` → `src` upgrade when no instance can be found — and then only
+ * for images at or near the viewport (never off-screen ones), so the
+ * fallback cannot switch lazy loading off for the whole grid.
+ *
+ * The script's tag id (`bc-perf-lazy-rescan-js`, WordPress's `<handle>-js`)
+ * is registered in the perf script-id registry, so `perfmatters-filters`
+ * excludes it from Delay JS: delayed until first interaction it would run
+ * after `LazyLoad::Initialized` had already fired, miss the instance, and
+ * drop to the fallback on every page view.
  *
  * Enqueued only on `is_shop() || is_product_taxonomy()` (the surfaces with
  * AJAX-swapped product grids), in the footer, versioned with `filemtime()`
@@ -78,6 +86,11 @@ function blocksy_child_perf_lazy_rescan_enqueue(): void {
  * @return void
  */
 function blocksy_child_perf_lazy_rescan_register(): void {
+	// Registered at load time, like blocksy_child_perf_script() does for
+	// inline scripts: Perfmatters matches Delay JS exclusions as substrings
+	// of the whole tag, and the enqueued tag carries id="bc-perf-lazy-rescan-js".
+	blocksy_child_perf_register_script_id( 'bc-perf-lazy-rescan-js' );
+
 	if ( ! blocksy_child_perf_is_frontend_request() ) {
 		return;
 	}
