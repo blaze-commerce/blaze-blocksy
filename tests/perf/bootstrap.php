@@ -85,6 +85,22 @@ function remove_action( $hook, $callback, $priority = 10 ) {
 }
 
 /**
+ * Alias of remove_action() — actions and filters share one hook registry
+ * in this stub (see add_filter()/add_action() above), so removing either
+ * kind is the same operation. Provided so test files can name the removal
+ * after what they registered (add_filter() -> remove_filter()) instead of
+ * reaching for remove_action() on a filter hook.
+ *
+ * @param string   $hook
+ * @param callable $callback
+ * @param int      $priority
+ * @return bool True if a matching callback was found and removed.
+ */
+function remove_filter( $hook, $callback, $priority = 10 ) {
+	return remove_action( $hook, $callback, $priority );
+}
+
+/**
  * Applies every recorded callback for $hook, in priority order, to $value.
  *
  * @param string $hook

@@ -161,6 +161,20 @@ function blocksy_child_perf_critical_css_is_product(): bool {
 /**
  * Register the three wp_head printers.
  *
+ * The shipped data file (`inc/perf/data/critical-css.php`) is loaded once
+ * here, at registration time — its buckets are static, so there is
+ * nothing to gain from re-reading the file on every request. What is NOT
+ * resolved here is `blocksy_child_perf_critical_css_bucket()` itself: each
+ * `blocksy_child_perf_style()` call below is given a CLOSURE, not an
+ * already-built string, so `blocksy_child_perf_header_min_height` and
+ * `blocksy_child_perf_critical_css_extra` (both read inside that function)
+ * are only applied at `wp_head` PRINT time — see `blocksy_child_perf_style()`'s
+ * own docblock (inc/perf/helpers.php) for why that matters: this module
+ * itself loads very early (`inc/perf/loader.php` is required directly from
+ * `functions.php`, not on a hook), earlier than a typical plugin/mu-plugin
+ * registers its own filters on `init`/`plugins_loaded` — a plain string
+ * built here at registration time would silently miss those.
+ *
  * A named function (rather than top-level file-scope calls) so the test
  * suite can re-run registration after changing the filters that
  * blocksy_child_perf_critical_css_bucket() reads, without re-requiring this
@@ -173,20 +187,26 @@ function blocksy_child_perf_critical_css_register(): void {
 
 	blocksy_child_perf_style(
 		'bc-perf-critical-global',
-		blocksy_child_perf_critical_css_bucket( 'global', $data['global'] ?? '' ),
+		function () use ( $data ) {
+			return blocksy_child_perf_critical_css_bucket( 'global', $data['global'] ?? '' );
+		},
 		1
 	);
 
 	blocksy_child_perf_style(
 		'bc-perf-critical-archive',
-		blocksy_child_perf_critical_css_bucket( 'archive', $data['archive'] ?? '' ),
+		function () use ( $data ) {
+			return blocksy_child_perf_critical_css_bucket( 'archive', $data['archive'] ?? '' );
+		},
 		1,
 		'blocksy_child_perf_critical_css_is_archive'
 	);
 
 	blocksy_child_perf_style(
 		'bc-perf-critical-product',
-		blocksy_child_perf_critical_css_bucket( 'product', $data['product'] ?? '' ),
+		function () use ( $data ) {
+			return blocksy_child_perf_critical_css_bucket( 'product', $data['product'] ?? '' );
+		},
 		1,
 		'blocksy_child_perf_critical_css_is_product'
 	);

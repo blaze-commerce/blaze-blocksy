@@ -137,6 +137,54 @@ bc_test( 'blocksy_child_perf_style(): $condition suppresses output at print time
 	assert_same( $output, '', 'nothing printed when $condition returns falsy' );
 } );
 
+bc_test( 'blocksy_child_perf_style(): $css may be a callable, resolved at wp_head PRINT time (not registration time)', function () {
+	$GLOBALS['bc_test_hooks']['wp_head'] = [];
+
+	// Mutated AFTER blocksy_child_perf_style() has already registered its
+	// wp_head callback below, simulating a filter a plugin/mu-plugin only
+	// registers on init/plugins_loaded, after this module has already
+	// loaded — the case that motivates $css accepting a callable at all.
+	$late_value = 'body{color:green}';
+
+	blocksy_child_perf_style( 'bc-perf-test-style-callable', function () use ( &$late_value ) {
+		return $late_value;
+	} );
+
+	$late_value = 'body{color:purple}'; // changed after registration, before print.
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_head'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same(
+		$output,
+		'<style id="bc-perf-test-style-callable" data-no-optimize="1" data-no-minify="1">body{color:purple}</style>',
+		'the value read at PRINT time (purple) wins, not the value at registration time (green)'
+	);
+} );
+
+bc_test( 'blocksy_child_perf_style(): prints nothing (not even the tag) when the resolved CSS is empty', function () {
+	$GLOBALS['bc_test_hooks']['wp_head'] = [];
+
+	blocksy_child_perf_style( 'bc-perf-test-style-empty', function () {
+		return '';
+	} );
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_head'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same( $output, '', 'no <style> tag at all when the resolved content is empty' );
+} );
+
 // -----------------------------------------------------------------------
 // blocksy_child_perf_script() output.
 // -----------------------------------------------------------------------
@@ -159,6 +207,44 @@ bc_test( 'blocksy_child_perf_script(): prints exactly the mandated <script> mark
 		'<script id="bc-perf-test-script" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">console.log(2);</script>',
 		'exact attribute set + content (Global Constraint 4)'
 	);
+} );
+
+bc_test( 'blocksy_child_perf_script(): $js may be a callable, resolved at wp_footer print time, and empty result prints nothing', function () {
+	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
+
+	blocksy_child_perf_script( 'bc-perf-test-script-callable', function () {
+		return 'console.log(3);';
+	} );
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_footer'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same(
+		$output,
+		'<script id="bc-perf-test-script-callable" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">console.log(3);</script>',
+		'callable resolved at print time'
+	);
+
+	$GLOBALS['bc_test_hooks']['wp_footer'] = [];
+
+	blocksy_child_perf_script( 'bc-perf-test-script-empty', function () {
+		return '';
+	} );
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_footer'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same( $output, '', 'no <script> tag at all when the resolved content is empty' );
 } );
 
 // -----------------------------------------------------------------------

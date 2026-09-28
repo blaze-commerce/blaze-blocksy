@@ -217,16 +217,35 @@ function blocksy_child_perf_is_frontend_request(): bool {
  * evaluated at PRINT time (not registration time) and suppresses output
  * for that single request when it returns falsy.
  *
+ * `$css` may be a plain string OR a callable. A callable is invoked at
+ * PRINT time (not registration time, and after `$condition` has already
+ * passed) — exactly like `$condition` — so a module can defer filter
+ * resolution (e.g. `apply_filters('some_site_extra_css', …)`) to the
+ * moment `wp_head` actually fires, rather than to whenever the module
+ * itself happened to load. This matters because `inc/perf/loader.php`
+ * requires every enabled module directly from `functions.php`, not on a
+ * hook — very early — so a filter a plugin or mu-plugin registers on
+ * `init`/`plugins_loaded` would already have been missed by a plain
+ * string built at module-load time. Passing a closure instead lets that
+ * later registration still be seen when `wp_head` prints.
+ *
+ * The resolved content is cast to string; if that string is `''`, NOTHING
+ * is printed for this id on this request — not even an empty `<style>`
+ * tag — so an all-conditional bucket (e.g. everything routed through
+ * `$css` returning '' when no filter supplies content) never emits a
+ * pointless empty element.
+ *
  * Prints exactly:
  *   <style id="{id}" data-no-optimize="1" data-no-minify="1">{css}</style>
  *
- * @param string        $id        Element id (Global Constraint 1: `bc-perf-` prefix).
- * @param string        $css       Raw CSS to print verbatim inside the tag.
- * @param int           $priority  wp_head priority.
- * @param callable|null $condition Optional print-time gate.
+ * @param string          $id        Element id (Global Constraint 1: `bc-perf-` prefix).
+ * @param string|callable $css       Raw CSS to print verbatim inside the tag, or a
+ *                                    callable returning it, resolved at print time.
+ * @param int             $priority  wp_head priority.
+ * @param callable|null   $condition Optional print-time gate.
  * @return void
  */
-function blocksy_child_perf_style( string $id, string $css, int $priority = 1, ?callable $condition = null ): void {
+function blocksy_child_perf_style( string $id, $css, int $priority = 1, ?callable $condition = null ): void {
 	if ( ! blocksy_child_perf_is_frontend_request() ) {
 		return;
 	}
@@ -236,7 +255,13 @@ function blocksy_child_perf_style( string $id, string $css, int $priority = 1, ?
 			return;
 		}
 
-		echo '<style id="' . esc_attr( $id ) . '" data-no-optimize="1" data-no-minify="1">' . $css . '</style>';
+		$out = is_callable( $css ) ? (string) call_user_func( $css ) : (string) $css;
+
+		if ( '' === $out ) {
+			return;
+		}
+
+		echo '<style id="' . esc_attr( $id ) . '" data-no-optimize="1" data-no-minify="1">' . $out . '</style>';
 	}, $priority );
 }
 
@@ -249,16 +274,24 @@ function blocksy_child_perf_style( string $id, string $css, int $priority = 1, ?
  * is false and the wp_footer printer is therefore never registered.
  * `$condition`, if given, is evaluated at print time.
  *
+ * `$js` may be a plain string OR a callable, resolved at print time —
+ * same reasoning and same "print nothing (not even the tag) when the
+ * resolved content is ''" behaviour as `blocksy_child_perf_style()`'s
+ * `$css` parameter; see that function's docblock for why this matters for
+ * a module whose content depends on a filter that may be registered after
+ * the module itself has loaded.
+ *
  * Prints exactly:
  *   <script id="{id}" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">{js}</script>
  *
- * @param string        $id        Element id (Global Constraint 1: `bc-perf-` prefix).
- * @param string        $js        Raw JS to print verbatim inside the tag.
- * @param int           $priority  wp_footer priority.
- * @param callable|null $condition Optional print-time gate.
+ * @param string          $id        Element id (Global Constraint 1: `bc-perf-` prefix).
+ * @param string|callable $js        Raw JS to print verbatim inside the tag, or a
+ *                                    callable returning it, resolved at print time.
+ * @param int             $priority  wp_footer priority.
+ * @param callable|null   $condition Optional print-time gate.
  * @return void
  */
-function blocksy_child_perf_script( string $id, string $js, int $priority = 99, ?callable $condition = null ): void {
+function blocksy_child_perf_script( string $id, $js, int $priority = 99, ?callable $condition = null ): void {
 	blocksy_child_perf_register_script_id( $id );
 
 	if ( ! blocksy_child_perf_is_frontend_request() ) {
@@ -270,7 +303,13 @@ function blocksy_child_perf_script( string $id, string $js, int $priority = 99, 
 			return;
 		}
 
-		echo '<script id="' . esc_attr( $id ) . '" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">' . $js . '</script>';
+		$out = is_callable( $js ) ? (string) call_user_func( $js ) : (string) $js;
+
+		if ( '' === $out ) {
+			return;
+		}
+
+		echo '<script id="' . esc_attr( $id ) . '" data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false">' . $out . '</script>';
 	}, $priority );
 }
 

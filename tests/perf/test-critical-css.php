@@ -110,7 +110,7 @@ bc_test( 'blocksy_child_perf_critical_css_header_min_height(): empty when the fi
 
 	assert_same( blocksy_child_perf_critical_css_header_min_height(), '' );
 
-	remove_action( 'blocksy_child_perf_header_min_height', $cb );
+	remove_filter( 'blocksy_child_perf_header_min_height', $cb );
 } );
 
 bc_test( 'blocksy_child_perf_critical_css_header_min_height(): renders both breakpoints once the filter supplies values', function () {
@@ -126,7 +126,7 @@ bc_test( 'blocksy_child_perf_critical_css_header_min_height(): renders both brea
 		'@media (max-width: 999.98px){header#header.ct-header{min-height:194px}}@media (min-width:1000px){header#header.ct-header{min-height:158px}}'
 	);
 
-	remove_action( 'blocksy_child_perf_header_min_height', $cb );
+	remove_filter( 'blocksy_child_perf_header_min_height', $cb );
 } );
 
 // -----------------------------------------------------------------------
@@ -152,7 +152,35 @@ bc_test( 'bc-perf-critical-global: includes the header-min-height rule once the 
 	assert_same( strpos( $output, 'header#header.ct-header{min-height:194px}' ) !== false, true, 'mobile min-height present' );
 	assert_same( strpos( $output, 'header#header.ct-header{min-height:158px}' ) !== false, true, 'desktop min-height present' );
 
-	remove_action( 'blocksy_child_perf_header_min_height', $cb );
+	remove_filter( 'blocksy_child_perf_header_min_height', $cb );
+} );
+
+bc_test( 'bc-perf-critical-global: header-min-height filter registered AFTER blocksy_child_perf_critical_css_register() still takes effect at wp_head print time', function () {
+	// Simulates a plugin/mu-plugin registering its filter on init/plugins_loaded
+	// — after inc/perf/loader.php (and this module with it) has already been
+	// required from functions.php. blocksy_child_perf_style() accepts a
+	// callable for $css precisely so this ordering still works (see
+	// inc/perf/helpers.php's docblock for blocksy_child_perf_style()).
+	$GLOBALS['bc_test_hooks']['wp_head'] = [];
+	blocksy_child_perf_critical_css_register(); // "module load" — no filter registered yet.
+
+	$cb = function () {
+		return [ 'desktop' => 158, 'mobile' => 194 ];
+	};
+	add_filter( 'blocksy_child_perf_header_min_height', $cb ); // registered AFTER module load.
+
+	ob_start();
+	foreach ( $GLOBALS['bc_test_hooks']['wp_head'] as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			call_user_func( $callback );
+		}
+	}
+	$output = ob_get_clean();
+
+	assert_same( strpos( $output, 'header#header.ct-header{min-height:194px}' ) !== false, true, 'late-registered filter still seen at print time' );
+	assert_same( strpos( $output, 'header#header.ct-header{min-height:158px}' ) !== false, true );
+
+	remove_filter( 'blocksy_child_perf_header_min_height', $cb );
 } );
 
 bc_test( 'bc-perf-critical-global: appends blocksy_child_perf_critical_css_extra for the global bucket', function () {
@@ -168,7 +196,7 @@ bc_test( 'bc-perf-critical-global: appends blocksy_child_perf_critical_css_extra
 
 	assert_same( strpos( $output, '.my-site-only{color:red}' ) !== false, true, 'extra CSS present in the global bucket' );
 
-	remove_action( 'blocksy_child_perf_critical_css_extra', $cb );
+	remove_filter( 'blocksy_child_perf_critical_css_extra', $cb );
 } );
 
 bc_test( 'blocksy_child_perf_critical_css_extra: only reaches the bucket it names', function () {
@@ -191,7 +219,7 @@ bc_test( 'blocksy_child_perf_critical_css_extra: only reaches the bucket it name
 	$global_only = substr( $output, 0, strpos( $output, 'id="bc-perf-critical-archive"' ) );
 	assert_same( strpos( $global_only, '.archive-only-marker' ) !== false, false, 'absent from the global bucket that printed before it' );
 
-	remove_action( 'blocksy_child_perf_critical_css_extra', $cb );
+	remove_filter( 'blocksy_child_perf_critical_css_extra', $cb );
 } );
 
 bc_test( 'bc-perf-critical-archive: suppressed when is_shop()/is_product_taxonomy() are both false', function () {

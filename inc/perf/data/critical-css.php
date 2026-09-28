@@ -133,6 +133,10 @@ return [
 		. '.woo-listing-top .woocommerce-ordering{display:flex;align-items:center;justify-content:center;margin-inline-start:auto;position:relative}'
 		. '.woo-listing-top .woocommerce-ordering select{height:40px;cursor:pointer}'
 		. '.woo-listing-top .woocommerce-ordering .ct-sort-icon{position:absolute;pointer-events:none}'
+		// `color:rgba(0,0,0,0)` here is a structural technique (fully transparent,
+		// theme-neutral), not a Kajal brand colour: it visually hides the native
+		// <select> text so the control reads as a 34px icon button on mobile,
+		// same as the source. Kept for that reason.
 		. '@media(max-width:689.98px){.woo-listing-top .woocommerce-ordering select{color:rgba(0,0,0,0);width:34px;height:34px;padding:0;user-select:none;background-image:none}}'
 		. '.pif-has-gallery{position:relative}'
 		. '.pif-has-gallery .wp-post-image--secondary{position:absolute;top:0;left:0;opacity:0}'
