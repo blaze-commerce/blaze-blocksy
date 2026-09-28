@@ -567,6 +567,12 @@ bc_test( 'blocksy_child_perf_minicart_fragments_seed_js(): the three AW guards +
 
 	assert_same( false !== strpos( $js, 'sessionStorage.setItem("wc_fragments_abc",v)' ), true, 'seeds the fragments key' );
 	assert_same( false !== strpos( $js, 'window.jQuery(bcSeed)' ), true, 'value computed in a jQuery ready callback registered before cart-fragments.js' );
+	assert_same( substr_count( $js, 'bcSeed' ), 2, 'bcSeed only defined + registered as a ready callback' );
+	assert_same( preg_match( '#(?<!jQuery\()bcSeed\(\)#', $js ), 0, 'no synchronous bcSeed() call anywhere' );
+	assert_same( false !== strpos( $js, 'else{bcSeed' ), false, 'no no-jQuery fallback branch' );
+	assert_same( false !== strpos( $js, '&&window.jQuery){' ), true, 'no jQuery -> no seed at all' );
+	assert_same( false !== strpos( $js, "if(w.querySelector('[data-bc-perf-hydrated]'))return;" ), true, 'already-hydrated widget -> skip seeding' );
+	assert_same( strpos( $js, '[data-bc-perf-hydrated]' ) < strpos( $js, '.outerHTML' ), true, 'hydrated check happens before outerHTML is read' );
 	assert_same( strpos( $js, 'localStorage.getItem(' ) < strpos( $js, 'var bcSeed' ), true, 'guards evaluated before any seeding' );
 	assert_same( 0 === strpos( $js, 'try{' ) && '}catch(e){}' === substr( $js, -11 ), true, 'storage access wrapped' );
 } );

@@ -45,6 +45,21 @@
  * refresh, the replaced nodes are new DOM: Blocksy re-mounts cart UI on
  * `wc_fragments_loaded`, the same event a real refresh fires.
  *
+ * NO JQUERY, NO SEED. If `window.jQuery` is absent when the inline script
+ * runs (an optimiser deferred jQuery but not this script), nothing is
+ * seeded: running the lookup immediately would see a half-parsed footer
+ * (no widget yet), seed the empty div, and cart-fragments.js would later
+ * blank the real drawer for the whole session. cart-fragments.js is itself
+ * a jQuery script, so a seed without jQuery has nothing to serve.
+ *
+ * ALREADY HYDRATED, NO SEED. If intent (a scroll/click) cloned the
+ * suggestions into the drawer before DOM-ready, the widget contains a
+ * `[data-bc-perf-hydrated]` template; its `outerHTML` would store the
+ * cloned images for the session. The seed is skipped and WooCommerce
+ * fetches normally. (A widget with no `<template>` at all is still seeded:
+ * that is the legitimate "no suggestions to show" / feature-off-in-markup
+ * state, and mirroring it is lossless.)
+ *
  * AW's three-layer guard, all load-bearing, decides whether to seed at all:
  *   1. no JS-visible WooCommerce cart cookie (`document.cookie`);
  *   2. neither sessionStorage key already set (never overwrite; the
@@ -165,16 +180,23 @@ function blocksy_child_perf_minicart_fragments_seed_js( string $fragment_name, s
 		. '&&!sessionStorage.getItem(' . $frag . ')'
 		. '&&!sessionStorage.getItem(' . wp_json_encode( $cart_hash_key ) . ')'
 		// Layer 3: the only cart signal that survives a browser restart.
-		. '&&!localStorage.getItem(' . wp_json_encode( $cart_hash_key ) . ')){'
+		. '&&!localStorage.getItem(' . wp_json_encode( $cart_hash_key ) . ')'
+		// No jQuery here = an optimiser deferred it; the DOM may still be
+		// parsing, so never seed (cart-fragments.js is a jQuery script anyway).
+		. '&&window.jQuery){'
 		. 'var bcSeed=function(){try{'
 		. 'if(sessionStorage.getItem(' . $frag . '))return;'
 		// The widget present -> mirror it (lossless replaceWith); absent -> no-op div.
 		. "var w=document.querySelector('" . $key . "'),v;"
-		. 'if(w){var f={};f[' . wp_json_encode( $key ) . ']=w.outerHTML;v=JSON.stringify(f);}else{v=' . wp_json_encode( $noop ) . ';}'
+		. 'if(w){'
+		// Already hydrated (intent before DOM-ready): its outerHTML would pin the
+		// cloned suggestions for the session — let WooCommerce fetch normally.
+		. "if(w.querySelector('[data-bc-perf-hydrated]'))return;"
+		. 'var f={};f[' . wp_json_encode( $key ) . ']=w.outerHTML;v=JSON.stringify(f);}else{v=' . wp_json_encode( $noop ) . ';}'
 		. 'sessionStorage.setItem(' . $frag . ',v);'
 		. '}catch(e){}};'
-		// Ready callback registered before cart-fragments.js registers its own.
-		. 'if(window.jQuery){window.jQuery(bcSeed);}else{bcSeed();}'
+		// Only ever as a ready callback registered before cart-fragments.js registers its own.
+		. 'window.jQuery(bcSeed);'
 		. '}}catch(e){}';
 }
 
