@@ -249,6 +249,22 @@ bc_test( 'fonts buffer: unreadable cache link fails open', function () {
 	assert_same( blocksy_child_perf_fonts_output_buffer( $html ), $html );
 } );
 
+bc_test( 'fonts: a %00 (NUL byte) href is refused before realpath() — original tag / HTML returned, no ValueError', function () use ( $bc_fonts_css, $bc_fonts_link ) {
+	list( $base, $url ) = bc_fonts_test_uploads();
+	file_put_contents( $base . '/g.google-fonts.min.css', $bc_fonts_css );
+
+	$out = bc_fonts_test_with_filter( 'blocksy_child_perf_fonts_cache_dir', 'bc_fonts_test_no_cache', function () use ( $bc_fonts_link, $url ) {
+		return blocksy_child_perf_fonts_inline_tag( $bc_fonts_link, 'blocksy-fonts-font-source-google', $url . '/g.google-fonts.min.css%00.png' );
+	} );
+	assert_same( $out, $bc_fonts_link, 'style_loader_tag path: original tag' );
+
+	assert_same( blocksy_child_perf_fonts_url_to_path( $url . '/g.google-fonts.min.css%00' ), null, 'url_to_path(): null, not a ValueError' );
+
+	$GLOBALS['blocksy_child_perf_state']['fonts_inlined'] = false;
+	$html = '<link rel="stylesheet" href="' . $url . '/cache/perfmatters/x/fonts/a%00.google-fonts.min.css">';
+	assert_same( blocksy_child_perf_fonts_output_buffer( $html ), $html, 'output-buffer path: HTML unchanged' );
+} );
+
 bc_test( 'fonts: successful style_loader_tag inline sets the request flag', function () use ( $bc_fonts_css, $bc_fonts_link ) {
 	list( $base, $url ) = bc_fonts_test_uploads();
 	$GLOBALS['blocksy_child_perf_state']['fonts_inlined'] = false;
