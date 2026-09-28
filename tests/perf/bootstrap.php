@@ -215,6 +215,7 @@ function bc_wp_stub_defaults(): array {
 		'is_shop'                 => false,
 		'is_product_taxonomy'     => false,
 		'is_product'              => false,
+		'is_feed'                 => false, // blocksy_child_perf_is_frontend_render().
 
 		// Data getters. The attachment-image maps and attachment_metadata /
 		// wc_image_size are keyed (see bc_wp_stub_attachment_key() / each
@@ -309,6 +310,50 @@ if ( ! function_exists( 'is_shop' ) ) {
 if ( ! function_exists( 'is_product_taxonomy' ) ) {
 	function is_product_taxonomy() {
 		return ! empty( $GLOBALS['bc_wp_stub']['is_product_taxonomy'] );
+	}
+}
+
+if ( ! function_exists( 'is_feed' ) ) {
+	function is_feed( $feeds = '' ) {
+		return ! empty( $GLOBALS['bc_wp_stub']['is_feed'] );
+	}
+}
+
+/**
+ * Run inline PHP in a fresh `php` subprocess and decode its JSON stdout.
+ *
+ * For state that cannot be undone inside this one test process — e.g.
+ * `define( 'REST_REQUEST', true )`, which WordPress sets mid-request, after
+ * the theme (and so every perf module's hooks) has already loaded. The
+ * temp script is removed in a `finally`. stderr is merged into stdout, so
+ * any warning/notice makes the output invalid JSON and throws.
+ *
+ * @param string $body PHP code (no `<?php` tag) that ends by echoing one JSON value.
+ * @return array
+ */
+function bc_test_run_isolated( string $body ): array {
+	$script_path = tempnam( sys_get_temp_dir(), 'bc_iso_' );
+
+	try {
+		file_put_contents( $script_path, "<?php\n" . $body . "\n" );
+
+		$output    = [];
+		$exit_code = 0;
+		exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script_path ) . ' 2>&1', $output, $exit_code );
+
+		if ( 0 !== $exit_code ) {
+			throw new \RuntimeException( 'subprocess exited ' . $exit_code . ': ' . implode( "\n", $output ) );
+		}
+
+		$decoded = json_decode( implode( "\n", $output ), true );
+
+		if ( ! is_array( $decoded ) ) {
+			throw new \RuntimeException( 'subprocess did not print valid JSON: ' . implode( "\n", $output ) );
+		}
+
+		return $decoded;
+	} finally {
+		@unlink( $script_path );
 	}
 }
 

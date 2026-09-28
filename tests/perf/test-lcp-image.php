@@ -416,3 +416,69 @@ bc_test( 'blocksy_child_perf_lcp_hero_preload_markup(): no page_on_front configu
 // are declared once, for every test-*.php file that needs them, in
 // tests/perf/bootstrap.php — driven by $GLOBALS['bc_wp_stub'], reset before
 // each test file by run.php.
+
+// -----------------------------------------------------------------------
+// Runtime render guard (REST / feed) on the render_block @10 cover pass and
+// the the_content @20 hero pass.
+// -----------------------------------------------------------------------
+
+/**
+ * The last Closure registered on $hook at $priority (this module's hook
+ * callbacks are closures; other test files' named callbacks may share the hook).
+ *
+ * @return \Closure|null
+ */
+function bc_lcp_test_closure( string $hook, int $priority ) {
+	$closures = array_values( array_filter( $GLOBALS['bc_test_hooks'][ $hook ][ $priority ] ?? [], function ( $cb ) {
+		return $cb instanceof \Closure;
+	} ) );
+
+	return $closures ? end( $closures ) : null;
+}
+
+bc_test( 'lcp-image: a feed or a REST request leaves the cover block and hero content untouched', function () {
+	$cover = '<div class="wp-block-cover"><img src="a.jpg" loading="lazy" class="wp-image-1"/></div>';
+	$hero  = '<img src="b.jpg" class="bc-hero-img wp-image-2" loading="lazy"/>';
+
+	$cover_cb   = bc_lcp_test_closure( 'render_block', 10 );
+	$content_cb = bc_lcp_test_closure( 'the_content', 20 );
+	assert_same( $cover_cb instanceof \Closure && $content_cb instanceof \Closure, true, 'both closures found' );
+
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_front_page'] = true;
+	$GLOBALS['bc_wp_stub']['is_feed']       = true;
+	try {
+		assert_same( $cover_cb( $cover, [ 'blockName' => 'core/cover' ] ), $cover, 'feed: cover block untouched' );
+		assert_same( $content_cb( $hero ), $hero, 'feed: hero content untouched' );
+	} finally {
+		$GLOBALS['bc_wp_stub']['is_feed'] = false;
+	}
+	assert_same( strpos( $cover_cb( $cover, [ 'blockName' => 'core/cover' ] ), 'fetchpriority="high"' ) !== false, true, 'sanity: the feed guard did not consume the once-per-request slot' );
+	$GLOBALS['bc_wp_stub']['is_front_page'] = false;
+	blocksy_child_perf_reset_state();
+
+	// REST_REQUEST is defined after the theme loaded — model that in a subprocess.
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+require_once %s;
+require_once %s;
+$GLOBALS['bc_wp_stub']['is_front_page'] = true;
+$cover = %s; $hero = %s;
+define( 'REST_REQUEST', true );
+$rest_cover = apply_filters( 'render_block', $cover, [ 'blockName' => 'core/cover' ] );
+$rest_hero  = apply_filters( 'the_content', $hero );
+echo json_encode( [ 'cover' => $rest_cover, 'hero' => $rest_hero ] );
+PHP,
+		var_export( __DIR__ . '/bootstrap.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/helpers.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/lcp-image.php', true ),
+		var_export( $cover, true ),
+		var_export( $hero, true )
+	);
+
+	$r = bc_test_run_isolated( $body );
+
+	assert_same( $r['cover'], $cover, 'REST: cover block untouched' );
+	assert_same( $r['hero'], $hero, 'REST: hero content untouched' );
+} );

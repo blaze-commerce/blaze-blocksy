@@ -471,6 +471,66 @@ bc_test( 'blocksy_child_perf_youtube_nocookie(): rewrites /embed/ URLs only', fu
 } );
 
 // -----------------------------------------------------------------------
+// media-hygiene: runtime render guard (REST / feed)
+// -----------------------------------------------------------------------
+
+bc_test( 'media-hygiene: a feed or a REST request leaves render_block / wp_content_img_tag / nocookie HTML untouched', function () {
+	$imgs = '<img src="1.jpg"><img src="2.jpg"><img src="3.jpg"><img src="4.jpg">';
+	$yt   = '<iframe src="https://www.youtube.com/embed/abc"></iframe>';
+	$h    = '<img src="badge.png" width="120" class="wp-image-639922">';
+
+	// Feed — in process, via the bootstrap is_feed() stub.
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['attachment_metadata'][639922] = [ 'width' => 1000, 'height' => 500 ];
+	$GLOBALS['bc_wp_stub']['is_feed'] = true;
+	try {
+		assert_same( blocksy_child_perf_belowfold_lazy_render_block( $imgs, [ 'blockName' => 'core/group' ] ), $imgs, 'feed: no data-bc-perf-n / loading attrs' );
+		assert_same( blocksy_child_perf_img_height_fix_filter( $h, 'the_content', 0 ), $h, 'feed: no height added' );
+		assert_same( blocksy_child_perf_youtube_nocookie( $yt ), $yt, 'feed: embed URL untouched' );
+		assert_same( $GLOBALS['blocksy_child_perf_state']['lazy_count'] ?? 0, 0, 'feed: the request position counter did not advance' );
+	} finally {
+		$GLOBALS['bc_wp_stub']['is_feed'] = false;
+	}
+	assert_same( blocksy_child_perf_youtube_nocookie( $yt ) !== $yt, true, 'sanity: rewritten again once the feed flag is off' );
+	blocksy_child_perf_reset_state();
+
+	// REST — REST_REQUEST is defined by WordPress AFTER the theme loaded, so
+	// the hooks are registered; model exactly that in a subprocess.
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+require_once %s;
+require_once %s;
+$GLOBALS['bc_wp_stub']['attachment_metadata'][639922] = [ 'width' => 1000, 'height' => 500 ];
+$imgs = %s; $yt = %s; $h = %s;
+$before_yt = apply_filters( 'the_content', $yt );
+define( 'REST_REQUEST', true );
+echo json_encode( [
+	'before_yt'   => $before_yt,
+	'blocks'      => apply_filters( 'render_block', $imgs, [ 'blockName' => 'core/group' ] ),
+	'img_tag'     => apply_filters( 'wp_content_img_tag', $h, 'the_content', 0 ),
+	'content'     => apply_filters( 'the_content', $yt ),
+	'lazy_count'  => $GLOBALS['blocksy_child_perf_state']['lazy_count'] ?? 0,
+] );
+PHP,
+		var_export( __DIR__ . '/bootstrap.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/helpers.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/media-hygiene.php', true ),
+		var_export( $imgs, true ),
+		var_export( $yt, true ),
+		var_export( $h, true )
+	);
+
+	$r = bc_test_run_isolated( $body );
+
+	assert_same( $r['before_yt'] !== $yt, true, 'sanity: before REST_REQUEST the hooked nocookie pass does rewrite' );
+	assert_same( $r['blocks'], $imgs, 'REST: render_block output untouched (no data-bc-perf-n / loading)' );
+	assert_same( $r['img_tag'], $h, 'REST: wp_content_img_tag untouched' );
+	assert_same( $r['content'], $yt, 'REST: the_content untouched' );
+	assert_same( $r['lazy_count'], 0, 'REST: counter never advanced' );
+} );
+
+// -----------------------------------------------------------------------
 // content-visibility
 // -----------------------------------------------------------------------
 

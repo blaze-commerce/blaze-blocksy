@@ -351,6 +351,54 @@ bc_test( 'perf-hero-facade.js: exists, never fades the poster, PLAYING-gated You
 	assert_same( strpos( $js, 'bcPerfHeroFacade' ) !== false, true, 'reads its config object' );
 } );
 
+bc_test( 'hero-facade: a feed or a REST request leaves the_content untouched', function () {
+	bc_hero_test_poster( 'rrrrrrrrrrr-800.avif', 100 );
+	$html = bc_hero_test_yt_html( 'rrrrrrrrrrr' );
+	$cfg  = function ( $c ) {
+		$c['poster_dir']      = $GLOBALS['bc_hero_tmp'] . 'posters/';
+		$c['poster_url']      = 'https://example.test/theme/custom/images/';
+		$c['front_page_only'] = false;
+		return $c;
+	};
+	add_filter( 'blocksy_child_perf_hero_facade', $cfg );
+
+	$GLOBALS['bc_wp_stub']['is_feed'] = true;
+	try {
+		assert_same( blocksy_child_perf_hero_filter_content( $html ), $html, 'feed: iframe kept, no facade' );
+	} finally {
+		$GLOBALS['bc_wp_stub']['is_feed'] = false;
+	}
+	assert_same( strpos( blocksy_child_perf_hero_filter_content( $html ), '<iframe' ), false, 'sanity: rewritten once the feed flag is off' );
+	remove_filter( 'blocksy_child_perf_hero_facade', $cfg );
+
+	// REST_REQUEST is defined after the theme loaded — model that in a subprocess.
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+require_once %s;
+require_once %s;
+$dir = %s; $html = %s;
+add_filter( 'blocksy_child_perf_hero_facade', function ( $c ) use ( $dir ) {
+	$c['poster_dir'] = $dir; $c['poster_url'] = 'https://example.test/theme/custom/images/'; $c['front_page_only'] = false;
+	return $c;
+} );
+$before = apply_filters( 'the_content', $html );
+define( 'REST_REQUEST', true );
+echo json_encode( [ 'before_has_iframe' => false !== strpos( $before, '<iframe' ) ? 1 : 0, 'rest' => apply_filters( 'the_content', $html ) ] );
+PHP,
+		var_export( __DIR__ . '/bootstrap.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/helpers.php', true ),
+		var_export( dirname( __DIR__, 2 ) . '/inc/perf/hero-facade.php', true ),
+		var_export( $GLOBALS['bc_hero_tmp'] . 'posters/', true ),
+		var_export( $html, true )
+	);
+
+	$r = bc_test_run_isolated( $body );
+
+	assert_same( $r['before_has_iframe'], 0, 'sanity: the hooked pass rewrites before REST_REQUEST' );
+	assert_same( $r['rest'], $html, 'REST: content.rendered untouched' );
+} );
+
 // -----------------------------------------------------------------------
 // Cleanup.
 // -----------------------------------------------------------------------
