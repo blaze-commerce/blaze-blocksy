@@ -685,4 +685,33 @@ bc_test( 'assets/js/perf-lazy-rescan.js: observer + Blocksy events + instance lo
 	assert_same( false !== strpos( $js, 'document.addEventListener(ev, onBlocksyEvent, true)' ), true, 'DOM listener kept as fallback' );
 	assert_same( false !== strpos( $js, 'window.LazyLoad.update' ), false, 'never calls update() on the constructor' );
 	assert_same( false !== strpos( $js, 'img.perfmatters-lazy[data-src]' ), true, 'source fallback sweep' );
+
+	// No-instance fallback is viewport-limited, never a blanket upgrade.
+	assert_same( false !== strpos( $js, 'getBoundingClientRect' ), true, 'fallback measures each image box' );
+	assert_same( false !== strpos( $js, 'new IntersectionObserver' ), true, 'off-screen stuck images are watched, not upgraded' );
+	assert_same( 1 === preg_match( '/var FALLBACK_MARGIN = (\d+);/', $js, $m ) && (int) $m[1] > 0, true, 'fallback margin declared' );
+	assert_same( false !== strpos( $js, 'upgradeStuck(FALLBACK_MARGIN)' ), true, 'no-instance path upgrades within the margin only' );
+	assert_same( false !== strpos( $js, 'if (!inViewport(imgs[i], margin)) continue;' ), true, 'upgradeStuck() always applies the viewport check' );
+	assert_same( 0 === preg_match( '/upgradeStuck\(\s*(false|true)?\s*\)/', $js ), true, 'no boolean/argument-less upgradeStuck() mode remains' );
+	assert_same( 0 === preg_match( '/querySelectorAll\([^)]*\)\s*\.forEach\(\s*upgrade/', $js ), true, 'no unconditional querySelectorAll(...).forEach(upgrade...) path' );
+	assert_same( false !== strpos( $js, 'upgradeStuck(0)' ), true, 'instance path keeps the strict on-screen check' );
+} );
+
+bc_test( 'lazy-rescan: script tag id registered and present in the Perfmatters delay-JS exclusions', function () {
+	require_once dirname( __DIR__, 2 ) . '/inc/perf/perfmatters-filters.php';
+
+	blocksy_child_perf_reset_state();
+	blocksy_child_perf_lazy_rescan_register();
+
+	assert_same( in_array( 'bc-perf-lazy-rescan-js', blocksy_child_perf_script_ids(), true ), true, 'registered in the script-id registry' );
+
+	$exclusions = blocksy_child_perf_pmf_delay_js_exclusions( [] );
+	assert_same( in_array( 'bc-perf-lazy-rescan-js', $exclusions, true ), true, 'delay-JS exclusions filter output contains the tag id' );
+
+	// Perfmatters matches each exclusion as a substring of the whole tag;
+	// WordPress prints the enqueued handle 'bc-perf-lazy-rescan' as
+	// id="bc-perf-lazy-rescan-js", which is exactly this entry.
+	assert_same( in_array( 'bc-perf-lazy-rescan-js', apply_filters( 'perfmatters_delay_js_exclusions', [] ), true ), true, 'via the registered perfmatters_delay_js_exclusions filter too' );
+
+	blocksy_child_perf_reset_state();
 } );
