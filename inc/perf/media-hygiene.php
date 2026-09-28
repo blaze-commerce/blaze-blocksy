@@ -394,6 +394,10 @@ function blocksy_child_perf_belowfold_lazy( string $html ): string {
  * @return mixed
  */
 function blocksy_child_perf_belowfold_lazy_render_block( $block_content, $block = [] ) {
+	if ( ! blocksy_child_perf_is_frontend_render() ) {
+		return $block_content; // REST content.rendered / feeds / admin / AJAX.
+	}
+
 	if ( ! is_string( $block_content ) || '' === $block_content ) {
 		return $block_content;
 	}
@@ -464,6 +468,10 @@ function blocksy_child_perf_img_height_fix( string $img, array $meta ): string {
  * @return mixed
  */
 function blocksy_child_perf_img_height_fix_filter( $filtered_image, $context = '', $attachment_id = 0 ) {
+	if ( ! blocksy_child_perf_is_frontend_render() ) {
+		return $filtered_image;
+	}
+
 	if ( ! is_string( $filtered_image ) || ! preg_match( '#\bwp-image-(\d+)\b#', $filtered_image, $m ) ) {
 		return $filtered_image;
 	}
@@ -490,6 +498,10 @@ function blocksy_child_perf_img_height_fix_filter( $filtered_image, $context = '
  * @return mixed
  */
 function blocksy_child_perf_youtube_nocookie( $html ) {
+	if ( ! blocksy_child_perf_is_frontend_render() ) {
+		return $html;
+	}
+
 	if ( ! is_string( $html ) || false === stripos( $html, 'youtube.com/embed/' ) ) {
 		return $html;
 	}

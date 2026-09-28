@@ -558,6 +558,10 @@ function blocksy_child_perf_lcp_image_register(): void {
 	add_filter(
 		'render_block',
 		function ( $block_content, $block ) {
+			if ( ! blocksy_child_perf_is_frontend_render() ) {
+				return $block_content; // REST content.rendered / feeds / admin / AJAX.
+			}
+
 			if ( ! isset( $block['blockName'] ) || 'core/cover' !== $block['blockName'] ) {
 				return $block_content;
 			}
@@ -585,6 +589,10 @@ function blocksy_child_perf_lcp_image_register(): void {
 	add_filter(
 		'the_content',
 		function ( $html ) {
+			if ( ! blocksy_child_perf_is_frontend_render() ) {
+				return $html;
+			}
+
 			if ( ! function_exists( 'is_front_page' ) || ! is_front_page() ) {
 				return $html;
 			}

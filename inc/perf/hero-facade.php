@@ -449,6 +449,10 @@ function blocksy_child_perf_hero_rewrite_content( $html, array $config ): string
  * @return string
  */
 function blocksy_child_perf_hero_filter_content( $html ) {
+	if ( ! blocksy_child_perf_is_frontend_render() ) {
+		return $html; // REST content.rendered / feeds / admin / AJAX.
+	}
+
 	if ( empty( $html ) ) {
 		return $html;
 	}

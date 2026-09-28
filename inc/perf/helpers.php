@@ -210,6 +210,39 @@ function blocksy_child_perf_is_frontend_request(): bool {
 }
 
 /**
+ * Whether content being rendered RIGHT NOW is for a front-end HTML page.
+ *
+ * Runtime companion to blocksy_child_perf_is_frontend_request(). That gate
+ * runs at theme-load time, when REST_REQUEST is not defined yet (WordPress
+ * defines it later, while parsing the request) and is_feed() cannot be
+ * answered yet either — so `render_block` / `the_content` rewriters that
+ * pass it still fire for REST responses (`content.rendered`) and feeds.
+ * Every HTML-rewriting callback checks this first and returns its input
+ * unchanged when it is false.
+ *
+ * @return bool
+ */
+function blocksy_child_perf_is_frontend_render(): bool {
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return false;
+	}
+
+	if ( function_exists( 'is_feed' ) && is_feed() ) {
+		return false;
+	}
+
+	if ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) {
+		return false;
+	}
+
+	if ( function_exists( 'is_admin' ) && is_admin() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Register a wp_head printer for an inline, optimizer-exempt <style> block.
  *
  * No-ops entirely (nothing is registered) unless
