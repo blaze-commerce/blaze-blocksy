@@ -41,19 +41,26 @@ require_once BLOCKSY_CHILD_PATH . 'inc/perf/helpers.php';
  *
  * `lazy-rescan` maps the same way as every other feature — the file
  * itself (a later task) is what enqueues assets/js/perf-lazy-rescan.js.
+ *
+ * Wrapped in an immediately-invoked static closure: this file is required
+ * from functions.php at global scope, so bare loop variables would leak
+ * into (and, on WooCommerce sites, overwrite) the `$feature` / `$file`
+ * globals inc/loader.php leaves behind. Nothing escapes this closure.
  */
-$feature_files = [];
-foreach ( blocksy_child_perf_known_features() as $feature ) {
-	$feature_files[ $feature ] = 'inc/perf/' . $feature . '.php';
-}
-
-foreach ( $feature_files as $feature => $file ) {
-	if ( ! blocksy_child_perf_enabled( $feature ) ) {
-		continue;
+( static function () {
+	$feature_files = [];
+	foreach ( blocksy_child_perf_known_features() as $feature ) {
+		$feature_files[ $feature ] = 'inc/perf/' . $feature . '.php';
 	}
 
-	// blocksy_child_load_module() (inc/loader.php) already tolerates a
-	// missing file with its own error_log() + no fatal — later tasks may
-	// not have shipped inc/perf/<feature>.php yet.
-	blocksy_child_load_module( $file );
-}
+	foreach ( $feature_files as $feature => $file ) {
+		if ( ! blocksy_child_perf_enabled( $feature ) ) {
+			continue;
+		}
+
+		// blocksy_child_load_module() (inc/loader.php) already tolerates a
+		// missing file with its own error_log() + no fatal — later tasks may
+		// not have shipped inc/perf/<feature>.php yet.
+		blocksy_child_load_module( $file );
+	}
+} )();
