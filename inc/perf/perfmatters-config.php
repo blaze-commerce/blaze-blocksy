@@ -34,12 +34,12 @@
  * site's repo) — ported here with a type guard added to the merge (Global
  * Constraint 11) and a per-site override layer.
  *
- * MEASURED EVIDENCE: Houston — the Perfmatters options row was the single
- * biggest lever found in this project (homepage mobile PSI median 54 → 83
- * from applying the row alone) and the single most common cross-environment
- * failure: prod's `perfmatters_options` row was a 76-byte stub while
- * `-opti` (same code, same template, row applied by hand) carried the full
- * configuration — product page PSI 43 vs 96/88 respectively.
+ * MEASURED EVIDENCE: Houston homepage 54→83 after applying the Perfmatters
+ * options row alone (final 98 after the full PageSpeed pass) — the single
+ * biggest lever found in this project — and the single most common
+ * cross-environment failure: prod PDP 43 vs staging 96, same code, same
+ * template, differing only in that prod's `perfmatters_options` row was a
+ * 76-byte stub.
  *
  * WHAT DOES NOT TRAVEL WITH THE THEME: nothing, for the keys this module
  * manages — that is the entire point of it. `assets.rucss_excluded_selectors`

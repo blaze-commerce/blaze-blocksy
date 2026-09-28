@@ -11,6 +11,54 @@ require_once dirname( __DIR__, 2 ) . '/inc/perf/perfmatters-config.php';
 $bc_pm_defaults_path = dirname( __DIR__, 2 ) . '/inc/perf/data/perfmatters-defaults.json';
 $bc_pm_defaults      = json_decode( (string) file_get_contents( $bc_pm_defaults_path ), true );
 
+// Absolute paths handed into the generated subprocess scripts below — a
+// subprocess has none of this file's context, so every path it needs must
+// be embedded as a literal (via var_export()) at generation time.
+$bc_pm_bootstrap_path = __DIR__ . '/bootstrap.php';
+$bc_pm_module_path    = dirname( __DIR__, 2 ) . '/inc/perf/perfmatters-config.php';
+$bc_pm_mu_plugin_path = dirname( __DIR__, 2 ) . '/inc/perf/mu-plugins/bc-perfmatters-config.php';
+$bc_pm_theme_dir      = dirname( __DIR__, 2 );
+
+/**
+ * Run inline PHP as a fresh subprocess and decode its JSON stdout.
+ *
+ * Some of this module's behaviours are only observable once per PHP
+ * process: BC_PERFMATTERS_CONFIG_AS_CODE is a constant (can't be
+ * redefined to test both the opt-out and the normal path in the same
+ * run), and BLOCKSY_CHILD_PERF_CONFIG_LOADED's whole point is "stays
+ * true for the rest of this process". A subprocess gives each such test
+ * a clean process instead of requiring test-file-level process isolation
+ * for the whole suite.
+ *
+ * @param string $body PHP code (no opening `<?php` tag) that MUST end by
+ *                      echoing exactly one JSON-encoded value.
+ * @return array Decoded JSON result.
+ */
+function bc_pm_run_isolated( string $body ): array {
+	$script_path = tempnam( sys_get_temp_dir(), 'bc_pm_iso_' ) . '.php';
+	file_put_contents( $script_path, "<?php\n" . $body . "\n" );
+
+	$command = escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script_path ) . ' 2>&1';
+
+	$output    = [];
+	$exit_code = 0;
+	exec( $command, $output, $exit_code );
+
+	@unlink( $script_path );
+
+	if ( 0 !== $exit_code ) {
+		throw new \RuntimeException( 'subprocess exited ' . $exit_code . ': ' . implode( "\n", $output ) );
+	}
+
+	$decoded = json_decode( implode( "\n", $output ), true );
+
+	if ( ! is_array( $decoded ) ) {
+		throw new \RuntimeException( 'subprocess did not print valid JSON: ' . implode( "\n", $output ) );
+	}
+
+	return $decoded;
+}
+
 // -----------------------------------------------------------------------
 // inc/perf/data/perfmatters-defaults.json — structural checks.
 // -----------------------------------------------------------------------
@@ -168,6 +216,9 @@ bc_test( 'shipped_config(): a site override file wins over the defaults for a li
 	assert_same( $config['assets']['delay_js_exclusions'], [ 'site-only-handle' ], 'site override replaces the defaults list wholesale' );
 	assert_same( $config['assets']['delay_js'], $bc_pm_defaults['assets']['delay_js'], 'key the override does not mention keeps the defaults value' );
 
+	// bootstrap.php's add_filter()/add_action() share one hook registry, so
+	// remove_action() here removes the filter callback registered above —
+	// it is not actually removing a WordPress "action".
 	remove_action( 'blocksy_child_perf_pm_site_config_path', $override_filter );
 	unlink( $override_path );
 	unset( $GLOBALS['blocksy_child_perf_state']['pm_shipped_config'] );
@@ -250,6 +301,88 @@ bc_test( 'admin_notice(): prints nothing and does not fatal when Perfmatters is 
 	$output = ob_get_clean();
 
 	assert_same( $output, '', 'no PERFMATTERS_VERSION defined and no perfmatters_admin_menu() -> silent no-op' );
+} );
+
+// -----------------------------------------------------------------------
+// Process-scoped behaviours — the BC_PERFMATTERS_CONFIG_AS_CODE opt-out
+// and the BLOCKSY_CHILD_PERF_CONFIG_LOADED double-require guard. Both
+// hinge on state (a constant, a "stays true forever" define) that this
+// process has already set one way for every test above, so each is
+// exercised in its own subprocess via bc_pm_run_isolated().
+// -----------------------------------------------------------------------
+
+bc_test( 'BC_PERFMATTERS_CONFIG_AS_CODE=false: no filters registered, BLOCKSY_CHILD_PERF_CONFIG_LOADED never defined', function () use ( $bc_pm_bootstrap_path, $bc_pm_module_path ) {
+	$body = sprintf(
+		<<<'PHP'
+define('BC_PERFMATTERS_CONFIG_AS_CODE', false);
+require %s;
+require_once %s;
+echo json_encode([
+	'option_filters'  => count($GLOBALS['bc_test_hooks']['option_perfmatters_options'][10] ?? []),
+	'default_filters' => count($GLOBALS['bc_test_hooks']['default_option_perfmatters_options'][10] ?? []),
+	'admin_notices'   => count($GLOBALS['bc_test_hooks']['admin_notices'][10] ?? []),
+	'loaded_defined'  => defined('BLOCKSY_CHILD_PERF_CONFIG_LOADED') ? 1 : 0,
+]);
+PHP,
+		var_export( $bc_pm_bootstrap_path, true ),
+		var_export( $bc_pm_module_path, true )
+	);
+
+	$result = bc_pm_run_isolated( $body );
+
+	assert_same( $result['option_filters'], 0, 'option_perfmatters_options filter never registered' );
+	assert_same( $result['default_filters'], 0, 'default_option_perfmatters_options filter never registered' );
+	assert_same( $result['admin_notices'], 0, 'admin_notices callback never registered' );
+	assert_same( $result['loaded_defined'], 0, 'BLOCKSY_CHILD_PERF_CONFIG_LOADED never defined — the module returned before reaching it' );
+} );
+
+bc_test( 'mu-plugin shim require_once + a later require_once of the module: filter registered exactly once', function () use ( $bc_pm_bootstrap_path, $bc_pm_module_path, $bc_pm_mu_plugin_path, $bc_pm_theme_dir ) {
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+function get_stylesheet_directory() { return %s; }
+require_once %s; // the mu-plugin shim — requires helpers.php + the module if both exist.
+require_once %s; // the theme loader's own later require_once of the same module file.
+echo json_encode([
+	'option_filters' => count($GLOBALS['bc_test_hooks']['option_perfmatters_options'][10] ?? []),
+	'loaded_defined' => defined('BLOCKSY_CHILD_PERF_CONFIG_LOADED') ? 1 : 0,
+]);
+PHP,
+		var_export( $bc_pm_bootstrap_path, true ),
+		var_export( $bc_pm_theme_dir, true ),
+		var_export( $bc_pm_mu_plugin_path, true ),
+		var_export( $bc_pm_module_path, true )
+	);
+
+	$result = bc_pm_run_isolated( $body );
+
+	assert_same( $result['option_filters'], 1, 'exactly one registration across both require_once call sites, not two' );
+	assert_same( $result['loaded_defined'], 1, 'constant defined once the mu-plugin path loaded the module' );
+} );
+
+bc_test( 'admin_notice(): prints the notice when Perfmatters is active and the current screen is one of its own', function () use ( $bc_pm_bootstrap_path, $bc_pm_module_path ) {
+	$body = sprintf(
+		<<<'PHP'
+require %s;
+define('PERFMATTERS_VERSION', '2.6.8');
+function get_current_screen() { return (object) [ 'id' => 'toplevel_page_perfmatters' ]; }
+require_once %s;
+ob_start();
+blocksy_child_perf_pm_admin_notice();
+$output = ob_get_clean();
+echo json_encode([
+	'contains_notice' => false !== strpos( $output, 'Perfmatters settings are managed by the child theme' ) ? 1 : 0,
+	'is_dismissible'  => false !== strpos( $output, 'is-dismissible' ) ? 1 : 0,
+]);
+PHP,
+		var_export( $bc_pm_bootstrap_path, true ),
+		var_export( $bc_pm_module_path, true )
+	);
+
+	$result = bc_pm_run_isolated( $body );
+
+	assert_same( $result['contains_notice'], 1, 'notice text printed when the screen id contains "perfmatters"' );
+	assert_same( $result['is_dismissible'], 1, 'dismissible notice markup' );
 } );
 
 // Leave the shared memo clean for anything that requires this file again
