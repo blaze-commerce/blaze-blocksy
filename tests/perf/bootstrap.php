@@ -224,6 +224,14 @@ function bc_wp_stub_defaults(): array {
 		'wc_image_size'           => [], // <size name> => array. Task 8.
 		'post_field'              => [], // <field name> => string.
 		'options'                 => [], // <option name> => mixed.
+
+		// Task 6 (hero-facade).
+		'attachment_url_to_postid' => [], // <url> => attachment id.
+		'image_sizes'              => [], // Recorded add_image_size() calls: <name> => [ width, height, crop ].
+		'upload_dir'               => [   // wp_get_upload_dir() return value.
+			'basedir' => '',
+			'baseurl' => 'https://example.test/wp-content/uploads',
+		],
 	];
 }
 
@@ -336,6 +344,26 @@ if ( ! function_exists( 'get_post_field' ) ) {
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( $name, $default = false ) {
 		return $GLOBALS['bc_wp_stub']['options'][ $name ] ?? $default;
+	}
+}
+
+if ( ! function_exists( 'attachment_url_to_postid' ) ) {
+	function attachment_url_to_postid( $url ) {
+		return (int) ( $GLOBALS['bc_wp_stub']['attachment_url_to_postid'][ (string) $url ] ?? 0 );
+	}
+}
+
+if ( ! function_exists( 'add_image_size' ) ) {
+	// Records the call instead of registering anything — a test asserts on
+	// $GLOBALS['bc_wp_stub']['image_sizes'][ $name ].
+	function add_image_size( $name, $width = 0, $height = 0, $crop = false ) {
+		$GLOBALS['bc_wp_stub']['image_sizes'][ $name ] = [ (int) $width, (int) $height, $crop ];
+	}
+}
+
+if ( ! function_exists( 'wp_get_upload_dir' ) ) {
+	function wp_get_upload_dir() {
+		return $GLOBALS['bc_wp_stub']['upload_dir'];
 	}
 }
 
