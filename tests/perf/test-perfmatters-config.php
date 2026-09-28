@@ -441,6 +441,57 @@ PHP,
 	assert_same( $result['is_dismissible'], 1, 'dismissible notice markup' );
 } );
 
+bc_test( 'mu-plugin shim load order (no BLOCKSY_CHILD_PATH defined): filter applies the defaults, emits no warning/notice/fatal', function () use ( $bc_pm_bootstrap_path, $bc_pm_mu_plugin_path, $bc_pm_theme_dir, $bc_pm_defaults ) {
+	// A must-use plugin runs before the theme's functions.php, so
+	// BLOCKSY_CHILD_PATH does not exist yet when Perfmatters (or anything
+	// else) reads perfmatters_options. Any reference to the constant would
+	// be a PHP 8 Error (non-zero exit -> bc_pm_run_isolated() throws) or a
+	// PHP 7.4 warning (printed via display_errors -> the output is no
+	// longer pure JSON -> bc_pm_run_isolated() throws, and it is also
+	// caught by the error handler / output buffer asserted on below).
+	$body = sprintf(
+		<<<'PHP'
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+define('BC_TEST_NO_THEME_CONSTANTS', true);
+require %s;
+error_reporting(E_ALL);
+$errors = [];
+set_error_handler(function ($no, $str, $file, $line) use (&$errors) { $errors[] = $no . ': ' . $str . ' @ ' . basename($file) . ':' . $line; return false; });
+function get_stylesheet_directory() { return %s; }
+ob_start();
+require_once %s; // the mu-plugin shim.
+$filtered = apply_filters('option_perfmatters_options', [ 'fonts' => [ 'subsets' => [ 'latin' ] ] ]);
+$default  = apply_filters('default_option_perfmatters_options', false);
+$stray    = ob_get_clean();
+echo json_encode([
+	'child_path_defined' => defined('BLOCKSY_CHILD_PATH') ? 1 : 0,
+	'child_url_defined'  => defined('BLOCKSY_CHILD_URL') ? 1 : 0,
+	'errors'             => $errors,
+	'stray_output'       => $stray,
+	'filtered'           => $filtered,
+	'default'            => $default,
+	'shim_globals'       => array_values(array_filter(array_keys($GLOBALS), function ($k) { return 0 === strpos($k, 'bc_perf_mu_'); })),
+]);
+PHP,
+		var_export( $bc_pm_bootstrap_path, true ),
+		var_export( $bc_pm_theme_dir, true ),
+		var_export( $bc_pm_mu_plugin_path, true )
+	);
+
+	$result = bc_pm_run_isolated( $body );
+
+	assert_same( $result['child_path_defined'], 0, 'BLOCKSY_CHILD_PATH still undefined — neither the shim nor the module defined it' );
+	assert_same( $result['child_url_defined'], 0, 'BLOCKSY_CHILD_URL still undefined' );
+	assert_same( $result['errors'], [], 'no warning/notice/deprecation raised' );
+	assert_same( $result['stray_output'], '', 'nothing printed to stdout/stderr while loading the shim and running the filters' );
+	assert_same( $result['shim_globals'], [], 'shim leaves no global variables behind' );
+	assert_same( $result['default'], $bc_pm_defaults, 'default_option filter supplies the shipped defaults' );
+	assert_same( $result['filtered'], blocksy_child_perf_pm_merge_options( [ 'fonts' => [ 'subsets' => [ 'latin' ] ] ], $bc_pm_defaults ), 'option filter layered the shipped defaults over the stored row' );
+	assert_same( $result['filtered']['assets']['delay_js'], '1', 'sanity: delay_js came from the defaults' );
+} );
+
 bc_test( 'bc_pm_run_isolated(): every subprocess script file it created has been cleaned up', function () {
 	$leftover = array_values( array_filter( $GLOBALS['bc_pm_isolated_script_paths'] ?? [], 'file_exists' ) );
 

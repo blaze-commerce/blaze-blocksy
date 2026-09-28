@@ -12,11 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__, 2 ) . '/' );
 }
 
-if ( ! defined( 'BLOCKSY_CHILD_PATH' ) ) {
+// A subprocess test can define BC_TEST_NO_THEME_CONSTANTS first to model
+// the mu-plugin load order, where a must-use plugin runs before the theme's
+// functions.php has defined BLOCKSY_CHILD_PATH / BLOCKSY_CHILD_URL.
+if ( ! defined( 'BLOCKSY_CHILD_PATH' ) && ! defined( 'BC_TEST_NO_THEME_CONSTANTS' ) ) {
 	define( 'BLOCKSY_CHILD_PATH', dirname( __DIR__, 2 ) . '/' );
 }
 
-if ( ! defined( 'BLOCKSY_CHILD_URL' ) ) {
+if ( ! defined( 'BLOCKSY_CHILD_URL' ) && ! defined( 'BC_TEST_NO_THEME_CONSTANTS' ) ) {
 	define( 'BLOCKSY_CHILD_URL', 'https://example.test/wp-content/themes/blocksy-child/' );
 }
 
