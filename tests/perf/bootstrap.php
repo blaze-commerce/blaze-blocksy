@@ -232,6 +232,19 @@ function bc_wp_stub_defaults(): array {
 			'basedir' => '',
 			'baseurl' => 'https://example.test/wp-content/uploads',
 		],
+
+		// Task 8 (dequeue-assets, media-hygiene, minicart-hydrate, lazy-rescan).
+		'registered_image_subsizes' => [], // wp_get_registered_image_subsizes() return value: <name> => [ 'width' => int, 'height' => int, 'crop' => bool ].
+		'post_meta'                 => [], // "<id>:<meta key>" => mixed (get_post_meta( $id, $key, true )).
+		'asset_calls'               => [], // Recorded wp_(de)queue/(de)register_(style|script) calls, in order: "<function>:<handle>".
+		'scripts_registered'        => [], // Handles wp_script_is() reports as present (any status).
+		'inline_scripts'            => [], // Recorded wp_add_inline_script() calls: [ handle, data, position ].
+		'enqueued_scripts'          => [], // Recorded wp_enqueue_script() calls: <handle> => [ src, deps, ver, in_footer ].
+		'blog_id'                   => 1,  // get_current_blog_id().
+		'site_url'                  => 'https://example.test/', // get_site_url().
+		'template'                  => 'blocksy', // get_template().
+		'recently_viewed_cookie'    => [], // bc_get_recently_viewed_cookie() (theme helper, inc/helpers.php).
+		'suggested_carousel_html'   => '', // bc_render_blocksy_suggested_carousel() (theme helper, inc/helpers.php).
 	];
 }
 
@@ -319,17 +332,16 @@ if ( ! function_exists( 'wp_get_attachment_image_sizes' ) ) {
 }
 
 if ( ! function_exists( 'wp_get_attachment_metadata' ) ) {
-	// Not consumed by any module shipped so far — included now so Task 8
-	// can set $GLOBALS['bc_wp_stub']['attachment_metadata'][ $id ] without
-	// needing to declare this stub itself.
+	// Consumed by inc/perf/media-hygiene.php (Task 8) — tests set
+	// $GLOBALS['bc_wp_stub']['attachment_metadata'][ $id ].
 	function wp_get_attachment_metadata( $id ) {
 		return $GLOBALS['bc_wp_stub']['attachment_metadata'][ (int) $id ] ?? [];
 	}
 }
 
 if ( ! function_exists( 'wc_get_image_size' ) ) {
-	// Not consumed by any module shipped so far — included now for Task 8,
-	// same reasoning as wp_get_attachment_metadata() above.
+	// Consumed by inc/perf/media-hygiene.php (Task 8) — tests set
+	// $GLOBALS['bc_wp_stub']['wc_image_size'][ $size_name ].
 	function wc_get_image_size( $image_size, $default_args = [] ) {
 		return $GLOBALS['bc_wp_stub']['wc_image_size'][ (string) $image_size ] ?? $default_args;
 	}
@@ -364,6 +376,121 @@ if ( ! function_exists( 'add_image_size' ) ) {
 if ( ! function_exists( 'wp_get_upload_dir' ) ) {
 	function wp_get_upload_dir() {
 		return $GLOBALS['bc_wp_stub']['upload_dir'];
+	}
+}
+
+// --- Task 8 stubs -------------------------------------------------------
+
+if ( ! function_exists( 'wp_get_registered_image_subsizes' ) ) {
+	function wp_get_registered_image_subsizes() {
+		return $GLOBALS['bc_wp_stub']['registered_image_subsizes'];
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( $post_id, $key = '', $single = false ) {
+		return $GLOBALS['bc_wp_stub']['post_meta'][ (int) $post_id . ':' . $key ] ?? ( $single ? '' : [] );
+	}
+}
+
+/**
+ * Records one asset-queue call as "<function>:<handle>" in
+ * $GLOBALS['bc_wp_stub']['asset_calls'] — shared by the four
+ * wp_(de)queue/(de)register_(style|script) stubs below.
+ *
+ * @param string $function
+ * @param string $handle
+ * @return void
+ */
+function bc_wp_stub_record_asset_call( string $function, $handle ): void {
+	$GLOBALS['bc_wp_stub']['asset_calls'][] = $function . ':' . $handle;
+}
+
+if ( ! function_exists( 'wp_dequeue_style' ) ) {
+	function wp_dequeue_style( $handle ) {
+		bc_wp_stub_record_asset_call( 'wp_dequeue_style', $handle );
+	}
+}
+
+if ( ! function_exists( 'wp_deregister_style' ) ) {
+	function wp_deregister_style( $handle ) {
+		bc_wp_stub_record_asset_call( 'wp_deregister_style', $handle );
+	}
+}
+
+if ( ! function_exists( 'wp_dequeue_script' ) ) {
+	function wp_dequeue_script( $handle ) {
+		bc_wp_stub_record_asset_call( 'wp_dequeue_script', $handle );
+	}
+}
+
+if ( ! function_exists( 'wp_deregister_script' ) ) {
+	function wp_deregister_script( $handle ) {
+		bc_wp_stub_record_asset_call( 'wp_deregister_script', $handle );
+	}
+}
+
+if ( ! function_exists( 'wp_script_is' ) ) {
+	function wp_script_is( $handle, $status = 'enqueued' ) {
+		return in_array( $handle, $GLOBALS['bc_wp_stub']['scripts_registered'], true );
+	}
+}
+
+if ( ! function_exists( 'wp_add_inline_script' ) ) {
+	function wp_add_inline_script( $handle, $data, $position = 'after' ) {
+		$GLOBALS['bc_wp_stub']['inline_scripts'][] = [ $handle, $data, $position ];
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_enqueue_script' ) ) {
+	function wp_enqueue_script( $handle, $src = '', $deps = [], $ver = false, $in_footer = false ) {
+		$GLOBALS['bc_wp_stub']['enqueued_scripts'][ $handle ] = [ $src, $deps, $ver, $in_footer ];
+	}
+}
+
+if ( ! function_exists( 'get_current_blog_id' ) ) {
+	function get_current_blog_id() {
+		return (int) $GLOBALS['bc_wp_stub']['blog_id'];
+	}
+}
+
+if ( ! function_exists( 'get_site_url' ) ) {
+	function get_site_url( $blog_id = null, $path = '', $scheme = null ) {
+		return rtrim( $GLOBALS['bc_wp_stub']['site_url'], '/' ) . '/' . ltrim( (string) $path, '/' );
+	}
+}
+
+if ( ! function_exists( 'get_template' ) ) {
+	function get_template() {
+		return (string) $GLOBALS['bc_wp_stub']['template'];
+	}
+}
+
+if ( ! function_exists( 'esc_html__' ) ) {
+	function esc_html__( $text, $domain = 'default' ) {
+		return $text;
+	}
+}
+
+if ( ! function_exists( 'wc_get_page_permalink' ) ) {
+	function wc_get_page_permalink( $page, $fallback = null ) {
+		return 'https://example.test/' . $page . '/';
+	}
+}
+
+// Theme helpers from inc/helpers.php that inc/mini-cart-empty.php calls —
+// stubbed (not required) because inc/helpers.php pulls in far more
+// WordPress/WooCommerce than this harness provides.
+if ( ! function_exists( 'bc_get_recently_viewed_cookie' ) ) {
+	function bc_get_recently_viewed_cookie() {
+		return $GLOBALS['bc_wp_stub']['recently_viewed_cookie'];
+	}
+}
+
+if ( ! function_exists( 'bc_render_blocksy_suggested_carousel' ) ) {
+	function bc_render_blocksy_suggested_carousel( $product_ids, $unique_class ) {
+		return (string) $GLOBALS['bc_wp_stub']['suggested_carousel_html'];
 	}
 }
 
