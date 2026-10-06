@@ -272,7 +272,17 @@ function blocksy_child_wishlist_product_card_html( $product ) {
 	$html .= '</div>';
 	$html .= '</div>';
 
-	return $html;
+	/**
+	 * Filters one wishlist / suggested PRODUCT CARD's markup.
+	 *
+	 * Lets a site rebuild the card (extra pills, per-day line, saving badge)
+	 * without forking this file. Runs for both the saved-item cards and the
+	 * "You May Also Like" cards. With no callback hooked the HTML is unchanged.
+	 *
+	 * @param string     $html    Card HTML built above.
+	 * @param WC_Product $product Product the card is for.
+	 */
+	return (string) apply_filters( 'blocksy_child_wishlist_product_card_markup', $html, $product );
 }
 
 /**
