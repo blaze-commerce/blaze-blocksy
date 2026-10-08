@@ -147,6 +147,10 @@ return [
 	'product' => '.woocommerce-product-gallery .flexy-view{overflow:hidden}'
 		. '.woocommerce-product-gallery .flexy-items{display:flex;flex-wrap:nowrap}'
 		. '.woocommerce-product-gallery .flexy-items>.flexy-item{flex:0 0 100%;max-width:100%}'
-		. '.single-product .summary form.cart .quantity.hidden::after{content:"1";flex:1;display:flex;align-items:center;justify-content:center;height:100%;border-left:1px solid rgba(0,0,0,.12);border-right:1px solid rgba(0,0,0,.12);text-align:center;font-family:inherit;font-size:18px;font-weight:400;line-height:24px;letter-spacing:.1px;color:inherit;background:transparent;order:1}'
 		. '.single-product .summary form.cart .quantity.hidden .ct-increase,.single-product .summary form.cart .quantity.hidden .ct-decrease,.single-product .summary form.cart .quantity.hidden .plus,.single-product .summary form.cart .quantity.hidden .minus{opacity:.3;cursor:default}',
+
+	// Printed only when the current product's quantity is fixed at 1 (see
+	// blocksy_child_perf_critical_css_qty_one()). WooCommerce hides the box
+	// whenever min == max, so a static "1" would be wrong for min == max > 1.
+	'product_qty_one' => '.single-product .summary form.cart .quantity.hidden::after{content:"1";flex:1;display:flex;align-items:center;justify-content:center;height:100%;border-left:1px solid rgba(0,0,0,.12);border-right:1px solid rgba(0,0,0,.12);text-align:center;font-family:inherit;font-size:18px;font-weight:400;line-height:24px;letter-spacing:.1px;color:inherit;background:transparent;order:1}',
 ];

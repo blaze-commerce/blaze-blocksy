@@ -76,11 +76,14 @@
 	var FALLBACK_MARGIN = 300;
 
 	// Whether img's bounding box intersects the viewport grown by margin px
-	// on every side (margin 0 = strictly on screen).
+	// on every side (margin 0 = strictly on screen). A hidden image
+	// (display:none, closed panel) has an all-zero rect at 0,0, which would
+	// otherwise count as on screen and get force-loaded.
 	function inViewport(img, margin) {
 		if (!img.getBoundingClientRect) return false;
 		var m = margin || 0;
 		var r = img.getBoundingClientRect();
+		if (r.width === 0 && r.height === 0) return false;
 		var h = window.innerHeight || document.documentElement.clientHeight;
 		var w = window.innerWidth || document.documentElement.clientWidth;
 		return r.bottom >= -m && r.right >= -m && r.top <= h + m && r.left <= w + m;
@@ -211,11 +214,20 @@
 		// source) stay as a fallback for anything dispatched as a DOM event.
 		var onBlocksyEvent = function () { scheduleRescan(100); };
 		blocksyEvents.forEach(function (ev) {
-			if (window.ctEvents && typeof window.ctEvents.on === 'function') {
-				try { window.ctEvents.on(ev, onBlocksyEvent); } catch (e) {}
-			}
 			document.addEventListener(ev, onBlocksyEvent, true);
 		});
+		// ctEvents may not exist yet at DOMContentLoaded (Blocksy's bundle can
+		// be deferred or delayed), so retry once on window load.
+		var ctSubscribed = false;
+		var subscribeCtEvents = function () {
+			if (ctSubscribed || !window.ctEvents || typeof window.ctEvents.on !== 'function') return;
+			ctSubscribed = true;
+			blocksyEvents.forEach(function (ev) {
+				try { window.ctEvents.on(ev, onBlocksyEvent); } catch (e) {}
+			});
+		};
+		subscribeCtEvents();
+		window.addEventListener('load', subscribeCtEvents);
 
 		// Generic AJAX completion (jQuery).
 		if (window.jQuery) {

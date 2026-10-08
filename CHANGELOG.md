@@ -14,7 +14,7 @@
   - A type guard converts string lists to arrays and numeric lazyload fields to strings.
   - `BC_PERFMATTERS_CONFIG_AS_CODE=false` is the escape hatch.
   - An admin notice on Perfmatters screens says the effective values come from those files.
-- `tests/perf/`: a dependency-free offline suite (`php tests/perf/run.php`, 226 passing test cases). Every WP stub lives in `tests/perf/bootstrap.php`.
+- `tests/perf/`: a dependency-free offline suite (`php tests/perf/run.php`, 229 passing test cases). Every WP stub lives in `tests/perf/bootstrap.php`.
 - `docs/patterns/perf.md`: the opt-in model, the `custom/perfmatters.json` override contract, a per-module reference (filters with defaults, what to verify in served HTML), the go-live lanes, measurement rules, and §6's "do not do these" list verbatim.
 
 ### Changed

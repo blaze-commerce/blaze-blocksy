@@ -228,6 +228,7 @@ function bc_wp_stub_defaults(): array {
 		'wc_image_size'           => [], // <size name> => array. Task 8.
 		'post_field'              => [], // <field name> => string.
 		'post_content_blocks'     => null, // null = no queried post; else parse_blocks() result.
+		'product_max_qty'         => null, // null = wc_get_product() returns false; else get_max_purchase_quantity().
 		'options'                 => [], // <option name> => mixed.
 
 		// Task 6 (hero-facade).
@@ -635,4 +636,20 @@ function bc_test_error_log_messages(): array {
 	}, $lines );
 
 	return $GLOBALS['bc_test_errors'];
+}
+
+// wc_get_product(): a minimal product whose only method the perf modules
+// call is get_max_purchase_quantity() (-1 = unlimited, as in WooCommerce).
+if ( ! function_exists( 'wc_get_product' ) ) {
+	function wc_get_product( $id = false ) {
+		if ( null === $GLOBALS['bc_wp_stub']['product_max_qty'] ) {
+			return false;
+		}
+
+		return new class() {
+			public function get_max_purchase_quantity() {
+				return $GLOBALS['bc_wp_stub']['product_max_qty'];
+			}
+		};
+	}
 }

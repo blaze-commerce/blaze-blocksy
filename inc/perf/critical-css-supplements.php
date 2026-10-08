@@ -42,9 +42,9 @@
  *     outlined, not solid-filled, when not active; no product card shows
  *     its hover/secondary image doubled beside the primary one.
  *   - Single product: the gallery renders as one contained slide (not
- *     every image stacked full-width down the page); a sold-individually
- *     (max==1) quantity box still shows "1" instead of a blank hole, with
- *     its +/- buttons already dimmed.
+ *     every image stacked full-width down the page); a quantity box fixed
+ *     at 1 (sold individually / max==1) still shows "1" instead of a blank
+ *     hole, and any hidden quantity box has its +/- buttons already dimmed.
  *
  * PROMOTED FROM / MEASURED EVIDENCE: see inc/perf/data/critical-css.php —
  * Houston a11y 94 -> 97 (`link-in-text-block`); Kajal category page
@@ -100,8 +100,38 @@ function blocksy_child_perf_critical_css_header_min_height(): string {
 }
 
 /**
+ * The `content:"1"` quantity fallback, only for a product whose quantity is
+ * fixed at 1. WooCommerce renders `.quantity.hidden` whenever min == max,
+ * so for a product sold in a fixed pack of 3 a static "1" would show the
+ * wrong number while the form submits 3. Fails closed: no WooCommerce, no
+ * product, or any other maximum returns ''.
+ *
+ * @return string
+ */
+function blocksy_child_perf_critical_css_qty_one(): string {
+	if ( ! function_exists( 'wc_get_product' ) || ! function_exists( 'get_queried_object_id' ) ) {
+		return '';
+	}
+
+	$product = wc_get_product( get_queried_object_id() );
+
+	if ( ! $product || ! method_exists( $product, 'get_max_purchase_quantity' ) ) {
+		return '';
+	}
+
+	if ( 1 !== (int) $product->get_max_purchase_quantity() ) {
+		return '';
+	}
+
+	$data = blocksy_child_perf_data( 'critical-css' );
+
+	return is_array( $data ) ? (string) ( $data['product_qty_one'] ?? '' ) : '';
+}
+
+/**
  * Assemble one bucket's full CSS: the shipped base rules, plus — global
- * bucket only — the opt-in header min-height rule, plus — every bucket —
+ * bucket only — the opt-in header min-height rule, plus — product bucket
+ * only — the fixed-at-1 quantity fallback, plus — every bucket —
  * any extra site CSS from `blocksy_child_perf_critical_css_extra`.
  *
  * @param string $bucket One of 'global' | 'archive' | 'product' (also
@@ -115,6 +145,10 @@ function blocksy_child_perf_critical_css_bucket( string $bucket, string $base ):
 
 	if ( 'global' === $bucket ) {
 		$css .= blocksy_child_perf_critical_css_header_min_height();
+	}
+
+	if ( 'product' === $bucket ) {
+		$css .= blocksy_child_perf_critical_css_qty_one();
 	}
 
 	/**

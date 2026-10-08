@@ -89,7 +89,8 @@ bc_test( 'inc/perf/data/critical-css.php: product bucket carries Flexy containme
 	assert_same( strpos( $data['product'], '.flexy-view{overflow:hidden}' ) !== false, true, 'Flexy view containment' );
 	assert_same( strpos( $data['product'], '.flexy-items{display:flex;flex-wrap:nowrap}' ) !== false, true, 'Flexy items row' );
 	assert_same( strpos( $data['product'], '.flexy-item{flex:0 0 100%;max-width:100%}' ) !== false, true, 'Flexy item sizing' );
-	assert_same( strpos( $data['product'], '.quantity.hidden::after{content:"1"' ) !== false, true, 'qty fallback number' );
+	assert_same( strpos( $data['product'], '.quantity.hidden::after' ) === false, true, 'qty "1" is not in the static bucket' );
+	assert_same( strpos( $data['product_qty_one'], '.quantity.hidden::after{content:"1"' ) !== false, true, 'qty fallback number kept for fixed-at-1 products' );
 	assert_same( strpos( $data['product'], '.quantity.hidden .ct-increase' ) !== false, true, 'qty fallback locked buttons' );
 	assert_same( strpos( $data['product'], 'var(--aw-font-head)' ) === false, true, 'AW site CSS variable replaced with a plain value' );
 } );
@@ -269,3 +270,27 @@ bc_test( 'bc-perf-critical-product: prints (with mandated attributes) when is_pr
 // is_shop() / is_product_taxonomy() / is_product() are declared once, for
 // every test-*.php file that needs them, in tests/perf/bootstrap.php —
 // driven by $GLOBALS['bc_wp_stub'], reset before each test file by run.php.
+
+// -----------------------------------------------------------------------
+// blocksy_child_perf_critical_css_qty_one() — "1" only when the quantity is fixed at 1.
+// -----------------------------------------------------------------------
+
+bc_test( 'qty fallback: content "1" printed for a product whose max purchase quantity is 1', function () {
+	$GLOBALS['bc_wp_stub']['product_max_qty'] = 1;
+	assert_same( strpos( blocksy_child_perf_critical_css_bucket( 'product', '' ), 'content:"1"' ) !== false, true );
+	$GLOBALS['bc_wp_stub']['product_max_qty'] = null;
+} );
+
+bc_test( 'qty fallback: not printed for min == max > 1 (fixed pack of 3), unlimited, or no product', function () {
+	foreach ( [ 3, -1, null ] as $max ) {
+		$GLOBALS['bc_wp_stub']['product_max_qty'] = $max;
+		assert_same( strpos( blocksy_child_perf_critical_css_bucket( 'product', '' ), 'content:"1"' ) === false, true, 'max=' . var_export( $max, true ) );
+	}
+	$GLOBALS['bc_wp_stub']['product_max_qty'] = null;
+} );
+
+bc_test( 'qty fallback: never added to the global or archive bucket', function () {
+	$GLOBALS['bc_wp_stub']['product_max_qty'] = 1;
+	assert_same( strpos( blocksy_child_perf_critical_css_bucket( 'archive', '' ), 'content:"1"' ) === false, true );
+	$GLOBALS['bc_wp_stub']['product_max_qty'] = null;
+} );
