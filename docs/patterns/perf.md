@@ -28,7 +28,7 @@ Perf modules are **opt-in only**. The legacy `"features"` rule, where a missing 
 
 **Copying `clients/_template/` opts the site into the perf family**, because the template ships the recommended `"perf"` list below. For an EXISTING site that only needs `features` gating, set `"perf": []`. Existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register (pinned by `tests/perf/test-noop.php`). The `_template` directory itself is never loaded as a client, even if its `active` flag is flipped.
 
-**Client manifest** (the recommended default: every feature except `hero-facade`, which needs per-site poster assets and wrapper markup):
+**Client manifest** (the recommended default: every feature except `hero-facade`, which needs per-site poster assets and wrapper markup, and `dequeue-assets`, which needs a per-site DOM check of its handle list):
 
 ```json
 {
@@ -40,7 +40,6 @@ Perf modules are **opt-in only**. The legacy `"features"` rule, where a missing 
     "lcp-image",
     "fonts-critical-path",
     "async-styles",
-    "dequeue-assets",
     "media-hygiene",
     "content-visibility",
     "minicart-hydrate",

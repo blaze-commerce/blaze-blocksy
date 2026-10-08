@@ -100,18 +100,18 @@ The `inc/perf/` modules are **opt-in only**, through a separate `"perf"` key. Om
 **Copying `clients/_template/` opts the site into the perf family**, because the template ships the recommended `"perf"` list. For an EXISTING site that only needs `features` gating, set `"perf": []`. Existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register.
 
 1. **Preflight before touching anything:** `bash scripts/preflight.sh <home> <cat> <pdp>`. The script is in `blaze-commerce-mcp` and served as an MCP skill script. Fix its stop conditions first.
-2. **Enable the recommended set** in `clients/{client-slug}/manifest.json`. That is every perf feature except `hero-facade`, which needs poster assets and `.bc-hero-video` wrapper markup, so add it per site:
+2. **Enable the recommended set** in `clients/{client-slug}/manifest.json`. That is every perf feature except `hero-facade`, which needs poster assets and `.bc-hero-video` wrapper markup, and `dequeue-assets`; add those per site:
 
    ```json
    "perf": [
      "perfmatters-config", "perfmatters-filters", "rucss-safelist",
      "critical-css-supplements", "lcp-image", "fonts-critical-path",
-     "async-styles", "dequeue-assets", "media-hygiene",
+     "async-styles", "media-hygiene",
      "content-visibility", "minicart-hydrate", "lazy-rescan"
    ]
    ```
 
-   `dequeue-assets` ships a conservative list, but still check each listed handle against the site's DOM with the relevant UI open.
+   Add `dequeue-assets` only after checking each listed handle against the site's DOM with the relevant UI open. Its default list drops `wp-block-library` and `wp-components`, which break block content and the WooCommerce Cart/Checkout blocks on sites that use them.
 3. **Per-site overrides** go in `bc-site-customizations`, under `sites/<slug>/custom/`:
    - `custom/perfmatters.json` holds Perfmatters overrides. Sections merge one level down, and **list keys replace the default list wholesale**, so repeat any default entries you want to keep.
    - `custom/custom.php` holds `blocksy_child_perf_*` filters, such as the leading-images count, the header min-height, or extra Delay JS exclusions.

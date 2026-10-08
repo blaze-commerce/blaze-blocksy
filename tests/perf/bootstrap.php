@@ -227,6 +227,7 @@ function bc_wp_stub_defaults(): array {
 		'attachment_metadata'     => [], // <id> => array. Task 8.
 		'wc_image_size'           => [], // <size name> => array. Task 8.
 		'post_field'              => [], // <field name> => string.
+		'post_content_blocks'     => null, // null = no queried post; else parse_blocks() result.
 		'options'                 => [], // <option name> => mixed.
 
 		// Task 6 (hero-facade).
@@ -295,6 +296,30 @@ function bc_wp_stub_attachment_key( $id, $size ): string {
 if ( ! function_exists( 'is_singular' ) ) {
 	function is_singular( $type = '' ) {
 		return ! empty( $GLOBALS['bc_wp_stub']['is_singular'] );
+	}
+}
+
+// Queried post + parse_blocks(): the post's content is the stubbed block
+// list itself, so parse_blocks() just hands it back.
+if ( ! function_exists( 'get_queried_object_id' ) ) {
+	function get_queried_object_id() {
+		return null === $GLOBALS['bc_wp_stub']['post_content_blocks'] ? 0 : 1;
+	}
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	function get_post( $post = null ) {
+		if ( ! $post || null === $GLOBALS['bc_wp_stub']['post_content_blocks'] ) {
+			return null;
+		}
+
+		return (object) [ 'ID' => 1, 'post_content' => 'stub' ];
+	}
+}
+
+if ( ! function_exists( 'parse_blocks' ) ) {
+	function parse_blocks( $content ) {
+		return (array) $GLOBALS['bc_wp_stub']['post_content_blocks'];
 	}
 }
 

@@ -159,7 +159,7 @@ Copying `clients/_template/` opts a new site into the perf family (set `"perf": 
 | `hero-facade` | Poster-first YouTube/`<video>` hero, media mounted on interaction or after 5 s and revealed when PLAYING | Off: needs per-site poster assets and `.bc-hero-video` markup |
 | `fonts-critical-path` | Inlines the local Google Fonts CSS (`bc-perf-fonts-inline`), plus optional metric-matched fallbacks | On |
 | `async-styles` | Non-render-blocking `media=print` swap for listed plugin sheets (FiboSearch, reviews widget) | On |
-| `dequeue-assets` | Dequeues and deregisters handles verified unused in the DOM | On. The default list is conservative, so still verify it per site |
+| `dequeue-assets` | Dequeues and deregisters handles verified unused in the DOM | Off. Add it per site once each default handle is checked against that site's DOM (the list drops `wp-block-library` and `wp-components`) |
 | `media-hygiene` | Missing-size fallback, logo `sizes`, archive thumbnail dimensions, below-fold lazy, stretched-height fix, youtube-nocookie | On |
 | `content-visibility` | `content-visibility:auto` for the footer, related products and closed off-canvas panels (`bc-perf-cv`) | On |
 | `minicart-hydrate` | Empty-cart suggestions inside a `<template>`, hydrated on intent, plus a WC fragments seed that skips the first-session refresh | On |

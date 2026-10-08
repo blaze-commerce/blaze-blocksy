@@ -236,8 +236,9 @@ function blocksy_child_perf_pm_theme_dir(): string {
  *
  * Memoised in $GLOBALS['blocksy_child_perf_state']['pm_shipped_config'] for
  * the lifetime of the request (same store blocksy_child_perf_enabled_features()
- * uses, inc/perf/helpers.php) — computed once, not recomputed if the
- * underlying files change mid-request.
+ * uses, inc/perf/helpers.php) once `after_setup_theme` has fired — computed
+ * once from then on, not recomputed if the underlying files change
+ * mid-request. Earlier calls (mu-plugin shim, plugins_loaded) are not cached.
  *
  * @return array|null Decoded, merged config, or null when the defaults
  *                     file is missing, unreadable, or does not decode to
@@ -281,7 +282,13 @@ function blocksy_child_perf_pm_shipped_config(): ?array {
 		}
 	}
 
-	$GLOBALS['blocksy_child_perf_state']['pm_shipped_config'] = $config;
+	// Not memoised before the theme has loaded: with the mu-plugin shim this
+	// can run on plugins_loaded, before custom/custom.php has had a chance to
+	// add a `blocksy_child_perf_pm_site_config_path` filter, and caching that
+	// first answer would ignore the site's override for the whole request.
+	if ( ! function_exists( 'did_action' ) || did_action( 'after_setup_theme' ) ) {
+		$GLOBALS['blocksy_child_perf_state']['pm_shipped_config'] = $config;
+	}
 
 	return $config;
 }

@@ -180,6 +180,49 @@ function blocksy_child_perf_lcp_preload_markup( string $src, string $srcset = ''
 }
 
 /**
+ * Whether a core/cover block on this request may claim the LCP hint: only
+ * when the queried singular post's FIRST top-level block is core/cover (so
+ * the cover is the page's lead element, not one further down or in a
+ * footer pattern) and no other LCP candidate already took the high-priority
+ * preload slot (front-page `bc-hero-img`, PDP gallery). Fails closed: no
+ * singular post, no parse_blocks(), or anything unexpected returns false.
+ *
+ * Memoised per request in $GLOBALS['blocksy_child_perf_state'].
+ *
+ * @return bool
+ */
+function blocksy_child_perf_lcp_cover_is_lead_block(): bool {
+	if ( ! empty( $GLOBALS['blocksy_child_perf_state']['lcp_slot_used'] ) ) {
+		return false;
+	}
+
+	if ( array_key_exists( 'lcp_cover_lead', $GLOBALS['blocksy_child_perf_state'] ?? [] ) ) {
+		return $GLOBALS['blocksy_child_perf_state']['lcp_cover_lead'];
+	}
+
+	$lead = false;
+
+	if ( function_exists( 'is_singular' ) && is_singular() && function_exists( 'get_post' ) && function_exists( 'parse_blocks' ) ) {
+		$post = get_post( function_exists( 'get_queried_object_id' ) ? get_queried_object_id() : null );
+
+		if ( $post && isset( $post->post_content ) ) {
+			foreach ( parse_blocks( (string) $post->post_content ) as $top ) {
+				if ( empty( $top['blockName'] ) ) {
+					continue; // Whitespace between blocks.
+				}
+
+				$lead = ( 'core/cover' === $top['blockName'] );
+				break;
+			}
+		}
+	}
+
+	$GLOBALS['blocksy_child_perf_state']['lcp_cover_lead'] = $lead;
+
+	return $lead;
+}
+
+/**
  * Rewrite the first `<img>` inside a `core/cover` block's rendered markup:
  * add `fetchpriority="high"` and strip `loading="lazy"`.
  *
@@ -438,6 +481,12 @@ function blocksy_child_perf_lcp_pdp_attributes( $attr, $attachment, $size ) {
  * never emits a `loading` attribute at all, rather than relying on
  * Blocksy's own attribute-string reassembly to drop one already set.
  *
+ * First call per request only. The gallery renders ahead of the rest of the
+ * single-product template (`woocommerce_before_single_product_summary`), so
+ * the first image through this filter is the main/LCP image; later calls
+ * (other gallery slides, related / upsell cards) keep Blocksy's lazyload.
+ * Same rule as Bonza's `bonza_pdp_main_gallery_image_fetchpriority()`.
+ *
  * @param array $args Blocksy media args.
  * @return array
  */
@@ -445,6 +494,12 @@ function blocksy_child_perf_lcp_pdp_lazyload_false( $args ) {
 	if ( ! function_exists( 'is_singular' ) || ! is_singular( 'product' ) ) {
 		return $args;
 	}
+
+	if ( ! empty( $GLOBALS['blocksy_child_perf_state']['lcp_pdp_lazyload_done'] ) ) {
+		return $args;
+	}
+
+	$GLOBALS['blocksy_child_perf_state']['lcp_pdp_lazyload_done'] = true;
 
 	$args['lazyload'] = false;
 
@@ -552,7 +607,8 @@ function blocksy_child_perf_lcp_image_register(): void {
 		1
 	);
 
-	// First core/cover block on the page: fetchpriority + un-lazy, render_block priority 10
+	// Lead core/cover block (first top-level block of a singular post, no other
+	// LCP preload this request): fetchpriority + un-lazy, render_block priority 10
 	// (Task 8's below-fold lazy pass runs at priority 20 and skips images already
 	// carrying fetchpriority="high" — controller ruling).
 	add_filter(
@@ -563,6 +619,10 @@ function blocksy_child_perf_lcp_image_register(): void {
 			}
 
 			if ( ! isset( $block['blockName'] ) || 'core/cover' !== $block['blockName'] ) {
+				return $block_content;
+			}
+
+			if ( ! blocksy_child_perf_lcp_cover_is_lead_block() ) {
 				return $block_content;
 			}
 

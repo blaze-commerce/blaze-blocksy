@@ -101,9 +101,18 @@ bc_test( 'blocksy_child_perf_lcp_pdp_attributes(): a DIFFERENT size, AFTER the g
 // -----------------------------------------------------------------------
 
 bc_test( 'blocksy_child_perf_lcp_pdp_lazyload_false(): sets lazyload=false on a product singular', function () {
+	blocksy_child_perf_reset_state();
 	$GLOBALS['bc_wp_stub']['is_singular'] = true;
 
 	assert_same( blocksy_child_perf_lcp_pdp_lazyload_false( [ 'lazyload' => 'yes' ] ), [ 'lazyload' => false ] );
+} );
+
+bc_test( 'blocksy_child_perf_lcp_pdp_lazyload_false(): first image only — later gallery slides / related cards keep lazyload', function () {
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_singular'] = true;
+
+	blocksy_child_perf_lcp_pdp_lazyload_false( [ 'lazyload' => 'yes' ] );
+	assert_same( blocksy_child_perf_lcp_pdp_lazyload_false( [ 'lazyload' => 'yes' ] ), [ 'lazyload' => 'yes' ] );
 } );
 
 bc_test( 'blocksy_child_perf_lcp_pdp_lazyload_false(): untouched off a product singular', function () {
@@ -453,7 +462,10 @@ bc_test( 'lcp-image: a feed or a REST request leaves the cover block and hero co
 	} finally {
 		$GLOBALS['bc_wp_stub']['is_feed'] = false;
 	}
+	$GLOBALS['bc_wp_stub']['is_singular']         = true;
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = [ [ 'blockName' => 'core/cover' ] ];
 	assert_same( strpos( $cover_cb( $cover, [ 'blockName' => 'core/cover' ] ), 'fetchpriority="high"' ) !== false, true, 'sanity: the feed guard did not consume the once-per-request slot' );
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = null;
 	$GLOBALS['bc_wp_stub']['is_front_page'] = false;
 	blocksy_child_perf_reset_state();
 
@@ -481,4 +493,39 @@ PHP,
 
 	assert_same( $r['cover'], $cover, 'REST: cover block untouched' );
 	assert_same( $r['hero'], $hero, 'REST: hero content untouched' );
+} );
+
+// -----------------------------------------------------------------------
+// blocksy_child_perf_lcp_cover_is_lead_block() — only a lead cover claims the hint.
+// -----------------------------------------------------------------------
+
+bc_test( 'blocksy_child_perf_lcp_cover_is_lead_block(): true when the singular post opens with core/cover', function () {
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_singular']         = true;
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = [ [ 'blockName' => null ], [ 'blockName' => 'core/cover' ], [ 'blockName' => 'core/paragraph' ] ];
+
+	assert_same( blocksy_child_perf_lcp_cover_is_lead_block(), true );
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = null;
+} );
+
+bc_test( 'blocksy_child_perf_lcp_cover_is_lead_block(): false for a cover further down the post', function () {
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_singular']         = true;
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = [ [ 'blockName' => 'core/paragraph' ], [ 'blockName' => 'core/cover' ] ];
+
+	assert_same( blocksy_child_perf_lcp_cover_is_lead_block(), false );
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = null;
+} );
+
+bc_test( 'blocksy_child_perf_lcp_cover_is_lead_block(): false off a singular, and false once another LCP preload took the slot', function () {
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_singular'] = false;
+	assert_same( blocksy_child_perf_lcp_cover_is_lead_block(), false, 'archive / no queried post' );
+
+	blocksy_child_perf_reset_state();
+	$GLOBALS['bc_wp_stub']['is_singular']         = true;
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = [ [ 'blockName' => 'core/cover' ] ];
+	$GLOBALS['blocksy_child_perf_state']['lcp_slot_used'] = true;
+	assert_same( blocksy_child_perf_lcp_cover_is_lead_block(), false, 'front-page hero / PDP preload already printed' );
+	$GLOBALS['bc_wp_stub']['post_content_blocks'] = null;
 } );
