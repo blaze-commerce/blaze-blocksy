@@ -111,6 +111,118 @@ permissions:
   actions: read
 
 jobs:
+  # Runs every test suite in the repo on the exact commit Claude will
+  # review, BEFORE Claude starts, and hands the results to the review job.
+  # Separate job on purpose: it executes PR code, so it gets a read-only
+  # token, no secrets and no persisted git credentials. Claude never runs
+  # PR code itself and never runs with these results' author in control.
+  # Suites: every tests/*/run.sh (bash) and tests/*/run.php (php); PHP and
+  # Node are preinstalled on ubuntu-latest. A suite's exit code is the
+  # verdict; output is kept (last 150 lines per suite) for Claude to read.
+  tests:
+    if: |
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.draft == false
+      ) || (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request != null &&
+        contains(github.event.comment.body, '@claude') &&
+        github.event.comment.user.type != 'Bot' &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      ) || (
+        github.event_name == 'pull_request_review_comment' &&
+        contains(github.event.comment.body, '@claude') &&
+        github.event.comment.user.type != 'Bot' &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - name: Resolve PR head ref
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "issue_comment" ]]; then
+            ref="$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json headRefName -q .headRefName)"
+          else
+            ref="$PR_HEAD_REF"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Check out PR branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          ref: ${{ steps.pr.outputs.ref }}
+          persist-credentials: false
+
+      - name: Record tested commit
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run test suites
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/claude-review"
+          mkdir -p "$out"
+          report="$out/test-results.md"
+          body="$out/body.md"
+          : > "$body"
+          {
+            echo "# Test results for $(git rev-parse --short HEAD)"
+            echo
+            echo "Run by the tests job of claude-pr-review.yml before this review."
+            echo
+          } > "$report"
+          shopt -s nullglob
+          suites=(tests/*/run.sh tests/*/run.php)
+          if (( ${#suites[@]} == 0 )); then
+            echo "No test suites found (no tests/*/run.sh or tests/*/run.php)." >> "$report"
+            exit 0
+          fi
+          failed=0
+          for suite in "${suites[@]}"; do
+            log="$out/$(echo "$suite" | tr '/' '_').log"
+            case "$suite" in
+              *.php) cmd=(php "$suite") ;;
+              *)     cmd=(bash "$suite") ;;
+            esac
+            timeout 300 "${cmd[@]}" > "$log" 2>&1
+            code=$?
+            if (( code == 0 )); then status=PASS; else status="FAIL (exit $code)"; failed=$((failed + 1)); fi
+            echo "$status  $suite"
+            {
+              echo "## $status — \`$suite\`"
+              echo
+              echo '```'
+              tail -n 150 "$log"
+              echo '```'
+              echo
+            } >> "$body"
+          done
+          { echo "**${#suites[@]} suite(s), $failed failed.**"; echo; cat "$body"; } >> "$report"
+          # Never fail the job: the review reads the report and decides.
+          exit 0
+
+      - name: Hand results to the review job
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-review-test-results
+          path: ${{ runner.temp }}/claude-review/test-results.md
+          retention-days: 7
+
   review:
     # Run on:
     #   - new / reopened / ready PRs (drafts skipped — WIP, not at the gate)
@@ -134,8 +246,10 @@ jobs:
         github.event.comment.user.type != 'Bot' &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
       )
+    needs: tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Reading every changed file of a large PR takes time.
+    timeout-minutes: 30
 
     steps:
       # `issue_comment` events fire on the default branch by default, so we
@@ -174,13 +288,20 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
-          ref: ${{ steps.pr.outputs.ref }}
+          # The commit the tests job ran on, so results and review match.
+          ref: ${{ needs.tests.outputs.sha || steps.pr.outputs.ref }}
 
       # The commit Claude is about to read. The verdict is pinned to this SHA,
       # never to "whatever the PR head is when the review lands".
       - name: Record reviewed commit
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Get test results
+        uses: actions/download-artifact@v4
+        with:
+          name: claude-review-test-results
+          path: .claude-review
 
       - name: Run Claude code review
         id: claude
@@ -247,6 +368,20 @@ jobs:
                  style.css; new features need their docs/patterns page or
                  README feature-table row updated. Report these as
                  **Suggestion**, not Blocking.
+
+            READ EVERY CHANGED FILE — list them with
+            `gh pr diff --name-only`, then open each one with Read and read
+            it in full (in chunks for long files). Do not sample, skim or
+            stop early to save time: a review that skipped files is not a
+            review. Only binary files, lockfiles and minified/generated
+            bundles may be skipped; name any you skipped in the summary.
+
+            TEST RESULTS — `.claude-review/test-results.md` holds the output
+            of every test suite in the repo, run on the commit you are
+            reviewing before you started. Read it. A FAIL is a Blocking
+            finding (quote the failing assertion). If the file is missing,
+            say so and treat the PR as unverified. Never claim tests pass
+            without that file showing it. You cannot run commands yourself.
 
             OUTPUT STYLE:
               - ONE top-level summary comment grouped by severity:
