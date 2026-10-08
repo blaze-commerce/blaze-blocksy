@@ -33,6 +33,11 @@
 
 Theme 1.1.49 → 1.2.0. No behaviour change for any site that has not opted in.
 
+## [wishlist-card-markup-filter-2026-10-06] - 2026-10-06
+
+### Added
+- `inc/wishlist-product-card.php`: new `blocksy_child_wishlist_product_card_markup` filter on the card HTML that `blocksy_child_wishlist_product_card_html()` returns (args: the HTML and the `WC_Product`). A child site can now rebuild the wishlist and You May Also Like card without forking this file. With nothing hooked the output is byte-identical, so existing sites are unaffected. First user: Bonza, which adds the per-day line, price range and Subscribe and Save badge from its Figma.
+
 ## [restore-hide-cart-page-2026-09-17] - 2026-09-17
 
 ### Fixed
