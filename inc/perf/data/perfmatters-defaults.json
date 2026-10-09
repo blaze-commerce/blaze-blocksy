@@ -1,0 +1,106 @@
+{
+  "assets": {
+    "body_code": "",
+    "defer_inline": "1",
+    "defer_jquery": "1",
+    "delay_js": "1",
+    "delay_js_behavior": "all",
+    "delay_js_exclusions": [
+      "greenShift-aos-lib",
+      "lazyload"
+    ],
+    "delay_js_inclusions": [],
+    "delay_timeout": "1",
+    "disable_click_delay": "",
+    "footer_code": "",
+    "header_code": "",
+    "js_exclusions": "",
+    "minify_css": "1",
+    "minify_css_exclusions": "",
+    "minify_js": "1",
+    "minify_js_exclusions": "",
+    "remove_unused_css": "1",
+    "rucss_cdn_url": "",
+    "rucss_excluded_selectors": [],
+    "rucss_excluded_stylesheets": [],
+    "rucss_method": "",
+    "rucss_stylesheet_behavior": ""
+  },
+  "autosave_interval": "",
+  "disable_dashicons": "1",
+  "disable_embeds": "1",
+  "disable_emojis": "1",
+  "disable_google_maps_exclusions": "",
+  "disable_heartbeat": "",
+  "disable_password_strength_meter": "1",
+  "disable_rest_api": "",
+  "disable_rss_feeds": "1",
+  "disable_self_pingbacks": "1",
+  "disable_woocommerce_scripts": "1",
+  "disable_woocommerce_status": "1",
+  "disable_woocommerce_widgets": "1",
+  "disable_xmlrpc": "1",
+  "fonts": {
+    "cdn_url": "",
+    "display_swap": "1",
+    "local_google_fonts": "1",
+    "method": "",
+    "subsets": [
+      "latin"
+    ]
+  },
+  "heartbeat_frequency": "",
+  "hide_wp_version": "1",
+  "lazyload": {
+    "css_background_exclude_leading": "",
+    "css_background_images": "1",
+    "css_background_selectors": "",
+    "element_selectors": [],
+    "elements": "",
+    "exclude_leading_images": "3",
+    "image_dimensions": "1",
+    "lazy_loading": "1",
+    "lazy_loading_dom_monitoring": "1",
+    "lazy_loading_exclusions": [
+      "blaze-lcp-image",
+      "bc-perf-lcp",
+      "bc-perf-hero__poster"
+    ],
+    "lazy_loading_iframes": "1",
+    "lazy_loading_parent_exclusions": [],
+    "threshold": "300",
+    "youtube_preview_thumbnails": "1"
+  },
+  "limit_post_revisions": "",
+  "preload": {
+    "critical_images": "",
+    "disable_core_fetch": "1",
+    "dns_prefetch": [],
+    "early_hint_types": [
+      "font",
+      "image",
+      "style"
+    ],
+    "early_hints": "1",
+    "fetch_priority": [],
+    "preconnect": [],
+    "preload": [
+      {
+        "as": "script",
+        "device": "",
+        "locations": "",
+        "priority": "high",
+        "url": "jquery-core"
+      }
+    ],
+    "speculative_eagerness": "moderate",
+    "speculative_mode": "prerender"
+  },
+  "remove_comment_urls": "1",
+  "remove_feed_links": "1",
+  "remove_jquery_migrate": "1",
+  "remove_rest_api_links": "1",
+  "remove_rsd_link": "1",
+  "remove_shortlink": "1",
+  "separate_block_styles": ""
+}

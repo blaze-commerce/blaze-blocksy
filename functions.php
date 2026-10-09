@@ -47,3 +47,17 @@ require_once BLOCKSY_CHILD_PATH . 'inc/loader.php';
 if ( file_exists( BLOCKSY_CHILD_PATH . 'custom/custom.php' ) ) {
 	require_once BLOCKSY_CHILD_PATH . 'custom/custom.php';
 }
+
+/**
+ * PageSpeed / performance modules — opt-in, per-client-gated (inc/perf/).
+ *
+ * Loaded AFTER custom/custom.php on purpose (plan Global Constraint 3): a
+ * per-site override may define the BLOCKSY_CHILD_PERF_FEATURES constant or
+ * hook the `blocksy_child_perf_features` filter, and the perf loader's
+ * opt-in resolution (blocksy_child_perf_enabled_features() in
+ * inc/perf/helpers.php) must see those before it decides which
+ * inc/perf/<feature>.php modules to load. The perf loader itself still
+ * runs here at theme-load time — not deferred onto a later hook — so its
+ * own hook registrations are in place as early as any other module's.
+ */
+require_once BLOCKSY_CHILD_PATH . 'inc/perf/loader.php';

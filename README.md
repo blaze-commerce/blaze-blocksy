@@ -44,7 +44,13 @@ blocksy-child/
 │   ├── product-information.php            # [feature] Shipping/returns/FAQ panel
 │   ├── recently-viewed.php                # [feature] Recently viewed products
 │   ├── mini-cart-empty.php                # [feature] Empty cart suggestions
-│   └── product-slider.php                 # [feature] [bc_product_slider] shortcode
+│   ├── product-slider.php                 # [feature] [bc_product_slider] shortcode
+│   └── perf/                              # [perf] Opt-in PageSpeed modules (see docs/patterns/perf.md)
+│       ├── loader.php                     # Loads each enabled inc/perf/<feature>.php
+│       ├── helpers.php                    # Opt-in resolution, style/script print helpers
+│       ├── <feature>.php                  # One file per perf feature (13)
+│       ├── data/                          # Shipped lists + perfmatters-defaults.json
+│       └── mu-plugins/                    # Copy-to-mu-plugins Perfmatters config shim
 │
 ├── assets/
 │   ├── css/
@@ -93,7 +99,8 @@ blocksy-child/
 │       ├── product-information.md
 │       ├── product-tabs.md
 │       ├── recently-viewed.md
-│       └── woo-category-grid.md
+│       ├── woo-category-grid.md
+│       └── perf.md                        # PageSpeed modules (inc/perf/)
 │
 └── claude-commands/                       # Claude Code automation
     ├── setup-foundation.md
@@ -130,6 +137,34 @@ Omit `"features"` entirely to enable all modules (backward compatible).
 | `mini-cart-empty` | Empty mini cart with suggestions |
 | `product-slider` | `[bc_product_slider]` shortcode |
 
+### Perf feature flags (`perf` key)
+
+PageSpeed modules in `inc/perf/` are **opt-in only**. They use their own `"perf"` key, and the "omit the key to enable all" rule above does not apply. List names, or `["*"]` for all. The `BLOCKSY_CHILD_PERF_FEATURES` constant and the `blocksy_child_perf_features` filter add to the list. Full reference: [`docs/patterns/perf.md`](docs/patterns/perf.md).
+
+Copying `clients/_template/` opts a new site into the perf family (set `"perf": []` for an existing site that only needs `features` gating); existing sites without a manifest, or with a manifest lacking a `perf` key, are unaffected by this release — nothing loads, no hooks register.
+
+```json
+{
+  "perf": ["perfmatters-config", "perfmatters-filters", "rucss-safelist", "lcp-image"]
+}
+```
+
+| Perf feature | Purpose | Recommended default |
+|---------|-------------|-------------|
+| `perfmatters-config` | Perfmatters `perfmatters_options` row as code (`perfmatters-defaults.json` + per-site `custom/perfmatters.json`) | On |
+| `perfmatters-filters` | Used-CSS below `</head>`, 7000 s Delay JS timeout, click replay, analytics excluded from delay, leading-images and CSS-background filters | On |
+| `rucss-safelist` | Keeps JS-injected markup (FiboSearch, cart panel, carousels) styled through Remove Unused CSS | On |
+| `critical-css-supplements` | Inline `bc-perf-critical-{global,archive,product}` rules that RUCSS drops | On |
+| `lcp-image` | Un-lazies the PDP gallery, first cover block and `bc-hero-img` hero, with one matching `<link rel=preload as=image>` | On |
+| `hero-facade` | Poster-first YouTube/`<video>` hero, media mounted on interaction or after 5 s and revealed when PLAYING | Off: needs per-site poster assets and `.bc-hero-video` markup |
+| `fonts-critical-path` | Inlines the local Google Fonts CSS (`bc-perf-fonts-inline`), plus optional metric-matched fallbacks | On |
+| `async-styles` | Non-render-blocking `media=print` swap for listed plugin sheets (FiboSearch, reviews widget) | On |
+| `dequeue-assets` | Dequeues and deregisters handles verified unused in the DOM | Off. Add it per site once each default handle is checked against that site's DOM (the list drops `wp-block-library` and `wp-components`) |
+| `media-hygiene` | Missing-size fallback, logo `sizes`, archive thumbnail dimensions, below-fold lazy, stretched-height fix, youtube-nocookie | On |
+| `content-visibility` | `content-visibility:auto` for the footer, related products and closed off-canvas panels (`bc-perf-cv`) | On |
+| `minicart-hydrate` | Empty-cart suggestions inside a `<template>`, hydrated on intent, plus a WC fragments seed that skips the first-session refresh | On |
+| `lazy-rescan` | Re-runs the Perfmatters lazy loader after Blocksy AJAX filter or Load More on shop/taxonomy archives | On |
+
 ## Responsive Breakpoints
 
 | Name | Breakpoint | Media Query |
@@ -140,7 +175,7 @@ Omit `"features"` entirely to enable all modules (backward compatible).
 
 ## Versioning
 
-- Bump `BLOCKSY_CHILD_VERSION` in `functions.php` and `Version` in `style.css` after each release-worthy change
+- Bump `Version` in `style.css` after each release-worthy change. `BLOCKSY_CHILD_VERSION` in `functions.php` is read from that header (`wp_get_theme()->get( 'Version' )`), so it needs no edit.
 - Follow semver: major.minor.patch
 - Record changes in `CHANGELOG.md` at the theme root (newest entries first)
 

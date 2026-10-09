@@ -1,3 +1,38 @@
+## [perf-modules-2026-09-28] - 2026-09-28
+
+### Added
+- `inc/perf/`: an opt-in PageSpeed module family implementing `pagespeed-docs/RECOMMENDATIONS-90plus-in-3-hours.md` (§3, "What to put in `blaze-blocksy`"). It promotes the per-client fixes from Houston, Austin, AlternateWorlds, Byron Bay Candles, Mettahemp and choiceammunition into shared theme code.
+  - `loader.php` + `helpers.php` handle opt-in resolution, the `bc-perf-*` style/script print helpers and the script-id registry.
+  - 13 feature modules: `perfmatters-config`, `perfmatters-filters`, `rucss-safelist`, `critical-css-supplements`, `lcp-image`, `hero-facade`, `fonts-critical-path`, `async-styles`, `dequeue-assets`, `media-hygiene`, `content-visibility`, `minicart-hydrate`, `lazy-rescan`.
+  - Data files under `inc/perf/data/`, including `perfmatters-defaults.json`.
+  - The copy-to-mu-plugins shim `inc/perf/mu-plugins/bc-perfmatters-config.php`.
+  - `assets/js/perf-hero-facade.js` and `assets/js/perf-lazy-rescan.js`.
+  - Each module's docblock records its source, measured evidence and its per-site caveats.
+- Perf modules are **opt-in only**, through the manifest `"perf"` key, the `BLOCKSY_CHILD_PERF_FEATURES` constant or the `blocksy_child_perf_features` filter. The legacy `"features"` rule (no key = all on) does not apply, so no existing site changes behaviour until it opts in. `functions.php` loads `inc/perf/loader.php` after `custom/custom.php`, so a per-site constant or filter is seen.
+- `perfmatters-config` layers `inc/perf/data/perfmatters-defaults.json` and then the per-site `custom/perfmatters.json` over the stored `perfmatters_options` row.
+  - Sections merge one level down and list keys are replaced wholesale.
+  - A type guard converts string lists to arrays and numeric lazyload fields to strings.
+  - `BC_PERFMATTERS_CONFIG_AS_CODE=false` is the escape hatch.
+  - An admin notice on Perfmatters screens says the effective values come from those files.
+- `tests/perf/`: a dependency-free offline suite (`php tests/perf/run.php`, 229 passing test cases). Every WP stub lives in `tests/perf/bootstrap.php`.
+- `docs/patterns/perf.md`: the opt-in model, the `custom/perfmatters.json` override contract, a per-module reference (filters with defaults, what to verify in served HTML), the go-live lanes, measurement rules, and §6's "do not do these" list verbatim.
+
+### Changed
+- `README.md`: new "Perf feature flags (`perf` key)" table listing the 13 features with their recommended defaults. The Versioning note now says `BLOCKSY_CHILD_VERSION` is read from `style.css`.
+- `docs/NEW-CLIENT-SETUP.md`: new "Step 8: PageSpeed" section.
+- `clients/_template/manifest.json`: the `"perf"` example is now the recommended default, which is every feature except `hero-facade` and `dequeue-assets`. `hero-facade` needs per-site poster assets and `.bc-hero-video` markup. `dequeue-assets` drops `wp-block-library`, `wp-components` and other handles that were verified unused only on named sites, so a site adds it once each handle is checked against its own DOM.
+
+### Go-live: two deployment lanes
+- Perf work for a site ships in two PRs, and both must be deployed before measuring.
+  - **Lane A** is the theme PR: the `inc/perf/` modules and `inc/perf/data/perfmatters-defaults.json`.
+  - **Lane B** is the `bc-site-customizations` PR (`sites/<slug>/custom/`): `custom/perfmatters.json`, the `custom/custom.php` filters, and `custom/images/` (posters and re-encoded backgrounds). The theme repo does not track `custom/`.
+- Some things don't travel with either PR:
+  - media-library files (run `wp media regenerate --only-missing` for `bc_hero_poster`)
+  - ShortPixel and CDN settings
+  - the per-host Perfmatters used-CSS and local-fonts caches, which need regenerating. The fonts module recovers on its own after `clear-local-fonts`.
+
+Theme 1.1.49 → 1.2.0. No behaviour change for any site that has not opted in.
+
 ## [wishlist-card-markup-filter-2026-10-06] - 2026-10-06
 
 ### Added
