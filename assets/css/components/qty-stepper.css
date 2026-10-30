@@ -38,7 +38,10 @@
 	gap: 0;
 	position: relative;
 	width: auto !important;
-	height: auto !important;
+	/* Hug the buttons (Blocksy's fixed --quantity-height loses on specificity).
+	 * No !important: a site or context must be able to size the wrapper, e.g.
+	 * a 44px stepper with the border on the wrapper and 42px buttons inside. */
+	height: auto;
 }
 
 /* ── −/+ buttons: flat squares with dividers ───────────────────────────── */
