@@ -102,7 +102,13 @@ add_action( 'after_setup_theme', function () {
 	remove_action( 'woocommerce_before_checkout_form', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 100 );
 
 	// Re-add to fc_checkout_before_steps (inside .fc-inside).
-	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1 );
+	// The progress bar MUST keep accepted_args 0, as FC registers it
+	// (checkout-steps.php: "0 = No arguments because the action passed in an
+	// object of unexpected type"). fc_checkout_before_steps fires with the
+	// WC_Checkout object; with the default of 1 it lands in $context and FC
+	// fatals concatenating it ("Object of class WC_Checkout could not be
+	// converted to string"): HTTP 500 on /checkout/ with multi-step on.
+	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1, 0 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_start_tag' ), 2 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 99 );
 }, 20 );
