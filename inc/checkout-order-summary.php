@@ -60,10 +60,17 @@ add_filter( 'theme_mod_woo_shipping_progress_in_checkout', function () {
 // Enqueues are centralized in inc/enqueue.php (refactored 2026-05-08, audit P1).
 
 // ─── FC Pro: Force mobile order summary position ─────────────────────────────
+// pre_option_, not option_: WordPress only runs option_{name} when the option
+// row exists. On a site where nobody has saved FC Pro's checkout settings,
+// get_option() returns FC's default ('site_header') through default_option_
+// and the old option_ filter never fired. pre_option_ short-circuits both.
+// Only with FC Pro active: Lite has no 'before_checkout_steps' output, so
+// forcing it there would hide the mobile summary.
+// Priority 20 to match the coupon-position override below.
 
-add_filter( 'option_fc_pro_checkout_order_summary_position_mobile', function () {
-	return 'before_checkout_steps';
-} );
+add_filter( 'pre_option_fc_pro_checkout_order_summary_position_mobile', function ( $pre ) {
+	return class_exists( 'FluidCheckout_PRO' ) ? 'before_checkout_steps' : $pre;
+}, 20 );
 
 // ─── FC: Order review title text ─────────────────────────────────────────────
 
