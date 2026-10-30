@@ -289,10 +289,18 @@
 	}
 
 	function init() {
+		// Recently Viewed arrives later, by AJAX (assets/js/recently-viewed.js).
+		document.addEventListener( 'bc:recently-viewed:loaded', function ( e ) {
+			var section = e.detail && e.detail.section;
+			if ( section ) {
+				renderDots( section );
+				preMountFlexy( section );
+			}
+		} );
+
+		// No early return when there is no carousel yet: the listeners below
+		// must also serve a Recently Viewed row that arrives later.
 		var sections = document.querySelectorAll( SELECTOR );
-		if ( ! sections.length ) {
-			return;
-		}
 
 		Array.prototype.forEach.call( sections, function ( section ) {
 			renderDots( section );
