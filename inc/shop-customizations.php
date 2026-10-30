@@ -42,11 +42,16 @@ add_action( 'woocommerce_after_shop_loop', 'woocommerce_result_count', 11 );
 // Enqueues are centralized in inc/enqueue.php (refactored 2026-05-08, audit P1).
 
 /**
- * 4. Change "menu_order" option label to "Sort By None".
+ * 4. Optional label for the "menu_order" (default) sort option.
+ *
+ * WooCommerce's own "Default sorting" stays unless a client asks for another
+ * label: add_filter( 'bc_shop_default_sort_label', fn() => 'Featured' );
+ * (It used to be renamed to "Sort By None" on every site.)
  */
 add_filter( 'woocommerce_catalog_orderby', function ( $options ) {
-	if ( isset( $options['menu_order'] ) ) {
-		$options['menu_order'] = __( 'Sort By None', 'woocommerce' );
+	$label = (string) apply_filters( 'bc_shop_default_sort_label', '' );
+	if ( '' !== $label && isset( $options['menu_order'] ) ) {
+		$options['menu_order'] = $label;
 	}
 	return $options;
 } );
