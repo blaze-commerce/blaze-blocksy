@@ -11,7 +11,7 @@ Three small Woo-archive tweaks that the Blocksy Customizer can't do:
 
 1. **Repositions the result count.** Default Blocksy puts it inside `.woo-listing-top` at priority 20. We move it to priority 32 (after the wrapper closes at 31), and ALSO render it again at priority 11 of `woocommerce_after_shop_loop` (i.e. directly under the products + load-more button).
 2. **Updates the result count after AJAX load-more.** Blocksy's infinite scroll appends products via AJAX but the static "Showing X–Y of Z results" text doesn't refresh. The JS listens for the `ct:infinite-scroll:load` event, recounts visible `.product` items in the `.products` container, and rewrites the text.
-3. **Renames the default sort option.** Changes `menu_order` label from "Default sorting" to **"Sort By None"** via the `woocommerce_catalog_orderby` filter.
+3. **Optional default sort label.** WooCommerce's "Default sorting" label for `menu_order` is kept unless a client returns a label from the `bc_shop_default_sort_label` filter (applied via `woocommerce_catalog_orderby`).
 
 ## Why a feature flag
 
@@ -30,7 +30,7 @@ assets/js/shop-customizations.js     IIFE for AJAX load-more count update
 | --- | --- | --- |
 | `woocommerce_before_shop_loop` | 20 (default) → 32 (us) | Result count moved to AFTER `.woo-listing-top` wrapper |
 | `woocommerce_after_shop_loop` | 11 (us) | Second result count below products |
-| `woocommerce_catalog_orderby` | 10 | "Default sorting" → "Sort By None" |
+| `woocommerce_catalog_orderby` | 10 | "Default sorting" → `bc_shop_default_sort_label` (only if a client sets one) |
 | `ct:infinite-scroll:load` (DOM) | n/a | Recount visible products + rewrite count text |
 
 ## Browser/JS
