@@ -1,0 +1,37 @@
+/**
+ * Default `design-scope` — reset Blocksy rules that leak into hand-built
+ * design markup. Scoped to `.bc-design`: put that class on the design's
+ * wrapper. Nothing outside it changes.
+ *
+ * PROMOTED FROM: bulkwholesale custom/custom.css (scoped to `.bw` there).
+ * @date 2026-10-31
+ */
+
+/* Blocksy gives each heading level its own Customizer line-height; designs
+   are drawn with headings inheriting the body's. */
+.bc-design h1,
+.bc-design h2,
+.bc-design h3,
+.bc-design h4,
+.bc-design h5,
+.bc-design h6 {
+	line-height: inherit;
+}
+
+/* Blocksy's label{margin:0 0 .5em} pushed inline controls out of line. */
+.bc-design label {
+	margin-bottom: 0;
+}
+
+.bc-design b,
+.bc-design strong {
+	font-weight: 700;
+}
+
+/* Logo rows: Blocksy's img{max-width:100%;vertical-align:middle} squashes
+   them. Only inside .bc-logo-row: dropping max-width anywhere else lets
+   images overflow their column. */
+.bc-design .bc-logo-row img {
+	max-width: none;
+	vertical-align: baseline;
+}

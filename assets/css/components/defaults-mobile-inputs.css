@@ -1,0 +1,27 @@
+/**
+ * Default `mobile-inputs` — 16px form fields on touch screens.
+ *
+ * iOS Safari zooms the page when a field under 16px gets focus. Fluid
+ * Checkout already does this on checkout below 1000px; this covers every
+ * other form (search, CF7, My Account, select2) and FC's order-summary qty
+ * input, which needs to be a little wider to fit 16px digits.
+ *
+ * !important: plugin field styles (FiboSearch, CF7, select2) set their own
+ * font-size with higher specificity.
+ *
+ * PROMOTED FROM: bulkwholesale custom/custom.css + css/bw-checkout.css;
+ * 8 sites in bc-site-customizations carry their own 16px !important rules.
+ * @date 2026-10-31
+ */
+@media (pointer: coarse) {
+	input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=submit]):not([type=button]):not([type=image]),
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
+
+	body.woocommerce-checkout.has-fluid-checkout #order_review table.woocommerce-checkout-review-order-table div.quantity input.qty {
+		width: 28px !important;
+		min-width: 28px !important;
+	}
+}

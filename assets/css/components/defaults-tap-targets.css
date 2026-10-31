@@ -1,0 +1,15 @@
+/**
+ * Default `tap-targets` — 24px minimum target size for breadcrumb links
+ * (WCAG 2.2 SC 2.5.8). Small breadcrumb text on phones gave targets under
+ * 24px. Rows get up to ~5px taller on mobile; desktop line boxes are
+ * usually 24px already.
+ *
+ * PROMOTED FROM: bulkwholesale custom/custom.css; Bonza and 5 other sites
+ * set 24px minimums on their own controls.
+ * @date 2026-10-31
+ */
+.ct-breadcrumbs a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+}
