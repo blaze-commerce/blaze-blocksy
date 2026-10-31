@@ -61,3 +61,11 @@ if ( file_exists( BLOCKSY_CHILD_PATH . 'custom/custom.php' ) ) {
  * own hook registrations are in place as early as any other module's.
  */
 require_once BLOCKSY_CHILD_PATH . 'inc/perf/loader.php';
+
+/**
+ * Site defaults — opt-in only (inc/defaults/). Loaded after custom/custom.php
+ * for the same reason as the perf loader: a site's `blocksy_child_defaults`
+ * filter or BLOCKSY_CHILD_DEFAULTS constant must exist before the loader
+ * decides which inc/defaults/<name>.php modules to require.
+ */
+require_once BLOCKSY_CHILD_PATH . 'inc/defaults/loader.php';

@@ -1,3 +1,11 @@
+## [site-defaults-2026-10-31] - 2026-10-31
+
+### Added
+- `inc/defaults/`: opt-in site defaults promoted from the Bulk Wholesale retheme and cross-checked against `bc-site-customizations`. Opt in with the `blocksy_child_defaults` filter, a manifest `"defaults"` array or the `BLOCKSY_CHILD_DEFAULTS` constant. A site with none gets nothing (the `"features"` all-on rule does not apply).
+  - CSS: `mobile-inputs`, `tap-targets`, `design-scope` (`.bc-design` wrapper), `pl-placeholder-contain`, `card-image-contain`.
+  - PHP: `recaptcha-scope`, `payment-assets-scope` (breaks express buttons and Pay Later outside checkout; see the docblock).
+- `docs/patterns/defaults.md`; `tests/perf/test-defaults.php` (4 cases).
+
 ## [perf-modules-2026-09-28] - 2026-09-28
 
 ### Added

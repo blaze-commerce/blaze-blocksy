@@ -1,0 +1,14 @@
+/**
+ * Default `card-image-contain` — fit product-card photos inside the card's
+ * image box instead of cropping them.
+ *
+ * For packshot stores whose photos don't match the Customizer image ratio
+ * (square photos in a 1:0.93 box were clipped top and bottom). Lifestyle-
+ * photo stores want the crop, so this stays opt-in.
+ *
+ * PROMOTED FROM: bulkwholesale custom/custom.css + css/bw-design.css.
+ * @date 2026-10-31
+ */
+[data-products] .ct-media-container img {
+	object-fit: contain;
+}
