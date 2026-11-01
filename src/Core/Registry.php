@@ -171,7 +171,12 @@ final class Registry {
 					$keep = $rank[ $id ] < $rank[ $other ] ? $id : $other;
 					$lose = $keep === $id ? $other : $id;
 				}
-				$dropped[ $lose ]  = true;
+				$dropped[ $lose ] = true;
+				foreach ( $owner as $s => $o ) {
+					if ( $o === $lose ) {
+						unset( $owner[ $s ] );
+					}
+				}
 				$owner[ $surface ] = $keep;
 				Health::record( 'surface_clash', "Modules '{$keep}' and '{$lose}' both declare surface '{$surface}'; '{$lose}' skipped", [ 'surface' => $surface, 'kept' => $keep, 'dropped' => $lose ] );
 			}
@@ -199,13 +204,16 @@ final class Registry {
 			}
 			$manifest = $manifests[ $id ];
 
-			$unmet = Compat::unmet( $manifest );
-			if ( $unmet ) {
-				Health::record( 'requires_unmet', "Module '{$id}' skipped: " . implode( '; ', $unmet ), [ 'module' => $id, 'unmet' => $unmet ] );
-				continue;
-			}
-
 			try {
+				$unmet = Compat::unmet( $manifest );
+				if ( $unmet ) {
+					Health::record( 'requires_unmet', "Module '{$id}' skipped: " . implode( '; ', $unmet ), [ 'module' => $id, 'unmet' => $unmet ] );
+					if ( ! empty( $manifest['critical'] ) ) {
+						self::$critical_failures[] = $id;
+					}
+					continue;
+				}
+
 				$class = 'Blaze\\Child\\Modules\\' . Theme::studly( $id ) . '\\Module';
 				if ( ! class_exists( $class, false ) ) {
 					$file = $this->dir . '/' . $id . '/Module.php';
@@ -233,7 +241,7 @@ final class Registry {
 	}
 
 	/**
-	 * Ids of critical modules that failed to boot in the last boot().
+	 * Ids of critical modules that failed to boot (exception, missing class) or were skipped for unmet requirements in the last boot().
 	 *
 	 * @return string[]
 	 */

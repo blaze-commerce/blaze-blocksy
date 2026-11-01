@@ -17,7 +17,6 @@ function bc_fx_dir(): string {
 
 function bc_fx_reset(): void {
 	bc_wp_stub_reset();
-	$GLOBALS['bc_core_store']['options'] = [];
 	$GLOBALS['bc_test_hooks']            = [];
 	$GLOBALS['bc_fx_booted']             = [];
 	$GLOBALS['bc_fx_throw']              = false;
@@ -230,9 +229,7 @@ bc_test( 'health_caps_at_50_and_dedupes', function () {
 	assert_same( Health::all()[0]['message'], 'm10', 'oldest dropped' );
 	Health::record( 'c', 'm30', [ 'x' => 1 ] );
 	assert_same( count( Health::all() ), 50, 'duplicate not appended' );
-	$e = Health::all()[49];
-	assert_same( $e['message'], 'm30', 'duplicate moved to newest' );
-	assert_same( array_keys( $e ), [ 'code', 'message', 'context', 'time' ] );
+	assert_same( array_keys( Health::all()[49] ), [ 'code', 'message', 'context', 'time' ] );
 	Health::clear();
 	assert_same( Health::all(), [] );
 } );
@@ -243,4 +240,57 @@ bc_test( 'api_module_returns_instance', function () {
 	$r->boot( [ 'alpha' ], [] );
 	assert_same( \Blaze\Child\Api\module( 'alpha' ) instanceof \Blaze\Child\Core\Module, true );
 	assert_same( \Blaze\Child\Api\module( 'beta' ), null );
+} );
+
+bc_test( 'health_skips_write_when_recent_and_refreshes_when_old', function () {
+	bc_fx_reset();
+	Health::record( 'c', 'a' );
+	Health::record( 'c', 'b' );
+	$opt = $GLOBALS['bc_wp_stub']['options']['blaze_child_health'];
+	$opt[0]['time'] = time() - 100;
+	$GLOBALS['bc_wp_stub']['options']['blaze_child_health'] = $opt;
+	Health::record( 'c', 'a', [ 'new' => 1 ] );
+	assert_same( Health::all()[0]['time'], $opt[0]['time'], 'recent duplicate: no write' );
+	assert_same( Health::all()[0]['context'], [], 'context untouched' );
+	$opt[0]['time'] = time() - 4000;
+	$GLOBALS['bc_wp_stub']['options']['blaze_child_health'] = $opt;
+	Health::record( 'c', 'a' );
+	$all = Health::all();
+	assert_same( count( $all ), 2 );
+	assert_same( $all[1]['message'], 'a', 'old duplicate refreshed and moved to newest' );
+	assert_same( $all[1]['time'] >= time() - 5, true );
+} );
+
+bc_test( 'health_all_ignores_malformed_entries', function () {
+	bc_fx_reset();
+	$GLOBALS['bc_wp_stub']['options']['blaze_child_health'] = [ 'junk', [ 'code' => 'x' ], [ 'code' => 'ok', 'message' => 'm', 'time' => 5 ] ];
+	$all = Health::all();
+	assert_same( count( $all ), 1 );
+	assert_same( $all[0]['context'], [] );
+	Health::record( 'ok', 'm' );
+	assert_same( count( Health::all() ), 1, 'old entry refreshed, no warning' );
+	$GLOBALS['bc_wp_stub']['options']['blaze_child_health'] = 'garbage';
+	assert_same( Health::all(), [] );
+} );
+
+bc_test( 'critical_module_skipped_for_requires_unmet_is_a_critical_failure', function () {
+	bc_fx_reset();
+	$dir = bc_fx_tmp_modules( [
+		'crit' => [ 'id' => 'crit', 'critical' => true, 'requires' => [ 'plugins' => [ 'woocommerce' => '>=9.0' ] ] ],
+		'calm' => [ 'id' => 'calm', 'requires' => [ 'plugins' => [ 'woocommerce' => '>=9.0' ] ] ],
+	] );
+	$r = new Registry( $dir );
+	assert_same( $r->boot( [ 'crit', 'calm' ], [] ), [] );
+	assert_same( Registry::critical_failures(), [ 'crit' ] );
+} );
+
+bc_test( 'surface_clash_dropped_module_releases_its_other_surfaces', function () {
+	bc_fx_reset();
+	$dir = bc_fx_tmp_modules( [
+		'a-mod' => [ 'id' => 'a-mod', 'surfaces' => [ 's1', 's2' ] ],
+		'b-mod' => [ 'id' => 'b-mod', 'surfaces' => [ 's1' ], 'replaces' => [ 'a-mod' ] ],
+		'c-mod' => [ 'id' => 'c-mod', 'surfaces' => [ 's2' ] ],
+	] );
+	$r = new Registry( $dir );
+	assert_same( $r->resolve( [ 'a-mod' => true, 'b-mod' => true, 'c-mod' => true ] ), [ 'b-mod', 'c-mod' ] );
 } );
