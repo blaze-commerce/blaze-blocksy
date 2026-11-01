@@ -1,0 +1,31 @@
+{
+  "id": "legacy-v1",
+  "title": "Legacy v1",
+  "description": "Runs today's v1 child theme code (inc/loader.php, site code, inc/perf/loader.php) unchanged, so a v1 site renders exactly as before.",
+  "status": "stable",
+  "loadable": true,
+  "owner": "",
+  "since": "2.0.0",
+  "surfaces": [],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": { "filters": ["blaze_child/legacy_v1/skip_files"], "actions": [] },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/loader.php",
+      "inc/helpers.php",
+      "inc/enqueue.php",
+      "inc/hooks.php",
+      "inc/icons.php",
+      "inc/perf/loader.php",
+      "inc/perf/helpers.php"
+    ]
+  },
+  "notes": "inc/enqueue.php, inc/helpers.php and inc/hooks.php contain client-specific code; they stay as they are until their consumers are ported."
+}

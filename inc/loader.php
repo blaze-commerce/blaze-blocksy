@@ -20,6 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool True if loaded successfully, false otherwise.
  */
 function blocksy_child_load_module( $file ) {
+	// 2.x only: a ported module that replaces this file puts it on the skip list.
+	if ( in_array( $file, apply_filters( 'blaze_child/legacy_v1/skip_files', [] ), true ) ) {
+		return false;
+	}
+
 	$path = BLOCKSY_CHILD_PATH . $file;
 
 	if ( ! file_exists( $path ) ) {

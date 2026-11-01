@@ -1,0 +1,29 @@
+{
+  "id": "recently-viewed",
+  "title": "Recently viewed products",
+  "description": "PDP section below related products built from the WooCommerce recently viewed cookie.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "pdp.recently-viewed"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/recently-viewed.php"
+    ]
+  }
+}

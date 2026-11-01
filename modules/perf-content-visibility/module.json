@@ -1,0 +1,29 @@
+{
+  "id": "perf-content-visibility",
+  "title": "Content visibility",
+  "description": "Prints content-visibility:auto rules with reserved intrinsic sizes so off-screen sections skip rendering.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.content-visibility"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/content-visibility.php"
+    ]
+  }
+}

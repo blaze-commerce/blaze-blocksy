@@ -1,0 +1,30 @@
+{
+  "id": "wishlist-product-card",
+  "title": "Wishlist product card",
+  "description": "Shared product card layout for wishlist items and the suggested-products row, opt-in via filters. Loaded with require_once from wishlist-offcanvas.php.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "drawer.wishlist.card"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/wishlist-product-card.php"
+    ]
+  },
+  "notes": "Loaded by require_once from inc/wishlist-offcanvas.php, not through the v1 loader, so the skip list cannot skip it on its own; skip wishlist-offcanvas with it."
+}

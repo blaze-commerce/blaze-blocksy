@@ -1,0 +1,30 @@
+{
+  "id": "shop-customizations",
+  "title": "Shop page customizations",
+  "description": "Repositions the shop result count and changes the sorting label.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "archive.sorting",
+    "archive.result-count"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/shop-customizations.php"
+    ]
+  }
+}

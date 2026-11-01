@@ -1,0 +1,29 @@
+{
+  "id": "hide-cart-page",
+  "title": "Hide cart page",
+  "description": "Redirects the WooCommerce cart page and removes cart-page references; the off-canvas mini cart replaces it.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "cart.page"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/hide-cart-page.php"
+    ]
+  }
+}

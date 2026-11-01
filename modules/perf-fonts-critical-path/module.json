@@ -1,0 +1,29 @@
+{
+  "id": "perf-fonts-critical-path",
+  "title": "Fonts critical path",
+  "description": "Inlines the local Google Fonts CSS and adds optional metric-matched fallback faces.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.fonts-critical-path"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/fonts-critical-path.php"
+    ]
+  }
+}

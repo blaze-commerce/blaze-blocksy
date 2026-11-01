@@ -1,0 +1,30 @@
+{
+  "id": "woocommerce-hooks",
+  "title": "WooCommerce core hooks",
+  "description": "Reusable WooCommerce filters and actions loaded whenever WooCommerce is active, including shipping rate handling.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "woocommerce.core-hooks"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": true,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/woocommerce.php"
+    ]
+  },
+  "notes": "contains client-specific code; must be generalised or moved to the site package before porting"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "perf-media-hygiene",
+  "title": "Media hygiene",
+  "description": "Six small image and embed corrections: image_downsize fallback, honest logo sizes, lazy-load tuning and more.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.media-hygiene"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/media-hygiene.php"
+    ]
+  }
+}

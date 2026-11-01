@@ -1,0 +1,26 @@
+{
+  "id": "related-carousel",
+  "title": "Related products carousel",
+  "description": "Legacy line: related products shown as a carousel.",
+  "status": "planned",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": []
+  },
+  "notes": "Legacy line only (tag v1.78.2-legacy): includes/customization/related-carousel.php"
+}

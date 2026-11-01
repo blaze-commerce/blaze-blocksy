@@ -1,0 +1,32 @@
+{
+  "id": "offcanvas-icons",
+  "title": "Off-canvas panel icons",
+  "description": "Customizer image/SVG controls for the heading icons of the mini cart and wishlist drawers.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "drawer.cart.icon",
+    "drawer.wishlist.icon"
+  ],
+  "provides": [
+    "component.icons"
+  ],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/offcanvas-icons.php"
+    ]
+  }
+}

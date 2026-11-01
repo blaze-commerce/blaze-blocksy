@@ -11,6 +11,11 @@ final class Theme {
 	const NOTICE_MAX_AGE = 86400;
 
 	/**
+	 * @var string[] Files legacy-v1 must skip (Registry::skip_files()).
+	 */
+	private static $skip_files = [];
+
+	/**
 	 * Boots the theme at load time: site config, v1 core, site code, modules, assets, notices.
 	 * legacy-v1 keeps v1's order: inc/loader.php -> site code -> inc/perf (in its boot()).
 	 *
@@ -19,6 +24,10 @@ final class Theme {
 	public static function boot(): void {
 		$config   = SiteLayer::config();
 		$registry = new Registry( BLAZE_CHILD_PATH . 'modules' );
+
+		// R1: the skip list must answer before inc/loader.php runs (config + kill switch only).
+		self::$skip_files = $registry->skip_files( $config['modules'] );
+		add_filter( 'blaze_child/legacy_v1/skip_files', [ self::class, 'filter_skip_files' ] );
 
 		self::load_v1_core( $registry, $config );
 		SiteLayer::include_site_code();
@@ -42,7 +51,8 @@ final class Theme {
 	 */
 	private static function load_v1_core( Registry $registry, array $config ): void {
 		$class = \Blaze\Child\Modules\LegacyV1\Module::class;
-		if ( ! $registry->enabled_before_site_code( 'legacy-v1', $config['modules'] ) || ! class_exists( $class ) ) {
+		// R11: a broken site-config.php boots nothing, v1 included.
+		if ( SiteLayer::config_failed() || ! $registry->enabled_before_site_code( 'legacy-v1', $config['modules'] ) || ! class_exists( $class ) ) {
 			return;
 		}
 		try {
@@ -53,6 +63,16 @@ final class Theme {
 				FailClosed::arm( 'legacy_v1_failed' );
 			}
 		}
+	}
+
+	/**
+	 * Adds the files replaced by enabled ports to the legacy-v1 skip list.
+	 *
+	 * @param mixed $files Skip list so far.
+	 * @return array
+	 */
+	public static function filter_skip_files( $files ): array {
+		return array_values( array_unique( array_merge( is_array( $files ) ? $files : [], self::$skip_files ) ) );
 	}
 
 	/**
