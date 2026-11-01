@@ -1,0 +1,11 @@
+/.git/
+/.github/
+/clients/
+/claude-commands/
+/docs/
+/tools/
+/.superpowers/
+tests/
+/.distignore
+*.test.mjs
+.DS_Store

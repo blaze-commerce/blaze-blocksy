@@ -1,0 +1,19 @@
+{
+  "id": "demo",
+  "title": "Demo module",
+  "description": "A fixture module with one asset.",
+  "status": "beta",
+  "loadable": true,
+  "owner": "someone",
+  "since": "2.0.0",
+  "surfaces": ["cart.page"],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": { "label": { "type": "string", "default": "x" } },
+  "assets": [ { "file": "assets/demo.js", "where": ["pdp"], "deps": [] }, { "file": "assets/demo.css", "where": ["pdp"], "deps": [] } ],
+  "hooks": { "filters": [], "actions": [] },
+  "replaces": []
+}

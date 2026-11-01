@@ -1,0 +1,6 @@
+:root {
+	--bc-demo-accent: #ff0000;
+}
+.bc-demo__label {
+	color: var(--bc-demo-accent);
+}

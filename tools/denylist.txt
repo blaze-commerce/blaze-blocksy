@@ -1,0 +1,2 @@
+# Client names that must not appear in src/, tools/ or beta/stable modules (tools/check.php client_denylist).
+# One case-insensitive token per line; matched as a substring. inc/ (legacy-v1) is exempt.

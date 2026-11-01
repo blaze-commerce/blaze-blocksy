@@ -1,0 +1,17 @@
+# Not shipped in blocksy-child.zip (tools/build.php). Gitignore subset: a leading "/" anchors to the theme
+# root, a trailing "/" matches folders only, a pattern without "/" matches at any depth. No "!" negation.
+/.git/
+/.github/
+/.claude/
+/.superpowers/
+/clients/
+/claude-commands/
+/docs/
+/tools/
+tests/
+/.gitignore
+/.distignore
+/README.md
+*.test.mjs
+.DS_Store
+Thumbs.db

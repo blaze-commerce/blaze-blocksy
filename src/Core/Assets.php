@@ -114,7 +114,7 @@ final class Assets {
 			}
 		}
 		if ( function_exists( 'has_shortcode' ) ) {
-			$content = (string) ( $post->post_content ?? '' );
+			$content = (string) $post->post_content;
 			foreach ( self::WC_SHORTCODES as $tag ) {
 				if ( has_shortcode( $content, $tag ) ) {
 					return true;
@@ -171,13 +171,27 @@ final class Assets {
 	 */
 	private static function enqueue_one( string $id, array $manifest, string $file, array $deps ): void {
 		if ( in_array( 'jquery', $deps, true ) && 'legacy' !== ( $manifest['status'] ?? '' ) ) {
-			Health::record( 'jquery_dep_refused', "Module '{$id}' asset '{$file}' declares jquery; dependency dropped", [ 'module' => $id, 'file' => $file ] );
+			Health::record(
+				'jquery_dep_refused',
+				"Module '{$id}' asset '{$file}' declares jquery; dependency dropped",
+				[
+					'module' => $id,
+					'file'   => $file,
+				]
+			);
 			$deps = array_values( array_diff( $deps, [ 'jquery' ] ) );
 		}
 		$rel   = 'modules/' . $id . '/' . ltrim( $file, '/' );
 		$mtime = @filemtime( self::$base_dir . $rel );
 		if ( false === $mtime ) {
-			Health::record( 'asset_missing', "Module '{$id}' asset '{$file}' not found", [ 'module' => $id, 'file' => $file ] );
+			Health::record(
+				'asset_missing',
+				"Module '{$id}' asset '{$file}' not found",
+				[
+					'module' => $id,
+					'file'   => $file,
+				]
+			);
 			return;
 		}
 		$ver    = (string) $mtime;
@@ -185,7 +199,16 @@ final class Assets {
 		$ext    = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
 		$handle = 'bc-' . $id . '-' . pathinfo( $file, PATHINFO_FILENAME );
 		if ( 'js' === $ext ) {
-			wp_enqueue_script( $handle, $url, $deps, $ver, [ 'strategy' => 'defer', 'in_footer' => true ] );
+			wp_enqueue_script(
+				$handle,
+				$url,
+				$deps,
+				$ver,
+				[
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				]
+			);
 		} elseif ( 'css' === $ext ) {
 			wp_enqueue_style( $handle, $url, $deps, $ver );
 		}

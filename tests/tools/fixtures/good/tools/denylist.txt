@@ -1,0 +1,3 @@
+# Fixture denylist.
+acmeclient
+examplestore

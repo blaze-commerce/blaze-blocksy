@@ -68,12 +68,14 @@ final class SiteLayer {
 			if ( ! is_file( self::legacy_file() ) ) {
 				Health::record( 'no_site_config', 'No wp-content/blaze-site/ folder and no legacy custom/custom.php: no modules are enabled' );
 			}
-			return self::$config = $defaults;
+			self::$config = $defaults;
+			return self::$config;
 		}
 
 		$file = $dir . '/site-config.php';
 		if ( ! is_file( $file ) ) {
-			return self::$config = $defaults;
+			self::$config = $defaults;
+			return self::$config;
 		}
 
 		try {
@@ -85,10 +87,12 @@ final class SiteLayer {
 			Health::record( 'site_config_invalid', 'site-config.php failed: ' . $e->getMessage(), [ 'file' => $file ] );
 			self::$config_failed = true;
 			FailClosed::arm( 'site_config_invalid' );
-			return self::$config = $defaults;
+			self::$config = $defaults;
+			return self::$config;
 		}
 
-		return self::$config = self::normalise( $raw, $defaults );
+		self::$config = self::normalise( $raw, $defaults );
+		return self::$config;
 	}
 
 	/**
@@ -130,7 +134,14 @@ final class SiteLayer {
 			self::include_file( $file );
 			return true;
 		} catch ( \Throwable $e ) {
-			Health::record( 'site_code_failed', basename( $file ) . ' failed: ' . $e->getMessage(), [ 'file' => $file, 'line' => $e->getLine() ] );
+			Health::record(
+				'site_code_failed',
+				basename( $file ) . ' failed: ' . $e->getMessage(),
+				[
+					'file' => $file,
+					'line' => $e->getLine(),
+				]
+			);
 			if ( 'open' !== self::config()['on_failure'] ) {
 				FailClosed::arm( 'site_code_failed' );
 			}

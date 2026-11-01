@@ -1,0 +1,7 @@
+{
+  "surfaces": {
+    "cart.page": "The cart page.",
+    "pdp.tabs": "Product page tabs."
+  },
+  "components": ["component.drawer", "component.carousel", "component.icons"]
+}

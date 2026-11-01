@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<ruleset name="Blocksy Child v2">
+	<description>WordPress-Extra for v2 code only: src/, modules/ (stubs hold no PHP) and tools/. v1 inc/, woocommerce/ and partials/ are not linted here.</description>
+
+	<file>../src</file>
+	<file>../modules</file>
+	<file>../tools</file>
+
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/fixtures/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="minimum_wp_version" value="6.6"/>
+
+	<rule ref="WordPress-Extra">
+		<!-- PHP 8.1+ code base: short arrays are the house style. -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- src/ and modules/ follow PSR-4 file names (Core/Registry.php, Module.php). -->
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="blocksy-child"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- "bc" is not listed: WPCS rejects prefixes shorter than 3 characters ("prefix is too short" error on every file). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="blaze_child"/>
+				<element value="Blaze\Child"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- tools/ is CLI code run by CI and swamp, never by WordPress: plain PHP I/O and output are correct there. -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>*/tools/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude-pattern>*/tools/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+		<exclude-pattern>*/tools/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.PHP.NoSilencedErrors">
+		<exclude-pattern>*/tools/*</exclude-pattern>
+	</rule>
+</ruleset>

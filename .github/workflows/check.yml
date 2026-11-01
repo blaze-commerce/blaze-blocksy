@@ -1,0 +1,53 @@
+name: Check
+
+# tools/check.php is the one implementation of the quality gates (spec 4.10/4.11); swamp runs the same script.
+on:
+  pull_request:
+  push:
+    branches: [2.x]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: zip
+          tools: phpcs, phpstan
+          coverage: none
+
+      # CI only (the theme has no Composer dependencies at runtime): WordPress coding standards for phpcs,
+      # WordPress and WooCommerce stubs for phpstan. The global Composer bin goes first on PATH so
+      # tools/check.php runs these phpcs/phpstan builds, which see the standards and the extension.
+      - name: Install coding standards and stubs
+        run: |
+          composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global config --no-interaction allow-plugins.phpstan/extension-installer true
+          composer global require --no-interaction --no-progress \
+            wp-coding-standards/wpcs:^3.1 \
+            dealerdirect/phpcodesniffer-composer-installer \
+            szepeviktor/phpstan-wordpress \
+            phpstan/extension-installer \
+            php-stubs/woocommerce-stubs
+          echo "COMPOSER_HOME=$(composer global config home 2>/dev/null)" >> "$GITHUB_ENV"
+          composer global config bin-dir --absolute 2>/dev/null >> "$GITHUB_PATH"
+
+      - name: Unit tests
+        run: php tests/run-all.php
+
+      - name: docs/MODULES.md is fresh
+        run: php tools/gen-modules-md.php --check
+
+      - name: Gates
+        run: php tools/check.php

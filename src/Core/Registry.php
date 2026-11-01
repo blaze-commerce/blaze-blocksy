@@ -175,7 +175,7 @@ final class Registry {
 		if ( is_string( $value ) ) {
 			$value = explode( ',', $value );
 		}
-		return is_array( $value ) ? array_values( array_filter( array_map( 'trim', array_map( 'strval', $value ) ), 'strlen' ) ) : [];
+		return is_array( $value ) ? array_values( array_diff( array_map( 'trim', array_map( 'strval', $value ) ), [ '' ] ) ) : [];
 	}
 
 	/**
@@ -223,7 +223,15 @@ final class Registry {
 					}
 				}
 				$owner[ $surface ] = $keep;
-				Health::record( 'surface_clash', "Modules '{$keep}' and '{$lose}' both declare surface '{$surface}'; '{$lose}' skipped", [ 'surface' => $surface, 'kept' => $keep, 'dropped' => $lose ] );
+				Health::record(
+					'surface_clash',
+					"Modules '{$keep}' and '{$lose}' both declare surface '{$surface}'; '{$lose}' skipped",
+					[
+						'surface' => $surface,
+						'kept'    => $keep,
+						'dropped' => $lose,
+					]
+				);
 			}
 		}
 
@@ -252,7 +260,14 @@ final class Registry {
 			try {
 				$unmet = Compat::unmet( $manifest );
 				if ( $unmet ) {
-					Health::record( 'requires_unmet', "Module '{$id}' skipped: " . implode( '; ', $unmet ), [ 'module' => $id, 'unmet' => $unmet ] );
+					Health::record(
+						'requires_unmet',
+						"Module '{$id}' skipped: " . implode( '; ', $unmet ),
+						[
+							'module' => $id,
+							'unmet'  => $unmet,
+						]
+					);
 					if ( ! empty( $manifest['critical'] ) ) {
 						self::$critical_failures[] = $id;
 					}
