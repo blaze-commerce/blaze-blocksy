@@ -118,6 +118,23 @@ final class Registry {
 	}
 
 	/**
+	 * On/off for one module from manifest default, site config and kill switch only (no filter: site code
+	 * hasn't loaded yet). Used before site code, e.g. for legacy-v1's core.
+	 *
+	 * @param string             $id           Module id.
+	 * @param array<string,bool> $site_modules Site config `modules`.
+	 * @return bool
+	 */
+	public function enabled_before_site_code( string $id, array $site_modules ): bool {
+		$manifests = $this->manifests();
+		$on        = ! empty( $manifests[ $id ]['default'] );
+		if ( array_key_exists( $id, $site_modules ) ) {
+			$on = (bool) $site_modules[ $id ];
+		}
+		return $on && ! in_array( $id, self::kill_switch(), true );
+	}
+
+	/**
 	 * Ids named in BLAZE_CHILD_DISABLE_MODULES.
 	 *
 	 * @return string[]

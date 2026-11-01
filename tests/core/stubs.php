@@ -15,6 +15,7 @@ $GLOBALS['bc_core_store'] = [
 	'actions'    => [],
 	'notices'    => [],
 	'assets'     => [],
+	'caps'       => [],
 ];
 
 if ( ! function_exists( 'trailingslashit' ) ) {
@@ -84,7 +85,8 @@ if ( ! function_exists( 'get_transient' ) ) {
 }
 if ( ! function_exists( 'set_transient' ) ) {
 	function set_transient( $name, $value, $expiration = 0 ) {
-		$GLOBALS['bc_core_store']['transients'][ $name ] = $value;
+		$GLOBALS['bc_core_store']['transients'][ $name ]    = $value;
+		$GLOBALS['bc_core_store']['transient_ttl'][ $name ] = $expiration;
 		return true;
 	}
 }
@@ -132,6 +134,7 @@ if ( ! function_exists( 'wc_add_notice' ) ) {
 }
 if ( ! function_exists( 'current_user_can' ) ) {
 	function current_user_can( $cap ) {
+		$GLOBALS['bc_core_store']['caps'][] = $cap;
 		return ! empty( $GLOBALS['bc_wp_stub']['current_user_can'] );
 	}
 }
@@ -145,5 +148,59 @@ if ( ! function_exists( 'has_block' ) ) {
 if ( ! function_exists( 'has_shortcode' ) ) {
 	function has_shortcode( $content, $tag ) {
 		return in_array( $tag, (array) ( $GLOBALS['bc_wp_stub']['shortcodes'] ?? [] ), true );
+	}
+}
+
+if ( ! function_exists( '__' ) ) {
+	function __( $text, $domain = 'default' ) {
+		return $text;
+	}
+}
+
+if ( ! class_exists( 'WP_Error', false ) ) {
+	// phpcs:ignore Generic.Files.OneObjectStructurePerFile
+	class WP_Error {
+		private $code;
+		private $message;
+		private $data;
+
+		public function __construct( $code = '', $message = '', $data = '' ) {
+			$this->code    = $code;
+			$this->message = $message;
+			$this->data    = $data;
+		}
+
+		public function get_error_code() {
+			return $this->code;
+		}
+
+		public function get_error_message() {
+			return $this->message;
+		}
+
+		public function get_error_data() {
+			return $this->data;
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_REST_Request', false ) ) {
+	// phpcs:ignore Generic.Files.OneObjectStructurePerFile
+	class WP_REST_Request {
+		private $method;
+		private $route;
+
+		public function __construct( $method = '', $route = '' ) {
+			$this->method = strtoupper( (string) $method );
+			$this->route  = (string) $route;
+		}
+
+		public function get_method() {
+			return $this->method;
+		}
+
+		public function get_route() {
+			return $this->route;
+		}
 	}
 }
