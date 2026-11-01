@@ -1,3 +1,10 @@
+## [2.0.0-alpha.1] - 2026-11-01
+
+### Added
+- v2 bootstrap: `functions.php` now only loads `src/bootstrap.php`, which defines `BLAZE_CHILD_VERSION/PATH/URL`, registers a PSR-4 autoloader (`Blaze\Child\` to `src/`, `Blaze\Child\Modules\<Studly>\` to `modules/<kebab>/`) and calls `Theme::boot()` (empty until Task 4).
+- `Legacy::define()` keeps the v1 `BLOCKSY_CHILD_*` constants and the `BLAZE_BLOCKSY_*` shims, each defined only when absent.
+- `tests/core/` runner and `tests/run-all.php` (perf then core).
+
 ## [perf-modules-2026-09-28] - 2026-09-28
 
 ### Added
