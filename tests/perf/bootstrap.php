@@ -150,8 +150,10 @@ function esc_attr( $text ) {
 	return $text;
 }
 
+// Identity by default (the perf suite relies on it). An isolated subprocess that defines
+// BC_TEST_ESCAPE_HTML first gets real escaping, so it can assert output is escaped.
 function esc_html( $text ) {
-	return $text;
+	return defined( 'BC_TEST_ESCAPE_HTML' ) ? htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' ) : $text;
 }
 
 function esc_url( $text ) {
@@ -559,7 +561,7 @@ if ( ! function_exists( 'get_template' ) ) {
 
 if ( ! function_exists( 'esc_html__' ) ) {
 	function esc_html__( $text, $domain = 'default' ) {
-		return $text;
+		return esc_html( $text );
 	}
 }
 

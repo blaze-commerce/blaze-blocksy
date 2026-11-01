@@ -240,3 +240,25 @@ bc_test( 'admin_notice_only_for_manage_options', function () {
 	assert_same( false !== strpos( $out['shown'], 'boom' ), true, 'message shown' );
 	assert_same( false !== strpos( $out['shown'], 'old_thing' ), false, 'entries older than 24 h hidden' );
 } );
+
+bc_test( 'fail_closed_blocks_classic_order_pay', function () {
+	$out = bc_sl_boot( null, dirname( bc_sl_sites() ), "FailClosed::arm( 'test' );\n"
+		. "foreach ( \$GLOBALS['bc_test_hooks']['woocommerce_before_pay_action'] ?? [] as \$cbs ) { foreach ( \$cbs as \$cb ) { call_user_func( \$cb, new stdClass() ); } }\n"
+		. "echo json_encode( [ 'notices' => \$GLOBALS['bc_core_store']['notices'] ] );" );
+	assert_same( $out['notices'], [ [ 'error', 'Checkout is temporarily unavailable. Please try again shortly.' ] ], 'order-pay gets the error notice, so pay_action skips payment' );
+
+	$out = bc_sl_boot( null, dirname( bc_sl_sites() ), "echo json_encode( [ isset( \$GLOBALS['bc_test_hooks']['woocommerce_before_pay_action'] ) ] );" );
+	assert_same( $out, [ false ], 'not armed: order-pay untouched' );
+} );
+
+bc_test( 'admin_notice_escapes_output', function () {
+	$out = bc_sl_boot( null, dirname( bc_sl_sites() ), "Health::clear();\n"
+		. "Health::record( 'code<b>', 'boom <script>alert(1)</script> \"q\"' );\n"
+		. "\$GLOBALS['bc_wp_stub']['current_user_can'] = true;\n"
+		. "ob_start(); Blaze\\Child\\Core\\Theme::admin_notices(); \$shown = ob_get_clean();\n"
+		. "echo json_encode( [ 'shown' => \$shown, 'stub' => esc_html( '<i>' ) ] );", [ 'BC_TEST_ESCAPE_HTML' => true ] );
+	assert_same( $out['stub'], '&lt;i&gt;', 'escaping stub active in this subprocess' );
+	assert_same( false !== strpos( $out['shown'], 'boom &lt;script&gt;alert(1)&lt;/script&gt; &quot;q&quot;' ), true, 'message escaped' );
+	assert_same( false !== strpos( $out['shown'], 'code&lt;b&gt;' ), true, 'code escaped' );
+	assert_same( false === strpos( $out['shown'], '<script>' ) && false === strpos( $out['shown'], '<b>' ), true, 'no raw markup from health entries' );
+} );

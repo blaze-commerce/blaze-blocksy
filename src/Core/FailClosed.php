@@ -34,7 +34,9 @@ final class FailClosed {
 		}
 		self::$armed = true;
 
-		add_action( 'woocommerce_checkout_process', [ self::class, 'block_classic_checkout' ] );
+		add_action( 'woocommerce_checkout_process', [ self::class, 'refuse_classic_order' ] );
+		// Order-pay page: WC_Form_Handler::pay_action() skips process_payment() when error notices exist.
+		add_action( 'woocommerce_before_pay_action', [ self::class, 'refuse_classic_order' ] );
 		add_filter( 'rest_pre_dispatch', [ self::class, 'block_store_api' ], 10, 3 );
 
 		Health::record( 'checkout_closed', "Checkout is refusing orders: {$reason}", [ 'reason' => $reason ] );
@@ -49,11 +51,12 @@ final class FailClosed {
 	}
 
 	/**
-	 * Hooked on woocommerce_checkout_process: an error notice stops WooCommerce creating the order.
+	 * Hooked on woocommerce_checkout_process and woocommerce_before_pay_action: an error notice stops
+	 * WooCommerce creating the order or taking payment for an existing one.
 	 *
 	 * @return void
 	 */
-	public static function block_classic_checkout(): void {
+	public static function refuse_classic_order(): void {
 		wc_add_notice( self::message(), 'error' );
 	}
 
