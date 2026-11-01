@@ -66,13 +66,14 @@ if ( ! function_exists( 'get_option' ) ) {
 }
 if ( ! function_exists( 'update_option' ) ) {
 	function update_option( $name, $value, $autoload = null ) {
-		$GLOBALS['bc_core_store']['options'][ $name ] = $value;
+		// get_option() comes from tests/perf/bootstrap.php and reads bc_wp_stub['options'].
+		$GLOBALS['bc_wp_stub']['options'][ $name ] = $value;
 		return true;
 	}
 }
 if ( ! function_exists( 'delete_option' ) ) {
 	function delete_option( $name ) {
-		unset( $GLOBALS['bc_core_store']['options'][ $name ] );
+		unset( $GLOBALS['bc_wp_stub']['options'][ $name ] );
 		return true;
 	}
 }

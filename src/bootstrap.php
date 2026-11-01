@@ -63,6 +63,9 @@ function blaze_child_autoload( string $class ): void {
 
 spl_autoload_register( 'blaze_child_autoload' );
 
+// Functions are not autoloaded.
+require_once __DIR__ . '/Api.php';
+
 \Blaze\Child\Core\Legacy::define();
 
 \Blaze\Child\Core\Theme::boot();
