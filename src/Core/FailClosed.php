@@ -107,8 +107,8 @@ final class FailClosed {
 		$site = (string) get_bloginfo( 'name' );
 		wp_mail(
 			$to,
-			sprintf( '[%s] Checkout is closed: site code failed', $site ),
-			"Checkout on {$site} is refusing orders because the site's code failed to load ({$reason}).\n\n"
+			sprintf( '[%s] Checkout is closed (%s)', $site, $reason ),
+			"Checkout is closed ({$reason}): {$site} is refusing orders until the problem is fixed.\n\n"
 			. "The catalogue is still browsable. Details are under the Blaze child theme notice in wp-admin.\n"
 			. 'This alert is sent at most once an hour while the problem lasts.'
 		);

@@ -14,6 +14,11 @@ final class SiteLayer {
 	private static $config = null;
 
 	/**
+	 * @var bool True when site-config.php exists but threw, failed to parse or returned a non-array.
+	 */
+	private static $config_failed = false;
+
+	/**
 	 * The site folder: BLAZE_SITE_DIR, else WP_CONTENT_DIR/blaze-site; null when it does not exist.
 	 *
 	 * @return string|null
@@ -57,6 +62,9 @@ final class SiteLayer {
 		$dir      = self::dir();
 
 		if ( null === $dir ) {
+			if ( defined( 'BLAZE_SITE_DIR' ) ) {
+				Health::record( 'site_dir_missing', 'BLAZE_SITE_DIR is defined but the folder does not exist: ' . (string) BLAZE_SITE_DIR );
+			}
 			if ( ! is_file( self::legacy_file() ) ) {
 				Health::record( 'no_site_config', 'No wp-content/blaze-site/ folder and no legacy custom/custom.php: no modules are enabled' );
 			}
@@ -75,11 +83,22 @@ final class SiteLayer {
 			}
 		} catch ( \Throwable $e ) {
 			Health::record( 'site_config_invalid', 'site-config.php failed: ' . $e->getMessage(), [ 'file' => $file ] );
+			self::$config_failed = true;
 			FailClosed::arm( 'site_config_invalid' );
 			return self::$config = $defaults;
 		}
 
 		return self::$config = self::normalise( $raw, $defaults );
+	}
+
+	/**
+	 * True when site-config.php is broken; Theme::boot() then boots no modules at all.
+	 *
+	 * @return bool
+	 */
+	public static function config_failed(): bool {
+		self::config();
+		return self::$config_failed;
 	}
 
 	/**

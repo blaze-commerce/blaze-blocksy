@@ -81,8 +81,9 @@ bc_test( 'no_site_package_boots_nothing', function () {
 bc_test( 'config_modules_and_settings_normalised', function () {
 	$ok  = bc_sl_sites() . '/ok';
 	$out = bc_sl_boot( $ok, dirname( bc_sl_sites() ), "\$r = Registry::instance( 'alpha' );\n"
-		. "echo json_encode( [ 'dir' => SiteLayer::dir(), 'config' => SiteLayer::config(), 'codes' => bc_codes(), 'color' => \$r ? \$r->setting( 'color' ) : null, 'beta' => null !== Registry::instance( 'beta' ), 'loaded' => \$GLOBALS['bc_site_loaded'] ?? [], 'armed' => FailClosed::is_armed() ] );" );
+		. "echo json_encode( [ 'dir' => SiteLayer::dir(), 'config' => SiteLayer::config(), 'codes' => bc_codes(), 'color' => \$r ? \$r->setting( 'color' ) : null, 'beta' => null !== Registry::instance( 'beta' ), 'loaded' => \$GLOBALS['bc_site_loaded'] ?? [], 'armed' => FailClosed::is_armed(), 'failed' => SiteLayer::config_failed() ] );" );
 	assert_same( $out['dir'], $ok . '/blaze-site', 'WP_CONTENT_DIR/blaze-site' );
+	assert_same( $out['failed'], false, 'valid config is not a failure' );
 	assert_same( $out['config'], [
 		'modules'    => [ 'alpha' => true, 'beta' => false, 'gamma' => true ],
 		'settings'   => [ 'alpha' => [ 'color' => 'blue' ] ],
@@ -108,7 +109,7 @@ bc_test( 'broken_site_config_fails_closed', function () {
 	];
 	foreach ( $cases as $name => [ $content, $consts ] ) {
 		try {
-			$out = bc_sl_boot( $content, dirname( bc_sl_sites() ), "echo json_encode( [ 'config' => SiteLayer::config(), 'codes' => bc_codes(), 'msgs' => array_column( Health::all(), 'message' ), 'armed' => FailClosed::is_armed(), 'fx' => \$GLOBALS['bc_fx_booted'] ?? [] ] );", $consts );
+			$out = bc_sl_boot( $content, dirname( bc_sl_sites() ), "echo json_encode( [ 'config' => SiteLayer::config(), 'codes' => bc_codes(), 'msgs' => array_column( Health::all(), 'message' ), 'armed' => FailClosed::is_armed(), 'failed' => SiteLayer::config_failed(), 'fx' => \$GLOBALS['bc_fx_booted'] ?? [], 'loaded' => \$GLOBALS['bc_site_loaded'] ?? [] ] );", $consts );
 		} finally {
 			if ( 'parse-error' === $name ) {
 				@unlink( $parse . '/site-config.php' );
@@ -122,7 +123,16 @@ bc_test( 'broken_site_config_fails_closed', function () {
 		assert_same( in_array( 'site_config_invalid', $out['codes'], true ), true, "{$name}: health site_config_invalid" );
 		assert_same( $out['armed'], true, "{$name}: checkout fails closed" );
 		assert_same( $out['fx'], [], "{$name}: no modules boot" );
+		assert_same( $out['failed'], true, "{$name}: config_failed()" );
 	}
+	assert_same( $out['loaded'] ?? null, [], 'parse-error has no site.php' );
+
+	// throws: its site.php still loads (it may define functions templates call), but its
+	// module_enabled filter must not boot anything while the config is broken.
+	$out = bc_sl_boot( bc_sl_sites() . '/throws', dirname( bc_sl_sites() ), BC_SL_STATE );
+	assert_same( $out['loaded'], [ 'blaze-site' ], 'site.php still loads' );
+	assert_same( $out['fx'], [], 'filter __return_true boots no module' );
+	assert_same( $out['armed'], true );
 } );
 
 bc_test( 'site_code_throw_fails_closed', function () {
@@ -262,3 +272,31 @@ bc_test( 'admin_notice_escapes_output', function () {
 	assert_same( false !== strpos( $out['shown'], 'code&lt;b&gt;' ), true, 'code escaped' );
 	assert_same( false === strpos( $out['shown'], '<script>' ) && false === strpos( $out['shown'], '<b>' ), true, 'no raw markup from health entries' );
 } );
+
+bc_test( 'critical_module_unmet_requires_fails_closed', function () {
+	$site = bc_sl_sites() . '/critical-unmet';
+	$out  = bc_sl_boot( $site, $site . '/theme', "echo json_encode( [ 'codes' => bc_codes(), 'armed' => FailClosed::is_armed(), 'crit' => Registry::critical_failures(), 'fx' => \$GLOBALS['bc_fx_booted'] ?? [], 'wc' => class_exists( 'WooCommerce', false ) ] );" );
+	assert_same( $out['wc'], false, 'WooCommerce absent' );
+	assert_same( $out['fx'], [], 'module skipped' );
+	assert_same( $out['crit'], [ 'needs-woo' ], 'R7: unmet critical counts as a failure' );
+	assert_same( in_array( 'requires_unmet', $out['codes'], true ), true );
+	assert_same( $out['armed'], true, 'Theme::boot() arms fail-closed' );
+} );
+
+bc_test( 'site_dir_constant_missing_recorded', function () {
+	$none = bc_sl_sites() . '/none';
+	$out  = bc_sl_boot( $none, $none . '/theme', "echo json_encode( [ 'dir' => SiteLayer::dir(), 'codes' => bc_codes(), 'armed' => FailClosed::is_armed() ] );", [ 'BLAZE_SITE_DIR' => $none . '/does-not-exist' ] );
+	assert_same( $out['dir'], null, 'falls back as before: no site folder' );
+	assert_same( $out['codes'], [ 'site_dir_missing', 'no_site_config' ], 'missing BLAZE_SITE_DIR recorded' );
+	assert_same( $out['armed'], false );
+} );
+
+bc_test( 'fail_closed_mail_is_reason_neutral', function () {
+	$out = bc_sl_boot( null, dirname( bc_sl_sites() ), "update_option( 'admin_email', 'owner@example.test' );\n"
+		. "FailClosed::arm( 'critical_module_failed' );\n"
+		. "echo json_encode( \$GLOBALS['bc_core_store']['mails'][0] );" );
+	assert_same( false !== strpos( $out['subject'], 'Checkout is closed (critical_module_failed)' ), true, 'subject names the reason' );
+	assert_same( false !== strpos( $out['message'], 'Checkout is closed (critical_module_failed)' ), true, 'body names the reason' );
+	assert_same( false === stripos( $out['subject'] . $out['message'], 'site code failed' ), true, 'no site-code wording' );
+} );
+

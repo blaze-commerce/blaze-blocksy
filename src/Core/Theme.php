@@ -23,7 +23,8 @@ final class Theme {
 		self::load_v1_core( $registry, $config );
 		SiteLayer::include_site_code();
 
-		$booted = $registry->boot( $registry->resolve( $config['modules'] ), $config['settings'] );
+		// A broken site-config.php boots nothing: site code's blaze_child/module_enabled filter must not reach resolve().
+		$booted = SiteLayer::config_failed() ? [] : $registry->boot( $registry->resolve( $config['modules'] ), $config['settings'] );
 		if ( Registry::critical_failures() && 'open' !== $config['on_failure'] ) {
 			FailClosed::arm( 'critical_module_failed' );
 		}
@@ -66,7 +67,7 @@ final class Theme {
 		$cutoff = time() - self::NOTICE_MAX_AGE;
 		$items  = '';
 		foreach ( Health::all() as $entry ) {
-			if ( $entry['time'] >= $cutoff ) {
+			if ( ( $entry['time'] ?? 0 ) >= $cutoff ) {
 				$items .= '<li><code>' . esc_html( $entry['code'] ) . '</code> ' . esc_html( $entry['message'] ) . '</li>';
 			}
 		}
