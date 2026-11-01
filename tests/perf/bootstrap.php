@@ -534,6 +534,8 @@ if ( ! function_exists( 'wp_add_inline_script' ) ) {
 if ( ! function_exists( 'wp_enqueue_script' ) ) {
 	function wp_enqueue_script( $handle, $src = '', $deps = [], $ver = false, $in_footer = false ) {
 		$GLOBALS['bc_wp_stub']['enqueued_scripts'][ $handle ] = [ $src, $deps, $ver, $in_footer ];
+		// Full-argument record for the core suite (tests/core/test-assets.php).
+		$GLOBALS['bc_core_store']['assets'][] = [ 'wp_enqueue_script', $handle, $src, $deps, $ver, $in_footer ];
 	}
 }
 

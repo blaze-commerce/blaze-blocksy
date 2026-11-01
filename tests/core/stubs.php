@@ -116,7 +116,7 @@ foreach ( [ 'is_page', 'is_cart', 'is_checkout', 'is_product', 'is_shop', 'is_pr
 }
 foreach ( [ 'wp_register_script', 'wp_register_style', 'wp_enqueue_script', 'wp_enqueue_style' ] as $bc_fn ) {
 	if ( ! function_exists( $bc_fn ) ) {
-		eval( "function {$bc_fn}( \$handle, ...\$rest ) { \$GLOBALS['bc_core_store']['assets'][] = [ '{$bc_fn}', \$handle ]; return true; }" ); // phpcs:ignore -- test stub.
+		eval( "function {$bc_fn}( \$handle, ...\$rest ) { \$GLOBALS['bc_core_store']['assets'][] = array_merge( [ '{$bc_fn}', \$handle ], \$rest ); return true; }" ); // phpcs:ignore -- test stub.
 	}
 }
 if ( ! function_exists( 'wp_add_inline_script' ) ) {
@@ -133,5 +133,17 @@ if ( ! function_exists( 'wc_add_notice' ) ) {
 if ( ! function_exists( 'current_user_can' ) ) {
 	function current_user_can( $cap ) {
 		return ! empty( $GLOBALS['bc_wp_stub']['current_user_can'] );
+	}
+}
+
+// Tier B stubs: $GLOBALS['bc_wp_stub']['has_blocks'] / ['shortcodes'] are lists of names present on the current post.
+if ( ! function_exists( 'has_block' ) ) {
+	function has_block( $name, $post = null ) {
+		return in_array( $name, (array) ( $GLOBALS['bc_wp_stub']['has_blocks'] ?? [] ), true );
+	}
+}
+if ( ! function_exists( 'has_shortcode' ) ) {
+	function has_shortcode( $content, $tag ) {
+		return in_array( $tag, (array) ( $GLOBALS['bc_wp_stub']['shortcodes'] ?? [] ), true );
 	}
 }
