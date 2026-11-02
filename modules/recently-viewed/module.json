@@ -1,11 +1,11 @@
 {
   "id": "recently-viewed",
   "title": "Recently viewed products",
-  "description": "PDP section below related products built from the WooCommerce recently viewed cookie.",
-  "status": "legacy",
-  "loadable": false,
-  "owner": "",
-  "since": "1.x",
+  "description": "PDP section below related products; the browser keeps the list and fills an empty, cache-safe container from the Store API.",
+  "status": "stable",
+  "loadable": true,
+  "owner": "jarutosurano",
+  "since": "2.0.0",
   "surfaces": [
     "pdp.recently-viewed"
   ],
@@ -13,9 +13,41 @@
   "uses": [],
   "critical": false,
   "default": false,
-  "requires": {},
-  "settings": {},
-  "assets": [],
+  "requires": {
+    "plugins": {
+      "woocommerce": ">=9.0"
+    }
+  },
+  "settings": {
+    "limit": {
+      "type": "integer",
+      "default": 8
+    },
+    "title": {
+      "type": "string",
+      "default": "Recently viewed"
+    }
+  },
+  "assets": [
+    {
+      "file": "assets/recently-viewed.js",
+      "where": [
+        "pdp",
+        "archive",
+        "front"
+      ],
+      "deps": []
+    },
+    {
+      "file": "assets/recently-viewed.css",
+      "where": [
+        "pdp",
+        "archive",
+        "front"
+      ],
+      "deps": []
+    }
+  ],
   "hooks": {
     "filters": [],
     "actions": []
