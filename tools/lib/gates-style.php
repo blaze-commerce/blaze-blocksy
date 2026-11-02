@@ -66,7 +66,7 @@ final class StyleGates {
 		$count  = count( $tokens );
 		$lines  = [];
 		for ( $i = 0; $i < $count; $i++ ) {
-			if ( ! is_array( $tokens[ $i ] ) || T_STRING !== $tokens[ $i ][0] || ! in_array( strtolower( $tokens[ $i ][1] ), self::SCRIPT_CALLS, true ) ) {
+			if ( ! self::is_call_name( $tokens[ $i ], self::SCRIPT_CALLS ) ) {
 				continue;
 			}
 			$j = self::next_significant( $tokens, $i );
@@ -146,7 +146,7 @@ final class StyleGates {
 			$tokens = token_get_all( $ctx->read( $rel ) );
 			$count  = count( $tokens );
 			for ( $i = 0; $i < $count; $i++ ) {
-				if ( ! is_array( $tokens[ $i ] ) || T_STRING !== $tokens[ $i ][0] || ! in_array( strtolower( $tokens[ $i ][1] ), [ 'add_action', 'add_filter' ], true ) ) {
+				if ( ! self::is_call_name( $tokens[ $i ], [ 'add_action', 'add_filter' ] ) ) {
 					continue;
 				}
 				$j = self::next_significant( $tokens, $i );
@@ -156,7 +156,7 @@ final class StyleGates {
 				// Skip the hook name: up to the first comma at depth 1.
 				for ( $depth = 0; $j < $count; $j++ ) {
 					$t = $tokens[ $j ];
-					if ( '(' === $t || '[' === $t || '{' === $t ) {
+					if ( '(' === $t || '[' === $t || self::is_brace_open( $t ) ) {
 						++$depth;
 					} elseif ( ')' === $t || ']' === $t || '}' === $t ) {
 						if ( 0 === --$depth ) {
@@ -303,6 +303,29 @@ final class StyleGates {
 			++$i;
 		}
 		return $i;
+	}
+
+	/**
+	 * True for a function-name token (plain or fully qualified, e.g. \add_filter) naming one of $names.
+	 *
+	 * @param mixed    $token Token from token_get_all().
+	 * @param string[] $names Lowercase function names.
+	 * @return bool
+	 */
+	private static function is_call_name( $token, array $names ): bool {
+		return is_array( $token )
+			&& in_array( $token[0], [ T_STRING, T_NAME_FULLY_QUALIFIED ], true )
+			&& in_array( strtolower( ltrim( $token[1], '\\' ) ), $names, true );
+	}
+
+	/**
+	 * True for "{" and the string-interpolation openers "{$" and "${" (each closes with "}").
+	 *
+	 * @param mixed $token Token from token_get_all().
+	 * @return bool
+	 */
+	private static function is_brace_open( $token ): bool {
+		return '{' === $token || ( is_array( $token ) && in_array( $token[0], [ T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES ], true ) );
 	}
 
 	/**

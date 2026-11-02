@@ -19,6 +19,12 @@ final class Dist {
 	const MANIFEST = '.blaze-manifest.json';
 
 	/**
+	 * Never shipped, whatever .distignore says (same syntax): VCS data, secrets, editor and log files,
+	 * dev-only dependency folders (no Composer or npm at runtime).
+	 */
+	const ALWAYS_IGNORE = "/.git\n.env\n.env.*\nproject-config.json\n.idea/\n.vscode/\n*.log\nvendor/\nnode_modules/\n";
+
+	/**
 	 * Builds <out_dir>/blocksy-child.zip.
 	 *
 	 * @param string $root    Theme root.
@@ -63,14 +69,15 @@ final class Dist {
 	}
 
 	/**
-	 * Relative paths that ship: every file except .git/, node_modules/, .distignore matches and any
+	 * Relative paths that ship: every file except ALWAYS_IGNORE and .distignore matches and any
 	 * stale .blaze-manifest.json at the root. Sorted.
 	 *
 	 * @param string $root Theme root.
 	 * @return string[]
 	 */
 	public static function shipped_files( string $root ): array {
-		$patterns = self::patterns( is_file( $root . '/.distignore' ) ? (string) file_get_contents( $root . '/.distignore' ) : '' );
+		$ignore   = is_file( $root . '/.distignore' ) ? (string) file_get_contents( $root . '/.distignore' ) : '';
+		$patterns = self::patterns( self::ALWAYS_IGNORE . $ignore );
 		$out      = [];
 		foreach ( self::walk( $root ) as $rel ) {
 			if ( self::MANIFEST !== $rel && ! self::ignored( $rel, $patterns ) ) {
@@ -81,7 +88,7 @@ final class Dist {
 	}
 
 	/**
-	 * Every file under $root except .git/ and node_modules/, sorted.
+	 * Every file under $root except .git (folder or worktree file) and node_modules, sorted.
 	 *
 	 * @param string $root Root.
 	 * @return string[]
@@ -102,13 +109,13 @@ final class Dist {
 	}
 
 	/**
-	 * Iterator filter: skip .git and node_modules folders.
+	 * Iterator filter: skip .git (folder or file) and node_modules.
 	 *
 	 * @param \SplFileInfo $file File.
 	 * @return bool
 	 */
 	public static function walk_filter( \SplFileInfo $file ): bool {
-		return ! ( $file->isDir() && in_array( $file->getFilename(), [ '.git', 'node_modules' ], true ) );
+		return ! in_array( $file->getFilename(), [ '.git', 'node_modules' ], true );
 	}
 
 	/**

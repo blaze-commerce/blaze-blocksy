@@ -16,7 +16,7 @@ final class PhpGates {
 	const LINT_WORKERS = 8;
 
 	/**
-	 * `php -l` on every PHP file (fixtures excluded: some are broken on purpose).
+	 * `php -l` on every PHP file except fixtures/ under a tests/ folder (some are broken on purpose).
 	 *
 	 * @param Context $ctx Context.
 	 * @return array
@@ -24,7 +24,7 @@ final class PhpGates {
 	public static function php_lint( Context $ctx ): array {
 		$queue = [];
 		foreach ( $ctx->files() as $rel ) {
-			if ( 'php' === strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) ) && ! preg_match( '#(^|/)fixtures/#', $rel ) ) {
+			if ( 'php' === strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) ) && ! preg_match( '#(^|/)tests/(.*/)?fixtures/#', $rel ) ) {
 				$queue[] = $rel;
 			}
 		}
@@ -141,7 +141,9 @@ final class PhpGates {
 	private static function external( Context $ctx, string $tool, string $config, callable $command ): array {
 		$bin = $ctx->find_tool( $tool );
 		if ( null === $bin ) {
-			return Context::gate( $tool, 'warn', false, "{$tool} not installed" );
+			// Required in CI (spec 4.11); only a warning on a developer machine.
+			$in_ci = '' !== (string) getenv( 'CI' );
+			return Context::gate( $tool, $in_ci ? 'fail' : 'warn', false, "{$tool} not installed" );
 		}
 		if ( ! is_file( $ctx->path( $config ) ) ) {
 			return Context::gate( $tool, 'warn', false, "{$config} not found; {$tool} skipped" );

@@ -9,9 +9,19 @@
 /docs/
 /tools/
 tests/
+fixtures/
 /.gitignore
 /.distignore
 /README.md
 *.test.mjs
 .DS_Store
 Thumbs.db
+# Secrets, editor files, logs, dev-only dependencies (tools/lib/dist.php drops these even without this file).
+.env
+.env.*
+project-config.json
+.idea/
+.vscode/
+*.log
+vendor/
+node_modules/

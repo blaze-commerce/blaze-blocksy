@@ -37,8 +37,9 @@ final class Cli {
 		$report = Runner::run( $root, $module );
 
 		if ( isset( $opts['json'] ) ) {
-			echo json_encode( $report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ), "\n";
-			return $report['passed'] ? 0 : 1;
+			$json = self::encode_report( $report );
+			echo $json, "\n";
+			return $report['passed'] && false !== strpos( $json, '"passed": true' ) ? 0 : 1;
 		}
 
 		$counts = [
@@ -61,6 +62,29 @@ final class Cli {
 		printf( "\n%d gates: %d passed, %d failed, %d warnings\n", count( $report['gates'] ), $counts['PASS'], $counts['FAIL'], $counts['WARN'] );
 
 		return $report['passed'] ? 0 : 1;
+	}
+
+	/**
+	 * The report as JSON. Invalid UTF-8 (e.g. a file name in a detail) is substituted; if encoding still
+	 * fails, a minimal valid report with passed false is returned, so stdout is always the contract.
+	 *
+	 * @param array $report Runner::run() report.
+	 * @return string
+	 */
+	public static function encode_report( array $report ): string {
+		$flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
+		try {
+			return json_encode( $report, $flags | JSON_THROW_ON_ERROR );
+		} catch ( \JsonException $e ) {
+			$fallback = [
+				'version' => is_string( $report['version'] ?? null ) ? $report['version'] : '',
+				'root'    => is_string( $report['root'] ?? null ) ? $report['root'] : '',
+				'module'  => is_string( $report['module'] ?? null ) ? $report['module'] : null,
+				'gates'   => [ Context::gate( 'report_encoding', 'fail', false, 'report could not be JSON-encoded: ' . $e->getMessage() ) ],
+				'passed'  => false,
+			];
+			return (string) json_encode( $fallback, $flags );
+		}
 	}
 
 	/**

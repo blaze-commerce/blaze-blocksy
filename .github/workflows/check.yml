@@ -34,12 +34,18 @@ jobs:
         run: |
           composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global config --no-interaction allow-plugins.phpstan/extension-installer true
+          # Exact versions verified locally with tools/check.php on 2026-11-01.
           composer global require --no-interaction --no-progress \
-            wp-coding-standards/wpcs:^3.1 \
-            dealerdirect/phpcodesniffer-composer-installer \
-            szepeviktor/phpstan-wordpress \
-            phpstan/extension-installer \
-            php-stubs/woocommerce-stubs
+            squizlabs/php_codesniffer:3.13.6 \
+            wp-coding-standards/wpcs:3.4.1 \
+            phpcsstandards/phpcsutils:1.2.3 \
+            phpcsstandards/phpcsextra:1.5.1 \
+            dealerdirect/phpcodesniffer-composer-installer:1.2.1 \
+            phpstan/phpstan:2.3.4 \
+            szepeviktor/phpstan-wordpress:2.0.4 \
+            php-stubs/wordpress-stubs:7.1.2 \
+            phpstan/extension-installer:1.4.3 \
+            php-stubs/woocommerce-stubs:11.2.0
           echo "COMPOSER_HOME=$(composer global config home 2>/dev/null)" >> "$GITHUB_ENV"
           composer global config bin-dir --absolute 2>/dev/null >> "$GITHUB_PATH"
 

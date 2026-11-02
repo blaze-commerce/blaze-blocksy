@@ -15,8 +15,11 @@ final class DistGates {
 	/** Top-level folders that must never ship. */
 	const FORBIDDEN_TOP = [ 'tests', 'docs', 'tools', '.github', 'clients', 'claude-commands', '.superpowers' ];
 
+	/** Folders that must not ship at any depth. */
+	const FORBIDDEN_ANY = [ 'tests', 'fixtures' ];
+
 	/**
-	 * Root folder is blocksy-child/, no forbidden folders, no tests/ at any depth, no *.test.mjs,
+	 * Root folder is blocksy-child/, no forbidden folders, no tests/ or fixtures/ at any depth, no *.test.mjs,
 	 * and .blaze-manifest.json lists exactly the shipped files.
 	 *
 	 * @param Context $ctx Context.
@@ -77,7 +80,7 @@ final class DistGates {
 				continue;
 			}
 			$parts = explode( '/', $rel );
-			if ( in_array( $parts[0], self::FORBIDDEN_TOP, true ) || in_array( 'tests', array_slice( $parts, 0, -1 ), true ) ) {
+			if ( in_array( $parts[0], self::FORBIDDEN_TOP, true ) || array_intersect( self::FORBIDDEN_ANY, array_slice( $parts, 0, -1 ) ) ) {
 				$files[] = $rel;
 				$notes[] = 'forbidden path ships';
 			}

@@ -18,7 +18,7 @@ final class DenylistGates {
 	const TEXT_EXTENSIONS = [ 'php', 'js', 'mjs', 'css', 'json', 'md', 'txt', 'html', 'xml', 'neon', 'yml', 'yaml', 'svg' ];
 
 	/** A 4+-digit integer literal as the first argument of a page/post/ID lookup. */
-	const ID_PATTERN = '/\b(?:is_page|get_post|get_permalink|in_array)\s*\(\s*\d{4,}\b/';
+	const ID_PATTERN = '/\b(?:is_page|get_post|get_permalink|in_array)\s*\(\s*(?:\[\s*|array\s*\(\s*)?[\'"]?\d{4,}\b/i';
 
 	/**
 	 * Names from tools/denylist.txt (case-insensitive) in src/, tools/, beta/stable modules and every
@@ -116,7 +116,7 @@ final class DenylistGates {
 		// Innermost blocks hold declarations; the text before "{" back to the last brace is their selector.
 		if ( preg_match_all( '/([^{}]*)\{([^{}]*)\}/', $css, $blocks, PREG_OFFSET_CAPTURE | PREG_SET_ORDER ) ) {
 			foreach ( $blocks as $block ) {
-				if ( preg_match( '/(^|[\s,]):root\b/', $block[1][0] ) ) {
+				if ( self::is_root_selector( $block[1][0] ) ) {
 					continue;
 				}
 				if ( preg_match_all( '/#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})\b/i', $block[2][0], $hex, PREG_OFFSET_CAPTURE ) ) {
@@ -127,5 +127,18 @@ final class DenylistGates {
 			}
 		}
 		return array_values( array_unique( $lines ) );
+	}
+
+	/**
+	 * True when a rule's selector is exactly `:root`, optionally qualified (`:root[data-theme="dark"]`,
+	 * `:root:not(.x)`); a selector list such as `.a, :root` is not a token block.
+	 *
+	 * @param string $prelude Text between the previous brace and "{".
+	 * @return bool
+	 */
+	public static function is_root_selector( string $prelude ): bool {
+		$pos      = strrpos( $prelude, ';' );
+		$selector = trim( false === $pos ? $prelude : substr( $prelude, $pos + 1 ) );
+		return 1 === preg_match( '/^:root(?:\[[^\]]*\]|::?[a-z-]+(?:\([^)]*\))?)*$/i', $selector );
 	}
 }

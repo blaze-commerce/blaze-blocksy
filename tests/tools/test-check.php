@@ -458,7 +458,10 @@ tc_test( 'modules_md_fresh', function () {
 } );
 
 tc_test( 'phpcs_and_phpstan_warn_when_not_installed', function () {
-	$report = tc_run( tc_good(), null, [ 'phpcs', 'phpstan' ], [ 'path' => '' ] );
+	// Outside CI (GitHub sets CI=true; see fix5 for the CI rule).
+	$report = tc_with_ci( null, function () {
+		return tc_run( tc_good(), null, [ 'phpcs', 'phpstan' ], [ 'path' => '' ] );
+	} );
 	foreach ( [ 'phpcs', 'phpstan' ] as $tool ) {
 		$gate = tc_gate( $report, $tool );
 		tc_same( [ $gate['severity'], $gate['passed'], $gate['detail'] ], [ 'warn', false, "{$tool} not installed" ], $tool );
@@ -581,6 +584,120 @@ tc_test( 'gen_modules_md_is_deterministic_and_checks', function () {
 	tc_same( $code, 1, '--check exits 1 when missing' );
 	tc_cli( [ BC_TC_REPO . '/tools/gen-modules-md.php', '--root=' . $root ], $code );
 	tc_same( [ $code, (string) file_get_contents( "{$root}/docs/MODULES.md" ) ], [ 0, $md ], 'regenerates byte-identical' );
+} );
+
+// --- Fix round 1 -----------------------------------------------------------------------------------------------
+
+/** Runs $fn with the CI env var set to $value (null = unset), then restores it. */
+function tc_with_ci( ?string $value, callable $fn ) {
+	$old = getenv( 'CI' );
+	putenv( null === $value ? 'CI' : "CI={$value}" );
+	try {
+		return $fn();
+	} finally {
+		putenv( false === $old ? 'CI' : "CI={$old}" );
+	}
+}
+
+tc_test( 'fix1_no_hook_closures_fully_qualified_call', function () {
+	$root = tc_good();
+	tc_write( $root, 'modules/demo/Fq.php', "<?php\nnamespace Blaze\\Child\\Modules\\Demo;\n\ndefined( 'ABSPATH' ) || exit;\n\n\\add_filter( 'the_title', function ( \$t ) {\n\treturn \$t;\n} );\n" );
+	tc_fails( $root, 'no_hook_closures', 'modules/demo/Fq.php:6' );
+} );
+
+tc_test( 'fix1_no_jquery_fully_qualified_call', function () {
+	$root = tc_good();
+	tc_write( $root, 'modules/demo/Fq.php', "<?php\nnamespace Blaze\\Child\\Modules\\Demo;\n\ndefined( 'ABSPATH' ) || exit;\n\n\\wp_enqueue_script( 'bc-demo', 'x.js', [ 'jquery' ], '1', true );\n" );
+	tc_fails( $root, 'no_jquery', 'modules/demo/Fq.php:6' );
+} );
+
+tc_test( 'fix2_no_hook_closures_interpolated_hook_name', function () {
+	$root = tc_good();
+	tc_write( $root, 'modules/demo/Interp.php', "<?php\nnamespace Blaze\\Child\\Modules\\Demo;\n\ndefined( 'ABSPATH' ) || exit;\n\n\$id = 'demo';\nadd_filter( \"blaze_child/{\$id}/title\", function ( \$t ) {\n\treturn \$t;\n} );\nadd_filter( \"blaze_child/\${id}/label\", static fn( \$t ) => \$t );\n" );
+	$gate = tc_fails( $root, 'no_hook_closures', 'modules/demo/Interp.php:7' );
+	tc_true( in_array( 'modules/demo/Interp.php:10', $gate['files'], true ), '${} form found: ' . json_encode( $gate['files'] ) );
+} );
+
+tc_test( 'fix3_fixtures_outside_tests_are_checked_and_never_ship', function () {
+	$root = tc_good();
+	tc_write( $root, 'src/fixtures/Evil.php', "<?php\nfunction (\n" );
+	tc_fails( $root, 'php_lint', 'src/fixtures/Evil.php' );
+
+	$root = tc_good();
+	tc_write( $root, 'src/fixtures/Evil.php', "<?php\nnamespace Blaze\\Child\\Core;\n\nadd_action( 'init', function () {} ); // acmeclient\n" );
+	tc_fails( $root, 'no_hook_closures', 'src/fixtures/Evil.php:4' );
+	tc_fails( $root, 'client_denylist', 'src/fixtures/Evil.php:4' );
+	tc_fails( $root, 'abspath_guard', 'src/fixtures/Evil.php' );
+	// The fixture's .distignore has no fixtures/ line: dist_contents still refuses to ship it.
+	tc_fails( $root, 'dist_contents', 'src/fixtures/Evil.php' );
+
+	// tests/**/fixtures/ stays exempt.
+	$root = tc_good();
+	tc_write( $root, 'tests/x/fixtures/broken.php', "<?php\nfunction (\n" );
+	tc_passes( $root, 'php_lint' );
+} );
+
+tc_test( 'fix4_hex_exempt_only_for_exact_root_selector', function () {
+	$root = tc_good();
+	tc_write( $root, 'modules/demo/assets/demo.css', ":root[data-theme=\"dark\"] {\n\t--bc-demo-accent: #000;\n}\n:root:not(.x) {\n\t--bc-demo-bg: #fff;\n}\n" );
+	tc_passes( $root, 'client_denylist' );
+	tc_write( $root, 'modules/demo/assets/demo.css', ".bc-demo__label, :root {\n\tcolor: #a1b2c3;\n}\n" );
+	tc_fails( $root, 'client_denylist', 'modules/demo/assets/demo.css:2' );
+} );
+
+tc_test( 'fix5_missing_tools_fail_in_ci', function () {
+	$report = tc_with_ci( 'true', function () {
+		return tc_run( tc_good(), null, [ 'phpcs', 'phpstan' ], [ 'path' => '' ] );
+	} );
+	foreach ( [ 'phpcs', 'phpstan' ] as $tool ) {
+		$gate = tc_gate( $report, $tool );
+		tc_same( [ $gate['severity'], $gate['passed'], $gate['detail'] ], [ 'fail', false, "{$tool} not installed" ], $tool );
+	}
+	tc_same( $report['passed'], false, 'CI run fails' );
+	$local = tc_with_ci( null, function () {
+		return tc_run( tc_good(), null, [ 'phpcs' ], [ 'path' => '' ] );
+	} );
+	tc_same( tc_gate( $local, 'phpcs' )['severity'], 'warn', 'outside CI: warn' );
+} );
+
+tc_test( 'fix6_build_never_ships_secrets_or_dev_files', function () {
+	$root    = tc_good();
+	$secrets = [ '.env', '.env.local', 'project-config.json', '.idea/x.xml', '.vscode/settings.json', 'debug.log', 'vendor/autoload.php', 'node_modules/x/index.js', 'modules/demo/.git' ];
+	foreach ( $secrets as $rel ) {
+		tc_write( $root, $rel, "x\n" );
+	}
+	$shipped = \Blaze\Child\Tools\Dist::shipped_files( $root );
+	foreach ( $secrets as $rel ) {
+		tc_true( ! in_array( $rel, $shipped, true ), "{$rel} must not ship" );
+	}
+	tc_true( in_array( 'style.css', $shipped, true ), 'theme still ships' );
+	tc_passes( $root, 'dist_contents' );
+} );
+
+tc_test( 'fix7_json_report_survives_bad_utf8_and_encode_failure', function () {
+	$report = [
+		'version' => '9.9.9',
+		'root'    => '/x',
+		'module'  => null,
+		'gates'   => [ \Blaze\Child\Tools\Context::gate( 'php_lint', 'fail', false, "bad \xB1\x31 name", [ "src/\xFF.php:1" ] ) ],
+		'passed'  => false,
+	];
+	$json = json_decode( \Blaze\Child\Tools\Cli::encode_report( $report ), true );
+	tc_true( is_array( $json ) && 'php_lint' === $json['gates'][0]['code'], 'non-UTF-8 detail still encodes' );
+	tc_true( false !== strpos( $json['gates'][0]['detail'], "\u{FFFD}" ), 'invalid bytes substituted' );
+
+	$report['gates'][0]['detail'] = NAN;
+	$json                         = json_decode( \Blaze\Child\Tools\Cli::encode_report( $report ), true );
+	tc_same( array_keys( $json ), [ 'version', 'root', 'module', 'gates', 'passed' ], 'fallback keeps the contract keys' );
+	tc_same( [ $json['passed'], $json['gates'][0]['code'], $json['gates'][0]['passed'] ], [ false, 'report_encoding', false ], 'fallback fails' );
+} );
+
+tc_test( 'fix8_denylist_ids_quoted_and_in_arrays', function () {
+	foreach ( [ "is_page( '4821' )", 'is_page( "4821" )', 'is_page( [ 4821, 12 ] )', 'get_post( array( 4821 ) )', "IS_PAGE( ['4821'] )" ] as $call ) {
+		$root = tc_good();
+		tc_write( $root, 'src/Core/Ids.php', "<?php\nnamespace Blaze\\Child\\Core;\n\ndefined( 'ABSPATH' ) || exit;\n\nfunction bc_x() {\n\treturn {$call};\n}\n" );
+		tc_fails( $root, 'client_denylist', 'src/Core/Ids.php:7' );
+	}
 } );
 
 foreach ( $GLOBALS['tc_tmp'] as $dir ) {

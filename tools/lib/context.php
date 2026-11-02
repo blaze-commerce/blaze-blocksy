@@ -119,13 +119,14 @@ final class Context {
 	}
 
 	/**
-	 * True for paths inside a tests/ or fixtures/ folder at any depth (never checked by code gates).
+	 * True for paths inside a tests/ folder at any depth, fixtures included (never checked by code gates).
+	 * A fixtures/ folder outside tests/ is ordinary code and is checked.
 	 *
 	 * @param string $rel Relative path.
 	 * @return bool
 	 */
 	public static function is_test_path( string $rel ): bool {
-		return 1 === preg_match( '#(^|/)(tests|fixtures)/#', $rel );
+		return 1 === preg_match( '#(^|/)tests/#', $rel );
 	}
 
 	/**
@@ -183,7 +184,7 @@ final class Context {
 
 	/**
 	 * Files the style gates check: src/, tools/ and beta/stable module folders (or only --module's
-	 * folder), never tests/ or fixtures/. inc/, v1 assets/, woocommerce/ and partials/ are never in scope.
+	 * folder), never tests/ (fixtures included). inc/, v1 assets/, woocommerce/ and partials/ are never in scope.
 	 *
 	 * @param string[] $extensions Lowercase extensions to keep; empty keeps every file.
 	 * @return string[]
