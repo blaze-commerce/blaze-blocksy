@@ -1,0 +1,29 @@
+{
+  "id": "perf-hero-facade",
+  "title": "Hero facade",
+  "description": "Poster-first homepage hero for a YouTube iframe or autoplay video, mounted late and revealed once playing.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.hero-facade"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/hero-facade.php"
+    ]
+  }
+}

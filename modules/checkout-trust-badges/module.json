@@ -1,0 +1,30 @@
+{
+  "id": "checkout-trust-badges",
+  "title": "Checkout trust section",
+  "description": "Renders a trust section with payment logos, secure payments text and contact info in the checkout sidebar and below Place Order on mobile.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "checkout.trust"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/checkout-trust-badges.php"
+    ]
+  },
+  "notes": "contains client-specific code; must be generalised or moved to the site package before porting"
+}

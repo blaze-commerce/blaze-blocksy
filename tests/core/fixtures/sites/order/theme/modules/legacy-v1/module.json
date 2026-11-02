@@ -1,0 +1,1 @@
+{ "id": "legacy-v1", "title": "Legacy v1 (fixture)", "loadable": true, "surfaces": [], "critical": false, "default": false, "requires": {}, "settings": {}, "replaces": [], "legacy": { "files": [] } }

@@ -1,0 +1,30 @@
+{
+  "id": "checkout-customization",
+  "title": "Checkout step labels",
+  "description": "Renames Fluid Checkout step and substep titles and adds a step counter above the progress bar.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "checkout.steps"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": true,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/checkout-customization.php"
+    ]
+  },
+  "notes": "contains client-specific code; must be generalised or moved to the site package before porting"
+}

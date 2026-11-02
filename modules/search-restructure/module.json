@@ -1,0 +1,29 @@
+{
+  "id": "search-restructure",
+  "title": "Search dropdown restructure",
+  "description": "Turns the FiboSearch flat suggestion dropdown into a two-column layout: categories, posts and pages beside a product grid.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "header.search"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/search-restructure.php"
+    ]
+  }
+}

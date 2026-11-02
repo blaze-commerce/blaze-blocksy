@@ -1,0 +1,29 @@
+{
+  "id": "perf-dequeue-assets",
+  "title": "Dequeue unused assets",
+  "description": "Dequeues and deregisters stylesheets and scripts that the rendered DOM never uses.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.dequeue-assets"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/dequeue-assets.php"
+    ]
+  }
+}

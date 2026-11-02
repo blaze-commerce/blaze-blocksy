@@ -1,0 +1,1 @@
+{ "id": "needs-wc", "title": "Needs WC", "loadable": true, "surfaces": ["wc.only"], "default": false, "requires": { "plugins": { "woocommerce": ">=9.0" } }, "settings": {}, "replaces": [], "legacy": { "files": [] } }

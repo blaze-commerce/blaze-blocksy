@@ -1,0 +1,21 @@
+{
+  "id": "old-feature",
+  "title": "Old feature",
+  "description": "Catalogue stub for code still in legacy-v1.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": ["pdp.tabs"],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": { "filters": [], "actions": [] },
+  "replaces": [],
+  "legacy": { "files": ["inc/old.php"] },
+  "notes": "contains AcmeClient code; ported later"
+}

@@ -1,0 +1,1 @@
+{ "id": "needs-woo", "title": "Critical, needs WooCommerce (fixture)", "loadable": true, "surfaces": [], "critical": true, "default": false, "requires": { "plugins": { "woocommerce": ">=9.0" } }, "settings": {}, "replaces": [], "legacy": { "files": [] } }

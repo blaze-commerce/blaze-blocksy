@@ -1,0 +1,8 @@
+# Generic tokens that must not appear in src/, tools/ or beta/stable modules (tools/check.php client_denylist).
+# One case-insensitive token per line; matched as a substring. inc/ (legacy-v1) is exempt.
+#
+# Client names are NOT kept here: this repo is public (R27). client_denylist reads them, in order, from
+#   1. env BLAZE_CLIENT_DENYLIST       newline- or comma-separated (CI: the repository secret of that name)
+#   2. env BLAZE_CLIENT_DENYLIST_FILE  path to a file, one name per line
+#   3. ~/.config/blaze/client-denylist.txt
+# With none of them the name check warns locally and fails in CI. The gate never prints the names.

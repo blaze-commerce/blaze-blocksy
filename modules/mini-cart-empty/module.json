@@ -1,0 +1,29 @@
+{
+  "id": "mini-cart-empty",
+  "title": "Mini cart empty state",
+  "description": "Empty mini cart message plus a single suggested-products carousel (recently viewed, wishlist, bestsellers).",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "drawer.cart.empty"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/mini-cart-empty.php"
+    ]
+  }
+}

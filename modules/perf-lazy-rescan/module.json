@@ -1,0 +1,29 @@
+{
+  "id": "perf-lazy-rescan",
+  "title": "Lazy image rescan",
+  "description": "Re-runs the Perfmatters lazy loader for images injected after it initialised (AJAX filters, load more).",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.lazy-rescan"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/lazy-rescan.php"
+    ]
+  }
+}

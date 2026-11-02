@@ -1,0 +1,53 @@
+{
+  "id": "hide-cart-page",
+  "title": "Hide cart page",
+  "description": "Redirects the WooCommerce cart page to a configurable destination and removes cart-page references; the mini cart replaces it.",
+  "status": "stable",
+  "loadable": true,
+  "owner": "jarutosurano",
+  "since": "2.0.0",
+  "surfaces": [
+    "cart.page"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {
+    "plugins": {
+      "woocommerce": ">=9.0"
+    }
+  },
+  "settings": {
+    "destination": {
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "checkout",
+        "shop",
+        "home"
+      ]
+    }
+  },
+  "assets": [],
+  "hooks": {
+    "filters": [
+      "blaze_child/hide-cart-page/destination"
+    ],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/hide-cart-page.php"
+    ],
+    "constants": [
+      "BLAZE_HIDE_CART_PAGE",
+      "BLAZE_HIDE_CART_PAGE_DESTINATION"
+    ],
+    "filters": [
+      "blaze_hide_cart_page_destination"
+    ]
+  }
+}

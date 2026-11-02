@@ -1,0 +1,30 @@
+{
+  "id": "checkout-order-summary",
+  "title": "Checkout order summary",
+  "description": "Fluid Checkout Pro order summary hooks: mobile position, toggle text, item count badge, coupon position, free shipping bar.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "checkout.order-summary"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": true,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/checkout-order-summary.php"
+    ]
+  },
+  "notes": "contains client-specific code; must be generalised or moved to the site package before porting"
+}

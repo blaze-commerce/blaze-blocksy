@@ -1,0 +1,70 @@
+name: Check
+
+# tools/check.php is the one implementation of the quality gates (spec 4.10/4.11); swamp runs the same script.
+on:
+  pull_request:
+  push:
+    branches: [2.x]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: zip
+          tools: phpcs, phpstan
+          coverage: none
+
+      # CI only (the theme has no Composer dependencies at runtime): WordPress coding standards for phpcs,
+      # WordPress and WooCommerce stubs for phpstan. The global Composer bin goes first on PATH so
+      # tools/check.php runs these phpcs/phpstan builds, which see the standards and the extension.
+      - name: Install coding standards and stubs
+        run: |
+          composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global config --no-interaction allow-plugins.phpstan/extension-installer true
+          # Exact versions verified locally with tools/check.php on 2026-11-01.
+          composer global require --no-interaction --no-progress \
+            squizlabs/php_codesniffer:3.13.6 \
+            wp-coding-standards/wpcs:3.4.1 \
+            phpcsstandards/phpcsutils:1.2.3 \
+            phpcsstandards/phpcsextra:1.5.1 \
+            dealerdirect/phpcodesniffer-composer-installer:1.2.1 \
+            phpstan/phpstan:2.3.4 \
+            szepeviktor/phpstan-wordpress:2.0.4 \
+            php-stubs/wordpress-stubs:7.1.2 \
+            phpstan/extension-installer:1.4.3 \
+            php-stubs/woocommerce-stubs:11.2.0
+          echo "COMPOSER_HOME=$(composer global config home 2>/dev/null)" >> "$GITHUB_ENV"
+          composer global config bin-dir --absolute 2>/dev/null >> "$GITHUB_PATH"
+
+      # Node for the module JS unit tests (node:test), which tests/run-all.php runs when node is on PATH.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The catalogue test reads the private client names too; without them it prints SKIP.
+      - name: Unit tests
+        env:
+          BLAZE_CLIENT_DENYLIST: ${{ secrets.BLAZE_CLIENT_DENYLIST }}
+        run: php tests/run-all.php
+
+      - name: docs/MODULES.md is fresh
+        run: php tools/gen-modules-md.php --check
+
+      # Client names are private (R27): the BLAZE_CLIENT_DENYLIST secret holds them. Without it client_denylist fails in CI.
+      - name: Gates
+        env:
+          BLAZE_CLIENT_DENYLIST: ${{ secrets.BLAZE_CLIENT_DENYLIST }}
+        run: php tools/check.php
