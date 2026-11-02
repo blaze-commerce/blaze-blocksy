@@ -80,7 +80,38 @@ function bc_oci_tmpdir(): string {
 	$dir = sys_get_temp_dir() . '/bc_oci_' . bin2hex( random_bytes( 6 ) );
 	mkdir( $dir . '/uploads/2026/11', 0777, true );
 	mkdir( $dir . '/outside', 0777, true );
+	$GLOBALS['bc_oci_tmpdirs'][] = $dir;
 	return (string) realpath( $dir );
+}
+
+/** Removes a directory tree; symlinks are unlinked, never followed. */
+function bc_oci_rmtree( string $path ): void {
+	if ( is_link( $path ) || is_file( $path ) ) {
+		@unlink( $path );
+		return;
+	}
+	if ( ! is_dir( $path ) ) {
+		return;
+	}
+	foreach ( (array) scandir( $path ) as $entry ) {
+		if ( '.' !== $entry && '..' !== $entry ) {
+			bc_oci_rmtree( $path . '/' . $entry );
+		}
+	}
+	@rmdir( $path );
+}
+
+function bc_oci_cleanup(): void {
+	foreach ( $GLOBALS['bc_oci_tmpdirs'] ?? [] as $dir ) {
+		bc_oci_rmtree( $dir );
+	}
+	$GLOBALS['bc_oci_tmpdirs'] = [];
+}
+register_shutdown_function( 'bc_oci_cleanup' );
+
+/** Output with the per-output id number replaced by N. */
+function bc_oci_norm( string $svg ): string {
+	return (string) preg_replace( '/bc-oci-\d+-/', 'bc-oci-N-', $svg );
 }
 
 /** Fresh state plus a booted module; $attachments: id => [ 'file' => path, 'mime' => type, 'modified' => string ]. */
@@ -157,8 +188,10 @@ bc_test( 'strips_style_attribute_and_element', function () {
 
 bc_test( 'strips_javascript_href_keeps_fragment_href', function () {
 	$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path id="p" d="M0 0"/></defs><use href="#p"/><use xlink:href="#p"/><use href="data:image/svg+xml;base64,PHN2Zy8+"/><use xlink:href="https://evil.test/sprite.svg#p"/><a href="javascript:alert(1)"><path d="M9 9"/></a></svg>' );
-	assert_same( bc_oci_has( $out, '<use href="#p"/>' ), true, 'fragment href kept' );
-	assert_same( bc_oci_has( $out, 'xlink:href="#p"' ), true, 'fragment xlink:href kept' );
+	$out = bc_oci_norm( $out );
+	assert_same( bc_oci_has( $out, '<use href="#bc-oci-N-p"/>' ), true, 'fragment href kept, rewritten to the prefixed id' );
+	assert_same( bc_oci_has( $out, 'xlink:href="#bc-oci-N-p"' ), true, 'fragment xlink:href kept, rewritten' );
+	assert_same( bc_oci_has( $out, '<path id="bc-oci-N-p"' ), true, 'and the target id carries the same prefix' );
 	assert_same( bc_oci_has( $out, 'data:' ) || bc_oci_has( $out, 'evil' ) || bc_oci_has( $out, 'javascript' ), false, 'data:, external and javascript: hrefs gone' );
 	assert_same( substr_count( $out, '<use' ), 4, 'the <use> elements stay, without the bad href' );
 	assert_same( bc_oci_has( $out, '<a' ) || bc_oci_has( $out, 'M9 9' ), false, '<a> removed with its children' );
@@ -181,12 +214,12 @@ bc_test( 'strips_foreign_object', function () {
 bc_test( 'strips_animate_and_set_tricks', function () {
 	$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><a><animate attributeName="href" to="javascript:alert(1)"/><rect width="9" height="9"/></a><use href="#x"><set attributeName="href" to="javascript:alert(2)"/></use><animateTransform attributeName="transform"/><animateMotion/></svg>' );
 	assert_same( bc_oci_has( $out, 'animate' ) || bc_oci_has( $out, 'set' ) || bc_oci_has( $out, 'javascript' ), false );
-	assert_same( $out, '<svg xmlns="http://www.w3.org/2000/svg"><use href="#x"/></svg>' );
+	assert_same( bc_oci_norm( $out ), '<svg xmlns="http://www.w3.org/2000/svg"><use href="#bc-oci-N-x"/></svg>' );
 } );
 
 bc_test( 'strips_javascript_and_data_in_any_attribute', function () {
 	$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" fill="javascript:alert(1)" class="  JaVa&#10;ScRiPt:x" stroke="DATA:text/html,x" mask="url(https://evil.test/m.svg#m)" clip-path="url(#c)" filter="url(#f)"/></svg>' );
-	assert_same( $out, '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" clip-path="url(#c)"/></svg>', 'only url(#...) references survive; filter is not on the list' );
+	assert_same( bc_oci_norm( $out ), '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" clip-path="url(#bc-oci-N-c)"/></svg>', 'only url(#...) references survive; filter is not on the list' );
 } );
 
 bc_test( 'rejects_xxe_entity', function () {
@@ -196,7 +229,21 @@ bc_test( 'rejects_xxe_entity', function () {
 		$xxe = '<?xml version="1.0"?><!DOCTYPE svg [<!ENTITY xxe SYSTEM "file://' . $secret . '">]><svg xmlns="http://www.w3.org/2000/svg"><title>&xxe;</title></svg>';
 		assert_same( Sanitizer::svg( $xxe ), '', 'external entity rejected' );
 		assert_same( Sanitizer::svg( '<!DOCTYPE svg [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;">]><svg xmlns="http://www.w3.org/2000/svg"><title>&b;</title></svg>' ), '', 'internal entity (billion laughs) rejected' );
-		assert_same( Sanitizer::svg( '<!doctype svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg"/>' ), '', 'any DOCTYPE rejected, any case' );
+		assert_same(
+			Sanitizer::svg( '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>' ),
+			'<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
+			'R19: a plain DOCTYPE (no internal subset) is accepted and not copied'
+		);
+		assert_same( Sanitizer::svg( '<!DOCTYPE svg [<!ATTLIST svg onload CDATA "alert(1)">]><svg xmlns="http://www.w3.org/2000/svg"/>' ), '', 'any internal subset rejected (ATTLIST defaults)' );
+		assert_same( Sanitizer::svg( '<!DOCTYPE svg [ ]><svg xmlns="http://www.w3.org/2000/svg"/>' ), '<svg xmlns="http://www.w3.org/2000/svg"/>', 'an empty internal subset declares nothing' );
+		assert_same( Sanitizer::svg( '<!DOCTYPE svg [<!ENTITY % p SYSTEM "http://127.0.0.1:9/dtd"> %p;]><svg xmlns="http://www.w3.org/2000/svg"/>' ), '', 'parameter entity rejected' );
+
+		// UTF-16 with a BOM: the byte-string <!ENTITY check cannot see it, the parsed-DTD check must.
+		$utf8 = '<?xml version="1.0" encoding="UTF-16"?><!DOCTYPE svg [<!ENTITY xxe SYSTEM "file://' . $secret . '"><!ENTITY js "javascript:alert(1)">]><svg xmlns="http://www.w3.org/2000/svg"><title>&xxe;</title><path d="M0 0" aria-label="&js;"/></svg>';
+		assert_same( Sanitizer::svg( "\xFF\xFE" . mb_convert_encoding( $utf8, 'UTF-16LE', 'UTF-8' ) ), '', 'UTF-16LE with BOM rejected' );
+		assert_same( Sanitizer::svg( "\xFE\xFF" . mb_convert_encoding( $utf8, 'UTF-16BE', 'UTF-8' ) ), '', 'UTF-16BE with BOM rejected' );
+		$plain16 = '<?xml version="1.0" encoding="UTF-16"?><svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>';
+		assert_same( Sanitizer::svg( "\xFF\xFE" . mb_convert_encoding( $plain16, 'UTF-16LE', 'UTF-8' ) ), '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>', 'a clean UTF-16 icon still works' );
 		assert_same( Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><title>&lt;!ENTITY</title></svg>' ), '<svg xmlns="http://www.w3.org/2000/svg"><title>&lt;!ENTITY</title></svg>', 'escaped text is not a declaration' );
 	} finally {
 		@unlink( $secret );
@@ -223,13 +270,13 @@ bc_test( 'keeps_plain_icon_byte_equivalent_geometry', function () {
 	);
 	assert_same( $out, $expected, 'the v1 default cart icon passes unchanged apart from xmlns position' );
 
-	$out = Sanitizer::svg( '<?xml version="1.0" encoding="UTF-8"?>' . "\n<!-- Generator: x -->\n" . '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10 10"><title>Bag</title><desc>d</desc><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#000" stop-opacity=".5"/></linearGradient><radialGradient id="r" cx="1" cy="1" r="1"/><clipPath id="c"><rect x="0" y="0" width="10" height="10" rx="1" ry="1"/></clipPath><mask id="m"><ellipse cx="5" cy="5" rx="2" ry="3"/></mask><symbol id="s" viewBox="0 0 1 1"><line x1="0" y1="0" x2="1" y2="1"/></symbol></defs><g transform="translate(1 1)" opacity=".9" fill-rule="evenodd" clip-rule="evenodd" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 2"><polyline points="0,0 1,1"/><polygon points="0,0 1,1 1,0"/><circle cx="5" cy="5" r="4" fill="url(#g)" clip-path="url(#c)" mask="url(#m)"/></g><use xlink:href="#s" x="1" y="1" width="2" height="2"/></svg>' );
+	$out = bc_oci_norm( Sanitizer::svg( '<?xml version="1.0" encoding="UTF-8"?>' . "\n<!-- Generator: x -->\n" . '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10 10"><title>Bag</title><desc>d</desc><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#000" stop-opacity=".5"/></linearGradient><radialGradient id="r" cx="1" cy="1" r="1"/><clipPath id="c"><rect x="0" y="0" width="10" height="10" rx="1" ry="1"/></clipPath><mask id="m"><ellipse cx="5" cy="5" rx="2" ry="3"/></mask><symbol id="s" viewBox="0 0 1 1"><line x1="0" y1="0" x2="1" y2="1"/></symbol></defs><g transform="translate(1 1)" opacity=".9" fill-rule="evenodd" clip-rule="evenodd" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 2"><polyline points="0,0 1,1"/><polygon points="0,0 1,1 1,0"/><circle cx="5" cy="5" r="4" fill="url(#g)" clip-path="url(#c)" mask="url(#m)"/></g><use xlink:href="#s" x="1" y="1" width="2" height="2"/></svg>' ) );
 	assert_same( 0 === strpos( $out, '<svg ' ), true, 'no XML declaration, root first' );
 	assert_same( bc_oci_has( $out, '<?xml' ) || bc_oci_has( $out, '<!--' ), false, 'no prolog, no comments' );
 	foreach ( [ 'title', 'desc', 'defs', 'linearGradient', 'radialGradient', 'stop', 'clipPath', 'mask', 'ellipse', 'symbol', 'line', 'g', 'polyline', 'polygon', 'circle', 'use', 'rect' ] as $el ) {
 		assert_same( false !== strpos( $out, '<' . $el . ( 'g' === $el ? ' ' : '' ) ), true, "{$el} kept with canonical case" );
 	}
-	foreach ( [ 'gradientUnits="userSpaceOnUse"', 'stop-color="#000"', 'stop-opacity=".5"', 'offset="0"', 'transform="translate(1 1)"', 'fill-rule="evenodd"', 'clip-rule="evenodd"', 'stroke-width="1.5"', 'stroke-linecap="round"', 'stroke-dasharray="1 2"', 'points="0,0 1,1 1,0"', 'fill="url(#g)"', 'mask="url(#m)"', 'xlink:href="#s"', '<title>Bag</title>' ] as $attr ) {
+	foreach ( [ 'gradientUnits="userSpaceOnUse"', 'stop-color="#000"', 'stop-opacity=".5"', 'offset="0"', 'transform="translate(1 1)"', 'fill-rule="evenodd"', 'clip-rule="evenodd"', 'stroke-width="1.5"', 'stroke-linecap="round"', 'stroke-dasharray="1 2"', 'points="0,0 1,1 1,0"', 'fill="url(#bc-oci-N-g)"', 'mask="url(#bc-oci-N-m)"', 'clip-path="url(#bc-oci-N-c)"', 'xlink:href="#bc-oci-N-s"', 'id="bc-oci-N-g"', '<title>Bag</title>' ] as $attr ) {
 		assert_same( false !== strpos( $out, $attr ), true, "{$attr} kept" );
 	}
 } );
@@ -263,6 +310,79 @@ bc_test( 'restores_libxml_error_state', function () {
 // ---------------------------------------------------------------------------
 // Module.
 // ---------------------------------------------------------------------------
+
+bc_test( 'strips_css_image_functions', function () {
+	$fetchers = [
+		'image-set(&quot;https://evil.test/a.png&quot; 1x)',
+		'-webkit-image-set(&quot;https://evil.test/a.png&quot; 1x)',
+		'image(&quot;https://evil.test/a.png&quot;)',
+		'cross-fade(url(#a), url(https://evil.test/a.png), 50%)',
+		'url(#a) image-set(&quot;https://evil.test/a.png&quot; 1x)',
+		'rgb(1 2 3) image(https://evil.test/a.png)',
+		'element(#a)',
+		'paint(x)',
+		'var(--x)',
+		'env(x)',
+	];
+	foreach ( [ 'mask', 'fill', 'stroke', 'clip-path', 'stop-color', 'color', 'opacity', 'stroke-width' ] as $attr ) {
+		foreach ( $fetchers as $value ) {
+			$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" ' . $attr . '="' . $value . '"/></svg>' );
+			assert_same( $out, '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>', "{$attr}={$value} dropped" );
+		}
+	}
+
+	// Values that stay.
+	$keep = [
+		'fill'      => [ 'none', 'currentColor', '#fff', '#ffffff80', 'rgb(0, 0, 0)', 'rgba(0 0 0 / 50%)', 'hsl(120deg 50% 50%)', 'red', 'url(#g)', 'url(#g) #000', "url('#g')" ],
+		'stroke'    => [ 'none', 'currentColor', 'url(#g) none' ],
+		'mask'      => [ 'url(#m)', 'none' ],
+		'clip-path' => [ 'url(#c)', 'none' ],
+	];
+	foreach ( $keep as $attr => $values ) {
+		foreach ( $values as $value ) {
+			$out = bc_oci_norm( Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" ' . $attr . '="' . $value . '"/></svg>' ) );
+			assert_same( false !== strpos( $out, ' ' . $attr . '="' ), true, "{$attr}={$value} kept" );
+		}
+	}
+	assert_same( bc_oci_norm( Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" fill="url( \'#g\' )"/></svg>' ) ), '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" fill="url(#bc-oci-N-g)"/></svg>', 'url() normalised and rewritten' );
+	assert_same( Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" mask="url(#m) #000" clip-path="currentColor"/></svg>' ), '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>', 'mask/clip-path take only none or url(#id)' );
+
+	// transform: only SVG transform functions with numbers.
+	foreach ( [ 'translate(1 1)', 'translate(1,1) rotate(45)', 'matrix(1 0 0 1 -2.5 3e2)', 'scale(.5)skewX(10)', 'translate(1-2)', 'rotate(45, 12, 12) , scale(2)' ] as $t ) {
+		$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><g transform="' . $t . '"/></svg>' );
+		assert_same( $out, '<svg xmlns="http://www.w3.org/2000/svg"><g transform="' . $t . '"/></svg>', "transform {$t} kept" );
+	}
+	foreach ( [ 'translate(1 1) image(https://evil.test/a)', 'translate(calc(1px))', 'perspective(1)', 'translate()', 'translate(1 1', 'url(#a)', 'translate(1 1);x' ] as $t ) {
+		$out = Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><linearGradient gradientTransform="' . $t . '"/><g transform="' . $t . '"/></svg>' );
+		assert_same( $out, '<svg xmlns="http://www.w3.org/2000/svg"><linearGradient/><g/></svg>', "transform {$t} dropped" );
+	}
+	$start = microtime( true );
+	Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg"><g transform="matrix(' . str_repeat( '1', 100000 ) . 'x)"/></svg>' );
+	assert_same( microtime( true ) - $start < 1.0, true, 'no catastrophic backtracking on a long number' );
+} );
+
+bc_test( 'ids_prefixed_and_references_rewritten', function () {
+	$in  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="wc_add_to_cart_params" class="woocommerce-js 9bad x&quot;y ok_2"><defs><linearGradient id="g"/><clipPath id="__proto__"/><path id="1x" d="M0 0"/><symbol id="s"/></defs><use href="#s"/><use xlink:href="#g"/><use href="#__proto__"/><path d="M0 0" fill="url(#g)" clip-path="url(#__proto__)"/></svg>';
+	$a   = Sanitizer::svg( $in );
+	$b   = Sanitizer::svg( $in );
+	assert_same( 1 === preg_match( '/id="(bc-oci-(\d+)-)wc_add_to_cart_params"/', $a, $m ), true, 'id prefixed, so it cannot clobber window.wc_add_to_cart_params' );
+	$p = $m[1];
+	assert_same( false !== strpos( $a, 'id="' . $p . 'g"' ) && false !== strpos( $a, 'id="' . $p . 's"' ), true, 'every id shares the output prefix' );
+	assert_same( false !== strpos( $a, '<use href="#' . $p . 's"/>' ), true, 'href follows its id' );
+	assert_same( false !== strpos( $a, 'xlink:href="#' . $p . 'g"' ), true, 'xlink:href follows its id' );
+	assert_same( false !== strpos( $a, 'fill="url(#' . $p . 'g)"' ), true, 'url(#id) follows its id' );
+	assert_same( bc_oci_has( $a, '__proto__' ) || bc_oci_has( $a, '1x' ), false, 'ids (and references) outside [A-Za-z][A-Za-z0-9_-]* dropped' );
+	assert_same( false !== strpos( $a, 'class="woocommerce-js ok_2"' ), true, 'class names outside the pattern dropped, the rest kept' );
+	assert_same( Sanitizer::svg( '<svg xmlns="http://www.w3.org/2000/svg" class="9 $x"/>' ), '<svg xmlns="http://www.w3.org/2000/svg"/>', 'no valid class left: attribute dropped' );
+	assert_same( 1 === preg_match( '/id="bc-oci-(\d+)-wc_add_to_cart_params"/', $b, $m2 ) && $m2[1] !== $m[2], true, 'two outputs get different numbers' );
+
+	// The module renumbers per printed icon, so two icons cached separately (same n) still differ on the page.
+	$x = OffcanvasIcons::renumber( '<svg xmlns="http://www.w3.org/2000/svg"><defs><g id="bc-oci-1-a"/></defs><use href="#bc-oci-1-a"/></svg>' );
+	$y = OffcanvasIcons::renumber( '<svg xmlns="http://www.w3.org/2000/svg"><defs><g id="bc-oci-1-a"/></defs><use href="#bc-oci-1-a"/></svg>' );
+	assert_same( $x !== $y, true, 'renumbered per print' );
+	assert_same( 1 === preg_match( '/id="(bc-oci-\d+-)a"\/><\/defs><use href="#\1a"/', $x ), true, 'id and reference renumbered together' );
+	assert_same( OffcanvasIcons::renumber( '<svg/>' ), '<svg/>', 'nothing to renumber' );
+} );
 
 bc_test( 'v1_option_ids_still_read', function () {
 	$module = bc_oci_boot( [], [
@@ -337,7 +457,7 @@ bc_test( 'raster_falls_back_to_img_and_is_not_cached', function () {
 	assert_same( $module->markup( 'wishlist' ), '', 'no URL -> empty' );
 } );
 
-bc_test( 'svg_outside_uploads_is_never_read', function () {
+bc_test( 'svg_outside_uploads_is_never_read_and_falls_back_to_img', function () {
 	$root = bc_oci_tmpdir();
 	file_put_contents( $root . '/outside/evil.svg', BC_OCI_HEART );
 	symlink( $root . '/outside/evil.svg', $root . '/uploads/2026/11/link.svg' );
@@ -349,12 +469,38 @@ bc_test( 'svg_outside_uploads_is_never_read', function () {
 		$root . '/uploads-evil.svg'                    => 'sibling sharing the uploads prefix',
 		$root . '/uploads/2026/11/missing.svg'         => 'missing file',
 	];
+	$img = '<img class="ct-icon ct-cart-panel-icon" src="https://example.test/wp-content/uploads/icon.svg" alt="" />';
 	foreach ( $cases as $path => $why ) {
 		$module = bc_oci_boot( [], [ 'blocksy_child_minicart_panel_icon_id' => 3 ], [ 3 => [ 'file' => $path, 'mime' => 'image/svg+xml' ] ], $root );
-		assert_same( $module->markup( 'minicart' ), '', $why );
+		$GLOBALS['bc_wp_stub']['attachment_image_url']['3:full'] = 'https://example.test/wp-content/uploads/icon.svg';
+		assert_same( $module->markup( 'minicart', 'ct-cart-panel-icon' ), $img, "{$why}: never inlined, R21 v1 <img> fallback" );
+		assert_same( $GLOBALS['bc_core_store']['transients'], [], "{$why}: nothing cached" );
+		$GLOBALS['bc_wp_stub']['attachment_image_url'] = [];
+		assert_same( $module->markup( 'minicart' ), '', "{$why}: no URL -> empty" );
 	}
 	$module = bc_oci_boot( [], [ 'blocksy_child_minicart_panel_icon_id' => 3 ], [ 3 => [ 'file' => $root . '/outside/evil.svg', 'mime' => 'image/svg+xml' ] ], '' );
-	assert_same( $module->markup( 'minicart' ), '', 'no uploads dir at all' );
+	assert_same( $module->markup( 'minicart' ), '', 'no uploads dir at all, no URL' );
+
+	$out = bc_test_run_isolated(
+		"define( 'ABSPATH', '/' );\n"
+		. "function esc_attr( \$t ) { return htmlspecialchars( (string) \$t, ENT_QUOTES, 'UTF-8' ); }\n"
+		. "function esc_url( \$u ) { return str_replace( [ '\"', '<', '>' ], [ '%22', '%3C', '%3E' ], (string) \$u ); }\n"
+		. "function get_option( \$n, \$d = false ) { return 'blocksy_child_minicart_panel_icon_id' === \$n ? 3 : \$d; }\n"
+		. "function apply_filters( \$h, \$v ) { return \$v; }\n"
+		. "function get_post_mime_type( \$id ) { return 'image/svg+xml'; }\n"
+		. "function get_post_field( \$f, \$id ) { return 'x'; }\n"
+		. "function get_transient( \$k ) { return false; }\n"
+		. "function get_attached_file( \$id ) { return '/nonexistent/icon.svg'; }\n"
+		. "function wp_upload_dir( \$t = null, \$c = true ) { return [ 'basedir' => sys_get_temp_dir() ]; }\n"
+		. "function trailingslashit( \$s ) { return rtrim( \$s, '/' ) . '/'; }\n"
+		. "function wp_get_attachment_image_url( \$id, \$s ) { return 'https://example.test/a\"onerror=\"x.svg'; }\n"
+		. "require " . var_export( dirname( __DIR__, 2 ), true ) . " . '/src/Core/Module.php';\n"
+		. "require " . var_export( dirname( __DIR__, 2 ), true ) . " . '/modules/offcanvas-icons/Sanitizer.php';\n"
+		. "require " . var_export( dirname( __DIR__, 2 ), true ) . " . '/modules/offcanvas-icons/Module.php';\n"
+		. "\$m = new Blaze\\Child\\Modules\\OffcanvasIcons\\Module( [ 'id' => 'offcanvas-icons' ], [] );\n"
+		. "echo json_encode( [ \$m->markup( 'minicart', 'a\"b' ) ] );"
+	);
+	assert_same( $out[0], '<img class="ct-icon a&quot;b" src="https://example.test/a%22onerror=%22x.svg" alt="" />', 'class and URL escaped in the fallback' );
 } );
 
 bc_test( 'sanitised_svg_cached_by_id_and_post_modified', function () {
@@ -382,7 +528,7 @@ bc_test( 'sanitised_svg_cached_by_id_and_post_modified', function () {
 bc_test( 'rejected_svg_records_health_and_caches_empty', function () {
 	$root = bc_oci_tmpdir();
 	$file = $root . '/uploads/2026/11/bad.svg';
-	file_put_contents( $file, '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg"/>' );
+	file_put_contents( $file, '<!DOCTYPE svg [<!ATTLIST svg onload CDATA "alert(1)">]><svg xmlns="http://www.w3.org/2000/svg"/>' );
 	$module = bc_oci_boot( [], [ 'blocksy_child_wishlist_panel_icon_id' => 8 ], [ 8 => [ 'file' => $file, 'mime' => 'image/svg+xml' ] ], $root );
 	assert_same( $module->markup( 'wishlist' ), '', 'rejected SVG -> empty, caller keeps its default' );
 	$health = Health::all();

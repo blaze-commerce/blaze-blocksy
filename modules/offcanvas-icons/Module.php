@@ -34,6 +34,11 @@ class Module extends \Blaze\Child\Core\Module {
 	const CACHE_TTL = 604800;
 
 	/**
+	 * @var int Inlined SVGs printed in this request; renumbers cached id prefixes so two icons never share an id.
+	 */
+	private static $printed = 0;
+
+	/**
 	 * The booted instance, or null when the module is off. The module id is this folder's name.
 	 *
 	 * @return self|null
@@ -77,7 +82,8 @@ class Module extends \Blaze\Child\Core\Module {
 	 * Icon markup, or '' when none is configured or it cannot be used (the caller then keeps its default icon).
 	 *
 	 * An SVG attachment is inlined after sanitising, so it inherits Blocksy's `ct-icon` sizing and currentColor.
-	 * Any other image falls back to an <img>, as in v1.
+	 * Any other image, and an SVG whose file cannot be read from uploads, falls back to an <img> as in v1 (an SVG in
+	 * <img> cannot run script). An SVG the sanitiser rejects gives ''.
 	 *
 	 * @param string $which       'minicart' or 'wishlist'.
 	 * @param string $extra_class Class(es) added after `ct-icon`.
@@ -91,7 +97,12 @@ class Module extends \Blaze\Child\Core\Module {
 
 		if ( 'image/svg+xml' === get_post_mime_type( $id ) ) {
 			$svg = $this->sanitised_svg( $id );
-			return '' === $svg ? '' : self::with_classes( $svg, $extra_class );
+			if ( '' === $svg ) {
+				return '';
+			}
+			if ( null !== $svg ) {
+				return self::with_classes( self::renumber( $svg ), $extra_class );
+			}
 		}
 
 		$url = wp_get_attachment_image_url( $id, 'full' );
@@ -105,13 +116,13 @@ class Module extends \Blaze\Child\Core\Module {
 	/**
 	 * Sanitised SVG of an attachment, cached in a transient keyed by attachment id and post_modified.
 	 *
-	 * A file that cannot be read from inside the uploads directory gives '' and is not cached. A file that fails
+	 * A file that cannot be read from inside the uploads directory gives null and is not cached. A file that fails
 	 * sanitising gives '', is cached as '' and is recorded in the health log.
 	 *
 	 * @param int $id Attachment id.
-	 * @return string
+	 * @return string|null
 	 */
-	public function sanitised_svg( int $id ): string {
+	public function sanitised_svg( int $id ): ?string {
 		$key    = 'blaze_child_oci_' . self::CACHE_VERSION . '_' . $id . '_' . md5( (string) get_post_field( 'post_modified', $id ) );
 		$cached = get_transient( $key );
 		if ( is_string( $cached ) ) {
@@ -120,14 +131,14 @@ class Module extends \Blaze\Child\Core\Module {
 
 		$raw = self::read_upload( (string) get_attached_file( $id ) );
 		if ( null === $raw ) {
-			return '';
+			return null;
 		}
 
 		$svg = Sanitizer::svg( $raw );
 		if ( '' === $svg ) {
 			Health::record(
 				'svg_rejected',
-				"Panel icon attachment {$id} was not inlined: the SVG is over 512 KB, has a DOCTYPE or ENTITY declaration, does not parse, or its root is not <svg>. The panel keeps its default icon.",
+				"Panel icon attachment {$id} was not inlined: the SVG is over 512 KB, declares entities or an internal DTD subset, does not parse, or its root is not <svg>. The panel keeps its default icon.",
 				[
 					'module'     => $this->id(),
 					'attachment' => $id,
@@ -165,6 +176,20 @@ class Module extends \Blaze\Child\Core\Module {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local upload, not a remote fetch.
 		$raw = file_get_contents( $real );
 		return false === $raw ? null : $raw;
+	}
+
+	/**
+	 * Gives the cached markup's `bc-oci-<n>-` id prefix a number unique to this request, so the mini cart and wishlist
+	 * icons (cached separately, possibly with the same n) never share an id on one page.
+	 *
+	 * @param string $svg Sanitizer::svg() output.
+	 * @return string
+	 */
+	public static function renumber( string $svg ): string {
+		if ( false === strpos( $svg, 'bc-oci-' ) ) {
+			return $svg;
+		}
+		return (string) preg_replace( '/(?<![A-Za-z0-9_-])bc-oci-\d+-/', 'bc-oci-' . ( ++self::$printed ) . '-', $svg );
 	}
 
 	/**
