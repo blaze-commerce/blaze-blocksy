@@ -69,7 +69,7 @@ bc_test( 'container_has_no_personal_data_or_nonce', function () {
 	unset( $_COOKIE['woocommerce_recently_viewed'] );
 
 	assert_same( 1, preg_match( '/^<section class="bc-recently-viewed[ "]/', $html ), 'starts with the bc-recently-viewed section: ' . $html );
-	foreach ( [ 'data-bc-rv', 'data-limit="8"', 'data-product-id="1"', ' hidden', 'aria-labelledby="bc-recently-viewed-title"', 'id="bc-recently-viewed-title"', '>Recently viewed</h2>' ] as $needle ) {
+	foreach ( [ 'data-bc-rv', 'data-limit="8"', 'data-product-id="1"', ' hidden', 'aria-labelledby="bc-recently-viewed-title"', 'id="bc-recently-viewed-title"', '>Recently Viewed</h2>' ] as $needle ) {
 		assert_same( true, false !== strpos( $html, $needle ), "container has {$needle}: {$html}" );
 	}
 	foreach ( [ '4011', '4022', '4033', 'nonce', 'n0nce', '<li', '<img', 'href=' ] as $needle ) {
@@ -112,8 +112,8 @@ bc_test( 'settings_limit_title_and_columns', function () {
 	assert_same( bc_rv_boot( [ 'limit' => 0 ] )->limit(), 8, 'invalid limit falls back to 8' );
 	assert_same( bc_rv_boot( [ 'limit' => 99 ] )->limit(), 15, 'limit capped at the 15 stored ids' );
 	assert_same( bc_rv_boot( [ 'limit' => 'x' ] )->limit(), 8 );
-	assert_same( bc_rv_boot( [ 'title' => '  ' ] )->title(), 'Recently viewed', 'an empty title would leave the section unnamed' );
-	assert_same( bc_rv_boot( [ 'title' => [] ] )->title(), 'Recently viewed' );
+	assert_same( bc_rv_boot( [ 'title' => '  ' ] )->title(), 'Recently Viewed', 'an empty title would leave the section unnamed' );
+	assert_same( bc_rv_boot( [ 'title' => [] ] )->title(), 'Recently Viewed' );
 
 	$module = bc_rv_boot();
 	$GLOBALS['bc_rv_theme_mods']['woocommerce_related_products_slideshow_columns'] = [
@@ -133,8 +133,8 @@ bc_test( 'assets_declared_for_pdp', function () {
 	assert_same( $manifest['requires'], [ 'plugins' => [ 'woocommerce' => '>=9.0' ] ] );
 	assert_same( $manifest['legacy']['files'], [ 'inc/recently-viewed.php' ] );
 	assert_same( $manifest['assets'], [
-		[ 'file' => 'assets/recently-viewed.js', 'where' => [ 'pdp', 'archive', 'front' ], 'deps' => [] ],
-		[ 'file' => 'assets/recently-viewed.css', 'where' => [ 'pdp', 'archive', 'front' ], 'deps' => [] ],
+		[ 'file' => 'assets/recently-viewed.js', 'where' => [ 'pdp' ], 'deps' => [] ],
+		[ 'file' => 'assets/recently-viewed.css', 'where' => [ 'pdp' ], 'deps' => [] ],
 	] );
 
 	// Enqueued on a product page, JS deferred, through the real Assets class and real files.
@@ -147,6 +147,13 @@ bc_test( 'assets_declared_for_pdp', function () {
 	assert_same( $calls[0][0], 'wp_enqueue_script' );
 	assert_same( $calls[0][5], [ 'strategy' => 'defer', 'in_footer' => true ] );
 	assert_same( $calls[1][0], 'wp_enqueue_style' );
+
+	// R24: not on archives or other front-end pages.
+	$GLOBALS['bc_core_store']['assets'] = [];
+	$GLOBALS['bc_wp_stub']['is_product'] = false;
+	$GLOBALS['bc_wp_stub']['is_shop']    = true;
+	Assets::enqueue();
+	assert_same( $GLOBALS['bc_core_store']['assets'], [], 'archive: nothing enqueued' );
 
 	// Config is printed before the script: Store API URL and the cookie path, no nonce.
 	$GLOBALS['bc_wp_stub']['scripts_registered'] = [ RecentlyViewed::HANDLE ];
@@ -178,6 +185,7 @@ bc_test( 'v1_functions_are_deprecated_aliases', function () {
 		. "require " . var_export( dirname( __DIR__, 2 ) . '/modules/recently-viewed/Module.php', true ) . ";\n"
 		. "function _deprecated_function( \$f, \$v, \$r = '' ) { \$GLOBALS['dep'][] = \$f; }\n"
 		. "function get_theme_mod( \$n, \$d = false ) { return \$d; }\n"
+		. "function rest_url( \$p = '' ) { return 'https://example.test/wp-json/' . \$p; }\n"
 		. "\$GLOBALS['dep'] = [];\n"
 		. "\$m = new Blaze\\Child\\Modules\\RecentlyViewed\\Module( json_decode( file_get_contents( " . var_export( dirname( __DIR__, 2 ) . '/modules/recently-viewed/module.json', true ) . " ), true ), [ 'title' => 'You looked at <these>' ] );\n"
 		. "\$m->boot();\n"
@@ -190,4 +198,39 @@ bc_test( 'v1_functions_are_deprecated_aliases', function () {
 	assert_same( $out['dep'], [ 'bc_track_product_view', 'bc_render_recently_viewed_products' ] );
 	assert_same( 0, strpos( $out['html'], '<section class="bc-recently-viewed ' ), 'alias renders the empty container: ' . $out['html'] );
 	assert_same( true, false !== strpos( $out['html'], '>You looked at &lt;these&gt;</h2>' ), 'title escaped: ' . $out['html'] );
+} );
+
+bc_test( 'render_outside_pdp_enqueues_assets_and_config_once', function () {
+	$module = bc_rv_boot();
+	$GLOBALS['bc_wp_stub']['is_product']     = false;
+	$GLOBALS['bc_wp_stub']['inline_scripts'] = [];
+
+	$html = $module->container_markup( 0 );
+	assert_same( 0, strpos( $html, '<section class="bc-recently-viewed ' ), $html );
+	$calls = $GLOBALS['bc_core_store']['assets'];
+	assert_same( array_map( null, array_column( $calls, 0 ), array_column( $calls, 1 ) ), [
+		[ 'wp_enqueue_script', RecentlyViewed::HANDLE ],
+		[ 'wp_enqueue_style', RecentlyViewed::HANDLE ],
+	], 'script and style enqueued on demand' );
+	assert_same( $calls[0][5], [ 'strategy' => 'defer', 'in_footer' => true ], 'deferred like Assets' );
+	assert_same( 1, preg_match( '#modules/recently-viewed/assets/recently-viewed\.js$#', $calls[0][2] ), $calls[0][2] );
+	$inline = $GLOBALS['bc_wp_stub']['inline_scripts'];
+	assert_same( count( $inline ), 1, 'config attached' );
+	assert_same( [ $inline[0][0], $inline[0][2] ], [ RecentlyViewed::HANDLE, 'before' ] );
+
+	// A second container, and the wp_enqueue_scripts callback, add nothing more.
+	$module->container_markup( 0 );
+	$GLOBALS['bc_wp_stub']['scripts_registered'] = [ RecentlyViewed::HANDLE ];
+	$module->add_config();
+	assert_same( count( $GLOBALS['bc_core_store']['assets'] ), 2, 'enqueued once' );
+	assert_same( count( $GLOBALS['bc_wp_stub']['inline_scripts'] ), 1, 'config once' );
+
+	// Already enqueued by Assets on a product page: no second enqueue, config once.
+	$module = bc_rv_boot();
+	$GLOBALS['bc_wp_stub']['scripts_registered'] = [ RecentlyViewed::HANDLE ];
+	$GLOBALS['bc_wp_stub']['inline_scripts']     = [];
+	$module->add_config();
+	bc_rv_render( $module );
+	assert_same( $GLOBALS['bc_core_store']['assets'], [], 'hooked pdp path relies on Assets' );
+	assert_same( count( $GLOBALS['bc_wp_stub']['inline_scripts'] ), 1 );
 } );

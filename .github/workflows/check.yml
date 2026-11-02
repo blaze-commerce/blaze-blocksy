@@ -49,16 +49,13 @@ jobs:
           echo "COMPOSER_HOME=$(composer global config home 2>/dev/null)" >> "$GITHUB_ENV"
           composer global config bin-dir --absolute 2>/dev/null >> "$GITHUB_PATH"
 
-      # Module JS unit tests (node:test). tests/run-all.php also runs them when node is on PATH.
+      # Node for the module JS unit tests (node:test), which tests/run-all.php runs when node is on PATH.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Unit tests
         run: php tests/run-all.php
-
-      - name: Module JS tests
-        run: node --test "modules/**/*.test.mjs"
 
       - name: docs/MODULES.md is fresh
         run: php tools/gen-modules-md.php --check

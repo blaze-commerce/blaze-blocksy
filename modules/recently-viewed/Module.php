@@ -22,7 +22,8 @@ class Module extends \Blaze\Child\Core\Module {
 
 	const DEFAULT_LIMIT = 8;
 
-	const DEFAULT_TITLE = 'Recently viewed';
+	/** v1's heading text and msgid (R23). */
+	const DEFAULT_TITLE = 'Recently Viewed';
 
 	/** v1 defaults of Blocksy's related-products column theme mod. */
 	const DEFAULT_COLUMNS = [
@@ -45,6 +46,16 @@ class Module extends \Blaze\Child\Core\Module {
 	 * @var int Containers built in this request (keeps heading ids unique if site code prints more than one).
 	 */
 	private $printed = 0;
+
+	/**
+	 * @var bool The inline config was added to the script this request.
+	 */
+	private $config_added = false;
+
+	/**
+	 * @var bool The module's script and style are known to be enqueued this request.
+	 */
+	private $assets_ready = false;
 
 	/**
 	 * The booted instance, or null when the module is off.
@@ -92,7 +103,7 @@ class Module extends \Blaze\Child\Core\Module {
 		$value = $this->setting( 'title' );
 		$title = is_string( $value ) && '' !== trim( $value ) ? $value : self::DEFAULT_TITLE;
 		if ( self::DEFAULT_TITLE === $title ) {
-			return __( 'Recently viewed', 'blocksy-child' );
+			return __( 'Recently Viewed', 'blocksy-child' );
 		}
 		return $title;
 	}
@@ -122,6 +133,8 @@ class Module extends \Blaze\Child\Core\Module {
 	 * @return string
 	 */
 	public function container_markup( int $product_id ): string {
+		// Callers outside the hooked product-page path (site code, the v1 alias) still get a working section.
+		$this->ensure_assets();
 		++$this->printed;
 		$heading_id = 'bc-recently-viewed-title' . ( $this->printed > 1 ? '-' . $this->printed : '' );
 		$columns    = $this->columns();
@@ -165,7 +178,7 @@ class Module extends \Blaze\Child\Core\Module {
 	}
 
 	/**
-	 * Adds the config as window.blazeChild.recentlyViewedConfig before the module script, when it is enqueued.
+	 * wp_enqueue_scripts, priority 21: adds the config when Assets enqueued the script (product pages).
 	 *
 	 * @return void
 	 */
@@ -173,10 +186,62 @@ class Module extends \Blaze\Child\Core\Module {
 		if ( ! wp_script_is( self::HANDLE, 'enqueued' ) ) {
 			return;
 		}
+		$this->assets_ready = true;
+		$this->attach_config();
+	}
+
+	/**
+	 * Adds the config as window.blazeChild.recentlyViewedConfig before the module script, once per request.
+	 *
+	 * @return void
+	 */
+	public function attach_config(): void {
+		if ( $this->config_added ) {
+			return;
+		}
+		$this->config_added = true;
 		wp_add_inline_script(
 			self::HANDLE,
 			'window.blazeChild=window.blazeChild||{};window.blazeChild.recentlyViewedConfig=' . wp_json_encode( $this->config() ) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Enqueues the module's script and style (same handles, defer and footer as Assets) and the config, once per
+	 * request. Used when the container is printed where the manifest `where` (pdp) did not enqueue them.
+	 *
+	 * @return void
+	 */
+	public function ensure_assets(): void {
+		if ( ! $this->assets_ready ) {
+			$this->assets_ready = true;
+			if ( ! wp_script_is( self::HANDLE, 'enqueued' ) ) {
+				$base = ( defined( 'BLAZE_CHILD_URL' ) ? BLAZE_CHILD_URL : '' ) . 'modules/recently-viewed/assets/recently-viewed';
+				wp_enqueue_script(
+					self::HANDLE,
+					$base . '.js',
+					[],
+					self::asset_version( 'js' ),
+					[
+						'strategy'  => 'defer',
+						'in_footer' => true,
+					]
+				);
+				wp_enqueue_style( self::HANDLE, $base . '.css', [], self::asset_version( 'css' ) );
+			}
+		}
+		$this->attach_config();
+	}
+
+	/**
+	 * File modification time of an asset, as Assets versions them.
+	 *
+	 * @param string $ext 'js' or 'css'.
+	 * @return string
+	 */
+	private static function asset_version( string $ext ): string {
+		$file = __DIR__ . '/assets/recently-viewed.' . $ext;
+		return file_exists( $file ) ? (string) filemtime( $file ) : '2.0.0';
 	}
 }

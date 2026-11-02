@@ -3,7 +3,8 @@
  *
  * The page holds one empty, hidden <section data-bc-rv> that is the same for every visitor (Module.php). This
  * script keeps the visitor's list in localStorage (key bc_recently_viewed, newest first), records the current
- * product, then fills the section from the WooCommerce Store API with textContent/setAttribute only.
+ * product, then fills the section from the WooCommerce Store API with textContent/setAttribute only. Loaded on
+ * product pages, or wherever PHP prints the container (Module::ensure_assets()).
  *
  * Design from PR #273 by its author. Also kept from it: the list is mirrored, write-only, into WooCommerce's
  * woocommerce_recently_viewed cookie (ids joined by "|", oldest first) so v1 code that reads that cookie still
@@ -198,7 +199,7 @@
 	}
 
 	/**
-	 * Store API products URL. No nonce: this GET is public.
+	 * Store API products URL. No nonce: this GET is public. per_page is the number of candidates.
 	 *
 	 * @param {string}   base  rest_url( 'wc/store/v1/products' ), pretty or ?rest_route= form.
 	 * @param {number[]} ids   Ids.
@@ -446,17 +447,18 @@
 	 */
 	function fill( root, section, list, current, cfg ) {
 		var limit = toId( section.getAttribute( 'data-limit' ) ) || DEFAULT_LIMIT;
-		var ids = visible( list, current, limit );
+		// Ask for every stored candidate, then cut to limit: deleted or private ids do not shrink the row.
+		var ids = visible( list, current, STORE_MAX );
 		if ( ! ids.length || 'function' !== typeof root.fetch ) {
 			return Promise.resolve( false );
 		}
-		return root.fetch( productsUrl( cfg.restUrl, ids, limit ), {
+		return root.fetch( productsUrl( cfg.restUrl, ids, ids.length ), {
 			credentials: 'same-origin',
 			headers: { Accept: 'application/json' },
 		} ).then( function ( response ) {
 			return response && response.ok ? response.json() : [];
 		} ).then( function ( products ) {
-			var shown = render( section, inOrder( products, ids ), root.document );
+			var shown = render( section, inOrder( products, ids ).slice( 0, limit ), root.document );
 			if ( shown && 'function' === typeof root.CustomEvent ) {
 				root.document.dispatchEvent( new root.CustomEvent( EVENT, { detail: { section: section } } ) );
 			}

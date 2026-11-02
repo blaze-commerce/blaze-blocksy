@@ -34,10 +34,10 @@ visitor. It carries no personal data and no nonce.
    - Reads the list from `localStorage` key `bc_recently_viewed` (JSON array of product ids, newest first, at most 15).
    - First run only: when that key does not exist yet, the ids in v1's `woocommerce_recently_viewed` cookie are
      migrated into it. The cookie is never read again after that.
-   - Requests `GET <restUrl>?include=<ids>&per_page=<limit>` from the WooCommerce Store API. This is a public GET, so
-     there is no nonce. The ids exclude the current product and are capped at `limit`.
+   - Requests `GET <restUrl>?include=<ids>&per_page=<count>` from the WooCommerce Store API. This is a public GET, so
+     there is no nonce. The ids are every stored id except the current product (up to 14), so the row can backfill.
    - Renders the cards in the stored order, not the API's. Ids the API does not return (deleted, private, draft) are
-     skipped. Each card has the image (the Store API `thumbnail`), the name and the price (a range for variable
+     skipped, and the next stored ids fill their place up to `limit`. Each card has the image (the Store API `thumbnail`), the name and the price (a range for variable
      products, with the regular price struck through when the product is on sale). The cards are built with
      `createElement`, `textContent` and `setAttribute` only. Links and images must be `http(s)://` or root-relative.
    - Unhides the section only when it has at least one card. It then fires `bc:recently-viewed:loaded` on
@@ -48,8 +48,9 @@ visitor. It carries no personal data and no nonce.
      `inc/mini-cart-empty.php` and WooCommerce's own Recently Viewed widget read that cookie, so they keep working.
    - Without `localStorage` (blocked or private mode) the script does nothing and the section stays hidden.
 
-The script also loads on archive and other front-end pages (the manifest `where` is `pdp`, `archive`, `front`). With
-no container on the page it only migrates the v1 cookie on a first run.
+The script and stylesheet load only on product pages (manifest `where` is `pdp`, R24). When site code prints the
+container anywhere else (`container_markup()`), the module enqueues both handles and attaches the config on demand,
+once per request (`ensure_assets()`). The v1 cookie is migrated on the first page that runs the script.
 
 ## Markup
 
@@ -57,7 +58,7 @@ no container on the page it only migrates the v1 cookie on a first run.
 <section class="bc-recently-viewed related products is-layout-slider is-width-constrained" data-bc-rv
 	data-limit="8" data-product-id="123" aria-labelledby="bc-recently-viewed-title"
 	style="--bc-rv-columns:4;--bc-rv-columns-tablet:3;--bc-rv-columns-mobile:2" hidden>
-	<h2 class="ct-module-title bc-recently-viewed__title" id="bc-recently-viewed-title">Recently viewed</h2>
+	<h2 class="ct-module-title bc-recently-viewed__title" id="bc-recently-viewed-title">Recently Viewed</h2>
 	<!-- added by the script: -->
 	<ul class="bc-recently-viewed__list" role="list">
 		<li class="bc-recently-viewed__item product">
@@ -78,8 +79,8 @@ no container on the page it only migrates the v1 cookie on a first run.
 
 - The section keeps v1's classes (`bc-recently-viewed related products is-layout-slider is-width-constrained`) and
   the heading keeps `ct-module-title`, so existing site CSS on those still applies.
-- The heading text is now `Recently viewed` (v1: `Recently Viewed`), from the `title` setting. A translation of the
-  old string does not apply to the new one.
+- The heading text is v1's `Recently Viewed` (same msgid, so existing translations still apply), now overridable
+  with the `title` setting.
 - The section is empty and `hidden` in the HTML. It appears after the Store API answers, so it can shift the content
   below it. It sits below related products, normally out of the first viewport.
 - The cards are a CSS grid of light cards (image, name, price). v1 printed Blocksy's slider (`.flexy-container`, arrows,
@@ -115,7 +116,7 @@ Set in `site-config.php`:
 | Key | Default | Value |
 |---|---|---|
 | `limit` | `8` | Cards shown, 1 to 15. Anything else means 8. |
-| `title` | `Recently viewed` | Section heading. The default is translated (`blocksy-child` text domain). |
+| `title` | `Recently Viewed` | Section heading. The default is translated (`blocksy-child` text domain, v1's msgid). An empty value means the default. |
 
 ## Styling
 
@@ -161,7 +162,8 @@ add_action( 'wp_loaded', function () {
 } );
 ```
 
-Methods: `render`, `container_markup`, `add_config`, `config`, `limit`, `title`, `columns`.
+Methods: `render`, `container_markup`, `ensure_assets`, `add_config`, `attach_config`, `config`, `limit`, `title`,
+`columns`.
 
 Disable the module with `'recently-viewed' => false` in `site-config.php`, or name it in the
 `BLAZE_CHILD_DISABLE_MODULES` kill switch. Either way `legacy-v1` loads `inc/recently-viewed.php` again, with its
@@ -175,4 +177,4 @@ records `legacy_files_orphaned` naming the module and the file.
 
 - PHP: `php tests/modules/run.php` (`tests/modules/test-recently-viewed.php`).
 - JS: `node --test modules/recently-viewed/assets/recently-viewed.test.mjs` (node 22; also run by
-  `php tests/run-all.php` and CI as `node --test "modules/**/*.test.mjs"`).
+  `php tests/run-all.php`, which CI runs, as `node --test "modules/**/*.test.mjs"`).

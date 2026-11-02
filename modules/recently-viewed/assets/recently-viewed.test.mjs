@@ -239,7 +239,7 @@ test( 'init_tracks_fetches_and_renders_in_stored_order', async () => {
 	} );
 	await rv.init( win );
 	assert.equal( win.store.get( 'bc_recently_viewed' ), '[9,3,2,1]', 'current product stored first' );
-	assert.deepEqual( win.requests, [ 'https://example.test/wp-json/wc/store/v1/products?include=3,2&per_page=2' ] );
+	assert.deepEqual( win.requests, [ 'https://example.test/wp-json/wc/store/v1/products?include=3,2,1&per_page=3' ], 'every candidate requested' );
 	assert.deepEqual( win.cookieWrites, [ 'woocommerce_recently_viewed=1%7C2%7C3%7C9; path=/; SameSite=Lax; Secure' ], 'WooCommerce cookie mirrored for v1 readers' );
 	const names = s.children[ 0 ].all().filter( ( e ) => /__name/.test( e.getAttribute( 'class' ) ) ).map( ( e ) => e.textContent );
 	assert.deepEqual( names, [ 'Three', 'Two' ], 'stored order, not API order' );
@@ -247,6 +247,19 @@ test( 'init_tracks_fetches_and_renders_in_stored_order', async () => {
 	assert.equal( win.events.length, 1 );
 	assert.equal( win.events[ 0 ].type, 'bc:recently-viewed:loaded' );
 	assert.equal( win.events[ 0 ].detail.section, s );
+} );
+
+test( 'init_backfills_past_deleted_ids', async () => {
+	const s = section( 9, 2 );
+	const win = fakeWindow( {
+		sections: [ s ],
+		stored: '[5,4,3,2]',
+		products: [ { id: 2, name: 'Two', permalink: '/2/', prices: PRICES }, { id: 3, name: 'Three', permalink: '/3/', prices: PRICES }, { id: 4, name: 'Four', permalink: '/4/', prices: PRICES } ],
+	} );
+	await rv.init( win );
+	assert.deepEqual( win.requests, [ 'https://example.test/wp-json/wc/store/v1/products?include=5,4,3,2&per_page=4' ] );
+	const names = s.children[ 0 ].all().filter( ( e ) => /__name/.test( e.getAttribute( 'class' ) ) ).map( ( e ) => e.textContent );
+	assert.deepEqual( names, [ 'Four', 'Three' ], 'deleted 5 skipped, row still filled to limit 2' );
 } );
 
 test( 'init_migrates_the_v1_cookie_once', async () => {

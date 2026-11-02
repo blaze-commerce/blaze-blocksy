@@ -25,25 +25,21 @@
     },
     "title": {
       "type": "string",
-      "default": "Recently viewed"
+      "default": "Recently Viewed"
     }
   },
   "assets": [
     {
       "file": "assets/recently-viewed.js",
       "where": [
-        "pdp",
-        "archive",
-        "front"
+        "pdp"
       ],
       "deps": []
     },
     {
       "file": "assets/recently-viewed.css",
       "where": [
-        "pdp",
-        "archive",
-        "front"
+        "pdp"
       ],
       "deps": []
     }
