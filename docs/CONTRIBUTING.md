@@ -1,6 +1,6 @@
 # Contributing
 
-**Before you build anything: search `docs/MODULES.md` (or run `swamp workflow run blocksy-child-module`).**
+**Before you build anything: search `docs/MODULES.md` (or run `swamp workflow run blocksy-child-module`, available once the blaze-swamp PR lands).**
 
 The catalogue lists every feature the theme has, including v1 code that is still inside `legacy-v1` and features
 that are planned. Most requests are a setting on an existing module, or a port of a v1 file, not a new feature. If

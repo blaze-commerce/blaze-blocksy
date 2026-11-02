@@ -7,8 +7,9 @@ Outline only. This covers phases 2 and 3 of the
 ## Rules that never bend
 
 - **Never upload v2 onto a v1 site with "replace current".** WordPress deletes the old theme folder first, and with
-  it everything inside it: `custom/`, `clients/`, hand edits. The v2 update guard that refuses a folder with extra
-  files protects v2 sites only. A v1 site moves through the steps below, never through a plain theme upload.
+  it everything inside it: `custom/`, `clients/`, hand edits. Nothing in phase 0 refuses such an upload. Phase 1
+  plans an update guard that refuses a theme folder with extra files, and even then it will protect v2 sites only.
+  A v1 site moves through the steps below, never through a plain theme upload.
 - **Site code moves out of the theme.** It lives in `wp-content/blaze-site/` (`site.php` and `site-config.php`), which
   a theme update never touches. v1's `custom/custom.php` still loads while the move is under way, and the health log
   says so (`legacy_custom_in_theme`).

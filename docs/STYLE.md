@@ -23,7 +23,7 @@ checks it, so the PR reviewer does. Gates marked warn print a warning and do not
 | Order data through `WC_Order` methods, so it works with HPOS. | Review |
 | Strings are translatable with text domain `blocksy-child`. | `phpcs` (WordPress.WP.I18n) |
 | `load_child_theme_textdomain()` once; `wp_set_script_translations()` for JS strings. | Review |
-| Hook and filter names start with `blaze_child/`. Body class per module is `bc-m-<id>` (added by core). | Review |
+| Hook and filter names start with `blaze_child/`. Body class per module is `bc-m-<id>` (added by core). | `phpcs` in part (WordPress.NamingConventions.PrefixAllGlobals): a hook the theme fires with `do_action()` / `apply_filters()` must start with `blaze_child` (errors; a fully variable name is only a warning). It does not check the `/` after the prefix (`blaze_child_x` passes; WordPress.NamingConventions.ValidHookName is off), nor hooks the theme only listens to. Review for the rest. |
 | Every module defaults off. | `manifest_schema` (`default` must be `false`) |
 | Module `Module.php` declares `Blaze\Child\Modules\<StudlyId>\Module` and extends `Blaze\Child\Core\Module`. | `class_name` |
 

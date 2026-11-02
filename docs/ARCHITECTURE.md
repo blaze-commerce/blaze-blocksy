@@ -35,6 +35,8 @@ All of it runs at theme-load time, from `Theme::boot()`, in this order:
 6. Modules are resolved (see below) and booted, unless the site config is broken.
 7. If a critical module failed and `on_failure` is not `open`, checkout is closed (`FailClosed::arm()`).
 8. Orphan check: a module whose v1 files were skipped but which did not boot is recorded as `legacy_files_orphaned`.
+   It runs only when the site config is valid and `legacy-v1` was enabled before site code ran (so v1's loader
+   actually ran and skipped those files).
 9. `Assets::register()` hooks the manifest-declared assets and the `bc-m-<id>` body classes.
 10. The `admin_notices` hook is added for the health list.
 
@@ -86,8 +88,8 @@ than taking wrong ones. The catalogue stays browsable.
 - a module with `critical: true` fails to boot, or is skipped for an unmet `requires` (R7);
 - legacy-v1's core fails to load (`legacy_v1_failed`).
 
-`on_failure => 'open'` in `site-config.php` turns the arming off for the site-code and module cases. A broken
-`site-config.php` always closes.
+`on_failure => 'open'` in `site-config.php` turns the arming off for the site-code, module and legacy-v1 core
+cases. A broken `site-config.php` always closes.
 
 When armed, checkout is refused three ways:
 
