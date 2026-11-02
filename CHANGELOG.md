@@ -4,6 +4,10 @@
 - v2 bootstrap: `functions.php` now only loads `src/bootstrap.php`, which defines `BLAZE_CHILD_VERSION/PATH/URL`, registers a PSR-4 autoloader (`Blaze\Child\` to `src/`, `Blaze\Child\Modules\<Studly>\` to `modules/<kebab>/`) and calls `Theme::boot()` (empty until Task 4).
 - `Legacy::define()` keeps the v1 `BLOCKSY_CHILD_*` constants and the `BLAZE_BLOCKSY_*` shims, each defined only when absent.
 - `tests/core/` runner and `tests/run-all.php` (perf then core).
+- Module `offcanvas-icons` (port of v1 `inc/offcanvas-icons.php`, default off): same Customizer section, options, drawer markup and hooks as v1; site config can set `minicart_icon_id` / `wishlist_icon_id`, with the v1 Customizer options as the fallback. `legacy-v1` skips the v1 file while it is on.
+
+### Security
+- `offcanvas-icons`: an uploaded drawer-icon SVG is no longer inlined as-is. v1 printed the file unsanitised on every page, so an SVG carrying `<script>`, an `on*` handler or a `javascript:` link ran script for every visitor. The port inlines only the output of an allow-list sanitiser (`Sanitizer::svg()`: DOMDocument with `LIBXML_NONET`, SVG shape/gradient/clip elements and geometry/presentation attributes only, `href` only to `#fragments`, no `style`, DOCTYPE/ENTITY or over 512 KB rejected), read only from inside the uploads directory and cached per attachment revision. A rejected file leaves the default icon and records `svg_rejected` in the health log.
 
 ## [perf-modules-2026-09-28] - 2026-09-28
 
