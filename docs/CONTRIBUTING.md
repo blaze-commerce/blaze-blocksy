@@ -108,5 +108,20 @@ export PATH="$(composer global config bin-dir --absolute 2>/dev/null):$PATH"
 
 When you bump one of these, change `check.yml` and this page together.
 
+### The client name list
+
+This repository is public, so the list of client names that `client_denylist` looks for is not in it. The gate
+reads the names from the first of these that is set:
+
+1. env `BLAZE_CLIENT_DENYLIST`: the names, separated by newlines or commas;
+2. env `BLAZE_CLIENT_DENYLIST_FILE`: the path of a file with one name per line (`#` lines are comments);
+3. `~/.config/blaze/client-denylist.txt`.
+
+Ask the team lead for the list and save it as the third. Without a list the name check prints a warning locally;
+in CI it fails. CI reads the list from the repository secret `BLAZE_CLIENT_DENYLIST` (Settings, Secrets and
+variables, Actions), which `check.yml` passes to the gates step. When a client is added, update the secret and
+your local file. The gate output names the source and the file and line of a hit, never the name itself. Tests
+use invented names only (`acmeclient`, `examplestore`); never put a real client name in a test or fixture.
+
 The house rules and the gate that enforces each one are in [STYLE.md](STYLE.md). How the theme boots and fails is
 in [ARCHITECTURE.md](ARCHITECTURE.md).

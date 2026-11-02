@@ -72,7 +72,7 @@ page cache stores this response for the next visitor?"
 
 | Rule | Enforced by |
 |---|---|
-| No client names, client page or post IDs, or client hex colours in `src/`, `tools/` or beta and stable modules. Client behaviour goes in the site folder (`wp-content/blaze-site/`) and is switched with settings. | `client_denylist` (list in `tools/denylist.txt`) |
+| No client names, client page or post IDs, or client hex colours in `src/`, `tools/` or beta and stable modules. Client behaviour goes in the site folder (`wp-content/blaze-site/`) and is switched with settings. | `client_denylist` (client names from a private list, see [CONTRIBUTING.md](CONTRIBUTING.md#the-client-name-list); generic tokens in `tools/denylist.txt`) |
 
 ## Assets
 

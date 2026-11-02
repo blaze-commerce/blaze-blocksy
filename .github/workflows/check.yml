@@ -54,11 +54,17 @@ jobs:
         with:
           node-version: 22
 
+      # The catalogue test reads the private client names too; without them it prints SKIP.
       - name: Unit tests
+        env:
+          BLAZE_CLIENT_DENYLIST: ${{ secrets.BLAZE_CLIENT_DENYLIST }}
         run: php tests/run-all.php
 
       - name: docs/MODULES.md is fresh
         run: php tools/gen-modules-md.php --check
 
+      # Client names are private (R27): the BLAZE_CLIENT_DENYLIST secret holds them. Without it client_denylist fails in CI.
       - name: Gates
+        env:
+          BLAZE_CLIENT_DENYLIST: ${{ secrets.BLAZE_CLIENT_DENYLIST }}
         run: php tools/check.php

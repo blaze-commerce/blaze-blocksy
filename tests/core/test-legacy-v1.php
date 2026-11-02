@@ -286,13 +286,28 @@ bc_test( 'every_surface_is_in_vocabulary', function () {
 } );
 
 bc_test( 'no_client_names_in_catalogue', function () {
+	// R27: the names are private; read them from the same source as the client_denylist gate.
+	require_once bc_lv1_root() . '/tools/lib/gates-denylist.php';
+	$names = \Blaze\Child\Tools\DenylistGates::client_names();
+	if ( null === $names['source'] ) {
+		echo "SKIP: no_client_names_in_catalogue -- client names not checked: {$names['reason']}\n";
+		return;
+	}
 	$hits = [];
 	foreach ( array_merge( glob( bc_lv1_root() . '/modules/*/*' ), [ bc_lv1_root() . '/tools/surfaces.json' ] ) as $f ) {
-		if ( is_file( $f ) && 1 === preg_match( '/acmeclient|examplestore/i', file_get_contents( $f ) ) ) {
-			$hits[] = $f;
+		if ( ! is_file( $f ) ) {
+			continue;
+		}
+		$text = strtolower( (string) file_get_contents( $f ) );
+		foreach ( $names['tokens'] as $token ) {
+			if ( false !== strpos( $text, $token ) ) {
+				$hits[] = $f;
+				break;
+			}
 		}
 	}
-	assert_same( $hits, [], 'client names found' );
+	// File paths only: the names never reach the output.
+	assert_same( $hits, [], "client names found (names from {$names['source']})" );
 } );
 
 /** Port fixture: manifest + a Module whose boot() does $boot_body. */

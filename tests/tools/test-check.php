@@ -14,6 +14,11 @@ define( 'BC_TC_GOOD', __DIR__ . '/fixtures/good' );
 
 require_once BC_TC_REPO . '/tools/lib/load.php';
 
+// R27: the real client names are private and never in this repo. Every test here uses invented names, set
+// before any gate runs (subprocesses inherit them); the R27 tests below swap the sources explicitly.
+putenv( 'BLAZE_CLIENT_DENYLIST=acmeclient,examplestore' );
+putenv( 'BLAZE_CLIENT_DENYLIST_FILE' );
+
 use Blaze\Child\Tools\Runner;
 
 $GLOBALS['tc_results'] = [ 'pass' => 0, 'fail' => 0 ];
@@ -698,6 +703,123 @@ tc_test( 'fix8_denylist_ids_quoted_and_in_arrays', function () {
 		tc_write( $root, 'src/Core/Ids.php', "<?php\nnamespace Blaze\\Child\\Core;\n\ndefined( 'ABSPATH' ) || exit;\n\nfunction bc_x() {\n\treturn {$call};\n}\n" );
 		tc_fails( $root, 'client_denylist', 'src/Core/Ids.php:7' );
 	}
+} );
+
+// --- R27: client names from a private source ------------------------------------------------------------------
+
+/** Runs $fn with the given env vars set (null = unset), then restores them. */
+function tc_with_env( array $vars, callable $fn ) {
+	$old = [];
+	foreach ( $vars as $name => $value ) {
+		$old[ $name ] = getenv( $name );
+		putenv( null === $value ? $name : "{$name}={$value}" );
+	}
+	try {
+		return $fn();
+	} finally {
+		foreach ( $old as $name => $value ) {
+			putenv( false === $value ? $name : "{$name}={$value}" );
+		}
+	}
+}
+
+/** A good fixture with one invented client name in a beta module. */
+function tc_named_fixture( string $name ): string {
+	$root = tc_good();
+	tc_write( $root, 'modules/demo/Named.php', "<?php\ndefined( 'ABSPATH' ) || exit;\n// built for {$name}\n" );
+	return $root;
+}
+
+tc_test( 'r27_names_from_env', function () {
+	$root = tc_named_fixture( 'Zentrova' );
+	$gate = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => "quillbrook\nzentrova", 'BLAZE_CLIENT_DENYLIST_FILE' => null ], function () use ( $root ) {
+		return tc_fails( $root, 'client_denylist', 'modules/demo/Named.php:3' );
+	} );
+	tc_true( false !== strpos( $gate['detail'], 'names from env BLAZE_CLIENT_DENYLIST (2)' ), 'env source named: ' . $gate['detail'] );
+	// Comma-separated works too, and a clean tree passes naming the source.
+	$gate = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => 'quillbrook, nobody' ], function () use ( $root ) {
+		return tc_gate( tc_run( $root, null, [ 'client_denylist' ] ), 'client_denylist' );
+	} );
+	tc_same( $gate['passed'], true, 'name not on the list: ' . $gate['detail'] );
+	tc_true( false !== strpos( $gate['detail'], 'names from env BLAZE_CLIENT_DENYLIST (2)' ), 'pass names the source: ' . $gate['detail'] );
+} );
+
+tc_test( 'r27_names_from_file_env_and_home', function () {
+	$root = tc_named_fixture( 'Zentrova' );
+	$dir  = sys_get_temp_dir() . '/bc_r27_' . uniqid( '', true );
+	$GLOBALS['tc_tmp'][] = $dir;
+	tc_write( $dir, 'list.txt', "# private\nzentrova\n" );
+	$gate = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => null, 'BLAZE_CLIENT_DENYLIST_FILE' => "{$dir}/list.txt" ], function () use ( $root ) {
+		return tc_fails( $root, 'client_denylist', 'modules/demo/Named.php:3' );
+	} );
+	tc_true( false !== strpos( $gate['detail'], 'names from env BLAZE_CLIENT_DENYLIST_FILE (1)' ), 'file source named: ' . $gate['detail'] );
+
+	// No env at all: $HOME/.config/blaze/client-denylist.txt.
+	tc_write( $dir, 'home/.config/blaze/client-denylist.txt', "zentrova\n" );
+	$gate = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => null, 'BLAZE_CLIENT_DENYLIST_FILE' => null, 'HOME' => "{$dir}/home" ], function () use ( $root ) {
+		return tc_fails( $root, 'client_denylist', 'modules/demo/Named.php:3' );
+	} );
+	tc_true( false !== strpos( $gate['detail'], 'names from ~/.config/blaze/client-denylist.txt (1)' ), 'home source named: ' . $gate['detail'] );
+
+	// The env list wins over the file.
+	$gate = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => 'nobody', 'BLAZE_CLIENT_DENYLIST_FILE' => "{$dir}/list.txt" ], function () use ( $root ) {
+		return tc_gate( tc_run( $root, null, [ 'client_denylist' ] ), 'client_denylist' );
+	} );
+	tc_same( $gate['passed'], true, 'env beats file: ' . $gate['detail'] );
+} );
+
+tc_test( 'r27_no_source_warns_locally_fails_in_ci', function () {
+	$none = [ 'BLAZE_CLIENT_DENYLIST' => null, 'BLAZE_CLIENT_DENYLIST_FILE' => null, 'HOME' => sys_get_temp_dir() . '/bc_r27_nohome_' . uniqid() ];
+	$gate = tc_with_env( $none + [ 'CI' => null ], function () {
+		return tc_gate( tc_run( tc_good(), null, [ 'client_denylist' ] ), 'client_denylist' );
+	} );
+	tc_same( [ $gate['severity'], $gate['passed'] ], [ 'warn', false ], 'local: warn' );
+	tc_true( false !== strpos( $gate['detail'], 'client names not checked: no list' ), 'says why: ' . $gate['detail'] );
+
+	$report = tc_with_env( $none + [ 'CI' => 'true' ], function () {
+		return tc_run( tc_good(), null, [ 'client_denylist' ] );
+	} );
+	$gate = tc_gate( $report, 'client_denylist' );
+	tc_same( [ $gate['severity'], $gate['passed'], $report['passed'] ], [ 'fail', false, false ], 'CI: fail' );
+
+	// A set but empty or unreadable source is not a source.
+	$gate = tc_with_env( $none + [ 'CI' => null, 'BLAZE_CLIENT_DENYLIST' => ' , ' ], function () {
+		return tc_gate( tc_run( tc_good(), null, [ 'client_denylist' ] ), 'client_denylist' );
+	} );
+	tc_same( [ $gate['severity'], $gate['passed'] ], [ 'warn', false ], 'blank env list: ' . $gate['detail'] );
+	$gate = tc_with_env( $none + [ 'CI' => null, 'BLAZE_CLIENT_DENYLIST_FILE' => '/nonexistent/list.txt' ], function () {
+		return tc_gate( tc_run( tc_good(), null, [ 'client_denylist' ] ), 'client_denylist' );
+	} );
+	tc_same( [ $gate['severity'], $gate['passed'] ], [ 'warn', false ], 'unreadable file: ' . $gate['detail'] );
+
+	// ID and hex findings still fail without a name list.
+	$root = tc_good();
+	tc_write( $root, 'src/Core/Ids.php', "<?php\nnamespace Blaze\\Child\\Core;\n\ndefined( 'ABSPATH' ) || exit;\n\nfunction bc_x() {\n\treturn is_page( 4821 );\n}\n" );
+	tc_with_env( $none + [ 'CI' => null ], function () use ( $root ) {
+		tc_fails( $root, 'client_denylist', 'src/Core/Ids.php:7' );
+	} );
+} );
+
+tc_test( 'r27_names_never_in_json_detail', function () {
+	$root = tc_named_fixture( 'Zentrova' );
+	tc_manifest( $root, 'demo', function ( $m ) {
+		$m['description'] = 'Quillbrook tweaks.';
+		return $m;
+	} );
+	$out = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => 'zentrova,quillbrook', 'BLAZE_CLIENT_DENYLIST_FILE' => null ], function () use ( $root ) {
+		return tc_cli( [ BC_TC_REPO . '/tools/check.php', '--json', '--root=' . $root ] );
+	} );
+	$json = json_decode( $out, true );
+	tc_true( is_array( $json ), 'JSON report' );
+	$gate = tc_gate( $json, 'client_denylist' );
+	tc_same( $gate['passed'], false, 'names found' );
+	tc_true( in_array( 'modules/demo/Named.php:3', $gate['files'], true ), 'file named: ' . json_encode( $gate['files'] ) );
+	tc_true( 0 === preg_match( '/zentrova|quillbrook/i', $out ), 'no name anywhere in the JSON: ' . $gate['detail'] );
+	// Human output too.
+	$out = tc_with_env( [ 'BLAZE_CLIENT_DENYLIST' => 'zentrova,quillbrook' ], function () use ( $root ) {
+		return tc_cli( [ BC_TC_REPO . '/tools/check.php', '--root=' . $root ] );
+	} );
+	tc_true( 0 === preg_match( '/zentrova|quillbrook/i', $out ), 'no name in the text report' );
 } );
 
 foreach ( $GLOBALS['tc_tmp'] as $dir ) {
