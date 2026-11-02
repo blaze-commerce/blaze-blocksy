@@ -49,8 +49,8 @@ Deprecated (still work, will be removed in a major release):
 
 | Alias | Use instead |
 |---|---|
-| Constant `BLAZE_HIDE_CART_PAGE = false` | `'hide-cart-page' => false` under `modules` in `site-config.php`. Turns the module off at boot. |
-| Constant `BLAZE_HIDE_CART_PAGE_DESTINATION` | The `destination` setting. While defined it wins over the setting. |
+| Constant `BLAZE_HIDE_CART_PAGE` set to a falsy value | `'hide-cart-page' => false` under `modules` in `site-config.php`. Turns the module off at boot, as in v1. |
+| Constant `BLAZE_HIDE_CART_PAGE_DESTINATION` | The `destination` setting. A `destination` set in `site-config.php` (even `auto`) wins over the constant, which is then ignored; without one, the constant applies. |
 | Filter `blaze_hide_cart_page_destination` | `blaze_child/hide-cart-page/destination`. Runs after the new filter, with the same arguments. |
 
 Each use of a constant is recorded in the health log as `deprecated_alias`; the filter raises the standard

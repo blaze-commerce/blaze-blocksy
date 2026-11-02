@@ -22,10 +22,11 @@ class Module extends \Blaze\Child\Core\Module {
 	 * @return void
 	 */
 	public function boot(): void {
-		if ( defined( 'BLAZE_HIDE_CART_PAGE' ) && false === BLAZE_HIDE_CART_PAGE ) {
+		// v1 parity: any falsy value turned the feature off.
+		if ( defined( 'BLAZE_HIDE_CART_PAGE' ) && ! BLAZE_HIDE_CART_PAGE ) {
 			Health::record(
 				'deprecated_alias',
-				"Constant BLAZE_HIDE_CART_PAGE is false, so 'hide-cart-page' is off. Deprecated since 2.0.0: set 'hide-cart-page' => false under modules in site-config.php.",
+				"Constant BLAZE_HIDE_CART_PAGE is falsy, so 'hide-cart-page' is off. Deprecated since 2.0.0: set 'hide-cart-page' => false under modules in site-config.php.",
 				[
 					'module' => 'hide-cart-page',
 					'alias'  => 'BLAZE_HIDE_CART_PAGE',
@@ -37,7 +38,8 @@ class Module extends \Blaze\Child\Core\Module {
 		if ( defined( 'BLAZE_HIDE_CART_PAGE_DESTINATION' ) ) {
 			Health::record(
 				'deprecated_alias',
-				"Constant BLAZE_HIDE_CART_PAGE_DESTINATION is deprecated since 2.0.0: use the 'destination' setting of 'hide-cart-page' in site-config.php.",
+				'Constant BLAZE_HIDE_CART_PAGE_DESTINATION is deprecated since 2.0.0: use the \'destination\' setting of \'hide-cart-page\' in site-config.php.'
+				. ( $this->has_site_setting( 'destination' ) ? ' The constant is ignored because site-config.php sets destination.' : '' ),
 				[
 					'module' => 'hide-cart-page',
 					'alias'  => 'BLAZE_HIDE_CART_PAGE_DESTINATION',
@@ -53,13 +55,17 @@ class Module extends \Blaze\Child\Core\Module {
 	}
 
 	/**
-	 * The configured destination keyword: the deprecated constant if defined, else the setting.
-	 * Anything unknown means 'auto'.
+	 * The configured destination keyword: the site-config setting if set (even 'auto'), else the deprecated
+	 * constant if defined, else the manifest default. Anything unknown means 'auto'.
 	 *
 	 * @return string One of self::DESTINATIONS.
 	 */
 	private function configured(): string {
-		$value = defined( 'BLAZE_HIDE_CART_PAGE_DESTINATION' ) ? BLAZE_HIDE_CART_PAGE_DESTINATION : $this->setting( 'destination' );
+		if ( ! $this->has_site_setting( 'destination' ) && defined( 'BLAZE_HIDE_CART_PAGE_DESTINATION' ) ) {
+			$value = BLAZE_HIDE_CART_PAGE_DESTINATION;
+		} else {
+			$value = $this->setting( 'destination' );
+		}
 		return is_string( $value ) && in_array( $value, self::DESTINATIONS, true ) ? $value : 'auto';
 	}
 
@@ -80,7 +86,7 @@ class Module extends \Blaze\Child\Core\Module {
 		}
 
 		// WC()->cart is unavailable before wp_loaded: treat that as "unknown", i.e. nothing to check out with.
-		$cart_is_empty = ! did_action( 'wp_loaded' ) || ! WC()->cart || WC()->cart->is_empty();
+		$cart_is_empty = ! did_action( 'wp_loaded' ) || self::is_empty_cart( WC()->cart );
 
 		if ( 'home' === $configured ) {
 			$destination = home_url( '/' );
@@ -106,6 +112,16 @@ class Module extends \Blaze\Child\Core\Module {
 			'2.0.0',
 			'blaze_child/hide-cart-page/destination'
 		);
+	}
+
+	/**
+	 * True when there is no usable cart (null in admin, REST and before wp_loaded) or it holds nothing.
+	 *
+	 * @param mixed $cart WC()->cart.
+	 * @return bool
+	 */
+	private static function is_empty_cart( $cart ): bool {
+		return ! is_object( $cart ) || $cart->is_empty();
 	}
 
 	/**
@@ -158,7 +174,11 @@ class Module extends \Blaze\Child\Core\Module {
 		}
 
 		foreach ( $items as $key => $item ) {
-			if ( is_object( $item ) && 'page' === ( $item->object ?? '' ) && $cart_page_id === (int) ( $item->object_id ?? 0 ) ) {
+			if ( ! is_object( $item ) ) {
+				continue;
+			}
+			$item_page_id = (int) ( $item->object_id ?? 0 );
+			if ( 'page' === ( $item->object ?? '' ) && $item_page_id === $cart_page_id ) {
 				unset( $items[ $key ] );
 			}
 		}

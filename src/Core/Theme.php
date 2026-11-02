@@ -39,7 +39,10 @@ final class Theme {
 			FailClosed::arm( 'critical_module_failed' );
 		}
 
-		self::record_orphans( $skipped, $booted );
+		// Only when v1's loader actually ran: otherwise it never loaded those files and nothing was lost.
+		if ( ! SiteLayer::config_failed() && $registry->enabled_before_site_code( 'legacy-v1', $config['modules'] ) ) {
+			self::record_orphans( $skipped, $booted );
+		}
 
 		Assets::register( $booted );
 		add_action( 'admin_notices', [ self::class, 'admin_notices' ] );

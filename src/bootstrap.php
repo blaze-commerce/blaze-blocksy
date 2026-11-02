@@ -24,16 +24,16 @@ if ( ! defined( 'BLAZE_CHILD_URL' ) ) {
  * Blaze\Child\Modules\<Studly>\<Rest> -> modules/<kebab>/<Rest>.php
  * Blaze\Child\<Rest>                  -> src/<Rest>.php
  *
- * @param string $class Fully qualified class name.
+ * @param string $class_name Fully qualified class name.
  * @return string|null
  */
-function blaze_child_autoload_path( string $class ): ?string {
+function blaze_child_autoload_path( string $class_name ): ?string {
 	$prefix = 'Blaze\\Child\\';
-	if ( 0 !== strpos( $class, $prefix ) ) {
+	if ( 0 !== strpos( $class_name, $prefix ) ) {
 		return null;
 	}
 
-	$rest = substr( $class, strlen( $prefix ) );
+	$rest = substr( $class_name, strlen( $prefix ) );
 	$mod  = 'Modules\\';
 
 	if ( 0 === strpos( $rest, $mod ) ) {
@@ -51,11 +51,11 @@ function blaze_child_autoload_path( string $class ): ?string {
 /**
  * SPL autoload callback (a named function, no closure).
  *
- * @param string $class Fully qualified class name.
+ * @param string $class_name Fully qualified class name.
  * @return void
  */
-function blaze_child_autoload( string $class ): void {
-	$file = blaze_child_autoload_path( $class );
+function blaze_child_autoload( string $class_name ): void {
+	$file = blaze_child_autoload_path( $class_name );
 	if ( null !== $file && is_file( $file ) ) {
 		require_once $file;
 	}

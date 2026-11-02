@@ -24,7 +24,7 @@ final class Legacy {
 
 		foreach ( $map as $name => $value ) {
 			if ( ! defined( $name ) ) {
-				define( $name, $value );
+				define( $name, $value ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.VariableConstantNameFound -- the v1 BLOCKSY_CHILD_*/BLAZE_BLOCKSY_* names are the compatibility contract.
 			}
 		}
 	}

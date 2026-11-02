@@ -40,6 +40,11 @@
 		</properties>
 	</rule>
 
+	<!-- The slashed blaze_child/ hook prefix is a project-wide mandate (spec 4.7), so WPCS's underscore rule does not apply. -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<severity>0</severity>
+	</rule>
+
 	<!-- tools/ is CLI code run by CI and swamp, never by WordPress: plain PHP I/O and output are correct there. -->
 	<rule ref="WordPress.Security.EscapeOutput">
 		<exclude-pattern>*/tools/*</exclude-pattern>

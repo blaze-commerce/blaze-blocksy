@@ -364,3 +364,10 @@ bc_test( 'loader_skip_check_survives_non_array_filter_result', function () {
 		assert_same( in_array( 'inc/helpers.php', $out, true ), true, "loader still ran with filter result {$ret}" );
 	}
 } );
+
+bc_test( 'no_orphans_when_legacy_v1_is_off', function () {
+	// v1 never loaded the file, so nothing was lost even though the port did not boot.
+	$out = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [], "throw new \\RuntimeException( 'boom' );" ) + bc_lv1_inc_fixture(), "[ 'modules' => [ 'port-a' => true ] ]", BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [], 'legacy-v1 off' );
+	assert_same( in_array( 'module_failed', $out['codes'], true ), true, 'the failure itself is still recorded' );
+} );

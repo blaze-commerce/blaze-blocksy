@@ -297,15 +297,15 @@ final class ManifestGates {
 	 * Null when the source declares `<namespace>\Module extends Blaze\Child\Core\Module`, else [line, message].
 	 *
 	 * @param string $php       Source.
-	 * @param string $namespace Expected namespace.
+	 * @param string $expected_ns Expected namespace.
 	 * @return array{0:int,1:string}|null
 	 */
-	private static function class_error( string $php, string $namespace ): ?array {
+	private static function class_error( string $php, string $expected_ns ): ?array {
 		if ( ! preg_match( '/^\s*namespace\s+([^;{\s]+)\s*;/m', $php, $ns, PREG_OFFSET_CAPTURE ) ) {
-			return [ 1, "no namespace; expected {$namespace}" ];
+			return [ 1, "no namespace; expected {$expected_ns}" ];
 		}
-		if ( $ns[1][0] !== $namespace ) {
-			return [ Context::line_at( $php, $ns[0][1] ), "namespace {$ns[1][0]}; expected {$namespace}" ];
+		if ( $ns[1][0] !== $expected_ns ) {
+			return [ Context::line_at( $php, $ns[0][1] ), "namespace {$ns[1][0]}; expected {$expected_ns}" ];
 		}
 		if ( ! preg_match( '/^\s*(?:(?:final|abstract)\s+)?class\s+Module\s+extends\s+(\\\\?[A-Za-z_][A-Za-z0-9_\\\\]*)/m', $php, $cl, PREG_OFFSET_CAPTURE ) ) {
 			return [ 1, 'no "class Module extends ..." declaration' ];

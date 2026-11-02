@@ -50,7 +50,8 @@ final class Registry {
 		$out   = [];
 		$files = glob( $this->dir . '/*/module.json' );
 		foreach ( $files ? $files : [] as $file ) {
-			$dirname  = basename( dirname( $file ) );
+			$dirname = basename( dirname( $file ) );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local theme file, not a remote URL.
 			$manifest = json_decode( (string) file_get_contents( $file ), true );
 			$id       = is_array( $manifest ) && is_string( $manifest['id'] ?? null ) ? $manifest['id'] : '';
 

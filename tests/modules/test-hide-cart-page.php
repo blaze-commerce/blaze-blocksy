@@ -147,6 +147,25 @@ bc_test( 'legacy_constant_false_disables', function () {
 	assert_same( $out['health'], [], 'true records nothing' );
 } );
 
+bc_test( 'legacy_constant_falsy_disables', function () {
+	$out = bc_hcp_isolated( [ 'BLAZE_HIDE_CART_PAGE' => 0 ], "echo json_encode( [ 'hooks' => count( \$GLOBALS['bc_test_hooks'] ), 'codes' => array_column( Blaze\\Child\\Core\\Health::all(), 'code' ) ] );" );
+	assert_same( $out['hooks'], 0, 'v1 used ! BLAZE_HIDE_CART_PAGE: 0 is off too' );
+	assert_same( $out['codes'], [ 'deprecated_alias' ] );
+} );
+
+bc_test( 'site_destination_wins_over_legacy_constant', function () {
+	$body = "\$m2 = new Blaze\\Child\\Modules\\HideCartPage\\Module( json_decode( file_get_contents( %s . '/modules/hide-cart-page/module.json' ), true ), %s ); \$m2->boot();"
+		. "echo json_encode( [ 'url' => \$m2->destination(), 'msg' => array_column( Blaze\\Child\\Core\\Health::all(), 'message' ) ] );";
+	$root = var_export( dirname( __DIR__, 2 ), true );
+
+	$out = bc_hcp_isolated( [ 'BLAZE_HIDE_CART_PAGE_DESTINATION' => 'home' ], sprintf( $body, $root, var_export( [ 'destination' => 'shop' ], true ) ) );
+	assert_same( $out['url'], 'https://example.test/shop/', 'site setting beats the constant' );
+	assert_same( 1 === preg_match( '/constant is ignored/', implode( ' ', $out['msg'] ) ), true, 'message says the constant is ignored' );
+
+	$out = bc_hcp_isolated( [ 'BLAZE_HIDE_CART_PAGE_DESTINATION' => 'home' ], sprintf( $body, $root, var_export( [ 'destination' => 'auto' ], true ) ) );
+	assert_same( $out['url'], 'https://example.test/checkout/', 'an explicit auto also wins' );
+} );
+
 bc_test( 'legacy_destination_constant_maps_to_setting', function () {
 	$out = bc_hcp_isolated( [ 'BLAZE_HIDE_CART_PAGE_DESTINATION' => 'home' ], "echo json_encode( [ 'url' => \$m->destination(), 'codes' => array_column( Blaze\\Child\\Core\\Health::all(), 'code' ) ] );" );
 	assert_same( $out['url'], 'https://example.test/' );

@@ -184,7 +184,8 @@ final class Assets {
 			);
 			$deps = array_values( array_diff( $deps, [ 'jquery' ] ) );
 		}
-		$rel   = 'modules/' . $id . '/' . ltrim( $file, '/' );
+		$rel = 'modules/' . $id . '/' . ltrim( $file, '/' );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing asset is reported through Health below.
 		$mtime = @filemtime( self::$base_dir . $rel );
 		if ( false === $mtime ) {
 			Health::record(
@@ -220,10 +221,10 @@ final class Assets {
 	/**
 	 * Calls a conditional tag only when it exists (WooCommerce may be inactive).
 	 *
-	 * @param string $fn Function name.
+	 * @param string $function_name Function name.
 	 * @return bool
 	 */
-	private static function cond( string $fn ): bool {
-		return function_exists( $fn ) && (bool) $fn();
+	private static function cond( string $function_name ): bool {
+		return function_exists( $function_name ) && (bool) $function_name();
 	}
 }

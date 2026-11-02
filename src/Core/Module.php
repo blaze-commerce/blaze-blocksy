@@ -49,6 +49,16 @@ abstract class Module {
 	}
 
 	/**
+	 * True when site config sets this key explicitly (a manifest default does not count).
+	 *
+	 * @param string $key Setting key.
+	 * @return bool
+	 */
+	final public function has_site_setting( string $key ): bool {
+		return array_key_exists( $key, $this->settings );
+	}
+
+	/**
 	 * Site setting over manifest default, then the blaze_child/<id>/settings filter.
 	 *
 	 * @param string $key Setting key.
