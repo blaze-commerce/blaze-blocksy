@@ -147,7 +147,7 @@ final class Assets {
 	}
 
 	/**
-	 * Adds bc-m-<id> for each registered module.
+	 * Adds bc-m-<id> for each registered module except legacy-v1.
 	 *
 	 * @param mixed $classes Body classes.
 	 * @return mixed
@@ -157,7 +157,10 @@ final class Assets {
 			return $classes;
 		}
 		foreach ( self::$modules as $module ) {
-			$classes[] = 'bc-m-' . $module->id();
+			// R12: legacy-v1 promises zero render change, so it adds no body class.
+			if ( 'legacy-v1' !== $module->id() ) {
+				$classes[] = 'bc-m-' . $module->id();
+			}
 		}
 		return $classes;
 	}

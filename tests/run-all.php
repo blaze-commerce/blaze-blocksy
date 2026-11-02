@@ -10,9 +10,10 @@
 $failed = false;
 
 $suites = [
-	'perf'  => 'perf/run.php',
-	'core'  => 'core/run.php',
-	'tools' => 'tools/test-check.php',
+	'perf'    => 'perf/run.php',
+	'core'    => 'core/run.php',
+	'modules' => 'modules/run.php',
+	'tools'   => 'tools/test-check.php',
 ];
 
 foreach ( $suites as $suite => $script ) {

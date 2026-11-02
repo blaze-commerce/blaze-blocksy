@@ -137,29 +137,49 @@ final class Registry {
 	/**
 	 * Files legacy-v1 must not load because a ported module replaces them (R1).
 	 *
-	 * The union of `legacy.files` of every module other than legacy-v1 that is on by
-	 * enabled_before_site_code() (default + site config + kill switch; the module_enabled
-	 * filter cannot be consulted: site code has not loaded). Catalogue stubs (loadable: false)
-	 * have no replacement code, so they never skip anything.
+	 * The union of skip_files_by_module(), de-duplicated.
 	 *
 	 * @param array<string,bool> $site_modules Site config `modules`.
 	 * @return string[]
 	 */
 	public function skip_files( array $site_modules ): array {
 		$files = [];
+		foreach ( $this->skip_files_by_module( $site_modules ) as $module_files ) {
+			$files = array_merge( $files, $module_files );
+		}
+		return array_values( array_unique( $files ) );
+	}
+
+	/**
+	 * Which module put which v1 files on the skip list (R1, R13).
+	 *
+	 * Every module other than legacy-v1 that is on by enabled_before_site_code() (default + site config +
+	 * kill switch; the module_enabled filter cannot be consulted: site code has not loaded) contributes its
+	 * `legacy.files`. Catalogue stubs (loadable: false) have no replacement code, so they never skip anything.
+	 *
+	 * @param array<string,bool> $site_modules Site config `modules`.
+	 * @return array<string,string[]> Module id => its legacy.files.
+	 */
+	public function skip_files_by_module( array $site_modules ): array {
+		$by_module = [];
 		foreach ( $this->manifests() as $id => $manifest ) {
 			if ( 'legacy-v1' === $id || ( isset( $manifest['loadable'] ) && false === $manifest['loadable'] ) ) {
 				continue;
 			}
-			if ( $this->enabled_before_site_code( $id, $site_modules ) ) {
-				foreach ( (array) ( $manifest['legacy']['files'] ?? [] ) as $file ) {
-					if ( is_string( $file ) ) {
-						$files[] = $file;
-					}
+			if ( ! $this->enabled_before_site_code( $id, $site_modules ) ) {
+				continue;
+			}
+			$files = [];
+			foreach ( (array) ( $manifest['legacy']['files'] ?? [] ) as $file ) {
+				if ( is_string( $file ) ) {
+					$files[] = $file;
 				}
 			}
+			if ( $files ) {
+				$by_module[ $id ] = $files;
+			}
 		}
-		return array_values( array_unique( $files ) );
+		return $by_module;
 	}
 
 	/**

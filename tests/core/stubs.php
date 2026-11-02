@@ -96,6 +96,18 @@ if ( ! function_exists( 'wp_mail' ) ) {
 		return true;
 	}
 }
+if ( ! function_exists( 'apply_filters_deprecated' ) ) {
+	/**
+	 * Like core: runs the old hook (and records the deprecation) only when something is attached to it.
+	 */
+	function apply_filters_deprecated( $hook, $args, $version, $replacement = '', $message = '' ) {
+		if ( empty( $GLOBALS['bc_test_hooks'][ $hook ] ) ) {
+			return $args[0];
+		}
+		$GLOBALS['bc_core_store']['deprecated'][] = [ $hook, $version, $replacement ];
+		return apply_filters( $hook, ...$args );
+	}
+}
 if ( ! function_exists( 'get_bloginfo' ) ) {
 	function get_bloginfo( $show = '' ) {
 		return 'Test Site';

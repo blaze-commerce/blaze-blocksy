@@ -223,6 +223,12 @@ bc_test( 'stubs_not_loadable', function () {
 			assert_same( is_file( bc_lv1_root() . '/modules/legacy-v1/Module.php' ), true );
 			continue;
 		}
+		if ( 'stable' === $m['status'] ) {
+			// A real port replaced its stub in place: loadable, with PHP, still defaulting off.
+			assert_same( $m['loadable'], true, "{$id}: a port is loadable" );
+			assert_same( is_file( bc_lv1_root() . "/modules/{$id}/Module.php" ), true, "{$id}: a port has Module.php" );
+			continue;
+		}
 		assert_same( in_array( $m['status'], [ 'legacy', 'planned' ], true ), true, "{$id}: status legacy|planned" );
 		assert_same( $m['loadable'], false, "{$id}: loadable false" );
 		assert_same( is_file( bc_lv1_root() . "/modules/{$id}/Module.php" ), false, "{$id}: a stub has no PHP" );
@@ -287,4 +293,74 @@ bc_test( 'no_client_names_in_catalogue', function () {
 		}
 	}
 	assert_same( $hits, [], 'client names found' );
+} );
+
+/** Port fixture: manifest + a Module whose boot() does $boot_body. */
+function bc_lv1_port( string $id, string $studly, array $manifest, string $boot_body = '' ): array {
+	return [
+		"modules/{$id}/module.json" => json_encode( array_merge( [ 'id' => $id, 'loadable' => true, 'default' => false, 'legacy' => [ 'files' => [ "inc/{$id}.php" ] ] ], $manifest ) ),
+		"modules/{$id}/Module.php"  => "<?php namespace Blaze\\Child\\Modules\\{$studly}; defined( 'ABSPATH' ) || exit; class Module extends \\Blaze\\Child\\Core\\Module { public function boot(): void { {$boot_body} } }",
+	];
+}
+
+const BC_LV1_ORPHANS = "echo json_encode( [ 'codes' => array_column( Health::all(), 'code' ), 'orphans' => array_values( array_map( function ( \$e ) { return \$e['context']; }, array_filter( Health::all(), function ( \$e ) { return 'legacy_files_orphaned' === \$e['code']; } ) ) ), 'messages' => array_column( Health::all(), 'message' ) ] );";
+
+bc_test( 'orphaned_legacy_files_recorded_when_port_does_not_boot', function () {
+	$cfg = "[ 'modules' => [ 'legacy-v1' => true, 'port-a' => true ] ]";
+
+	// Booted fine: no orphan.
+	$out = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [] ) + bc_lv1_inc_fixture(), $cfg, BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [], 'a booted port orphans nothing' );
+
+	// requires unmet (WooCommerce class absent).
+	$out = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [ 'requires' => [ 'plugins' => [ 'woocommerce' => '>=9.0' ] ] ] ) + bc_lv1_inc_fixture(), $cfg, BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [ [ 'module' => 'port-a', 'files' => [ 'inc/port-a.php' ] ] ], 'requires_unmet' );
+	assert_same( in_array( 'requires_unmet', $out['codes'], true ), true, 'the existing health entry stays' );
+	assert_same( 1 === preg_match( '#port-a.*inc/port-a\\.php#', implode( ' ', $out['messages'] ) ), true, 'a message names the module and the skipped file' );
+
+	// Threw in boot().
+	$out = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [], "throw new \\RuntimeException( 'boom' );" ) + bc_lv1_inc_fixture(), $cfg, BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [ [ 'module' => 'port-a', 'files' => [ 'inc/port-a.php' ] ] ], 'threw' );
+	assert_same( in_array( 'module_failed', $out['codes'], true ), true );
+
+	// Filtered off by site code (the filter may switch a module off even though the skip list was computed on).
+	$site = [ 'site.php' => "<?php defined( 'ABSPATH' ) || exit; add_filter( 'blaze_child/module_enabled', function ( \$on, \$id ) { return 'port-a' === \$id ? false : \$on; }, 10, 2 );" ];
+	$out  = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [] ) + bc_lv1_inc_fixture(), $cfg, BC_LV1_ORPHANS, [], $site );
+	assert_same( $out['orphans'], [ [ 'module' => 'port-a', 'files' => [ 'inc/port-a.php' ] ] ], 'filtered off' );
+} );
+
+bc_test( 'orphaned_legacy_files_recorded_for_surface_clash_loser', function () {
+	$themes = bc_lv1_port( 'port-a', 'PortA', [ 'surfaces' => [ 's.one' ] ] ) + bc_lv1_port( 'port-b', 'PortB', [ 'surfaces' => [ 's.one' ] ] ) + bc_lv1_inc_fixture();
+	$out    = bc_lv1_boot( $themes, "[ 'modules' => [ 'legacy-v1' => true, 'port-a' => true, 'port-b' => true ] ]", BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [ [ 'module' => 'port-b', 'files' => [ 'inc/port-b.php' ] ] ], 'first in site order wins; the loser lost its v1 file with no replacement' );
+	assert_same( in_array( 'surface_clash', $out['codes'], true ), true );
+} );
+
+bc_test( 'module_with_no_legacy_files_never_orphans', function () {
+	$out = bc_lv1_boot( bc_lv1_port( 'port-a', 'PortA', [ 'legacy' => [ 'files' => [] ] ], "throw new \\RuntimeException( 'x' );" ) + bc_lv1_inc_fixture(), "[ 'modules' => [ 'legacy-v1' => true, 'port-a' => true ] ]", BC_LV1_ORPHANS );
+	assert_same( $out['orphans'], [] );
+} );
+
+bc_test( 'loader_skip_check_survives_non_array_filter_result', function () {
+	$real = file_get_contents( bc_lv1_root() . '/inc/loader.php' );
+	$base = sys_get_temp_dir() . '/bc_lv1_cast_' . uniqid();
+	@mkdir( $base . '/inc', 0777, true );
+	file_put_contents( $base . '/inc/loader.php', $real );
+	preg_match_all( "#'(inc/[a-z-]+\\.php)'#", $real, $m );
+	foreach ( array_unique( $m[1] ) as $f ) {
+		file_put_contents( "$base/$f", "<?php defined( 'ABSPATH' ) || exit; \$GLOBALS['loaded'][] = " . var_export( $f, true ) . ';'
+			. ( 'inc/helpers.php' === $f ? ' function blocksy_child_is_plugin_active( $p ) { return true; }' : '' ) );
+	}
+	// A site filter that returns null (or a string) must not turn into a TypeError in in_array().
+	foreach ( [ 'null', "'inc/carousel.php'" ] as $ret ) {
+		$out = bc_test_run_isolated(
+			"define( 'ABSPATH', '/' );\nini_set( 'error_log', '/dev/null' );\n"
+			. "define( 'BLOCKSY_CHILD_PATH', " . var_export( $base . '/', true ) . " );\n"
+			. "\$GLOBALS['loaded'] = [];\n"
+			. "function apply_filters( \$h, \$v ) { return {$ret}; }\n"
+			. "require BLOCKSY_CHILD_PATH . 'inc/loader.php';\n"
+			. "echo json_encode( \$GLOBALS['loaded'] );"
+		);
+		assert_same( in_array( 'inc/helpers.php', $out, true ), true, "loader still ran with filter result {$ret}" );
+	}
 } );

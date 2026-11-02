@@ -26,6 +26,7 @@ final class Theme {
 		$registry = new Registry( BLAZE_CHILD_PATH . 'modules' );
 
 		// R1: the skip list must answer before inc/loader.php runs (config + kill switch only).
+		$skipped          = $registry->skip_files_by_module( $config['modules'] );
 		self::$skip_files = $registry->skip_files( $config['modules'] );
 		add_filter( 'blaze_child/legacy_v1/skip_files', [ self::class, 'filter_skip_files' ] );
 
@@ -38,8 +39,33 @@ final class Theme {
 			FailClosed::arm( 'critical_module_failed' );
 		}
 
+		self::record_orphans( $skipped, $booted );
+
 		Assets::register( $booted );
 		add_action( 'admin_notices', [ self::class, 'admin_notices' ] );
+	}
+
+	/**
+	 * R13: v1 files were skipped for a module that then did not boot (filtered off, lost a surface clash,
+	 * failed `requires`, or threw). The feature is gone from the site, so say so.
+	 *
+	 * @param array<string,string[]> $skipped Registry::skip_files_by_module().
+	 * @param array<string,Module>   $booted  Registry::boot() result.
+	 * @return void
+	 */
+	private static function record_orphans( array $skipped, array $booted ): void {
+		foreach ( $skipped as $id => $files ) {
+			if ( ! isset( $booted[ $id ] ) ) {
+				Health::record(
+					'legacy_files_orphaned',
+					"Module '{$id}' did not boot but legacy-v1 skipped its files, so the feature is missing: " . implode( ', ', $files ),
+					[
+						'module' => $id,
+						'files'  => $files,
+					]
+				);
+			}
+		}
 	}
 
 	/**

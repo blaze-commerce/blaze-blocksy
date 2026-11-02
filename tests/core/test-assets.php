@@ -127,3 +127,10 @@ bc_test( 'wc_context_false_on_plain_page', function () {
 	$GLOBALS['bc_wp_stub']['is_cart'] = true;
 	assert_same( in_array( 'wc', Assets::contexts(), true ), true, 'cart implies wc' );
 } );
+
+bc_test( 'body_class_skips_legacy_v1', function () {
+	// R12: legacy-v1 promises zero render change, so it adds no bc-m-legacy-v1 class.
+	bc_as_reset();
+	Assets::register( [ 'legacy-v1' => bc_as_module( 'legacy-v1', [] ), 'a' => bc_as_module( 'a', [] ) ] );
+	assert_same( Assets::body_class( [ 'home' ] ), [ 'home', 'bc-m-a' ] );
+} );

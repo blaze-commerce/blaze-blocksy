@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function blocksy_child_load_module( $file ) {
 	// 2.x only: a ported module that replaces this file puts it on the skip list.
-	if ( in_array( $file, apply_filters( 'blaze_child/legacy_v1/skip_files', [] ), true ) ) {
+	if ( in_array( $file, (array) apply_filters( 'blaze_child/legacy_v1/skip_files', [] ), true ) ) {
 		return false;
 	}
 

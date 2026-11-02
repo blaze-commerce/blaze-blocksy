@@ -9,32 +9,7 @@
 
 require_once __DIR__ . '/stubs.php';
 
-$GLOBALS['bc_test_results'] = [
-	'pass' => 0,
-	'fail' => 0,
-];
-
-function bc_test( $name, $fn ) {
-	try {
-		$fn();
-		$GLOBALS['bc_test_results']['pass']++;
-		echo "PASS: {$name}\n";
-	} catch ( \Throwable $e ) {
-		$GLOBALS['bc_test_results']['fail']++;
-		echo "FAIL: {$name} -- {$e->getMessage()}\n";
-	}
-}
-
-function assert_same( $actual, $expected, $message = '' ) {
-	if ( $actual !== $expected ) {
-		throw new \RuntimeException( sprintf(
-			'%s (expected %s, got %s)',
-			'' !== $message ? $message : 'assert_same failed',
-			var_export( $expected, true ),
-			var_export( $actual, true )
-		) );
-	}
-}
+require_once __DIR__ . '/harness.php';
 
 $test_files = glob( __DIR__ . '/test-*.php' );
 sort( $test_files );
