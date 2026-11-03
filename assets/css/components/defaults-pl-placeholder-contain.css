@@ -1,0 +1,16 @@
+/**
+ * Default `pl-placeholder-contain` — no Performance Lab dominant-colour
+ * placeholder behind contain-fit product images.
+ *
+ * Performance Lab "Image Placeholders" paints img[data-dominant-color] with
+ * the image's dominant colour. With object-fit:contain (letterboxed
+ * packshots) that colour stays visible as bars beside the image after it
+ * loads. Product grids and the product gallery only.
+ *
+ * PROMOTED FROM: bulkwholesale custom/custom.css.
+ * @date 2026-10-31
+ */
+[data-products] img[data-dominant-color],
+.woocommerce-product-gallery img[data-dominant-color] {
+	background-color: transparent;
+}
