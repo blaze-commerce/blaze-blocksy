@@ -102,7 +102,10 @@ add_action( 'after_setup_theme', function () {
 	remove_action( 'woocommerce_before_checkout_form', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 100 );
 
 	// Re-add to fc_checkout_before_steps (inside .fc-inside).
-	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1 );
+	// accepted_args MUST be 0: fc_checkout_before_steps passes the WC_Checkout object, which
+	// output_checkout_progress_bar( $context = 'checkout' ) would take as $context, leaving
+	// the checkout form empty.
+	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_progress_bar' ), 1, 0 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_start_tag' ), 2 );
 	add_action( 'fc_checkout_before_steps', array( $steps, 'output_checkout_notices_wrapper_end_tag' ), 99 );
 }, 20 );
