@@ -1,0 +1,29 @@
+{
+  "id": "product-tabs",
+  "title": "Product tabs from ACF",
+  "description": "Renders ACF accordion fields as WooCommerce product tabs when both title and content are filled.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "pdp.tabs"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/product-tabs.php"
+    ]
+  }
+}

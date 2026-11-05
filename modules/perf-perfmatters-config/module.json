@@ -1,0 +1,29 @@
+{
+  "id": "perf-perfmatters-config",
+  "title": "Perfmatters config as code",
+  "description": "Supplies the perfmatters_options row from a shipped JSON file through option filters.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.perfmatters-config"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/perfmatters-config.php"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "gift-card-checkout-compat",
+  "title": "Gift card checkout compatibility",
+  "description": "Priority guard so a gift card coupon is validated before a smart coupon plugin can throw on it at checkout.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "checkout.gift-card-compat"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": true,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/gift-card-checkout-compat.php"
+    ]
+  }
+}

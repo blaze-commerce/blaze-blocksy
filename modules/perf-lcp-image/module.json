@@ -1,0 +1,29 @@
+{
+  "id": "perf-lcp-image",
+  "title": "LCP image",
+  "description": "Un-lazies the Largest Contentful Paint image, sets fetchpriority high and prints a matching preload.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.lcp-image"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/lcp-image.php"
+    ]
+  }
+}

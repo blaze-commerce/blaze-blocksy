@@ -1,0 +1,29 @@
+{
+  "id": "checkout-step-form",
+  "title": "Checkout step form",
+  "description": "Styles the checkout step form area and injects a guest description and newsletter opt-in via Fluid Checkout hooks.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "checkout.step-form"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": true,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/checkout-step-form.php"
+    ]
+  }
+}

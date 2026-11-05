@@ -1,0 +1,29 @@
+{
+  "id": "perf-async-styles",
+  "title": "Async plugin styles",
+  "description": "Loads non-critical plugin stylesheets without blocking render by swapping the media attribute on a handle list.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.async-styles"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/async-styles.php"
+    ]
+  }
+}

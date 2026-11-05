@@ -1,0 +1,4 @@
+<?php
+// Copied to a temp blaze-site/site-config.php by the test; kept as .broken so linters skip it.
+defined( 'ABSPATH' ) || exit;
+return [ 'modules' => [ ;

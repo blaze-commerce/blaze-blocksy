@@ -150,8 +150,10 @@ function esc_attr( $text ) {
 	return $text;
 }
 
+// Identity by default (the perf suite relies on it). An isolated subprocess that defines
+// BC_TEST_ESCAPE_HTML first gets real escaping, so it can assert output is escaped.
 function esc_html( $text ) {
-	return $text;
+	return defined( 'BC_TEST_ESCAPE_HTML' ) ? htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' ) : $text;
 }
 
 function esc_url( $text ) {
@@ -534,6 +536,8 @@ if ( ! function_exists( 'wp_add_inline_script' ) ) {
 if ( ! function_exists( 'wp_enqueue_script' ) ) {
 	function wp_enqueue_script( $handle, $src = '', $deps = [], $ver = false, $in_footer = false ) {
 		$GLOBALS['bc_wp_stub']['enqueued_scripts'][ $handle ] = [ $src, $deps, $ver, $in_footer ];
+		// Full-argument record for the core suite (tests/core/test-assets.php).
+		$GLOBALS['bc_core_store']['assets'][] = [ 'wp_enqueue_script', $handle, $src, $deps, $ver, $in_footer ];
 	}
 }
 
@@ -557,7 +561,7 @@ if ( ! function_exists( 'get_template' ) ) {
 
 if ( ! function_exists( 'esc_html__' ) ) {
 	function esc_html__( $text, $domain = 'default' ) {
-		return $text;
+		return esc_html( $text );
 	}
 }
 

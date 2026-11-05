@@ -1,0 +1,29 @@
+{
+  "id": "perf-rucss-safelist",
+  "title": "RUCSS safelist",
+  "description": "Keeps JS-hydrated markup styled through Perfmatters Remove Unused CSS with a generic selector safelist.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.rucss-safelist"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/rucss-safelist.php"
+    ]
+  }
+}

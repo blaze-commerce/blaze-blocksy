@@ -1,0 +1,29 @@
+{
+  "id": "perf-perfmatters-filters",
+  "title": "Perfmatters filters",
+  "description": "Code-side Perfmatters levers that exist only as PHP filters (click delay, background selectors, leading images).",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.perfmatters-filters"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/perfmatters-filters.php"
+    ]
+  }
+}

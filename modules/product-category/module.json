@@ -1,0 +1,26 @@
+{
+  "id": "product-category",
+  "title": "Product category",
+  "description": "Legacy line: product category archive tweaks.",
+  "status": "planned",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": []
+  },
+  "notes": "Legacy line only (tag v1.78.2-legacy): includes/customization/product-category.php"
+}

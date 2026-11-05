@@ -1,0 +1,1 @@
+# Fixture denylist: generic tokens only; tests supply invented client names through BLAZE_CLIENT_DENYLIST.

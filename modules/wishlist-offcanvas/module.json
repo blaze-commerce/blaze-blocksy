@@ -1,0 +1,29 @@
+{
+  "id": "wishlist-offcanvas",
+  "title": "Off-canvas wishlist",
+  "description": "Slide-out wishlist drawer rendered client-side from preloaded product JSON, styled to mirror the cart panel.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "drawer.wishlist"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/wishlist-offcanvas.php"
+    ]
+  }
+}

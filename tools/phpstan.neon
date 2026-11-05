@@ -1,0 +1,16 @@
+# PHPStan for v2 code only: src/, modules/ (stubs hold no PHP) and tools/. v1 inc/ is not analysed.
+# CI installs szepeviktor/phpstan-wordpress with phpstan/extension-installer (WordPress stubs) and
+# php-stubs/woocommerce-stubs (picked up by phpstan-stubs.php when present).
+includes:
+	- phpstan-stubs.php
+parameters:
+	level: 5
+	paths:
+		- ../src
+		- ../modules
+		- ../tools
+	excludePaths:
+		- ../modules/*/tests/*
+		- ../tools/*/fixtures/*
+	bootstrapFiles:
+		- phpstan-bootstrap.php

@@ -1,0 +1,29 @@
+{
+  "id": "product-slider",
+  "title": "Product slider shortcode",
+  "description": "Shortcode for product carousels using the native product loop template, with dots, arrows and responsive columns.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "shortcode.product-slider"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/product-slider.php"
+    ]
+  }
+}

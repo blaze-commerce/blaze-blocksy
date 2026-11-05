@@ -1,0 +1,1 @@
+{ "id": "beta", "title": "Beta", "loadable": true, "surfaces": ["shared.one"], "critical": true, "default": false, "requires": {}, "settings": {}, "replaces": [], "legacy": { "files": [] } }

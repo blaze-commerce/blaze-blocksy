@@ -1,0 +1,31 @@
+{
+  "id": "carousel",
+  "title": "Generic carousel shortcode",
+  "description": "Reusable carousel shortcode for logo and article carousels, reusing the product slider behaviour.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "shortcode.carousel"
+  ],
+  "provides": [
+    "component.carousel"
+  ],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/carousel.php"
+    ]
+  }
+}

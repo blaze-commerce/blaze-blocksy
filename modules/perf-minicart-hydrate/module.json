@@ -1,0 +1,29 @@
+{
+  "id": "perf-minicart-hydrate",
+  "title": "Mini cart hydrate",
+  "description": "Moves the empty-cart suggestions into an inert template hydrated on first intent and skips the no-op first cart-fragments request.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.minicart-hydrate"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/minicart-hydrate.php"
+    ]
+  }
+}

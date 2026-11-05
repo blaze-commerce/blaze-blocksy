@@ -1,0 +1,57 @@
+{
+  "id": "recently-viewed",
+  "title": "Recently viewed products",
+  "description": "PDP section below related products; the browser keeps the list and fills an empty, cache-safe container from the Store API.",
+  "status": "stable",
+  "loadable": true,
+  "owner": "jarutosurano",
+  "since": "2.0.0",
+  "surfaces": [
+    "pdp.recently-viewed"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {
+    "plugins": {
+      "woocommerce": ">=9.0"
+    }
+  },
+  "settings": {
+    "limit": {
+      "type": "integer",
+      "default": 8
+    },
+    "title": {
+      "type": "string",
+      "default": "Recently Viewed"
+    }
+  },
+  "assets": [
+    {
+      "file": "assets/recently-viewed.js",
+      "where": [
+        "pdp"
+      ],
+      "deps": []
+    },
+    {
+      "file": "assets/recently-viewed.css",
+      "where": [
+        "pdp"
+      ],
+      "deps": []
+    }
+  ],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/recently-viewed.php"
+    ]
+  }
+}

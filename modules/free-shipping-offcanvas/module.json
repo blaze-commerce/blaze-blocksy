@@ -1,0 +1,26 @@
+{
+  "id": "free-shipping-offcanvas",
+  "title": "Free shipping in drawer",
+  "description": "Legacy line: free shipping progress inside the off-canvas cart.",
+  "status": "planned",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": []
+  },
+  "notes": "Legacy line only (tag v1.78.2-legacy): includes/customization/free-shipping-offcanvas.php"
+}

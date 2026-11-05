@@ -1,0 +1,1 @@
+{ "id": "clash-a", "title": "Clash A", "loadable": true, "surfaces": ["clash.surface"], "default": false, "requires": {}, "settings": {}, "replaces": [], "legacy": { "files": [] } }

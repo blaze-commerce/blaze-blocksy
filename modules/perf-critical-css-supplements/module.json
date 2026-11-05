@@ -1,0 +1,29 @@
+{
+  "id": "perf-critical-css-supplements",
+  "title": "Critical CSS supplements",
+  "description": "Inlines first-paint rules that Perfmatters Remove Unused CSS drops (custom properties, desktop-only rules, JS-added markup).",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "perf.critical-css-supplements"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/perf/critical-css-supplements.php"
+    ]
+  }
+}

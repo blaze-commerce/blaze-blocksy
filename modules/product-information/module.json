@@ -1,0 +1,29 @@
+{
+  "id": "product-information",
+  "title": "Product information panel",
+  "description": "Three PDP items after add to cart (shipping calculator, returns, FAQ) that open a tabbed off-canvas panel.",
+  "status": "legacy",
+  "loadable": false,
+  "owner": "",
+  "since": "1.x",
+  "surfaces": [
+    "pdp.summary.after-atc"
+  ],
+  "provides": [],
+  "uses": [],
+  "critical": false,
+  "default": false,
+  "requires": {},
+  "settings": {},
+  "assets": [],
+  "hooks": {
+    "filters": [],
+    "actions": []
+  },
+  "replaces": [],
+  "legacy": {
+    "files": [
+      "inc/product-information.php"
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{ "id": "crit", "title": "Critical (fixture)", "loadable": true, "surfaces": [], "critical": true, "default": false, "requires": {}, "settings": {}, "replaces": [], "legacy": { "files": [] } }
