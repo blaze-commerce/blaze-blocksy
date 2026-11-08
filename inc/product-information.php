@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Tab configuration — add a line here to add a new tab.
  * ──────────────────────────────────────────────────────────────── */
 function bc_product_info_tabs() {
-	return [
+	$tabs = [
 		[
 			'slug'  => 'shipping',
 			'title' => 'Calculate Shipping',
@@ -28,16 +28,72 @@ function bc_product_info_tabs() {
 			'title'   => 'Return',
 			'icon'    => '<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
 			'type'    => 'page',
-			'page_id' => 7315,
+			// Looked up per site (see bc_product_info_tab_page()): WooCommerce's own
+			// Refund and Returns page setting first, then these slugs.
+			'option'  => 'woocommerce_refund_returns_page_id',
+			'slugs'   => [ 'refund_returns', 'returns-and-refunds', 'returns', 'refund-policy', 'refunds' ],
 		],
 		[
 			'slug'    => 'faqs',
 			'title'   => 'FAQ',
 			'icon'    => '<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" width="18" height="18"><g id="Circle_Info"><g><g><path d="M11.5,15a.5.5,0,0,0,1,0h0V10.981a.5.5,0,0,0-1,0Z"/><circle cx="12" cy="8.999" r="0.5"/></g><path d="M12,2.065A9.934,9.934,0,1,1,2.066,12,9.945,9.945,0,0,1,12,2.065Zm0,18.867A8.934,8.934,0,1,0,3.066,12,8.944,8.944,0,0,0,12,20.932Z"/></g></g></svg>',
 			'type'    => 'page',
-			'page_id' => 7244,
+			'slugs'   => [ 'faqs', 'faq' ],
 		],
 	];
+
+	/**
+	 * Filter the PDP product-information tabs.
+	 *
+	 * A 'page' tab can name its page with 'page_id', an 'option' holding a page ID,
+	 * or 'slugs' (first published match wins), checked in that order.
+	 *
+	 * @param array $tabs Tab definitions.
+	 */
+	$tabs = apply_filters( 'bc_product_info_tabs', $tabs );
+
+	// Drop page tabs whose page this site does not have, rather than show an empty pane.
+	return array_values(
+		array_filter(
+			$tabs,
+			function ( $tab ) {
+				return 'page' !== ( $tab['type'] ?? '' ) || bc_product_info_tab_page( $tab );
+			}
+		)
+	);
+}
+
+/**
+ * Resolve the published page a 'page' tab shows, or null.
+ *
+ * Page IDs differ per site, so tabs never hardcode one: an explicit 'page_id'
+ * (set through the bc_product_info_tabs filter), then the page ID stored in
+ * 'option', then the first published page matching 'slugs'.
+ *
+ * @param array $tab Tab definition.
+ * @return WP_Post|null
+ */
+function bc_product_info_tab_page( $tab ) {
+	$ids = [];
+	if ( ! empty( $tab['page_id'] ) ) {
+		$ids[] = (int) $tab['page_id'];
+	}
+	if ( ! empty( $tab['option'] ) ) {
+		$ids[] = (int) get_option( $tab['option'] );
+	}
+	foreach ( array_filter( $ids ) as $id ) {
+		$page = get_post( $id );
+		if ( $page && 'page' === $page->post_type && 'publish' === $page->post_status ) {
+			return $page;
+		}
+	}
+	foreach ( (array) ( $tab['slugs'] ?? [] ) as $slug ) {
+		$page = get_page_by_path( $slug );
+		if ( $page && 'publish' === $page->post_status ) {
+			return $page;
+		}
+	}
+	return null;
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -137,9 +193,9 @@ function bc_render_product_info_panel() {
 				. '</form>'
 				. '<div class="bc-shipping-results" aria-live="polite"></div>';
 
-		} elseif ( 'page' === $tab['type'] && ! empty( $tab['page_id'] ) ) {
-			$page = get_post( $tab['page_id'] );
-			if ( $page && 'publish' === $page->post_status ) {
+		} elseif ( 'page' === $tab['type'] ) {
+			$page = bc_product_info_tab_page( $tab );
+			if ( $page ) {
 				$pane_content = '<div class="bc-page-content">' . apply_filters( 'the_content', $page->post_content ) . '</div>';
 			}
 		}
