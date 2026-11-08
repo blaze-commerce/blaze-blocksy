@@ -23,8 +23,11 @@
    cannot set bottom-only spacing. This ensures breathing room between content
    and footer across all page types.
    @date 2026-03-11 */
+/* --bc-main-bottom-gap lets a site change the gap from a body class (e.g. 0 where
+   the design draws its own footer spacing) without a specificity fight.
+   @date 2026-10-31 */
 .site-main {
-	margin-bottom: 100px;
+	margin-bottom: var(--bc-main-bottom-gap, 100px);
 }
 
 /* ==========================================================================

@@ -56,6 +56,9 @@ body .dgwt-wcas-suggestions-wrapp {
     background: #fff;
     overflow-y: auto;
     max-height: calc(100vh - 150px) !important;
+    /* iPhone Safari: 100vh includes the area under the toolbar, which hid the
+       dropdown's bottom. Browsers without dvh drop this line and keep 100vh. @date 2026-10-31 */
+    max-height: calc(100dvh - 150px) !important;
     width: 100% !important;
     left: 0 !important;
     right: 0 !important;
