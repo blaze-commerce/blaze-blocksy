@@ -2,11 +2,20 @@
 /**
  * Recently Viewed Products — PDP section below Related Products.
  *
- * Reads the WooCommerce `woocommerce_recently_viewed` cookie (set natively
- * by WC's wc_track_product_view on every product page visit) and renders
- * a product grid matching the Related Products layout.
+ * Cache-safe: product pages are usually full-page cached (Kinsta, WP Rocket,
+ * LiteSpeed, ...), which (a) never runs PHP on a cache hit and drops any
+ * Set-Cookie it sent on the miss, and (b) would serve the first visitor's
+ * list to everyone if the row were rendered into the page. So:
  *
- * No plugin dependency — uses WooCommerce core cookie + standard product query.
+ *   1. assets/js/recently-viewed.js keeps WooCommerce's
+ *      `woocommerce_recently_viewed` cookie (ids joined by "|", oldest
+ *      first, max 15) in the browser, on every product view.
+ *   2. The page only prints an empty slot.
+ *   3. The JS fills the slot from ?wc-ajax=bc_recently_viewed&ids=..., whose
+ *      output depends only on its URL, so a cached copy is still correct.
+ *
+ * The cookie name and format match WooCommerce's, so the Recently Viewed
+ * widget/block and inc/mini-cart-empty.php keep reading it.
  *
  * @package Blocksy_Child
  */
@@ -16,43 +25,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /* ────────────────────────────────────────────────────────────────
- * 1. Track product views — set the woocommerce_recently_viewed cookie.
- *
- * WooCommerce's native wc_track_product_view() only runs when the
- * "Recently Viewed Products" WIDGET is active in a sidebar. We don't
- * use that widget, so we set the cookie ourselves.
+ * 1. Enqueue the tracker / loader on product pages.
  * ──────────────────────────────────────────────────────────────── */
-add_action( 'template_redirect', 'bc_track_product_view', 21 );
+add_action( 'wp_enqueue_scripts', 'bc_enqueue_recently_viewed' );
 
-function bc_track_product_view() {
-	if ( ! is_singular( 'product' ) ) {
+function bc_enqueue_recently_viewed() {
+	if ( ! is_product() ) {
 		return;
 	}
 
-	global $post;
-
-	if ( empty( $_COOKIE['woocommerce_recently_viewed'] ) ) {
-		$viewed_products = [];
-	} else {
-		$viewed_products = wp_parse_id_list(
-			explode( '|', sanitize_text_field( wp_unslash( $_COOKIE['woocommerce_recently_viewed'] ) ) )
-		);
+	$js = BLOCKSY_CHILD_PATH . 'assets/js/recently-viewed.js';
+	if ( ! file_exists( $js ) ) {
+		return;
 	}
 
-	// Remove if already in list (will be re-added at end).
-	$keys = array_flip( $viewed_products );
-	if ( isset( $keys[ $post->ID ] ) ) {
-		unset( $viewed_products[ $keys[ $post->ID ] ] );
-	}
-
-	$viewed_products[] = $post->ID;
-
-	// Keep max 15 products.
-	if ( count( $viewed_products ) > 15 ) {
-		array_shift( $viewed_products );
-	}
-
-	wc_setcookie( 'woocommerce_recently_viewed', implode( '|', $viewed_products ) );
+	wp_enqueue_script(
+		'blocksy-child-recently-viewed',
+		BLOCKSY_CHILD_URL . 'assets/js/recently-viewed.js',
+		[],
+		filemtime( $js ),
+		true
+	);
+	wp_localize_script( 'blocksy-child-recently-viewed', 'bcRecentlyViewed', [
+		'endpoint' => WC_AJAX::get_endpoint( 'bc_recently_viewed' ),
+		'max'      => 15,
+		// Same path/domain WooCommerce's wc_setcookie() uses, so there is one cookie, not two.
+		'path'     => COOKIEPATH ? COOKIEPATH : '/',
+		'domain'   => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+	] );
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -74,38 +74,55 @@ add_action( 'blocksy:woocommerce:product-single:related:after', 'bc_render_recen
 add_action( 'woocommerce_after_main_content', 'bc_render_recently_viewed_products', 10 );
 
 /**
- * Prevent double rendering.
+ * Print the empty slot recently-viewed.js fills (once per page).
  */
 function bc_render_recently_viewed_products() {
 	static $rendered = false;
 
-	if ( $rendered ) {
+	if ( $rendered || ! is_product() ) {
 		return;
 	}
 
-	if ( ! is_product() ) {
-		return;
-	}
+	$rendered = true;
 
-	// Read WooCommerce's native recently viewed cookie.
-	// Refactored to bc_get_recently_viewed_cookie() helper (audit P1 2026-05-08).
-	$viewed_ids = bc_get_recently_viewed_cookie();
-	if ( empty( $viewed_ids ) ) {
-		return;
-	}
-
-	if ( empty( $viewed_ids ) ) {
-		return;
-	}
-
-	// Exclude the current product.
 	global $product;
-	if ( $product instanceof \WC_Product ) {
-		$viewed_ids = array_diff( $viewed_ids, [ $product->get_id() ] );
-	}
+	$product_id = $product instanceof \WC_Product ? $product->get_id() : get_the_ID();
+
+	echo '<div class="bc-recently-viewed-slot" data-product-id="' . esc_attr( $product_id ) . '"></div>';
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * 3. AJAX endpoint: ?wc-ajax=bc_recently_viewed&ids=12,34&exclude=56
+ *
+ * The ids come from the URL (the browser's cookie, read by the JS), not
+ * from $_COOKIE, so the response is a pure function of the URL and stays
+ * correct even if a cache in front of the site stores it.
+ * ──────────────────────────────────────────────────────────────── */
+add_action( 'wc_ajax_bc_recently_viewed', 'bc_ajax_recently_viewed' );
+
+function bc_ajax_recently_viewed() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- public, read-only.
+	$ids     = isset( $_GET['ids'] ) ? wp_parse_id_list( wp_unslash( $_GET['ids'] ) ) : [];
+	$exclude = isset( $_GET['exclude'] ) ? absint( $_GET['exclude'] ) : 0;
+	// phpcs:enable
+
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
+	echo bc_recently_viewed_markup( array_slice( $ids, -15 ), $exclude );
+	wp_die();
+}
+
+/**
+ * The Recently Viewed section for a list of product IDs.
+ *
+ * @param int[] $viewed_ids Product IDs, oldest first (cookie order).
+ * @param int   $exclude    Current product ID.
+ * @return string HTML, or '' when there is nothing to show.
+ */
+function bc_recently_viewed_markup( $viewed_ids, $exclude = 0 ) {
+	$viewed_ids = array_diff( array_map( 'absint', $viewed_ids ), [ (int) $exclude, 0 ] );
 
 	if ( empty( $viewed_ids ) ) {
-		return;
+		return '';
 	}
 
 	// Limit to most recent 8, reverse so newest first.
@@ -123,10 +140,10 @@ function bc_render_recently_viewed_products() {
 	$products = new \WP_Query( $args );
 
 	if ( ! $products->have_posts() ) {
-		return;
+		return '';
 	}
 
-	$rendered = true;
+	ob_start();
 
 	// Match Blocksy's related products column settings.
 	$columns = blocksy_expand_responsive_value(
@@ -175,4 +192,6 @@ function bc_render_recently_viewed_products() {
 	echo '</section>';
 
 	wp_reset_postdata();
+
+	return ob_get_clean();
 }

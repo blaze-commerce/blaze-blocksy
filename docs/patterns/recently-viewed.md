@@ -20,7 +20,9 @@
 blocksy-child/
 ├── inc/
 │   ├── loader.php              ← MODIFIED: loads recently-viewed.php
-│   └── recently-viewed.php     ← NEW: cookie tracking + product grid render
+│   └── recently-viewed.php     ← slot + wc-ajax endpoint + product grid render
+├── assets/js/
+│   └── recently-viewed.js      ← cookie tracking + loads the row into the slot
 └── docs/patterns/
     └── recently-viewed.md      ← This file
 ```
@@ -29,15 +31,13 @@ blocksy-child/
 
 ## How It Works
 
-### 1. Cookie Tracking (`bc_track_product_view`)
+### 1. Cookie Tracking (`assets/js/recently-viewed.js`)
 
-Hooked on `template_redirect` at priority 21 (after WC's native tracker at 20).
+Done in the browser, not PHP. Product pages are full-page cached on our hosts (Kinsta): a cache hit never runs PHP, and the miss that fills the cache has its `Set-Cookie` stripped. The old `template_redirect` tracker therefore never recorded anything on a cached site.
 
-- Reads existing `woocommerce_recently_viewed` cookie
-- Appends current product ID
-- Keeps max 15 products
-- Sets cookie via `wc_setcookie()`
-- No widget dependency — runs on every `is_singular('product')` page
+- Reads the `woocommerce_recently_viewed` cookie (WooCommerce's own name and format: IDs joined by `|`, oldest first)
+- Moves the current product to the end, keeps max 15
+- Writes it back with `COOKIEPATH` / `COOKIE_DOMAIN` (same as `wc_setcookie()`), so the WC widget/block and `inc/mini-cart-empty.php` still read it
 
 **Why we can't rely on WC's native tracking:** WooCommerce's `wc_track_product_view()` has this guard:
 ```php
@@ -46,19 +46,20 @@ if ( ! is_singular( 'product' ) || ! is_active_widget( false, false, 'woocommerc
 }
 ```
 
-### 2. Rendering (`bc_render_recently_viewed_products`)
+### 2. Rendering (slot + `?wc-ajax=bc_recently_viewed`)
 
-Hooked on:
+`bc_render_recently_viewed_products` only prints an empty `<div class="bc-recently-viewed-slot" data-product-id="…">`. Rendering the row into the page would cache the first visitor's list for everyone. Hooked on:
 - `blocksy:woocommerce:product-single:related:after` (Blocksy's hook, fires after Related Products)
 - `woocommerce_after_main_content` at priority 10 (fallback)
 - Uses `static $rendered` flag to prevent double rendering
 
-**Rendering logic:**
-1. Reads `woocommerce_recently_viewed` cookie
-2. Excludes the current product
-3. Limits to 8 most recent (newest first)
-4. Queries published products via `WP_Query`
-5. Renders using Blocksy's exact HTML structure (matching Related Products)
+The JS then fetches `?wc-ajax=bc_recently_viewed&ids=<cookie ids>&exclude=<current>`. The IDs travel in the URL, so the response depends only on the URL and is still correct if something caches it. `bc_recently_viewed_markup()`:
+1. Excludes the current product
+2. Limits to 8 most recent (newest first)
+3. Queries published products via `WP_Query`
+4. Renders using Blocksy's exact HTML structure (matching Related Products)
+
+After injecting, the JS triggers `blocksy:frontend:init` (Blocksy mounts the Flexy carousel) and `bc:recently-viewed:loaded` (`product-carousel-dots.js` adds its dots).
 
 **HTML structure matches Related Products exactly:**
 ```html
