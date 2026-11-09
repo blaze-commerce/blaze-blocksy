@@ -1673,6 +1673,10 @@ span.out-of-stock-badge,
 .ct-cart-actions > .quantity[data-type='type-2'] .ct-increase::before {
 	content: '+' !important;
 }
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-increase > svg,
+.ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease > svg {
+	display: none !important; /* Blocksy 2.1.59+ SVG; this file draws the glyph (z8udzkq2ge) */
+}
 .ct-cart-actions > .quantity[data-type='type-2'] .ct-decrease:hover,
 .ct-cart-actions > .quantity[data-type='type-2'] .ct-increase:hover {
 	background: var(--theme-border-color, #e5e5e5) !important;
