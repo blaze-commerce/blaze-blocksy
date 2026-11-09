@@ -5,7 +5,7 @@
 - `clients/byronbay/byronbay.css`: the same fix for the `.ct-cart-actions` stepper.
 
 ### Context
-- Reported by Byron Bay Candles on 2026-11-09, after the 2026-10-29 WPM took Blocksy from 2.1.53 to 2.1.60. BBC LIVE is already patched in `bc-site-customizations` (#1795, #1796).
+- Reported by Byron Bay Candles on 2026-11-09, after the 2026-10-29 WPM took Blocksy from 2.1.57 to 2.1.60. BBC LIVE is already patched in `bc-site-customizations` (#1795, #1796).
 - Every site on this child theme is affected once it reaches Blocksy 2.1.59+. The theme deploys by hand per site, so each site needs this change copied to its server; the sweep task tracks that.
 
 ## [perf-modules-2026-09-28] - 2026-09-28
