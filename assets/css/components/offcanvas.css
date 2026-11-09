@@ -416,6 +416,18 @@
 	line-height: 1;
 }
 
+/* Blocksy 2.1.59+ renders its own inline SVG +/− inside .ct-increase /
+   .ct-decrease. With the ::before glyphs above, customers saw "−−" / "++"
+   (Byron Bay Candles, 2026-11-09, ClickUp z8udzkq2ge). Hide Blocksy's SVG
+   wherever this file draws the glyph. Lives in the same file as the glyph so
+   both always load together (Perfmatters delays stylesheets). */
+#woo-cart-panel .ct-product-actions > .quantity .ct-increase > svg,
+#woo-cart-panel .ct-product-actions > .quantity .ct-decrease > svg,
+.woocommerce-mini-cart .ct-product-actions > .quantity .ct-increase > svg,
+.woocommerce-mini-cart .ct-product-actions > .quantity .ct-decrease > svg {
+	display: none !important;
+}
+
 /* ==========================================================================
    Mini cart Checkout button — full width — CU-86exbd8en (2026-04-28).
 
